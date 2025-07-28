@@ -14,46 +14,61 @@
             display: block; 
         }
         
-        /* --- ANGEPASSTES UI --- */
+        /* --- NEU: Info-Box für Bauteil-Details --- */
+        #info-box {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: rgba(255, 255, 255, 0.85); /* Leichter Hintergrund für Lesbarkeit */
+            color: #0000ff; /* Blaue Schrift */
+            padding: 12px;
+            border-radius: 5px;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+            z-index: 101;
+            display: none; /* Standardmäßig ausgeblendet */
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            pointer-events: none; /* Verhindert, dass die Box Klicks abfängt */
+        }
+        
+        /* UI für die Reparatur (unten) */
         #ui {
             position: absolute;
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            
-            /* Neues Design */
-            background-color: #000000; /* Schwarzes Feld */
-            color: white; /* Weiße Schrift */
-            border-radius: 0; /* Keine abgerundeten Ecken */
-            
-            /* Flexbox-Layout für Buttons und Text */
+            background-color: #000000;
+            color: white;
+            border-radius: 0;
             display: flex;
             align-items: center;
             justify-content: space-between;
-
             padding: 10px 15px;
             font-family: 'Helvetica Neue', Arial, sans-serif;
             width: 90%;
-            max-width: 450px; /* Etwas schmaler */
+            max-width: 450px;
             box-sizing: border-box;
             z-index: 100;
         }
         #step-text {
             flex-grow: 1;
-            margin: 0 15px; /* Abstand zu den Buttons */
-            font-size: 14px; /* Kleinere Schrift */
+            margin: 0 15px;
+            font-size: 14px;
             line-height: 1.4;
             text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         
-        /* Gemeinsamer Stil für beide Buttons */
         #prev-button,
         #next-button {
             flex-shrink: 0;
             background: transparent;
             border: none;
             color: white;
-            font-size: 24px; /* Größe der Pfeile */
+            font-size: 24px;
             font-weight: bold;
             padding: 5px 10px;
             cursor: pointer;
@@ -62,20 +77,22 @@
 
         #prev-button:hover,
         #next-button:hover {
-            color: #999999; /* Leichter Hover-Effekt */
+            color: #999999;
         }
     </style>
 </head>
 <body>
+    
+    <!-- NEUES HTML-Element für die Info-Anzeige -->
+    <div id="info-box"></div>
 
-    <!-- Angepasste UI-Struktur mit zwei Buttons -->
+    <!-- UI für Reparatur-Anleitung -->
     <div id="ui">
-        <button id="prev-button"><</button>
-        <p id="step-text">Klicken Sie auf einen Pfeil, um die Reparatur zu beginnen.</p>
-        <button id="next-button">></button>
+        <button id="prev-button">←</button>
+        <p id="step-text">Klicken Sie ein Bauteil an oder starten Sie die Reparatur.</p>
+        <button id="next-button">→</button>
     </div>
 
-    <!-- Three.js Module importieren -->
     <script type="importmap">
     {
         "imports": {
@@ -90,7 +107,6 @@
         import * as THREE from 'three';
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-        // --- DATENBLOCK 1: STUHL-GEOMETRIE ---
         const chairData = {
           "parts": [
             { "id": "front_left_leg", "origin": {"x": -0.250, "y": -0.245, "z": 0.008}, "dimensions": {"width": 0.030, "depth": 0.045, "height": 0.426} },
@@ -110,25 +126,33 @@
           ]
         };
         
-        // --- DATENBLOCK 2: REPARATUR-ANLEITUNG ---
         const repairData = [
-            { "text": "Beginnen: Das vordere linke Bein hat einen tiefen Kratzer. Mit Schleifpapier vorbereiten.", "partId": "front_left_leg", "damagePosition": [-0.235, 0.2, 0.20] },
-            { "text": "Nächster Schritt: Die Sitzfläche ist an der Kante abgesplittert. Holzspachtel auftragen.", "partId": "seat", "damagePosition": [-0.1, -0.24, 0.437] },
-            { "text": "Final: Der Gleiter unter dem vorderen rechten Bein fehlt. Neuen Gleiter montieren.", "partId": "front_right_glider", "damagePosition": [0.235, -0.2225, 0.004] }
+            { "text": "Kratzer am vorderen linken Bein abschleifen.", "partId": "front_left_leg", "damagePosition": [-0.235, 0.2, 0.20] },
+            { "text": "Absplitterung an der Sitzfläche mit Holzspachtel füllen.", "partId": "seat", "damagePosition": [-0.1, -0.24, 0.437] },
+            { "text": "Fehlenden Gleiter am vorderen rechten Bein montieren.", "partId": "front_right_glider", "damagePosition": [0.235, -0.2225, 0.004] }
         ];
 
         let scene, camera, renderer, controls;
         const chairPartsMap = new Map();
         let damageSpheres = [];
         let highlightedObject = { part: null, dot: null };
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        
+        let currentStep = -1;
+        let stepText, infoBox; // UI-Elemente
 
         // --- MATERIALIEN ---
         const defaultMaterial = new THREE.MeshStandardMaterial({ color: 0x666666, transparent: true, opacity: 0.5, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
         const highlightMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000, transparent: true, opacity: 0.8, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
+        const selectionMaterial = new THREE.MeshStandardMaterial({ color: 0x0000ff, transparent: true, opacity: 0.9, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 }); // Blau für Klick-Auswahl
         const outlineMaterial = new THREE.LineBasicMaterial({ color: 0x333333 });
         const dotMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
 
         function init() {
+            stepText = document.getElementById('step-text');
+            infoBox = document.getElementById('info-box'); // Info-Box referenzieren
+
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0xffffff);
 
@@ -151,21 +175,20 @@
 
             createChair();
             createDamageDots();
-            setupUI(); // Diese Funktion wurde angepasst
+            setupUI();
             
             window.addEventListener('resize', onWindowResize);
+            renderer.domElement.addEventListener('click', onObjectClick);
         }
 
         function createChair() {
             chairData.parts.forEach(part => {
-                const w = part.dimensions.width;
-                const d = part.dimensions.depth;
-                const h = part.dimensions.height;
-                const geometry = new THREE.BoxGeometry(w, h, d);
-                
+                const geometry = new THREE.BoxGeometry(part.dimensions.width, part.dimensions.height, part.dimensions.depth);
                 const box = new THREE.Mesh(geometry, defaultMaterial);
-                const position = new THREE.Vector3(part.origin.x + w / 2, part.origin.z + h / 2, part.origin.y + d / 2);
+                const position = new THREE.Vector3(part.origin.x + part.dimensions.width / 2, part.origin.z + part.dimensions.height / 2, part.origin.y + part.dimensions.depth / 2);
                 box.position.copy(position);
+                box.userData.id = part.id;
+                
                 scene.add(box);
                 chairPartsMap.set(part.id, box);
 
@@ -187,41 +210,71 @@
             });
         }
 
-        // --- ANGEPASSTE UI-LOGIK ---
         function setupUI() {
-            const stepText = document.getElementById('step-text');
             const nextButton = document.getElementById('next-button');
-            const prevButton = document.getElementById('prev-button'); // Neuer Button
-            let currentStep = -1;
+            const prevButton = document.getElementById('prev-button');
 
-            const updateStepUI = () => {
-                 if (currentStep === -1) {
-                    highlightStep(null);
-                    stepText.innerText = "Reparatur abgeschlossen. Zum Neustart klicken.";
-                } else {
-                    highlightStep(currentStep);
-                    stepText.innerText = repairData[currentStep].text;
-                }
-            };
-            
-            // Start-Text anpassen
-            stepText.innerText = "Klicken Sie auf einen Pfeil, um die Reparatur zu beginnen.";
-
-            nextButton.addEventListener('click', () => {
+            nextButton.addEventListener('click', (event) => {
+                event.stopPropagation(); // Verhindert, dass der Klick zur Szene durchdringt
                 currentStep++;
-                if (currentStep >= repairData.length) {
-                    currentStep = -1; // Schleife zurück zum Anfang
-                }
+                if (currentStep >= repairData.length) currentStep = -1;
                 updateStepUI();
             });
 
-            prevButton.addEventListener('click', () => {
+            prevButton.addEventListener('click', (event) => {
+                event.stopPropagation();
                 currentStep--;
-                if (currentStep < -1) {
-                    currentStep = repairData.length - 1; // Schleife zum Ende
-                }
-                 updateStepUI();
+                if (currentStep < -1) currentStep = repairData.length - 1;
+                updateStepUI();
             });
+        }
+        
+        function updateStepUI() {
+            // Setzt alle Hervorhebungen auf den Reparatur-Status zurück
+            highlightStep(currentStep); 
+            // Blendet die Info-Box aus, wenn die Reparatur-Navigation genutzt wird
+            infoBox.style.display = 'none'; 
+            
+            if (currentStep === -1) {
+                stepText.innerText = "Reparatur abgeschlossen.";
+            } else {
+                stepText.innerText = repairData[currentStep].text;
+            }
+        }
+
+        function onObjectClick(event) {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+            raycaster.setFromCamera(mouse, camera);
+            
+            const intersects = raycaster.intersectObjects(Array.from(chairPartsMap.values()));
+
+            // Setzt zuerst alle Hervorhebungen auf den normalen Reparatur-Zustand zurück
+            highlightStep(currentStep);
+            
+            if (intersects.length > 0) {
+                const clickedObject = intersects[0].object;
+                const partId = clickedObject.userData.id;
+                
+                // Hebt das angeklickte Objekt blau hervor
+                clickedObject.material = selectionMaterial;
+                
+                // Sucht die Daten zum angeklickten Bauteil
+                const partData = chairData.parts.find(p => p.id === partId);
+                if (partData) {
+                    const dims = partData.dimensions;
+                    const orig = partData.origin;
+                    
+                    // Erstellt den Text für die Info-Box
+                    infoBox.innerHTML = `<b>Bauteil:</b> ${partId.replace(/_/g, ' ')}<br>` +
+                                      `<b>Maße (B×H×T):</b> ${(dims.width*100).toFixed(1)} × ${(dims.height*100).toFixed(1)} × ${(dims.depth*100).toFixed(1)} cm<br>` +
+                                      `<b>Position (X,Y,Z):</b> ${orig.x.toFixed(3)}, ${orig.y.toFixed(3)}, ${orig.z.toFixed(3)}`;
+                    infoBox.style.display = 'block'; // Blendet die Info-Box ein
+                }
+            } else {
+                // Wenn nichts getroffen wurde, wird die Info-Box ausgeblendet
+                infoBox.style.display = 'none';
+            }
         }
 
         function highlightStep(stepIndex) {
@@ -254,7 +307,7 @@
         function animate() {
             requestAnimationFrame(animate);
 
-            if (highlightedObject.dot) {
+            if (highlightedObject.dot && highlightedObject.dot.visible) {
                 const time = Date.now() * 0.008;
                 const scale = 1 + Math.sin(time) * 0.5;
                 highlightedObject.dot.scale.set(scale, scale, scale);
