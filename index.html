@@ -111,8 +111,8 @@
         let highlightedObject = { part: null, dot: null };
 
         // --- MATERIALIEN ---
-        const defaultMaterial = new THREE.MeshStandardMaterial({ color: 0x666666, transparent: true, opacity: 0.9, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
-        const highlightMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000, transparent: true, opacity: 0.9, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
+        const defaultMaterial = new THREE.MeshStandardMaterial({ color: 0x666666, transparent: true, opacity: 0.5, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
+        const highlightMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000, transparent: true, opacity: 0.5, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
         const outlineMaterial = new THREE.LineBasicMaterial({ color: 0x333333 }); // Material für die Outlines
         const dotMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
 
@@ -120,7 +120,7 @@
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0xffffff);
 
-            camera = new THREE.PerspectiveCamera(150, window.innerWidth / window.innerHeight, 0.1, 100);
+            camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 100);
             camera.position.set(0.8, 0.8, 1.2);
 
             renderer = new THREE.WebGLRenderer({ antialias: true });
