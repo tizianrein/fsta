@@ -18,16 +18,19 @@
             position: absolute;
             top: 20px;
             left: 20px;
-            background-color: none;
-            color: #0000ff;
+            /* Hintergrund und Schatten aus Ihrer Version für minimalistischen Look */
+            background-color: none; 
+            box-shadow: none;
+            /* Text-Schatten für bessere Lesbarkeit auf dem 3D-Modell hinzugefügt */
+            text-shadow: none;
+            
             padding: 12px;
             border-radius: 5px;
             font-family: 'Helvetica Neue', Arial, sans-serif;
-            font-size: 14px;
+            font-size: 15px; /* Etwas größer für bessere Lesbarkeit */
             line-height: 1.5;
             z-index: 101;
             display: none;
-            box-shadow: none;
             pointer-events: none;
         }
         
@@ -50,14 +53,12 @@
             z-index: 100;
         }
         
-        /* --- KORRIGIERTES CSS --- */
         #step-text {
             flex-grow: 1;
             margin: 0 15px;
             font-size: 14px;
             line-height: 1.4;
             text-align: center;
-            /* Die für die Kürzung verantwortlichen Zeilen wurden entfernt, um Textumbruch zu ermöglichen */
         }
         
         #prev-button,
@@ -150,19 +151,15 @@
 
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0xffffff);
-
             camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
             camera.position.set(-0.8, 0.8, -1.2);
-
             renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
             renderer.setSize(window.innerWidth, window.innerHeight);
             document.body.appendChild(renderer.domElement);
-
             controls = new OrbitControls(camera, renderer.domElement);
             controls.target.set(0, 0.76 / 2, 0); 
             controls.enableDamping = true;
-
             scene.add(new THREE.AmbientLight(0xdddddd));
             const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
             directionalLight.position.set(1, 1.5, 1);
@@ -183,10 +180,8 @@
                 const position = new THREE.Vector3(part.origin.x + part.dimensions.width / 2, part.origin.z + part.dimensions.height / 2, part.origin.y + part.dimensions.depth / 2);
                 box.position.copy(position);
                 box.userData.id = part.id;
-                
                 scene.add(box);
                 chairPartsMap.set(part.id, box);
-
                 const edges = new THREE.EdgesGeometry(geometry);
                 const line = new THREE.LineSegments(edges, outlineMaterial);
                 line.position.copy(position);
@@ -196,10 +191,12 @@
 
         function createDamageDots() {
             const geometry = new THREE.SphereGeometry(0.015, 16, 16);
-            repairData.forEach(step => {
+            repairData.forEach((step, index) => { // Index mit übergeben
                 const sphere = new THREE.Mesh(geometry, dotMaterial);
                 sphere.position.set(step.damagePosition[0], step.damagePosition[2], step.damagePosition[1]);
                 sphere.visible = false;
+                // --- MODIFIZIERT: Index der Reparatur im 3D-Objekt speichern ---
+                sphere.userData.repairIndex = index; 
                 damageSpheres.push(sphere);
                 scene.add(sphere);
             });
@@ -208,14 +205,12 @@
         function setupUI() {
             const nextButton = document.getElementById('next-button');
             const prevButton = document.getElementById('prev-button');
-
             nextButton.addEventListener('click', (event) => {
                 event.stopPropagation();
                 currentStep++;
                 if (currentStep >= repairData.length) currentStep = -1;
                 updateStepUI();
             });
-
             prevButton.addEventListener('click', (event) => {
                 event.stopPropagation();
                 currentStep--;
@@ -227,7 +222,6 @@
         function updateStepUI() {
             highlightStep(currentStep); 
             infoBox.style.display = 'none'; 
-            
             if (currentStep === -1) {
                 stepText.innerText = "Reparatur abgeschlossen.";
             } else {
@@ -235,19 +229,42 @@
             }
         }
 
+        // --- MODIFIZIERT: Komplette Klick-Logik überarbeitet ---
         function onObjectClick(event) {
             mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
             mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
             raycaster.setFromCamera(mouse, camera);
             
-            const intersects = raycaster.intersectObjects(Array.from(chairPartsMap.values()));
+            // Raycaster prüft auf Treffer mit Schadenskugeln UND Bauteilen
+            const sphereIntersects = raycaster.intersectObjects(damageSpheres);
+            const partIntersects = raycaster.intersectObjects(Array.from(chairPartsMap.values()));
 
+            // Setzt zuerst alle Hervorhebungen auf den normalen Reparatur-Zustand zurück
             highlightStep(currentStep);
             
-            if (intersects.length > 0) {
-                const clickedObject = intersects[0].object;
+            if (sphereIntersects.length > 0) {
+                // HÖCHSTE PRIORITÄT: Klick auf eine Schadenskugel
+                const clickedSphere = sphereIntersects[0].object;
+                const repairIndex = clickedSphere.userData.repairIndex;
+                const repairInfo = repairData[repairIndex];
+
+                // Zeige Info-Box mit ROTER Schrift
+                infoBox.style.color = '#ff0000'; // Rot
+                infoBox.innerHTML = `<b>Schaden:</b><br>${repairInfo.text}`;
+                infoBox.style.display = 'block';
+
+                // Hebe das zugehörige Bauteil trotzdem rot hervor
+                const associatedPart = chairPartsMap.get(repairInfo.partId);
+                if (associatedPart) {
+                    associatedPart.material = highlightMaterial;
+                }
+                
+            } else if (partIntersects.length > 0) {
+                // ZWEITE PRIORITÄT: Klick auf ein Bauteil
+                const clickedObject = partIntersects[0].object;
                 const partId = clickedObject.userData.id;
                 
+                // Hebe das Bauteil BLAU hervor
                 clickedObject.material = selectionMaterial;
                 
                 const partData = chairData.parts.find(p => p.id === partId);
@@ -255,13 +272,17 @@
                     const dims = partData.dimensions;
                     const orig = partData.origin;
                     
+                    // Zeige Info-Box mit BLAUER Schrift
+                    infoBox.style.color = '#0000ff'; // Blau
                     infoBox.innerHTML = `<b>Bauteil:</b> ${partId.replace(/_/g, ' ')}<br>` +
                                       `<b>Maße (B×H×T):</b> ${(dims.width*100).toFixed(1)} × ${(dims.height*100).toFixed(1)} × ${(dims.depth*100).toFixed(1)} cm<br>` +
                                       `<b>Position (X,Y,Z):</b> ${orig.x.toFixed(3)}, ${orig.y.toFixed(3)}, ${orig.z.toFixed(3)}`;
                     infoBox.style.display = 'block';
                 }
             } else {
+                // NIEDRIGSTE PRIORITÄT: Klick ins Leere
                 infoBox.style.display = 'none';
+                // Die Hervorhebung wurde bereits durch highlightStep() zurückgesetzt
             }
         }
 
@@ -280,7 +301,7 @@
                     highlightedObject.part = targetPart;
                 }
                 if (targetDot) {
-                    targetDot.visible = true;
+                    targetDot.visible = true; // Nur die Kugel des aktuellen Schritts wird sichtbar
                     highlightedObject.dot = targetDot;
                 }
             }
