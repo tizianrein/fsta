@@ -13,21 +13,33 @@
         canvas { 
             display: block; 
         }
+
+        /* --- NEU: Titel oben in der Mitte --- */
+        #title-bar {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #000000; /* Schwarze Schrift */
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 20px;
+            font-weight: bold;
+            z-index: 101;
+            pointer-events: none; /* Verhindert, dass der Titel Klicks abfängt */
+            text-shadow: none; /* Leichter Schatten für Lesbarkeit */
+        }
         
         #info-box {
             position: absolute;
             top: 20px;
             left: 20px;
-            /* Hintergrund und Schatten aus Ihrer Version für minimalistischen Look */
             background-color: none; 
             box-shadow: none;
-            /* Text-Schatten für bessere Lesbarkeit auf dem 3D-Modell hinzugefügt */
             text-shadow: none;
-            
             padding: 12px;
             border-radius: 5px;
             font-family: 'Helvetica Neue', Arial, sans-serif;
-            font-size: 15px; /* Etwas größer für bessere Lesbarkeit */
+            font-size: 15px;
             line-height: 1.5;
             z-index: 101;
             display: none;
@@ -82,6 +94,9 @@
 </head>
 <body>
     
+    <!-- NEUES HTML-Element für den Titel -->
+    <div id="title-bar">Santo Chair 4</div>
+
     <div id="info-box"></div>
 
     <div id="ui">
@@ -191,11 +206,10 @@
 
         function createDamageDots() {
             const geometry = new THREE.SphereGeometry(0.015, 16, 16);
-            repairData.forEach((step, index) => { // Index mit übergeben
+            repairData.forEach((step, index) => {
                 const sphere = new THREE.Mesh(geometry, dotMaterial);
                 sphere.position.set(step.damagePosition[0], step.damagePosition[2], step.damagePosition[1]);
                 sphere.visible = false;
-                // --- MODIFIZIERT: Index der Reparatur im 3D-Objekt speichern ---
                 sphere.userData.repairIndex = index; 
                 damageSpheres.push(sphere);
                 scene.add(sphere);
@@ -229,42 +243,34 @@
             }
         }
 
-        // --- MODIFIZIERT: Komplette Klick-Logik überarbeitet ---
         function onObjectClick(event) {
             mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
             mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
             raycaster.setFromCamera(mouse, camera);
             
-            // Raycaster prüft auf Treffer mit Schadenskugeln UND Bauteilen
             const sphereIntersects = raycaster.intersectObjects(damageSpheres);
             const partIntersects = raycaster.intersectObjects(Array.from(chairPartsMap.values()));
 
-            // Setzt zuerst alle Hervorhebungen auf den normalen Reparatur-Zustand zurück
             highlightStep(currentStep);
             
             if (sphereIntersects.length > 0) {
-                // HÖCHSTE PRIORITÄT: Klick auf eine Schadenskugel
                 const clickedSphere = sphereIntersects[0].object;
                 const repairIndex = clickedSphere.userData.repairIndex;
                 const repairInfo = repairData[repairIndex];
 
-                // Zeige Info-Box mit ROTER Schrift
-                infoBox.style.color = '#ff0000'; // Rot
+                infoBox.style.color = '#ff0000';
                 infoBox.innerHTML = `<b>Schaden:</b><br>${repairInfo.text}`;
                 infoBox.style.display = 'block';
 
-                // Hebe das zugehörige Bauteil trotzdem rot hervor
                 const associatedPart = chairPartsMap.get(repairInfo.partId);
                 if (associatedPart) {
                     associatedPart.material = highlightMaterial;
                 }
                 
             } else if (partIntersects.length > 0) {
-                // ZWEITE PRIORITÄT: Klick auf ein Bauteil
                 const clickedObject = partIntersects[0].object;
                 const partId = clickedObject.userData.id;
                 
-                // Hebe das Bauteil BLAU hervor
                 clickedObject.material = selectionMaterial;
                 
                 const partData = chairData.parts.find(p => p.id === partId);
@@ -272,17 +278,14 @@
                     const dims = partData.dimensions;
                     const orig = partData.origin;
                     
-                    // Zeige Info-Box mit BLAUER Schrift
-                    infoBox.style.color = '#0000ff'; // Blau
+                    infoBox.style.color = '#0000ff';
                     infoBox.innerHTML = `<b>Bauteil:</b> ${partId.replace(/_/g, ' ')}<br>` +
                                       `<b>Maße (B×H×T):</b> ${(dims.width*100).toFixed(1)} × ${(dims.height*100).toFixed(1)} × ${(dims.depth*100).toFixed(1)} cm<br>` +
                                       `<b>Position (X,Y,Z):</b> ${orig.x.toFixed(3)}, ${orig.y.toFixed(3)}, ${orig.z.toFixed(3)}`;
                     infoBox.style.display = 'block';
                 }
             } else {
-                // NIEDRIGSTE PRIORITÄT: Klick ins Leere
                 infoBox.style.display = 'none';
-                // Die Hervorhebung wurde bereits durch highlightStep() zurückgesetzt
             }
         }
 
@@ -301,7 +304,7 @@
                     highlightedObject.part = targetPart;
                 }
                 if (targetDot) {
-                    targetDot.visible = true; // Nur die Kugel des aktuellen Schritts wird sichtbar
+                    targetDot.visible = true;
                     highlightedObject.dot = targetDot;
                 }
             }
