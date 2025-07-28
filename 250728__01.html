@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <title>From Structure to Action - Minimalist Viewer</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <style>
+        body { 
+            margin: 0;
+            overflow: hidden; 
+            background-color: #ffffff;
+        }
+        canvas { 
+            display: block; 
+        }
+
+        /* --- NEU: Titel oben in der Mitte --- */
+        #title-bar {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #000000; /* Schwarze Schrift */
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 20px;
+            font-weight: bold;
+            z-index: 101;
+            pointer-events: none; /* Verhindert, dass der Titel Klicks abfängt */
+            text-shadow: none; /* Keine Schatten! */
+        }
+        
+        #info-box {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: none; 
+            box-shadow: none; /* Keine Schatten! */
+            text-shadow: none; /* Keine Schatten! */
+            padding: 12px;
+            border-radius: 5px;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            font-size: 15px;
+            line-height: 1.5;
+            z-index: 101;
+            display: none;
+            pointer-events: none;
+        }
+        
+        #ui {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #000000;
+            color: white;
+            border-radius: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 15px;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            width: 90%;
+            max-width: 450px;
+            box-sizing: border-box;
+            z-index: 100;
+        }
+        
+        #step-text {
+            flex-grow: 1;
+            margin: 0 15px;
+            font-size: 14px;
+            line-height: 1.4;
+            text-align: center;
+        }
+        
+        #prev-button,
+        #next-button {
+            flex-shrink: 0;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            padding: 5px 10px;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        #prev-button:hover,
+        #next-button:hover {
+            color: #999999;
+        }
+    </style>
+</head>
+<body>
+    
+    <!-- NEUES HTML-Element für den Titel -->
+    <div id="title-bar">Santo Chair 4</div>
+
+    <div id="info-box"></div>
+
+    <div id="ui">
+        <button id="prev-button">←</button>
+        <p id="step-text">Klicken Sie ein Bauteil an oder starten Sie die Reparatur.</p>
+        <button id="next-button">→</button>
+    </div>
+
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+
+    <script type="module">
+
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        const chairData = {
+          "parts": [
+            { "id": "front_left_leg", "origin": {"x": -0.250, "y": -0.245, "z": 0.008}, "dimensions": {"width": 0.030, "depth": 0.045, "height": 0.426} },
+            { "id": "front_right_leg", "origin": {"x": 0.220, "y": -0.245, "z": 0.008}, "dimensions": {"width": 0.030, "depth": 0.045, "height": 0.426} },
+            { "id": "back_left_leg", "origin": {"x": -0.250, "y": 0.200, "z": 0.008}, "dimensions": {"width": 0.030, "depth": 0.045, "height": 0.752} },
+            { "id": "back_right_leg", "origin": {"x": 0.220, "y": 0.200, "z": 0.008}, "dimensions": {"width": 0.030, "depth": 0.045, "height": 0.752} },
+            { "id": "front_apron", "origin": {"x": -0.220, "y": -0.245, "z": 0.374}, "dimensions": {"width": 0.440, "depth": 0.027, "height": 0.060} },
+            { "id": "back_apron", "origin": {"x": -0.220, "y": 0.218, "z": 0.374}, "dimensions": {"width": 0.440, "depth": 0.027, "height": 0.060} },
+            { "id": "left_side_apron", "origin": {"x": -0.220, "y": -0.218, "z": 0.374}, "dimensions": {"width": 0.027, "depth": 0.436, "height": 0.060} },
+            { "id": "right_side_apron", "origin": {"x": 0.193, "y": -0.218, "z": 0.374}, "dimensions": {"width": 0.027, "depth": 0.436, "height": 0.060} },
+            { "id": "seat", "origin": {"x": -0.220, "y": -0.245, "z": 0.434}, "dimensions": {"width": 0.440, "depth": 0.490, "height": 0.006} },
+            { "id": "backrest", "origin": {"x": -0.220, "y": 0.200, "z": 0.650}, "dimensions": {"width": 0.440, "depth": 0.050, "height": 0.110} },
+            { "id": "front_left_glider", "origin": {"x": -0.2475, "y": -0.2425, "z": 0.000}, "dimensions": {"width": 0.025, "depth": 0.040, "height": 0.008} },
+            { "id": "front_right_glider", "origin": {"x": 0.2225, "y": -0.2425, "z": 0.000}, "dimensions": {"width": 0.025, "depth": 0.040, "height": 0.008} },
+            { "id": "back_left_glider", "origin": {"x": -0.2475, "y": 0.2025, "z": 0.000}, "dimensions": {"width": 0.025, "depth": 0.040, "height": 0.008} },
+            { "id": "back_right_glider", "origin": {"x": 0.2225, "y": 0.2025, "z": 0.000}, "dimensions": {"width": 0.025, "depth": 0.040, "height": 0.008} }
+          ]
+        };
+        
+        const repairData = [
+            { "text": "Kratzer am vorderen linken Bein abschleifen.", "partId": "front_left_leg", "damagePosition": [-0.235, 0.2, 0.20] },
+            { "text": "Absplitterung an der Sitzfläche mit Holzspachtel füllen.", "partId": "seat", "damagePosition": [-0.1, -0.24, 0.437] },
+            { "text": "Fehlenden Gleiter am vorderen rechten Bein montieren.", "partId": "front_right_glider", "damagePosition": [0.235, -0.2225, 0.004] }
+        ];
+
+        let scene, camera, renderer, controls;
+        const chairPartsMap = new Map();
+        let damageSpheres = [];
+        let highlightedObject = { part: null, dot: null };
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        
+        let currentStep = -1;
+        let stepText, infoBox;
+
+        const defaultMaterial = new THREE.MeshStandardMaterial({ color: 0x666666, transparent: true, opacity: 0.5, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
+        const highlightMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000, transparent: true, opacity: 0.8, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
+        const selectionMaterial = new THREE.MeshStandardMaterial({ color: 0x0000ff, transparent: true, opacity: 0.9, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
+        const outlineMaterial = new THREE.LineBasicMaterial({ color: 0x333333 });
+        const dotMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+
+        function init() {
+            stepText = document.getElementById('step-text');
+            infoBox = document.getElementById('info-box');
+
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xffffff);
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
+            camera.position.set(-0.8, 0.8, -1.2);
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.target.set(0, 0.76 / 2, 0); 
+            controls.enableDamping = true;
+            scene.add(new THREE.AmbientLight(0xdddddd));
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
+            directionalLight.position.set(1, 1.5, 1);
+            scene.add(directionalLight);
+
+            createChair();
+            createDamageDots();
+            setupUI();
+            
+            window.addEventListener('resize', onWindowResize);
+            renderer.domElement.addEventListener('click', onObjectClick);
+        }
+
+        function createChair() {
+            chairData.parts.forEach(part => {
+                const geometry = new THREE.BoxGeometry(part.dimensions.width, part.dimensions.height, part.dimensions.depth);
+                const box = new THREE.Mesh(geometry, defaultMaterial);
+                const position = new THREE.Vector3(part.origin.x + part.dimensions.width / 2, part.origin.z + part.dimensions.height / 2, part.origin.y + part.dimensions.depth / 2);
+                box.position.copy(position);
+                box.userData.id = part.id;
+                scene.add(box);
+                chairPartsMap.set(part.id, box);
+                const edges = new THREE.EdgesGeometry(geometry);
+                const line = new THREE.LineSegments(edges, outlineMaterial);
+                line.position.copy(position);
+                scene.add(line);
+            });
+        }
+
+        function createDamageDots() {
+            const geometry = new THREE.SphereGeometry(0.015, 16, 16);
+            repairData.forEach((step, index) => {
+                const sphere = new THREE.Mesh(geometry, dotMaterial);
+                sphere.position.set(step.damagePosition[0], step.damagePosition[2], step.damagePosition[1]);
+                sphere.visible = false;
+                sphere.userData.repairIndex = index; 
+                damageSpheres.push(sphere);
+                scene.add(sphere);
+            });
+        }
+
+        function setupUI() {
+            const nextButton = document.getElementById('next-button');
+            const prevButton = document.getElementById('prev-button');
+            nextButton.addEventListener('click', (event) => {
+                event.stopPropagation();
+                currentStep++;
+                if (currentStep >= repairData.length) currentStep = -1;
+                updateStepUI();
+            });
+            prevButton.addEventListener('click', (event) => {
+                event.stopPropagation();
+                currentStep--;
+                if (currentStep < -1) currentStep = repairData.length - 1;
+                updateStepUI();
+            });
+        }
+        
+        function updateStepUI() {
+            highlightStep(currentStep); 
+            infoBox.style.display = 'none'; 
+            if (currentStep === -1) {
+                stepText.innerText = "Reparatur abgeschlossen.";
+            } else {
+                stepText.innerText = repairData[currentStep].text;
+            }
+        }
+
+        function onObjectClick(event) {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+            raycaster.setFromCamera(mouse, camera);
+            
+            const sphereIntersects = raycaster.intersectObjects(damageSpheres);
+            const partIntersects = raycaster.intersectObjects(Array.from(chairPartsMap.values()));
+
+            highlightStep(currentStep);
+            
+            if (sphereIntersects.length > 0) {
+                const clickedSphere = sphereIntersects[0].object;
+                const repairIndex = clickedSphere.userData.repairIndex;
+                const repairInfo = repairData[repairIndex];
+
+                infoBox.style.color = '#ff0000';
+                infoBox.innerHTML = `<b>Schaden:</b><br>${repairInfo.text}`;
+                infoBox.style.display = 'block';
+
+                const associatedPart = chairPartsMap.get(repairInfo.partId);
+                if (associatedPart) {
+                    associatedPart.material = highlightMaterial;
+                }
+                
+            } else if (partIntersects.length > 0) {
+                const clickedObject = partIntersects[0].object;
+                const partId = clickedObject.userData.id;
+                
+                clickedObject.material = selectionMaterial;
+                
+                const partData = chairData.parts.find(p => p.id === partId);
+                if (partData) {
+                    const dims = partData.dimensions;
+                    const orig = partData.origin;
+                    
+                    infoBox.style.color = '#0000ff';
+                    infoBox.innerHTML = `<b>Bauteil:</b> ${partId.replace(/_/g, ' ')}<br>` +
+                                      `<b>Maße (B×H×T):</b> ${(dims.width*100).toFixed(1)} × ${(dims.height*100).toFixed(1)} × ${(dims.depth*100).toFixed(1)} cm<br>` +
+                                      `<b>Position (X,Y,Z):</b> ${orig.x.toFixed(3)}, ${orig.y.toFixed(3)}, ${orig.z.toFixed(3)}`;
+                    infoBox.style.display = 'block';
+                }
+            } else {
+                infoBox.style.display = 'none';
+            }
+        }
+
+        function highlightStep(stepIndex) {
+            chairPartsMap.forEach(part => { part.material = defaultMaterial; });
+            damageSpheres.forEach(dot => { dot.visible = false; });
+            highlightedObject = { part: null, dot: null };
+
+            if (stepIndex !== null && stepIndex >= 0) {
+                const step = repairData[stepIndex];
+                const targetPart = chairPartsMap.get(step.partId);
+                const targetDot = damageSpheres[stepIndex];
+
+                if (targetPart) {
+                    targetPart.material = highlightMaterial;
+                    highlightedObject.part = targetPart;
+                }
+                if (targetDot) {
+                    targetDot.visible = true;
+                    highlightedObject.dot = targetDot;
+                }
+            }
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if (highlightedObject.dot && highlightedObject.dot.visible) {
+                const time = Date.now() * 0.008;
+                const scale = 1 + Math.sin(time) * 0.5;
+                highlightedObject.dot.scale.set(scale, scale, scale);
+            }
+
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        init();
+        animate();
+
+    </script>
+</body>
+</html>
