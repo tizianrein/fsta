@@ -14,25 +14,23 @@
             display: block; 
         }
         
-        /* --- NEU: Info-Box für Bauteil-Details --- */
         #info-box {
             position: absolute;
             top: 20px;
             left: 20px;
-            background-color: rgba(255, 255, 255, 0.85); /* Leichter Hintergrund für Lesbarkeit */
-            color: #0000ff; /* Blaue Schrift */
+            background-color: rgba(255, 255, 255, 0.85);
+            color: #0000ff;
             padding: 12px;
             border-radius: 5px;
             font-family: 'Helvetica Neue', Arial, sans-serif;
             font-size: 14px;
             line-height: 1.5;
             z-index: 101;
-            display: none; /* Standardmäßig ausgeblendet */
+            display: none;
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-            pointer-events: none; /* Verhindert, dass die Box Klicks abfängt */
+            pointer-events: none;
         }
         
-        /* UI für die Reparatur (unten) */
         #ui {
             position: absolute;
             bottom: 20px;
@@ -51,15 +49,15 @@
             box-sizing: border-box;
             z-index: 100;
         }
+        
+        /* --- KORRIGIERTES CSS --- */
         #step-text {
             flex-grow: 1;
             margin: 0 15px;
             font-size: 14px;
             line-height: 1.4;
             text-align: center;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            /* Die für die Kürzung verantwortlichen Zeilen wurden entfernt, um Textumbruch zu ermöglichen */
         }
         
         #prev-button,
@@ -83,10 +81,8 @@
 </head>
 <body>
     
-    <!-- NEUES HTML-Element für die Info-Anzeige -->
     <div id="info-box"></div>
 
-    <!-- UI für Reparatur-Anleitung -->
     <div id="ui">
         <button id="prev-button">←</button>
         <p id="step-text">Klicken Sie ein Bauteil an oder starten Sie die Reparatur.</p>
@@ -140,18 +136,17 @@
         const mouse = new THREE.Vector2();
         
         let currentStep = -1;
-        let stepText, infoBox; // UI-Elemente
+        let stepText, infoBox;
 
-        // --- MATERIALIEN ---
         const defaultMaterial = new THREE.MeshStandardMaterial({ color: 0x666666, transparent: true, opacity: 0.5, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
         const highlightMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000, transparent: true, opacity: 0.8, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
-        const selectionMaterial = new THREE.MeshStandardMaterial({ color: 0x0000ff, transparent: true, opacity: 0.9, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 }); // Blau für Klick-Auswahl
+        const selectionMaterial = new THREE.MeshStandardMaterial({ color: 0x0000ff, transparent: true, opacity: 0.9, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
         const outlineMaterial = new THREE.LineBasicMaterial({ color: 0x333333 });
         const dotMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
 
         function init() {
             stepText = document.getElementById('step-text');
-            infoBox = document.getElementById('info-box'); // Info-Box referenzieren
+            infoBox = document.getElementById('info-box');
 
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0xffffff);
@@ -215,7 +210,7 @@
             const prevButton = document.getElementById('prev-button');
 
             nextButton.addEventListener('click', (event) => {
-                event.stopPropagation(); // Verhindert, dass der Klick zur Szene durchdringt
+                event.stopPropagation();
                 currentStep++;
                 if (currentStep >= repairData.length) currentStep = -1;
                 updateStepUI();
@@ -230,9 +225,7 @@
         }
         
         function updateStepUI() {
-            // Setzt alle Hervorhebungen auf den Reparatur-Status zurück
             highlightStep(currentStep); 
-            // Blendet die Info-Box aus, wenn die Reparatur-Navigation genutzt wird
             infoBox.style.display = 'none'; 
             
             if (currentStep === -1) {
@@ -249,30 +242,25 @@
             
             const intersects = raycaster.intersectObjects(Array.from(chairPartsMap.values()));
 
-            // Setzt zuerst alle Hervorhebungen auf den normalen Reparatur-Zustand zurück
             highlightStep(currentStep);
             
             if (intersects.length > 0) {
                 const clickedObject = intersects[0].object;
                 const partId = clickedObject.userData.id;
                 
-                // Hebt das angeklickte Objekt blau hervor
                 clickedObject.material = selectionMaterial;
                 
-                // Sucht die Daten zum angeklickten Bauteil
                 const partData = chairData.parts.find(p => p.id === partId);
                 if (partData) {
                     const dims = partData.dimensions;
                     const orig = partData.origin;
                     
-                    // Erstellt den Text für die Info-Box
                     infoBox.innerHTML = `<b>Bauteil:</b> ${partId.replace(/_/g, ' ')}<br>` +
                                       `<b>Maße (B×H×T):</b> ${(dims.width*100).toFixed(1)} × ${(dims.height*100).toFixed(1)} × ${(dims.depth*100).toFixed(1)} cm<br>` +
                                       `<b>Position (X,Y,Z):</b> ${orig.x.toFixed(3)}, ${orig.y.toFixed(3)}, ${orig.z.toFixed(3)}`;
-                    infoBox.style.display = 'block'; // Blendet die Info-Box ein
+                    infoBox.style.display = 'block';
                 }
             } else {
-                // Wenn nichts getroffen wurde, wird die Info-Box ausgeblendet
                 infoBox.style.display = 'none';
             }
         }
