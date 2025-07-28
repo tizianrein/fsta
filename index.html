@@ -13,66 +13,65 @@
         canvas { 
             display: block; 
         }
+        
+        /* --- ANGEPASSTES UI --- */
         #ui {
             position: absolute;
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            background-color: rgba(0, 0, 0, 0.95);
-            color: white;
             
-            /* Neues Flexbox-Layout */
+            /* Neues Design */
+            background-color: #000000; /* Schwarzes Feld */
+            color: white; /* Weiße Schrift */
+            border-radius: 0; /* Keine abgerundeten Ecken */
+            
+            /* Flexbox-Layout für Buttons und Text */
             display: flex;
             align-items: center;
             justify-content: space-between;
 
-            padding: 15px 20px;
-            border-radius: 8px;
+            padding: 10px 15px;
             font-family: 'Helvetica Neue', Arial, sans-serif;
             width: 90%;
-            max-width: 500px;
+            max-width: 450px; /* Etwas schmaler */
             box-sizing: border-box;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
             z-index: 100;
         }
         #step-text {
-            flex-grow: 1; /* Erlaubt dem Text, den verfügbaren Platz zu füllen */
-            margin: 0;
-            margin-right: 20px; /* Abstand zum Button */
-            font-size: 16px;
+            flex-grow: 1;
+            margin: 0 15px; /* Abstand zu den Buttons */
+            font-size: 14px; /* Kleinere Schrift */
             line-height: 1.4;
-        }
-        #next-button {
-            /* Völlig neues Button-Design */
-            flex-shrink: 0;
-            width: 44px;
-            height: 44px;
-            padding: 0;
-            border: none;
-            border-radius: 50%; /* Rund */
-            background-color: #ffffff; /* Weiß */
-            color: #000000; /* Schwarz */
-            font-size: 24px;
-            font-weight: bold;
-            line-height: 44px;
             text-align: center;
+        }
+        
+        /* Gemeinsamer Stil für beide Buttons */
+        #prev-button,
+        #next-button {
+            flex-shrink: 0;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 24px; /* Größe der Pfeile */
+            font-weight: bold;
+            padding: 5px 10px;
             cursor: pointer;
-            transition: all 0.2s ease-in-out;
+            transition: color 0.2s ease;
         }
+
+        #prev-button:hover,
         #next-button:hover {
-            background-color: #000000; /* Schwarz im Hover */
-            color: #ffffff; /* Weiß im Hover */
-            transform: scale(1.05);
-        }
-        #next-button:active {
-            transform: scale(0.95);
+            color: #999999; /* Leichter Hover-Effekt */
         }
     </style>
 </head>
 <body>
 
+    <!-- Angepasste UI-Struktur mit zwei Buttons -->
     <div id="ui">
-        <p id="step-text">Klicken Sie auf den Button, um die Reparatur zu beginnen.</p>
+        <button id="prev-button"><</button>
+        <p id="step-text">Klicken Sie auf einen Pfeil, um die Reparatur zu beginnen.</p>
         <button id="next-button">></button>
     </div>
 
@@ -152,7 +151,7 @@
 
             createChair();
             createDamageDots();
-            setupUI();
+            setupUI(); // Diese Funktion wurde angepasst
             
             window.addEventListener('resize', onWindowResize);
         }
@@ -188,24 +187,40 @@
             });
         }
 
+        // --- ANGEPASSTE UI-LOGIK ---
         function setupUI() {
             const stepText = document.getElementById('step-text');
             const nextButton = document.getElementById('next-button');
+            const prevButton = document.getElementById('prev-button'); // Neuer Button
             let currentStep = -1;
 
-            nextButton.addEventListener('click', () => {
-                currentStep++;
-                if (currentStep >= repairData.length) {
-                    currentStep = -1; // Zyklus zurücksetzen
-                }
-                
-                if (currentStep === -1) {
+            const updateStepUI = () => {
+                 if (currentStep === -1) {
                     highlightStep(null);
-                    stepText.innerText = "Reparatur abgeschlossen. Klicken, um neu zu starten.";
+                    stepText.innerText = "Reparatur abgeschlossen. Zum Neustart klicken.";
                 } else {
                     highlightStep(currentStep);
                     stepText.innerText = repairData[currentStep].text;
                 }
+            };
+            
+            // Start-Text anpassen
+            stepText.innerText = "Klicken Sie auf einen Pfeil, um die Reparatur zu beginnen.";
+
+            nextButton.addEventListener('click', () => {
+                currentStep++;
+                if (currentStep >= repairData.length) {
+                    currentStep = -1; // Schleife zurück zum Anfang
+                }
+                updateStepUI();
+            });
+
+            prevButton.addEventListener('click', () => {
+                currentStep--;
+                if (currentStep < -1) {
+                    currentStep = repairData.length - 1; // Schleife zum Ende
+                }
+                 updateStepUI();
             });
         }
 
