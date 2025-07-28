@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <title>From Structure to Action - Outline Viewer</title>
+    <title>From Structure to Action - Minimalist Viewer</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
     <style>
@@ -18,49 +18,62 @@
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            background-color: rgba(0, 0, 0, 0.9);
+            background-color: rgba(0, 0, 0, 0.95);
             color: white;
+            
+            /* Neues Flexbox-Layout */
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
             padding: 15px 20px;
             border-radius: 8px;
-            border: 1px solid rgba(255,255,255,0.2);
-            font-family: 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
             width: 90%;
-            max-width: 450px;
+            max-width: 500px;
             box-sizing: border-box;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
             z-index: 100;
         }
         #step-text {
-            margin-bottom: 15px;
-            min-height: 40px;
+            flex-grow: 1; /* Erlaubt dem Text, den verfügbaren Platz zu füllen */
+            margin: 0;
+            margin-right: 20px; /* Abstand zum Button */
             font-size: 16px;
             line-height: 1.4;
         }
         #next-button {
-            width: 100%;
-            padding: 12px;
+            /* Völlig neues Button-Design */
+            flex-shrink: 0;
+            width: 44px;
+            height: 44px;
+            padding: 0;
             border: none;
-            background-color: #ff0000;
-            color: white;
-            cursor: pointer;
-            border-radius: 5px;
-            font-size: 16px;
+            border-radius: 50%; /* Rund */
+            background-color: #ffffff; /* Weiß */
+            color: #000000; /* Schwarz */
+            font-size: 24px;
             font-weight: bold;
-            transition: background-color 0.2s, transform 0.1s;
+            line-height: 44px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
         }
         #next-button:hover {
-            background-color: #cc0000;
+            background-color: #000000; /* Schwarz im Hover */
+            color: #ffffff; /* Weiß im Hover */
+            transform: scale(1.05);
         }
         #next-button:active {
-            transform: scale(0.98);
+            transform: scale(0.95);
         }
     </style>
 </head>
 <body>
 
     <div id="ui">
-        <div id="step-text">Klicken Sie auf "Start", um die Reparatur zu beginnen.</div>
-        <button id="next-button">Start</button>
+        <p id="step-text">Klicken Sie auf den Button, um die Reparatur zu beginnen.</p>
+        <button id="next-button">></button>
     </div>
 
     <!-- Three.js Module importieren -->
@@ -112,15 +125,15 @@
 
         // --- MATERIALIEN ---
         const defaultMaterial = new THREE.MeshStandardMaterial({ color: 0x666666, transparent: true, opacity: 0.5, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
-        const highlightMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000, transparent: true, opacity: 0.5, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
-        const outlineMaterial = new THREE.LineBasicMaterial({ color: 0x333333 }); // Material für die Outlines
+        const highlightMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000, transparent: true, opacity: 0.8, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
+        const outlineMaterial = new THREE.LineBasicMaterial({ color: 0x333333 });
         const dotMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
 
         function init() {
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0xffffff);
 
-            camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 100);
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
             camera.position.set(0.8, 0.8, 1.2);
 
             renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -151,14 +164,12 @@
                 const h = part.dimensions.height;
                 const geometry = new THREE.BoxGeometry(w, h, d);
                 
-                // 1. Erstelle die transparente Box
                 const box = new THREE.Mesh(geometry, defaultMaterial);
                 const position = new THREE.Vector3(part.origin.x + w / 2, part.origin.z + h / 2, part.origin.y + d / 2);
                 box.position.copy(position);
                 scene.add(box);
                 chairPartsMap.set(part.id, box);
 
-                // 2. Erstelle die Outlines
                 const edges = new THREE.EdgesGeometry(geometry);
                 const line = new THREE.LineSegments(edges, outlineMaterial);
                 line.position.copy(position);
@@ -183,16 +194,17 @@
             let currentStep = -1;
 
             nextButton.addEventListener('click', () => {
-                currentStep = (currentStep + 1) % (repairData.length + 1); // +1 um einen "Reset"-Zustand zu haben
+                currentStep++;
+                if (currentStep >= repairData.length) {
+                    currentStep = -1; // Zyklus zurücksetzen
+                }
                 
-                if (currentStep === repairData.length) {
+                if (currentStep === -1) {
                     highlightStep(null);
-                    stepText.innerText = "Reparatur abgeschlossen. Neu starten?";
-                    nextButton.innerText = "Start";
+                    stepText.innerText = "Reparatur abgeschlossen. Klicken, um neu zu starten.";
                 } else {
                     highlightStep(currentStep);
                     stepText.innerText = repairData[currentStep].text;
-                    nextButton.innerText = "Nächster Schritt";
                 }
             });
         }
