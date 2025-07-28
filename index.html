@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <title>From Structure to Action - Minimalist Viewer</title>
+    <title>From Structure to Action - Outline Viewer</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
     <style>
@@ -22,7 +22,7 @@
             color: white;
             padding: 15px 20px;
             border-radius: 8px;
-            border: 0px solid rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.2);
             font-family: 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
             width: 90%;
             max-width: 450px;
@@ -111,18 +111,20 @@
         let highlightedObject = { part: null, dot: null };
 
         // --- MATERIALIEN ---
-        const defaultMaterial = new THREE.MeshStandardMaterial({ color: 0x666666, transparent: true, opacity: 0.5, metalness: 0.2, roughness: 0.5 }); // Dunkleres Grau für Kontrast
-        const highlightMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000, transparent: true, opacity: 0.8, metalness: 0.3, roughness: 0.4 });
+        const defaultMaterial = new THREE.MeshStandardMaterial({ color: 0x666666, transparent: true, opacity: 0.5, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
+        const highlightMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000, transparent: true, opacity: 0.8, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
+        const outlineMaterial = new THREE.LineBasicMaterial({ color: 0x333333 }); // Material für die Outlines
         const dotMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
 
         function init() {
             scene = new THREE.Scene();
-            scene.background = new THREE.Color(0xffffff); // Hintergrund auf Weiß geändert
+            scene.background = new THREE.Color(0xffffff);
 
             camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
             camera.position.set(0.8, 0.8, 1.2);
 
             renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
             renderer.setSize(window.innerWidth, window.innerHeight);
             document.body.appendChild(renderer.domElement);
 
@@ -148,10 +150,19 @@
                 const d = part.dimensions.depth;
                 const h = part.dimensions.height;
                 const geometry = new THREE.BoxGeometry(w, h, d);
+                
+                // 1. Erstelle die transparente Box
                 const box = new THREE.Mesh(geometry, defaultMaterial);
-                box.position.set(part.origin.x + w / 2, part.origin.z + h / 2, part.origin.y + d / 2);
+                const position = new THREE.Vector3(part.origin.x + w / 2, part.origin.z + h / 2, part.origin.y + d / 2);
+                box.position.copy(position);
                 scene.add(box);
                 chairPartsMap.set(part.id, box);
+
+                // 2. Erstelle die Outlines
+                const edges = new THREE.EdgesGeometry(geometry);
+                const line = new THREE.LineSegments(edges, outlineMaterial);
+                line.position.copy(position);
+                scene.add(line);
             });
         }
 
@@ -172,14 +183,11 @@
             let currentStep = -1;
 
             nextButton.addEventListener('click', () => {
-                currentStep++;
-                if (currentStep >= repairData.length) {
-                    currentStep = -1;
-                }
+                currentStep = (currentStep + 1) % (repairData.length + 1); // +1 um einen "Reset"-Zustand zu haben
                 
-                if (currentStep === -1) {
+                if (currentStep === repairData.length) {
                     highlightStep(null);
-                    stepText.innerText = "Reparatur neu starten?";
+                    stepText.innerText = "Reparatur abgeschlossen. Neu starten?";
                     nextButton.innerText = "Start";
                 } else {
                     highlightStep(currentStep);
