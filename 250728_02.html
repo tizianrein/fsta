@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <title>From Structure to Action - Repair Viewer</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #ffffff; }
+        canvas { display: block; }
+        #title-bar { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); color: #000; font-family: Arial, Helvetica, sans-serif; font-size: 20px; font-weight: bold; z-index: 101; pointer-events: none; text-shadow: none; display: flex; align-items: center; }
+        #info-icon { font-size: 16px; font-weight: bold; margin-left: 10px; color: #0000ff; cursor: pointer; pointer-events: all; user-select: none; }
+        #info-icon:hover { opacity: 0.7; }
+        #info-box { position: absolute; top: 50px; left: 20px; padding: 12px; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 15px; line-height: 1.5; z-index: 101; display: none; pointer-events: none; text-shadow: none; }
+        #ui { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); background-color: #000; color: white; border-radius: 0; display: flex; flex-direction: column; /* Vertikales Layout für Text und Link */ padding: 10px 15px; font-family: 'Helvetica Neue', Arial, sans-serif; width: 90%; max-width: 450px; box-sizing: border-box; z-index: 100; }
+        #step-controls { display: flex; align-items: center; width: 100%; }
+        #step-text { flex-grow: 1; margin: 0 15px; font-size: 14px; line-height: 1.4; text-align: center; }
+        #prev-button, #next-button { flex-shrink: 0; background: transparent; border: none; color: white; font-size: 24px; font-weight: bold; padding: 5px 10px; cursor: pointer; transition: color 0.2s ease; }
+        #prev-button:hover, #next-button:hover { color: #999999; }
+
+        /* --- NEU: Styling für den "Mehr Infos"-Link --- */
+        #more-info-container { margin-top: 8px; font-size: 12px; text-align: center; }
+        #more-info-link { color: #aaa; cursor: pointer; text-decoration: underline; }
+        #more-info-link:hover { color: #fff; }
+        
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); z-index: 1000; }
+        .info-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 500px; background-color: #000; color: #fff; padding: 25px 30px; border-radius: 0; box-shadow: none; z-index: 1001; font-family: Arial, Helvetica, sans-serif; }
+        .info-modal h2 { margin-top: 0; }
+        .info-modal .close-button { position: absolute; top: 10px; right: 15px; font-size: 28px; font-weight: bold; cursor: pointer; color: #fff; }
+        .info-modal .close-button:hover { color: #999; }
+        .info-modal ul { padding-left: 20px; margin: 0; }
+        .info-modal .design-info { font-size: 14px; color: #ccc; margin-bottom: 20px; }
+        /* --- NEU: Styling für Detail-Liste --- */
+        #repair-details-list { list-style: none; padding: 0; }
+        #repair-details-list li { margin-bottom: 8px; }
+        #repair-details-list b { color: #ccc; }
+
+    </style>
+</head>
+<body>
+    
+    <div id="title-bar"><span>Santo Nr. 04</span><span id="info-icon">(i)</span></div>
+    <div id="info-box"></div>
+
+    <div id="general-modal-overlay" class="modal-overlay"></div>
+    <div id="info-modal" class="info-modal">
+        <span class="close-button">×</span><h2>Informationen</h2>
+        <div class="design-info">Design: Edlef Bandixen, 1969</div>
+        <p>Ein ansprechend schlichtes Modell, das für die Ausstattung von Sakralräumen häufig verwendet wird. Ein Klassiker aus dem Hause Dietiker, der sich durch Modernität und Minimalismus auszeichnet.</p>
+        <h3>Spezifische Schäden an diesem Exemplar:</h3><ul id="damage-list"></ul>
+    </div>
+    
+    <!-- NEUES HTML: Pop-Up für Reparatur-Details -->
+    <div id="repair-modal-overlay" class="modal-overlay"></div>
+    <div id="repair-step-modal" class="info-modal">
+        <span class="close-button">×</span><h2 id="repair-modal-title">Reparatur-Details</h2>
+        <ul id="repair-details-list"></ul>
+    </div>
+
+    <div id="ui">
+        <div id="step-controls">
+            <button id="prev-button">←</button><p id="step-text"></p><button id="next-button">→</button>
+        </div>
+        <div id="more-info-container" style="display: none;">
+             <span id="more-info-link">[ Weitere Informationen ]</span>
+        </div>
+    </div>
+
+    <script type="importmap">{ "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js", "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/" } }</script>
+    <script type="module">
+
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        // DATEN: Chair-Geometrie (unverändert)
+        const chairData = { "parts": [ { "id": "front_left_leg", "origin": {"x": -0.250, "y": -0.245, "z": 0.008}, "dimensions": {"width": 0.030, "depth": 0.045, "height": 0.426} }, { "id": "front_right_leg", "origin": {"x": 0.220, "y": -0.245, "z": 0.008}, "dimensions": {"width": 0.030, "depth": 0.045, "height": 0.426} }, { "id": "back_left_leg", "origin": {"x": -0.250, "y": 0.200, "z": 0.008}, "dimensions": {"width": 0.030, "depth": 0.045, "height": 0.752} }, { "id": "back_right_leg", "origin": {"x": 0.220, "y": 0.200, "z": 0.008}, "dimensions": {"width": 0.030, "depth": 0.045, "height": 0.752} }, { "id": "front_apron", "origin": {"x": -0.220, "y": -0.245, "z": 0.374}, "dimensions": {"width": 0.440, "depth": 0.027, "height": 0.060} }, { "id": "back_apron", "origin": {"x": -0.220, "y": 0.218, "z": 0.374}, "dimensions": {"width": 0.440, "depth": 0.027, "height": 0.060} }, { "id": "left_side_apron", "origin": {"x": -0.220, "y": -0.218, "z": 0.374}, "dimensions": {"width": 0.027, "depth": 0.436, "height": 0.060} }, { "id": "right_side_apron", "origin": {"x": 0.193, "y": -0.218, "z": 0.374}, "dimensions": {"width": 0.027, "depth": 0.436, "height": 0.060} }, { "id": "seat", "origin": {"x": -0.220, "y": -0.245, "z": 0.434}, "dimensions": {"width": 0.440, "depth": 0.490, "height": 0.006} }, { "id": "backrest", "origin": {"x": -0.220, "y": 0.200, "z": 0.650}, "dimensions": {"width": 0.440, "depth": 0.050, "height": 0.110} }, { "id": "front_left_glider", "origin": {"x": -0.2475, "y": -0.2425, "z": 0.000}, "dimensions": {"width": 0.025, "depth": 0.040, "height": 0.008} }, { "id": "front_right_glider", "origin": {"x": 0.2225, "y": -0.2425, "z": 0.000}, "dimensions": {"width": 0.025, "depth": 0.040, "height": 0.008} }, { "id": "back_left_glider", "origin": {"x": -0.2475, "y": 0.2025, "z": 0.000}, "dimensions": {"width": 0.025, "depth": 0.040, "height": 0.008} }, { "id": "back_right_glider", "origin": {"x": 0.2225, "y": 0.2025, "z": 0.000}, "dimensions": {"width": 0.025, "depth": 0.040, "height": 0.008} } ] };
+        
+        // --- DATEN: Reparaturdaten erweitert ---
+        const repairData = [ 
+            { "text": "Kratzer am vorderen linken Bein abschleifen.", "partId": "front_left_leg", "damagePosition": [-0.25, -0.22, 0.20], "tool": "Schleifpapier (Körnung 120)", "material": "Keines", "time": "5 Min.", "difficulty": "Einfach" }, 
+            { "text": "Absplitterung an Sitzfläche füllen.", "partId": "seat", "damagePosition": [-0.1, -0.24, 0.437], "tool": "Spachtel", "material": "Holzspachtel (Buche)", "time": "10 Min.", "difficulty": "Mittel" }, 
+            { "text": "Fehlenden Gleiter montieren.", "partId": "front_right_glider", "damagePosition": [0.235, -0.2225, 0.004], "tool": "Hammer", "material": "1x Gleiter (Art. G-45)", "time": "2 Min.", "difficulty": "Einfach" } 
+        ];
+
+        let scene, camera, renderer, controls;
+        const chairPartsMap = new Map();
+        let damageSpheres = [];
+        const raycaster = new THREE.Raycaster(); const mouse = new THREE.Vector2();
+        let currentStep = -1; 
+        let stepText, infoBox, moreInfoContainer, moreInfoLink;
+
+        const defaultMaterial = new THREE.MeshStandardMaterial({ color: 0x666666, transparent: true, opacity: 0.5, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
+        const highlightMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000, transparent: true, opacity: 0.8, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
+        const selectionMaterial = new THREE.MeshStandardMaterial({ color: 0x0000ff, transparent: true, opacity: 0.9, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
+        const outlineMaterial = new THREE.LineBasicMaterial({ color: 0x333333 });
+        const dotMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+        const selectedDotMaterial = new THREE.MeshBasicMaterial({ color: 0x8b0000 });
+
+        function init() {
+            stepText = document.getElementById('step-text'); infoBox = document.getElementById('info-box'); moreInfoContainer = document.getElementById('more-info-container'); moreInfoLink = document.getElementById('more-info-link');
+            scene = new THREE.Scene(); scene.background = new THREE.Color(0xffffff); camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100); camera.position.set(-0.8, 0.8, -1.2); renderer = new THREE.WebGLRenderer({ antialias: true }); renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); renderer.setSize(window.innerWidth, window.innerHeight); document.body.appendChild(renderer.domElement); controls = new OrbitControls(camera, renderer.domElement); controls.target.set(0, 0.76 / 2, 0); controls.enableDamping = true; scene.add(new THREE.AmbientLight(0xdddddd)); const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5); directionalLight.position.set(1, 1.5, 1); scene.add(directionalLight);
+            createChair(); createDamageDots(); setupUI();
+            updateViewForStep(); 
+            window.addEventListener('resize', onWindowResize); renderer.domElement.addEventListener('click', onObjectClick);
+        }
+        
+        function setupModal(modalId, overlayId, openTriggerId, closeSelector) { const modal = document.getElementById(modalId); const overlay = document.getElementById(overlayId); const openTrigger = document.getElementById(openTriggerId); const closeButton = modal.querySelector(closeSelector); const open = (e) => { e.stopPropagation(); if(modalId === "info-modal"){ const damageList = document.getElementById('damage-list'); damageList.innerHTML = ''; repairData.forEach(item => { const li = document.createElement('li'); li.textContent = item.text; damageList.appendChild(li); }); } overlay.style.display = 'block'; modal.style.display = 'block'; }; const close = () => { overlay.style.display = 'none'; modal.style.display = 'none'; }; if(openTrigger) openTrigger.addEventListener('click', open); closeButton.addEventListener('click', close); overlay.addEventListener('click', close); }
+        function createChair() { chairData.parts.forEach(part => { const g = new THREE.BoxGeometry(part.dimensions.width, part.dimensions.height, part.dimensions.depth); const b = new THREE.Mesh(g, defaultMaterial); const p = new THREE.Vector3(part.origin.x + part.dimensions.width / 2, part.origin.z + part.dimensions.height / 2, part.origin.y + part.dimensions.depth / 2); b.position.copy(p); b.userData.id = part.id; scene.add(b); chairPartsMap.set(part.id, b); const e = new THREE.EdgesGeometry(g); const l = new THREE.LineSegments(e, outlineMaterial); l.position.copy(p); scene.add(l); }); }
+        function createDamageDots() { const g = new THREE.SphereGeometry(0.015, 16, 16); repairData.forEach((step, i) => { const s = new THREE.Mesh(g, dotMaterial); s.position.set(step.damagePosition[0], step.damagePosition[2], step.damagePosition[1]); s.visible = false; s.userData.repairIndex = i;  damageSpheres.push(s); scene.add(s); }); }
+
+        function setupUI() {
+            const nextButton = document.getElementById('next-button'); const prevButton = document.getElementById('prev-button');
+            nextButton.addEventListener('click', (e) => { e.stopPropagation(); currentStep++; if (currentStep > repairData.length) { currentStep = -1; } updateViewForStep(); });
+            prevButton.addEventListener('click', (e) => { e.stopPropagation(); currentStep--; if (currentStep < -1) { currentStep = repairData.length; } updateViewForStep(); });
+            
+            // Modals initialisieren
+            setupModal('info-modal', 'general-modal-overlay', 'info-icon', '.close-button');
+            setupModal('repair-step-modal', 'repair-modal-overlay', 'more-info-link', '.close-button');
+        }
+        
+        function updateViewForStep() {
+            infoBox.style.display = 'none'; moreInfoContainer.style.display = 'none';
+            chairPartsMap.forEach(part => { part.material = defaultMaterial; });
+            damageSpheres.forEach(dot => { dot.visible = false; dot.material = dotMaterial; });
+
+            if (currentStep === -1) {
+                stepText.innerText = "Alle Schäden im Überblick. Navigiere durch die Reparaturanleitung mit den Pfeilen";
+                damageSpheres.forEach(sphere => { sphere.visible = true; });
+            } else if (currentStep === repairData.length) {
+                stepText.innerText = "Reparatur abgeschlossen. Neu starten?";
+            } else {
+                const step = repairData[currentStep];
+                const targetPart = chairPartsMap.get(step.partId);
+                const targetDot = damageSpheres[currentStep];
+                if (targetPart) { targetPart.material = highlightMaterial; }
+                if (targetDot) { targetDot.visible = true; }
+                stepText.innerText = step.text;
+                moreInfoContainer.style.display = 'block'; // "Mehr Infos" Link anzeigen
+                document.getElementById('repair-modal-title').innerText = `Details: ${step.text}`;
+                const detailsList = document.getElementById('repair-details-list');
+                detailsList.innerHTML = `
+                    <li><b>Werkzeug:</b> ${step.tool}</li>
+                    <li><b>Material:</b> ${step.material}</li>
+                    <li><b>Dauer:</b> ${step.time}</li>
+                    <li><b>Schwierigkeit:</b> ${step.difficulty}</li>
+                `;
+            }
+        }
+
+        function onObjectClick(event) {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1; mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+            raycaster.setFromCamera(mouse, camera);
+            const sphereIntersects = raycaster.intersectObjects(damageSpheres); const partIntersects = raycaster.intersectObjects(Array.from(chairPartsMap.values()));
+            updateViewForStep();
+            if (sphereIntersects.length > 0 && sphereIntersects[0].object.visible) {
+                const clickedSphere = sphereIntersects[0].object; const repairIndex = clickedSphere.userData.repairIndex; const repairInfo = repairData[repairIndex];
+                clickedSphere.material = selectedDotMaterial;
+                infoBox.style.color = '#ff0000'; infoBox.innerHTML = `<b>Schaden:</b><br>${repairInfo.text}`; infoBox.style.display = 'block';
+                const associatedPart = chairPartsMap.get(repairInfo.partId); if (associatedPart) { associatedPart.material = highlightMaterial; }
+            } else if (partIntersects.length > 0) {
+                const clickedObject = partIntersects[0].object; const partId = clickedObject.userData.id;
+                clickedObject.material = selectionMaterial;
+                const partData = chairData.parts.find(p => p.id === partId);
+                if (partData) { const d = partData.dimensions; const o = partData.origin; infoBox.style.color = '#0000ff'; infoBox.innerHTML = `<b>Bauteil:</b> ${partId.replace(/_/g, ' ')}<br><b>Maße:</b> ${(d.width*100).toFixed(1)}×${(d.height*100).toFixed(1)}×${(d.depth*100).toFixed(1)} cm<br><b>Position:</b> ${o.x.toFixed(3)},${o.y.toFixed(3)},${o.z.toFixed(3)}`; infoBox.style.display = 'block'; }
+            } else {
+                infoBox.style.display = 'none';
+            }
+        }
+
+        function onWindowResize() { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); }
+
+        // --- MODIFIZIERT: animate() für durchgehendes Pulsieren ---
+        function animate() {
+            requestAnimationFrame(animate);
+            const time = Date.now() * 0.008;
+            const scale = 1 + Math.sin(time) * 0.5;
+            
+            // Animiert JEDE sichtbare Schadenskugel
+            damageSpheres.forEach(sphere => {
+                if (sphere.visible) {
+                    sphere.scale.set(scale, scale, scale);
+                }
+            });
+
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        init();
+        animate();
+
+    </script>
+</body>
+</html>
