@@ -1,6 +1,9 @@
 // File: /api/generate.js
 
-// This is the detailed system prompt you provided.
+// --- NEW CONFIGURATION LINE ---
+// This tells Vercel to allow this function to run for up to 120 seconds instead of the default 10.
+export const maxDuration = 120;
+
 const SYSTEM_PROMPT = `
 You are an expert 3D modeler and data structuring AI. Your task is to analyze the provided data of an object or architectural structure and generate a JSON file that describes its structure as a collection of simple box-like parts.
 
@@ -40,24 +43,20 @@ export default async function handler(req, res) {
       return res.status(500).json({ message: "API key is not configured on the server." });
     }
 
-    // This is the core logic: build the payload for the Gemini API
     const geminiParts = [
       { text: SYSTEM_PROMPT },
     ];
     
-    // If there are files, it's an initial generation request
     if (files && files.length > 0) {
         files.forEach(file => {
             geminiParts.push({ inlineData: { mimeType: file.mimeType, data: file.data } });
         });
         geminiParts.push({ text: `User's textual instruction: "${prompt}"` });
     } 
-    // If there's no file but there is existing JSON, it's a modification request
     else if (modelJson) {
         geminiParts.push({ text: `Here is the current JSON model to modify: ${JSON.stringify(modelJson, null, 2)}` });
         geminiParts.push({ text: `User's modification instruction: "${prompt}"` });
     }
-    // If it's just a text prompt (e.g., "create a chair")
     else {
         geminiParts.push({ text: `User's instruction: "${prompt}"` });
     }
