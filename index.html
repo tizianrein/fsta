@@ -1,204 +1,300 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
-    <title>From Structure to Action - Santo Chair 5</title>
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <title>Generate Model</title>
     <style>
-        body { margin: 0; overflow: hidden; background-color: #ffffff; }
-        canvas { display: block; }
-        #title-bar { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); color: #000; font-family: Arial, Helvetica, sans-serif; font-size: 20px; font-weight: bold; z-index: 101; pointer-events: none; text-shadow: none; display: flex; align-items: center; }
-        #info-icon { font-size: 16px; font-weight: bold; margin-left: 10px; color: #0000ff; cursor: pointer; pointer-events: all; user-select: none; }
-        #info-icon:hover { opacity: 0.7; }
-        #info-box { position: absolute; top: 50px; left: 20px; padding: 12px; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 15px; line-height: 1.5; z-index: 101; display: none; pointer-events: none; text-shadow: none; }
-        #ui { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); background-color: #000; color: white; border-radius: 0; display: flex; flex-direction: column; padding: 10px 15px; font-family: 'Helvetica Neue', Arial, sans-serif; width: 90%; max-width: 550px; /* Breite leicht angepasst */ box-sizing: border-box; z-index: 100; }
-        #step-controls { display: flex; align-items: center; width: 100%; }
-        #step-text { flex-grow: 1; margin: 0 15px; font-size: 14px; line-height: 1.4; text-align: center; }
-        #prev-button, #next-button { flex-shrink: 0; background: transparent; border: none; color: white; font-size: 24px; font-weight: bold; padding: 5px 10px; cursor: pointer; transition: color 0.2s ease; }
-        #prev-button:hover, #next-button:hover { color: #999999; }
-        #more-info-container { margin-top: 8px; font-size: 12px; text-align: center; }
-        #more-info-link { color: #aaa; cursor: pointer; text-decoration: underline; }
-        #more-info-link:hover { color: #fff; }
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); z-index: 1000; }
-        .info-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 500px; background-color: #000; color: #fff; padding: 25px 30px; border-radius: 0; box-shadow: none; z-index: 1001; font-family: Arial, Helvetica, sans-serif; }
-        .info-modal h2 { margin-top: 0; }
-        .info-modal .close-button { position: absolute; top: 10px; right: 15px; font-size: 28px; font-weight: bold; cursor: pointer; color: #fff; }
-        .info-modal .close-button:hover { color: #999; }
-        .info-modal ul { padding-left: 20px; margin: 0; }
-        .info-modal .design-info { font-size: 14px; color: #ccc; margin-bottom: 20px; }
-        #repair-details-list { list-style: none; padding: 0; }
-        #repair-details-list li { margin-bottom: 8px; }
-        #repair-details-list b { color: #ccc; }
+        body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;margin:0;background-color:#fff;color:#000;display:flex;justify-content:center;padding:20px 0}#app-wrapper{width:90%;max-width:420px;display:flex;flex-direction:column;gap:20px}.top-input-row{display:flex;align-items:stretch;gap:10px}#object-name{flex-grow:1;background-color:#f0f0f0;padding:12px;border:1px solid #000;border-radius:0;font-size:14px;box-sizing:border-box}#api-key-btn{flex-shrink:0;padding:12px 15px;background-color:#000;color:#fff;border:none;border-radius:0;cursor:pointer;font-size:12px;font-weight:600;box-sizing:border-box}#viewer-container{width:100%;height:40vh;position:relative;background-color:#fff}#viewer-canvas{display:block;width:100%;height:100%}#bottom-ui-container{display:flex;flex-direction:column;gap:15px}.icon-controls{display:flex;justify-content:space-around;text-align:center;padding:10px 0}.icon-button{cursor:pointer;color:#000}.icon-button svg{width:18px;height:18px}.icon-button .label{font-size:12px;margin-top:5px}.action-buttons{display:flex;gap:10px}.btn{flex-grow:1;padding:12px;font-size:14px;font-weight:600;border:none;border-radius:0;cursor:pointer;display:flex;justify-content:center;align-items:center;gap:8px;background-color:#000;color:#fff}.instructions-group{background-color:#fff;padding:15px;border:1px solid #000}.instructions-group label{display:block;font-size:12px;font-weight:600;margin-bottom:8px;color:#000}.instructions-group textarea{width:100%;height:60px;padding:10px;border:none;background-color:#fff;color:#000;border-radius:0;font-size:14px;box-sizing:border-box;resize:vertical}.hans-group{background-color:#000;color:#fff;padding:15px}#hans-output{font-family:"SF Mono",Consolas,Menlo,monospace;font-size:13px;line-height:1.5;min-height:20px}#hans-output-text{white-space:pre-wrap}.cursor{display:inline-block;background-color:#fff;width:8px;height:1em;animation:blink 1s step-end infinite}@keyframes blink{from,to{background-color:transparent}50%{background-color:#fff}}.modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(0,0,0,.7);z-index:1000;justify-content:center;align-items:center;padding:20px;box-sizing:border-box}.modal-content{background-color:#fff;padding:20px;border-radius:0;border:1px solid #000;width:100%;max-width:600px;display:flex;flex-direction:column}.modal-content h3{margin-top:0;color:#000}.modal-content textarea{width:100%;height:40vh;resize:none;font-family:monospace;font-size:12px;margin-bottom:10px;border-radius:0}.modal-actions{display:flex;justify-content:flex-end;gap:10px}.modal-btn{background-color:#000;color:#fff}.hidden-input{display:none}
     </style>
 </head>
 <body>
     
-    <div id="title-bar">
-        <span>Santo Chair 5</span>
-        <span id="info-icon">(i)</span>
-    </div>
-
-    <div id="info-box"></div>
-    <div id="general-modal-overlay" class="modal-overlay"></div>
-    <div id="info-modal" class="info-modal">
-        <span class="close-button">×</span><h2>Informationen</h2>
-        <div class="design-info">Design: Edlef Bandixen, 1969</div>
-        <p>Ein ansprechend schlichtes Modell, das für die Ausstattung von Sakralräumen häufig verwendet wird. Ein Klassiker aus dem Hause Dietiker, der sich durch Modernität und Minimalismus auszeichnet.</p>
-        <h3>Spezifische Schäden an diesem Exemplar:</h3><ul id="damage-list"></ul>
-    </div>
-    <div id="repair-modal-overlay" class="modal-overlay"></div>
-    <div id="repair-step-modal" class="info-modal">
-        <span class="close-button">×</span><h2 id="repair-modal-title">Reparatur-Details</h2>
-        <ul id="repair-details-list"></ul>
-    </div>
-
-    <div id="ui">
-        <div id="step-controls">
-            <button id="prev-button">←</button><p id="step-text"></p><button id="next-button">→</button>
+    <div id="app-wrapper">
+        <div class="top-input-row">
+            <input type="text" id="object-name" placeholder="Enter object name here...">
         </div>
-        <div id="more-info-container" style="display: none;"><span id="more-info-link">[ Mehr Infos ]</span></div>
+
+        <div id="viewer-container">
+            <canvas id="viewer-canvas"></canvas>
+        </div>
+
+        <div id="bottom-ui-container">
+            <div class="icon-controls">
+                <div id="upload-json-btn" class="icon-button" title="Upload a model from a JSON file"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z"/></svg><div class="label">Upload JSON</div></div>
+                <div id="copy-json-btn" class="icon-button" title="View and copy the current model's JSON"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H6z"/><path d="M2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1H2z"/></svg><div class="label">Read & Copy JSON</div></div>
+                <div id="download-json-btn" class="icon-button" title="Download the current model as a JSON file"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/></svg><div class="label">Download JSON</div></div>
+            </div>
+            
+            <div class="action-buttons">
+                <button id="add-files-btn" class="btn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M4.5 3a2.5 2.5 0 0 1 5 0v9a1.5 1.5 0 0 1-3 0V5a.5.5 0 0 1 1 0v7a.5.5 0 0 0 1 0V3a1.5 1.5 0 1 0-3 0v9a2.5 2.5 0 0 0 5 0V5a.5.5 0 0 1 1 0v7a3.5 3.5 0 1 1-7 0V3z"/></svg>Add Files</button>
+                <button id="generate-model-btn" class="btn">Generate Model</button>
+            </div>
+
+            <div class="instructions-group">
+                <label for="additional-instructions">Additional Instructions (Prompt by User, for example Changes to the model)...</label>
+                <textarea id="additional-instructions"></textarea>
+            </div>
+
+            <div class="hans-group">
+                <div id="hans-output"></div>
+            </div>
+        </div>
     </div>
+    
+    <!-- Modals and Hidden Inputs -->
+    <div id="json-modal-overlay" class="modal-overlay"><div class="modal-content"><h3>Current Model JSON</h3><textarea id="json-view-textarea" readonly></textarea><div class="modal-actions"><button id="copy-json-from-modal-btn" class="btn modal-btn">Copy</button><button class="btn modal-btn close-modal-btn">Close</button></div></div></div>
+    <input type="file" id="json-upload-input" class="hidden-input" accept=".json, .txt"><input type="file" id="add-files-input" class="hidden-input" multiple accept="image/*,application/pdf">
 
+    <!-- Three.js Import -->
     <script type="importmap">{ "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js", "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/" } }</script>
-    <script type="module">
 
+    <script type="module">
         import * as THREE from 'three';
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-        // --- NEUE DATEN FÜR SANTO CHAIR 5 ---
-        const chairData = { "parts": [ { "id": "front_left_leg", "origin": {"x": -0.250, "y": -0.245, "z": 0.008}, "dimensions": {"width": 0.030, "depth": 0.045, "height": 0.426} }, { "id": "front_right_leg", "origin": {"x": 0.220, "y": -0.245, "z": 0.008}, "dimensions": {"width": 0.030, "depth": 0.045, "height": 0.426} }, { "id": "back_left_leg", "origin": {"x": -0.250, "y": 0.200, "z": 0.008}, "dimensions": {"width": 0.030, "depth": 0.045, "height": 0.752} }, { "id": "back_right_leg", "origin": {"x": 0.220, "y": 0.200, "z": 0.008}, "dimensions": {"width": 0.030, "depth": 0.045, "height": 0.752} }, { "id": "front_apron", "origin": {"x": -0.220, "y": -0.245, "z": 0.374}, "dimensions": {"width": 0.440, "depth": 0.027, "height": 0.060} }, { "id": "back_apron", "origin": {"x": -0.220, "y": 0.218, "z": 0.374}, "dimensions": {"width": 0.440, "depth": 0.027, "height": 0.060} }, { "id": "left_side_apron", "origin": {"x": -0.220, "y": -0.218, "z": 0.374}, "dimensions": {"width": 0.027, "depth": 0.436, "height": 0.060} }, { "id": "right_side_apron", "origin": {"x": 0.193, "y": -0.218, "z": 0.374}, "dimensions": {"width": 0.027, "depth": 0.436, "height": 0.060} }, { "id": "seat", "origin": {"x": -0.220, "y": -0.245, "z": 0.434}, "dimensions": {"width": 0.440, "depth": 0.490, "height": 0.006} }, { "id": "backrest", "origin": {"x": -0.220, "y": 0.200, "z": 0.650}, "dimensions": {"width": 0.440, "depth": 0.050, "height": 0.110} }, { "id": "front_left_glider", "origin": {"x": -0.2475, "y": -0.2425, "z": 0.000}, "dimensions": {"width": 0.025, "depth": 0.040, "height": 0.008} }, { "id": "front_right_glider", "origin": {"x": 0.2225, "y": -0.2425, "z": 0.000}, "dimensions": {"width": 0.025, "depth": 0.040, "height": 0.008} }, { "id": "back_left_glider", "origin": {"x": -0.2475, "y": 0.2025, "z": 0.000}, "dimensions": {"width": 0.025, "depth": 0.040, "height": 0.008} }, { "id": "back_right_glider", "origin": {"x": 0.2225, "y": 0.2025, "z": 0.000}, "dimensions": {"width": 0.025, "depth": 0.040, "height": 0.008} } ] };
-        const damagesData = [ { "id": "damage_01", "type": "Crack", "description": "Visible crack on the top surface of the front left leg, where it joins the seat frame. The finish is split and the wood beneath is exposed.", "part_id": "front_left_leg", "coordinates": { "x": -0.250, "y": -0.245, "z": 0.434 } }, { "id": "damage_02", "type": "Scuff Mark", "description": "Multiple light scratches and scuff marks on the top surface of the seat.", "part_id": "seat", "coordinates": { "x": 0.05, "y": -0.10, "z": 0.440 } }, { "id": "damage_03", "type": "Wear", "description": "Visible wear on the finish along the front edge of the seat, appearing as lighter, whitened patches.", "part_id": "seat", "coordinates": { "x": -0.11, "y": -0.245, "z": 0.438 } }, { "id": "damage_04", "type": "Dents", "description": "A small chip or dent on the side of the front right leg.", "part_id": "front_right_leg", "coordinates": { "x": 0.225, "y": -0.230, "z": 0.250 } }, { "id": "damage_05", "type": "Scuff Mark", "description": "Minor scuff marks and discoloration on the surface of the back left leg upright.", "part_id": "back_left_leg", "coordinates": { "x": -0.230, "y": 0.222, "z": 0.580 } }, { "id": "damage_06", "type": "Pinhole Dents", "description": "Several small dents and light scratches on the surface of the backrest.", "part_id": "backrest", "coordinates": { "x": -0.05, "y": 0.210, "z": 0.700 } }, { "id": "damage_07", "type": "Scuff Mark", "description": "Multiple vertical scratches and scuff marks on the outer face of the front left leg.", "part_id": "front_left_leg", "coordinates": { "x": -0.250, "y": -0.200, "z": 0.150 } }, { "id": "damage_08", "type": "Crack", "description": "Signs of a previous repair with glue residue visible at the joint between the back left leg and the left side apron.", "part_id": "back_left_leg", "coordinates": { "x": -0.220, "y": 0.190, "z": 0.404 } }, { "id": "damage_09", "type": "Wear", "description": "Residue and wear at the bottom of the front right leg where the glider is missing. A non-standard felt pad has been attached.", "part_id": "front_right_leg", "coordinates": { "x": 0.235, "y": -0.222, "z": 0.008 } } ];
-        const repairPlan = { "mission_name": "SANTO Chair Restoration with Leg Replacement", "actions": [ { "key": "key-01", "name": "Source Replacement Leg", "text": "Procure a replacement for the irreparably broken front left leg. Do not proceed until the replacement is on hand.", "dependencies": [], "attributes": { "tool": "Phone / Computer", "material": "Matching Front Left Leg Replacement", "damage_ids": [ "damage_01" ] } }, { "key": "key-02", "name": "Careful Disassembly", "text": "Carefully disassemble the chair, removing the seat and detaching aprons. Label all parts.", "dependencies": [ "key-01" ], "attributes": { "tool": "Mallet, Screwdriver", "material": "Part labels", "damage_ids": [ "damage_01", "damage_08" ] } }, { "key": "key-03", "name": "Prepare Original Components", "text": "Fill dents on the right leg and backrest. Sand all original parts to remove scuffs and wear. Clean off all dust.", "dependencies": [ "key-02" ], "attributes": { "tool": "Wood filler, Sandpaper", "material": "Tack cloth", "damage_ids": [ "damage_02", "damage_03", "damage_04", "damage_05", "damage_06", "damage_07", "damage_09" ] } }, { "key": "key-04", "name": "Fit New Leg and Reassemble", "text": "Dry-fit the new leg, then reassemble all joints with high-strength wood glue. Clamp the frame and check for squareness.", "dependencies": [ "key-03" ], "attributes": { "tool": "Clamps, Carpenter's square", "material": "High-strength wood glue", "damage_ids": [ "damage_01", "damage_08" ] } }, { "key": "key-05", "name": "Final Sanding and Blending", "text": "Perform a final light sanding on the entire frame, especially the new leg, to ensure a seamless blend.", "dependencies": [ "key-04" ], "attributes": { "tool": "Fine-grit sandpaper", "material": "Tack cloth", "damage_ids": [ "all" ] } }, { "key": "key-06", "name": "Unified Finishing", "text": "Apply a matching wood stain and several coats of a durable topcoat to the entire chair for a uniform finish.", "dependencies": [ "key-05" ], "attributes": { "tool": "Brushes, Clean cloths", "material": "Matching wood stain, Polyurethane", "damage_ids": [ "all" ] } }, { "key": "key-07", "name": "Install New Gliders", "text": "Install new, correct-style gliders on all four legs for optimal stability.", "dependencies": [ "key-06" ], "attributes": { "tool": "Hammer or Mallet", "material": "4x matching chair gliders", "damage_ids": [ "missing_gliders" ] } } ] };
-        
-        // Globale Variablen
         let scene, camera, renderer, controls;
-        const chairPartsMap = new Map();
-        const damageSpheresMap = new Map(); // Map von damage_id zu sphere
-        let currentStep = -1; 
-        const raycaster = new THREE.Raycaster(); const mouse = new THREE.Vector2();
-        let stepText, infoBox, moreInfoContainer, moreInfoLink;
+        let currentJsonData = null;
+        let uploadedFiles = [];
+        let typingInterval;
+        const objectGroup = new THREE.Group();
+        const HANS_PREFIX = `HANS🧠: `;
 
-        // Materialien
-        const defaultMaterial = new THREE.MeshStandardMaterial({ color: 0x666666, transparent: true, opacity: 0.5, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
-        const highlightMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000, transparent: true, opacity: 0.8, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
-        const selectionMaterial = new THREE.MeshStandardMaterial({ color: 0x0000ff, transparent: true, opacity: 0.9, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
-        const outlineMaterial = new THREE.LineBasicMaterial({ color: 0x333333 });
-        const dotMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-        const selectedDotMaterial = new THREE.MeshBasicMaterial({ color: 0x8b0000 });
+        const viewerContainer = document.getElementById('viewer-container');
+        const viewerCanvas = document.getElementById('viewer-canvas');
+        const hansOutputEl = document.getElementById('hans-output');
+        const addFilesInput = document.getElementById('add-files-input');
 
+        function updateHANS(message) {
+            if (typingInterval) clearInterval(typingInterval);
+            hansOutputEl.innerHTML = `${HANS_PREFIX}<span id="hans-output-text"></span><span class="cursor"></span>`;
+            const textEl = document.getElementById('hans-output-text');
+            const cursorEl = hansOutputEl.querySelector('.cursor');
+            let i = 0;
+            typingInterval = setInterval(() => {
+                if (i < message.length) {
+                    textEl.textContent += message.charAt(i);
+                    i++;
+                } else {
+                    clearInterval(typingInterval);
+                    if (cursorEl) cursorEl.style.display = 'none';
+                }
+            }, 30);
+        }
+        
         function init() {
-            stepText = document.getElementById('step-text'); infoBox = document.getElementById('info-box'); moreInfoContainer = document.getElementById('more-info-container'); moreInfoLink = document.getElementById('more-info-link');
-            scene = new THREE.Scene(); scene.background = new THREE.Color(0xffffff); camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100); camera.position.set(-0.8, 0.8, -1.2); renderer = new THREE.WebGLRenderer({ antialias: true }); renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); renderer.setSize(window.innerWidth, window.innerHeight); document.body.appendChild(renderer.domElement); controls = new OrbitControls(camera, renderer.domElement); controls.target.set(0, 0.76 / 2, 0); controls.enableDamping = true; scene.add(new THREE.AmbientLight(0xdddddd)); const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5); directionalLight.position.set(1, 1.5, 1); scene.add(directionalLight);
-            createChair(); createDamageDots(); setupUI();
-            updateViewForStep(); 
-            window.addEventListener('resize', onWindowResize); renderer.domElement.addEventListener('click', onObjectClick);
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xffffff);
+            scene.add(objectGroup);
+            camera = new THREE.PerspectiveCamera(50, viewerContainer.clientWidth / viewerContainer.clientHeight, 0.01, 1000);
+            camera.position.set(-1.1, 0.7, -1.1);
+            renderer = new THREE.WebGLRenderer({ canvas: viewerCanvas, antialias: true, alpha: true });
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(viewerContainer.clientWidth, viewerContainer.clientHeight);
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.target.set(0, 0.4, 0);
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+            scene.add(ambientLight);
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.7);
+            directionalLight.position.set(2, 5, 3);
+            scene.add(directionalLight);
+            window.addEventListener('resize', onWindowResize);
+            loadDefaultCube();
+            animate();
+            updateHANS("Hello! Add files and describe the object, or load a model to begin.");
         }
-        
-        function setupModal(modalId, overlayId, openTriggerId, closeSelector) { const modal = document.getElementById(modalId); const overlay = document.getElementById(overlayId); const openTrigger = document.getElementById(openTriggerId); const closeButton = modal.querySelector(closeSelector); const open = (e) => { e.stopPropagation(); if(modalId === "info-modal"){ const damageList = document.getElementById('damage-list'); damageList.innerHTML = ''; damagesData.forEach(item => { const li = document.createElement('li'); li.textContent = `(${item.type}) ${item.description}`; damageList.appendChild(li); }); } overlay.style.display = 'block'; modal.style.display = 'block'; }; const close = () => { overlay.style.display = 'none'; modal.style.display = 'none'; }; if(openTrigger) openTrigger.addEventListener('click', open); closeButton.addEventListener('click', close); overlay.addEventListener('click', close); }
-        function createChair() { chairData.parts.forEach(part => { const g = new THREE.BoxGeometry(part.dimensions.width, part.dimensions.height, part.dimensions.depth); const b = new THREE.Mesh(g, defaultMaterial); const p = new THREE.Vector3(part.origin.x + part.dimensions.width / 2, part.origin.z + part.dimensions.height / 2, part.origin.y + part.dimensions.depth / 2); b.position.copy(p); b.userData.id = part.id; scene.add(b); chairPartsMap.set(part.id, b); const e = new THREE.EdgesGeometry(g); const l = new THREE.LineSegments(e, outlineMaterial); l.position.copy(p); scene.add(l); }); }
-        
-        function createDamageDots() {
-            const geometry = new THREE.SphereGeometry(0.015, 16, 16);
-            damagesData.forEach(damage => {
-                const sphere = new THREE.Mesh(geometry, dotMaterial);
-                sphere.position.set(damage.coordinates.x, damage.coordinates.z, damage.coordinates.y);
-                sphere.visible = false;
-                sphere.userData.damageId = damage.id;
-                damageSpheresMap.set(damage.id, sphere);
-                scene.add(sphere);
+
+        function clearModel() {
+            while(objectGroup.children.length > 0){ objectGroup.remove(objectGroup.children[0]); }
+        }
+
+        function createModel(jsonData) {
+            clearModel();
+            let objectNameKey = Object.keys(jsonData).find(k => k.toLowerCase().includes('name'));
+            let objectName = jsonData[objectNameKey] || 'Untitled';
+            if (!jsonData || !jsonData.parts || !Array.isArray(jsonData.parts)) {
+                updateHANS("Error: Could not parse the selected file. Is it a valid JSON?");
+                return;
+            }
+            currentJsonData = jsonData;
+            document.getElementById('object-name').value = objectName;
+            const material = new THREE.MeshStandardMaterial({ color: 0x666666, transparent: true, opacity: 0.5, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
+            const outlineMaterial = new THREE.LineBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.8 });
+            const bounds = new THREE.Box3().set(new THREE.Vector3(), new THREE.Vector3());
+            jsonData.parts.forEach(part => {
+                const dims = part.dimensions;
+                const orig = part.origin;
+                const geometry = new THREE.BoxGeometry(dims.width, dims.height, dims.depth);
+                const mesh = new THREE.Mesh(geometry, material);
+                mesh.position.set( orig.x + dims.width / 2, orig.z + dims.height / 2, orig.y + dims.depth / 2 );
+                objectGroup.add(mesh);
+                bounds.expandByObject(mesh);
+                const edges = new THREE.EdgesGeometry(geometry);
+                const line = new THREE.LineSegments(edges, outlineMaterial);
+                line.position.copy(mesh.position);
+                objectGroup.add(line);
             });
+            const center = new THREE.Vector3();
+            bounds.getCenter(center);
+            controls.target.copy(center);
+            updateHANS(`Model "${objectName}" loaded with ${jsonData.parts.length} parts. You can now give instructions to modify it.`);
         }
 
-        function setupUI() {
-            const nextButton = document.getElementById('next-button'); const prevButton = document.getElementById('prev-button');
-            nextButton.addEventListener('click', (e) => { e.stopPropagation(); currentStep++; if (currentStep >= repairPlan.actions.length) { currentStep = -1; } updateViewForStep(); });
-            prevButton.addEventListener('click', (e) => { e.stopPropagation(); currentStep--; if (currentStep < -1) { currentStep = repairPlan.actions.length -1; } updateViewForStep(); });
-            setupModal('info-modal', 'general-modal-overlay', 'info-icon', '.close-button');
-            setupModal('repair-step-modal', 'repair-modal-overlay', 'more-info-link', '.close-button');
-        }
-        
-        function updateViewForStep() {
-            infoBox.style.display = 'none'; moreInfoContainer.style.display = 'none';
-            chairPartsMap.forEach(part => { part.material = defaultMaterial; });
-            damageSpheresMap.forEach(sphere => { sphere.visible = false; sphere.material = dotMaterial; });
-
-            if (currentStep === -1) {
-                stepText.innerText = "Alle Schäden im Überblick. Start mit →";
-                damageSpheresMap.forEach(sphere => { sphere.visible = true; });
-            } else {
-                const action = repairPlan.actions[currentStep];
-                stepText.innerText = action.text;
-                moreInfoContainer.style.display = 'block';
-                document.getElementById('repair-modal-title').innerText = `Details: ${action.name}`;
-                document.getElementById('repair-details-list').innerHTML = `<li><b>Werkzeug:</b> ${action.attributes.tool}</li><li><b>Material:</b> ${action.attributes.material}</li>`;
-
-                action.attributes.damage_ids.forEach(damageId => {
-                    const damage = damagesData.find(d => d.id === damageId);
-                    if (damage) {
-                        const sphere = damageSpheresMap.get(damageId);
-                        const part = chairPartsMap.get(damage.part_id);
-                        if (sphere) sphere.visible = true;
-                        if (part) part.material = highlightMaterial;
-                    } else if (damageId === 'all') {
-                        chairPartsMap.forEach(part => part.material = highlightMaterial);
-                    } else if (damageId === 'missing_gliders') {
-                        chairPartsMap.forEach((part, partId) => {
-                           if(partId.includes('leg')) part.material = highlightMaterial;
-                        });
-                    }
-                });
-            }
+        function loadDefaultCube() {
+            document.getElementById('object-name').value = "";
+            const cube = { "objectName": "Default Cube", "parts": [{ "origin": {"x": -0.25, "y": -0.25, "z": 0.0}, "dimensions": {"width": 0.5, "depth": 0.5, "height": 0.5} }] };
+            createModel(cube);
         }
 
-        function onObjectClick(event) {
-            mouse.x = (event.clientX / window.innerWidth) * 2 - 1; mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
-            raycaster.setFromCamera(mouse, camera);
-            
-            const sphereIntersects = raycaster.intersectObjects(Array.from(damageSpheresMap.values()));
-            const partIntersects = raycaster.intersectObjects(Array.from(chairPartsMap.values()));
-            
-            updateViewForStep();
-            
-            if (sphereIntersects.length > 0 && sphereIntersects[0].object.visible) {
-                const clickedSphere = sphereIntersects[0].object;
-                const damageId = clickedSphere.userData.damageId;
-                const damageInfo = damagesData.find(d => d.id === damageId);
-                
-                clickedSphere.material = selectedDotMaterial;
-                infoBox.style.color = '#ff0000';
-                infoBox.innerHTML = `<b>${damageInfo.type}:</b><br>${damageInfo.description}`;
-                infoBox.style.display = 'block';
-                
-                const associatedPart = chairPartsMap.get(damageInfo.part_id);
-                if (associatedPart) { associatedPart.material = highlightMaterial; }
-
-            } else if (partIntersects.length > 0) {
-                const clickedObject = partIntersects[0].object;
-                const partId = clickedObject.userData.id;
-                clickedObject.material = selectionMaterial;
-                const partData = chairData.parts.find(p => p.id === partId);
-                if (partData) { const d = partData.dimensions; const o = partData.origin; infoBox.style.color = '#0000ff'; infoBox.innerHTML = `<b>Bauteil:</b> ${partId.replace(/_/g, ' ')}<br><b>Maße:</b> ${(d.width*100).toFixed(1)}×${(d.height*100).toFixed(1)}×${(d.depth*100).toFixed(1)} cm<br><b>Position:</b> ${o.x.toFixed(3)},${o.y.toFixed(3)},${o.z.toFixed(3)}`; infoBox.style.display = 'block'; }
-            } else {
-                infoBox.style.display = 'none';
-            }
+        function onWindowResize() {
+            const width = viewerContainer.clientWidth;
+            const height = viewerContainer.clientHeight;
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+            renderer.setSize(width, height);
         }
-
-        function onWindowResize() { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); }
 
         function animate() {
             requestAnimationFrame(animate);
-            const time = Date.now() * 0.008;
-            const scale = 1 + Math.sin(time) * 0.5;
-            damageSpheresMap.forEach(sphere => {
-                if (sphere.visible) { sphere.scale.set(scale, scale, scale); }
-            });
             controls.update();
             renderer.render(scene, camera);
         }
 
-        init();
-        animate();
+        // --- UI EVENT HANDLERS ---
+        const uploadJsonInput = document.getElementById('json-upload-input');
+        document.getElementById('upload-json-btn').addEventListener('click', () => uploadJsonInput.click());
+        uploadJsonInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const jsonData = JSON.parse(e.target.result);
+                    createModel(jsonData);
+                } catch (error) {
+                    updateHANS("Error: Could not parse the selected JSON file.");
+                    clearModel();
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        });
 
+        document.getElementById('download-json-btn').addEventListener('click', () => {
+            if (!currentJsonData) { updateHANS("No model data to download."); return; }
+            const objectName = document.getElementById('object-name').value.trim() || 'namelessObject';
+            const downloadData = { ...currentJsonData };
+            Object.keys(downloadData).forEach(key => { if (key.toLowerCase().includes('name') && key !== 'name') delete downloadData[key]; });
+            const finalData = { "objectName": objectName, ...downloadData };
+            const jsonString = JSON.stringify(finalData, null, 2);
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${objectName.replace(/\s+/g, '_')}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            updateHANS("JSON download initiated.");
+        });
+
+        document.getElementById('copy-json-btn').addEventListener('click', () => {
+             if (!currentJsonData) { updateHANS("No model data to show."); return; }
+             document.getElementById('json-view-textarea').value = JSON.stringify(currentJsonData, null, 2);
+             document.getElementById('json-modal-overlay').style.display = 'flex';
+        });
+
+        document.querySelectorAll('.close-modal-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => { e.target.closest('.modal-overlay').style.display = 'none'; });
+        });
+        document.getElementById('copy-json-from-modal-btn').addEventListener('click', () => {
+            navigator.clipboard.writeText(document.getElementById('json-view-textarea').value).then(() => {
+                updateHANS("JSON copied to clipboard.");
+                document.getElementById('json-modal-overlay').style.display = 'none';
+            }, () => { updateHANS("Failed to copy JSON."); });
+        });
+        
+        document.getElementById('add-files-btn').addEventListener('click', () => {
+            addFilesInput.click();
+        });
+
+        addFilesInput.addEventListener('change', async (event) => {
+            const files = event.target.files;
+            if (!files.length) return;
+            updateHANS(`Reading ${files.length} file(s)...`);
+            const filePromises = Array.from(files).map(file => {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                        const base64Data = reader.result.split(',')[1];
+                        resolve({ mimeType: file.type, data: base64Data });
+                    };
+                    reader.onerror = reject;
+                    reader.readAsDataURL(file);
+                });
+            });
+            try {
+                uploadedFiles = await Promise.all(filePromises);
+                updateHANS(`${uploadedFiles.length} file(s) are ready. Please provide a prompt and click 'Generate Model'.`);
+            } catch (error) {
+                updateHANS("Error reading files. Please try again.");
+                console.error("File reading error:", error);
+            }
+            addFilesInput.value = '';
+        });
+        
+        document.getElementById('generate-model-btn').addEventListener('click', async () => {
+            const promptText = document.getElementById('additional-instructions').value;
+            if (!promptText.trim()) {
+                updateHANS("Please enter an instruction for the model.");
+                return;
+            }
+            updateHANS("Sending request to HANS... this may take a moment.");
+            try {
+                const isModification = uploadedFiles.length === 0;
+                const payload = {
+                    prompt: promptText,
+                    modelJson: isModification ? currentJsonData : null,
+                    files: isModification ? [] : uploadedFiles
+                };
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                });
+
+                if (!response.ok) {
+                    const errorResult = await response.json();
+                    throw new Error(errorResult.message || `Server responded with status: ${response.status}`);
+                }
+                const result = await response.json();
+                
+                if (!result.candidates || !result.candidates[0].content.parts[0].text) {
+                    throw new Error("Invalid response structure from Gemini API.");
+                }
+                const geminiResponseText = result.candidates[0].content.parts[0].text;
+                const cleanedJsonString = geminiResponseText.replace(/```json\n|```/g, '').trim();
+                const newModelJson = JSON.parse(cleanedJsonString);
+                
+                createModel(newModelJson);
+                uploadedFiles = [];
+                document.getElementById('additional-instructions').value = '';
+
+            } catch (error) {
+                console.error("Generation Error:", error);
+                // --- <<< START OF UPDATED SECTION >>> ---
+                if (error.name === 'TypeError') {
+                    // This is the specific error for "Failed to fetch"
+                    updateHANS(`Sorry, the connection to the server failed. This may be due to a network issue or a server timeout. Please try again.`);
+                } else {
+                    // Handle other errors (like JSON parsing, etc.)
+                    updateHANS(`Sorry, an error occurred: ${error.message}`);
+                }
+                // --- <<< END OF UPDATED SECTION >>> ---
+            }
+        });
+        
+        init();
     </script>
 </body>
 </html>
