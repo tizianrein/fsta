@@ -61,7 +61,7 @@ export default async function handler(req, res) {
         geminiParts.push({ text: `User's instruction: "${prompt}"` });
     }
     
-    const googleApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent?key=${apiKey}`;
+    const googleApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro-latest:generateContent?key=${apiKey}`;
 
     const googleResponse = await fetch(googleApiUrl, {
       method: 'POST',

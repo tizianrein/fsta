@@ -92,9 +92,7 @@
             camera = new THREE.PerspectiveCamera(50, viewerContainer.clientWidth / viewerContainer.clientHeight, 0.01, 1000);
             camera.position.set(-1.1, 0.7, -1.1);
             renderer = new THREE.WebGLRenderer({ canvas: viewerCanvas, antialias: true, alpha: true });
-            // --- <<< START OF UPDATED SECTION >>> ---
-            renderer.autoClear = false; // We will handle clearing manually
-            // --- <<< END OF UPDATED SECTION >>> ---
+            renderer.autoClear = false;
             renderer.setPixelRatio(window.devicePixelRatio);
             renderer.setSize(viewerContainer.clientWidth, viewerContainer.clientHeight);
             controls = new OrbitControls(camera, renderer.domElement);
@@ -106,13 +104,15 @@
             directionalLight.position.set(2, 5, 3);
             scene.add(directionalLight);
             
+            // Axis Gizmo Setup with standard AxesHelper
             axesScene = new THREE.Scene();
-            const gizmoSize = 2;
-            axesCamera = new THREE.OrthographicCamera(-gizmoSize, gizmoSize, gizmoSize, -gizmoSize, 0.1, 10);
-            axesCamera.position.z = 5;
-            const axesLight = new THREE.AmbientLight(0xffffff, 3);
-            axesScene.add(axesLight);
+            const gizmoSize = 2.5;
+            axesCamera = new THREE.OrthographicCamera(-gizmoSize, gizmoSize, gizmoSize, -gizmoSize, -10, 10);
+
             const axes = new THREE.AxesHelper(1.5);
+            // Rotate the entire gizmo so the Z-axis (Blue) points up
+            axes.rotation.x = -Math.PI / 2;
+            axes.rotation.z = -Math.PI;
             axesScene.add(axes);
 
             window.addEventListener('resize', onWindowResize);
@@ -158,9 +158,10 @@
         }
 
         function loadDefaultCube() {
-            document.getElementById('object-name').value = "Default Cube";
+            document.getElementById('object-name').value = "";
             const cube = { "objectName": "Default Cube", "parts": [{ "origin": {"x": -0.25, "y": -0.25, "z": 0.0}, "dimensions": {"width": 0.5, "depth": 0.5, "height": 0.5} }] };
             createModel(cube);
+            document.getElementById('object-name').value = "";
         }
 
         function onWindowResize() {
@@ -171,34 +172,18 @@
             renderer.setSize(width, height);
         }
 
-        // --- <<< START OF UPDATED SECTION >>> ---
         function animate() {
             requestAnimationFrame(animate);
             controls.update();
-            
-            // 1. Manually clear the buffers
             renderer.clear();
-            
-            // 2. Render the main scene
             renderer.render(scene, camera);
-
-            // 3. Prepare for the gizmo overlay by clearing only the depth buffer
             renderer.clearDepth();
-
-            // 4. Set the viewport to a small square in the corner
             const gizmoViewportSize = 80;
             renderer.setViewport(10, 10, gizmoViewportSize, gizmoViewportSize);
-            
-            // 5. Sync gizmo camera's rotation with main camera
             axesCamera.quaternion.copy(camera.quaternion);
-            
-            // 6. Render the gizmo
             renderer.render(axesScene, axesCamera);
-
-            // 7. Reset the viewport back to full size for the next frame
             renderer.setViewport(0, 0, viewerContainer.clientWidth, viewerContainer.clientHeight);
         }
-        // --- <<< END OF UPDATED SECTION >>> ---
 
         // --- UI EVENT HANDLERS ---
         const uploadJsonInput = document.getElementById('json-upload-input');
@@ -300,11 +285,13 @@
                 updateHANS("Please enter an instruction for the model.");
                 return;
             }
-            updateHANS("Generating a Model... this may take a moment.");
+            updateHANS("Sending request to HANS... this may take a moment.");
             try {
+                const objectName = document.getElementById('object-name').value.trim() || 'namelessObject';
                 const isModification = uploadedFiles.length === 0;
                 const payload = {
                     prompt: promptText,
+                    objectName: objectName,
                     modelJson: isModification ? currentJsonData : null,
                     files: isModification ? [] : uploadedFiles
                 };
