@@ -107,10 +107,9 @@
             scene.add(directionalLight);
             
             axesScene = new THREE.Scene();
-            // Use an Orthographic camera for a non-distorted gizmo view
             const gizmoSize = 2;
             axesCamera = new THREE.OrthographicCamera(-gizmoSize, gizmoSize, gizmoSize, -gizmoSize, 0.1, 10);
-            axesCamera.position.z = 5; // Position doesn't matter much, just needs to be outside the helper
+            axesCamera.position.z = 5;
             const axesLight = new THREE.AmbientLight(0xffffff, 3);
             axesScene.add(axesLight);
             const axes = new THREE.AxesHelper(1.5);
@@ -183,8 +182,8 @@
             // 2. Render the main scene
             renderer.render(scene, camera);
 
-            // 3. Prepare for the gizmo overlay
-            renderer.clearDepth(); // Clear only the depth buffer
+            // 3. Prepare for the gizmo overlay by clearing only the depth buffer
+            renderer.clearDepth();
 
             // 4. Set the viewport to a small square in the corner
             const gizmoViewportSize = 80;
@@ -301,7 +300,7 @@
                 updateHANS("Please enter an instruction for the model.");
                 return;
             }
-            updateHANS("Sending request to HANS... this may take a moment.");
+            updateHANS("Generating a Model... this may take a moment.");
             try {
                 const isModification = uploadedFiles.length === 0;
                 const payload = {
