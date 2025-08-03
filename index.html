@@ -285,7 +285,7 @@
                 updateHANS("Please enter an instruction for the model.");
                 return;
             }
-            updateHANS("Sending request to HANS... this may take a moment.");
+            updateHANS("Generating Model... this may take a moment.");
             try {
                 const objectName = document.getElementById('object-name').value.trim() || 'namelessObject';
                 const isModification = uploadedFiles.length === 0;
