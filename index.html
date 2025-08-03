@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
     <title>Generate Model</title>
     <style>
-        body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;margin:0;background-color:#fff;color:#000;display:flex;justify-content:center;padding:20px 0}#app-wrapper{width:90%;max-width:420px;display:flex;flex-direction:column;gap:20px}.top-input-row{display:flex;align-items:stretch;gap:10px}#object-name{flex-grow:1;background-color:#f0f0f0;padding:12px;border:1px solid #000;border-radius:0;font-size:14px;box-sizing:border-box}#api-key-btn{flex-shrink:0;padding:12px 15px;background-color:#000;color:#fff;border:none;border-radius:0;cursor:pointer;font-size:12px;font-weight:600;box-sizing:border-box}#viewer-container{width:100%;height:40vh;position:relative;background-color:#fff}#viewer-canvas{display:block;width:100%;height:100%}#bottom-ui-container{display:flex;flex-direction:column;gap:15px}.icon-controls{display:flex;justify-content:space-around;text-align:center;padding:10px 0}.icon-button{cursor:pointer;color:#000}.icon-button svg{width:18px;height:18px}.icon-button .label{font-size:12px;margin-top:5px}.action-buttons{display:flex;gap:10px}.btn{flex-grow:1;padding:12px;font-size:14px;font-weight:600;border:none;border-radius:0;cursor:pointer;display:flex;justify-content:center;align-items:center;gap:8px;background-color:#000;color:#fff}.instructions-group{background-color:#fff;padding:15px;border:1px solid #000}.instructions-group label{display:block;font-size:12px;font-weight:600;margin-bottom:8px;color:#000}.instructions-group textarea{width:100%;height:60px;padding:10px;border:none;background-color:#fff;color:#000;border-radius:0;font-size:14px;box-sizing:border-box;resize:vertical}.hans-group{background-color:#000;color:#fff;padding:15px}#hans-output{font-family:"SF Mono",Consolas,Menlo,monospace;font-size:13px;line-height:1.5;min-height:20px}#hans-output-text{white-space:pre-wrap}.cursor{display:inline-block;background-color:#fff;width:8px;height:1em;animation:blink 1s step-end infinite}@keyframes blink{from,to{background-color:transparent}50%{background-color:#fff}}.modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(0,0,0,.7);z-index:1000;justify-content:center;align-items:center;padding:20px;box-sizing:border-box}.modal-content{background-color:#fff;padding:20px;border-radius:0;border:1px solid #000;width:100%;max-width:600px;display:flex;flex-direction:column}.modal-content h3{margin-top:0;color:#000}.modal-content textarea{width:100%;height:40vh;resize:none;font-family:monospace;font-size:12px;margin-bottom:10px;border-radius:0}.modal-actions{display:flex;justify-content:flex-end;gap:10px}.modal-btn{background-color:#000;color:#fff}.hidden-input{display:none}
+        body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;margin:0;background-color:#fff;color:#000;display:flex;justify-content:center;padding:20px 0}#app-wrapper{width:90%;max-width:420px;display:flex;flex-direction:column;gap:20px}.top-input-row{display:flex;align-items:stretch;gap:10px}#object-name{flex-grow:1;background-color:#f0f0f0;padding:12px;border:1px solid #000;border-radius:0;font-size:14px;box-sizing:border-box}#viewer-container{width:100%;height:40vh;position:relative;background-color:#fff}#viewer-canvas{display:block;width:100%;height:100%}#bottom-ui-container{display:flex;flex-direction:column;gap:15px}.icon-controls{display:flex;justify-content:space-around;text-align:center;padding:10px 0}.icon-button{cursor:pointer;color:#000}.icon-button svg{width:18px;height:18px}.icon-button .label{font-size:12px;margin-top:5px}.action-buttons{display:flex;gap:10px}.btn{flex-grow:1;padding:12px;font-size:14px;font-weight:600;border:none;border-radius:0;cursor:pointer;display:flex;justify-content:center;align-items:center;gap:8px;background-color:#000;color:#fff}.instructions-group{background-color:#fff;padding:15px;border:1px solid #000}.instructions-group label{display:block;font-size:12px;font-weight:600;margin-bottom:8px;color:#000}.instructions-group textarea{width:100%;height:60px;padding:10px;border:none;background-color:#fff;color:#000;border-radius:0;font-size:14px;box-sizing:border-box;resize:vertical}.hans-group{background-color:#000;color:#fff;padding:15px}#hans-output{font-family:"SF Mono",Consolas,Menlo,monospace;font-size:13px;line-height:1.5;min-height:20px}#hans-output-text{white-space:pre-wrap}.cursor{display:inline-block;background-color:#fff;width:8px;height:1em;animation:blink 1s step-end infinite}@keyframes blink{from,to{background-color:transparent}50%{background-color:#fff}}.modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(0,0,0,.7);z-index:1000;justify-content:center;align-items:center;padding:20px;box-sizing:border-box}.modal-content{background-color:#fff;padding:20px;border-radius:0;border:1px solid #000;width:100%;max-width:600px;display:flex;flex-direction:column}.modal-content h3{margin-top:0;color:#000}.modal-content textarea{width:100%;height:40vh;resize:none;font-family:monospace;font-size:12px;margin-bottom:10px;border-radius:0}.modal-actions{display:flex;justify-content:flex-end;gap:10px}.modal-btn{background-color:#000;color:#fff}.hidden-input{display:none}
     </style>
 </head>
 <body>
@@ -59,6 +59,11 @@
         let typingInterval;
         const objectGroup = new THREE.Group();
         const HANS_PREFIX = `HANS🧠: `;
+        const MAX_FILE_SIZE = 3 * 1024 * 1024; // 3 MB
+        const MAX_FILES = 10;
+        // --- <<< START OF NEW/UPDATED SECTION >>> ---
+        let axesScene, axesCamera; // New variables for the axis gizmo
+        // --- <<< END OF NEW/UPDATED SECTION >>> ---
 
         const viewerContainer = document.getElementById('viewer-container');
         const viewerCanvas = document.getElementById('viewer-canvas');
@@ -99,6 +104,20 @@
             const directionalLight = new THREE.DirectionalLight(0xffffff, 0.7);
             directionalLight.position.set(2, 5, 3);
             scene.add(directionalLight);
+            
+            // --- <<< START OF NEW/UPDATED SECTION >>> ---
+            // Axis Gizmo Setup
+            axesScene = new THREE.Scene();
+            axesCamera = new THREE.PerspectiveCamera(50, 1, 0.1, 10); // aspect ratio is 1 for a square viewport
+            axesScene.add(axesCamera); // light moves with the camera
+            
+            const axesLight = new THREE.AmbientLight(0xffffff, 3); // Bright light for the gizmo
+            axesCamera.add(axesLight);
+            
+            const axes = new THREE.AxesHelper(1.5); // The visible X, Y, Z lines
+            axesScene.add(axes);
+            // --- <<< END OF NEW/UPDATED SECTION >>> ---
+
             window.addEventListener('resize', onWindowResize);
             loadDefaultCube();
             animate();
@@ -155,11 +174,32 @@
             renderer.setSize(width, height);
         }
 
+        // --- <<< START OF NEW/UPDATED SECTION >>> ---
         function animate() {
             requestAnimationFrame(animate);
             controls.update();
+            
+            // 1. Render the main scene
             renderer.render(scene, camera);
+
+            // 2. Clear the depth buffer so the gizmo renders on top
+            renderer.clearDepth();
+
+            // 3. Set a small viewport in the bottom-left corner
+            const gizmoSize = 100;
+            renderer.setViewport(10, 10, gizmoSize, gizmoSize);
+
+            // 4. Sync the gizmo camera's rotation with the main camera
+            axesCamera.position.copy(camera.position);
+            axesCamera.quaternion.copy(camera.quaternion);
+
+            // 5. Render the gizmo scene
+            renderer.render(axesScene, axesCamera);
+
+            // 6. Restore the main viewport for the next frame
+            renderer.setViewport(0, 0, viewerContainer.clientWidth, viewerContainer.clientHeight);
         }
+        // --- <<< END OF NEW/UPDATED SECTION >>> ---
 
         // --- UI EVENT HANDLERS ---
         const uploadJsonInput = document.getElementById('json-upload-input');
@@ -221,6 +261,18 @@
         addFilesInput.addEventListener('change', async (event) => {
             const files = event.target.files;
             if (!files.length) return;
+            if (files.length > MAX_FILES) {
+                updateHANS(`Please select a maximum of ${MAX_FILES} files.`);
+                addFilesInput.value = '';
+                return;
+            }
+            for (const file of files) {
+                if (file.size > MAX_FILE_SIZE) {
+                    updateHANS(`Error: File "${file.name}" is too large. The limit is 3 MB per file.`);
+                    addFilesInput.value = '';
+                    return;
+                }
+            }
             updateHANS(`Reading ${files.length} file(s)...`);
             const filePromises = Array.from(files).map(file => {
                 return new Promise((resolve, reject) => {
@@ -262,14 +314,15 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload),
                 });
-
                 if (!response.ok) {
                     const errorResult = await response.json();
                     throw new Error(errorResult.message || `Server responded with status: ${response.status}`);
                 }
                 const result = await response.json();
-                
                 if (!result.candidates || !result.candidates[0].content.parts[0].text) {
+                    if(result.candidates && result.candidates[0].finishReason === "SAFETY") {
+                         throw new Error("Generation failed due to safety policies. Please modify your prompt.");
+                    }
                     throw new Error("Invalid response structure from Gemini API.");
                 }
                 const geminiResponseText = result.candidates[0].content.parts[0].text;
@@ -279,18 +332,13 @@
                 createModel(newModelJson);
                 uploadedFiles = [];
                 document.getElementById('additional-instructions').value = '';
-
             } catch (error) {
                 console.error("Generation Error:", error);
-                // --- <<< START OF UPDATED SECTION >>> ---
                 if (error.name === 'TypeError') {
-                    // This is the specific error for "Failed to fetch"
                     updateHANS(`Sorry, the connection to the server failed. This may be due to a network issue or a server timeout. Please try again.`);
                 } else {
-                    // Handle other errors (like JSON parsing, etc.)
                     updateHANS(`Sorry, an error occurred: ${error.message}`);
                 }
-                // --- <<< END OF UPDATED SECTION >>> ---
             }
         });
         
