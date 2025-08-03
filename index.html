@@ -57,6 +57,9 @@
         let currentJsonData = null;
         let uploadedFiles = [];
         let typingInterval;
+        // --- <<< START OF NEW/UPDATED SECTION >>> ---
+        let timerInterval; // To hold the timer
+        // --- <<< END OF NEW/UPDATED SECTION >>> ---
         const objectGroup = new THREE.Group();
         const HANS_PREFIX = `HANS🧠: `;
         const MAX_FILE_SIZE = 3 * 1024 * 1024;
@@ -70,6 +73,7 @@
 
         function updateHANS(message) {
             if (typingInterval) clearInterval(typingInterval);
+            if (timerInterval) clearInterval(timerInterval); // Also clear timer
             hansOutputEl.innerHTML = `${HANS_PREFIX}<span id="hans-output-text"></span><span class="cursor"></span>`;
             const textEl = document.getElementById('hans-output-text');
             const cursorEl = hansOutputEl.querySelector('.cursor');
@@ -104,21 +108,17 @@
             directionalLight.position.set(2, 5, 3);
             scene.add(directionalLight);
             
-            // Axis Gizmo Setup with standard AxesHelper
             axesScene = new THREE.Scene();
             const gizmoSize = 2.5;
             axesCamera = new THREE.OrthographicCamera(-gizmoSize, gizmoSize, gizmoSize, -gizmoSize, -10, 10);
-
             const axes = new THREE.AxesHelper(1.5);
-            // Rotate the entire gizmo so the Z-axis (Blue) points up
-            axes.rotation.x = -Math.PI / 2;
-            axes.rotation.z = -Math.PI;
+            axes.rotation.x = -Math.PI / 2; // Correct rotation for Z-up
             axesScene.add(axes);
 
             window.addEventListener('resize', onWindowResize);
             loadDefaultCube();
             animate();
-            updateHANS("Hello! Add files and describe the object, or load a model to begin.");
+            updateHANS("Hello! I am HANS, the Heuristic Agent for Narrating Structures. Add files and describe the object, or load a model to begin.");
         }
 
         function clearModel() {
@@ -279,13 +279,28 @@
             addFilesInput.value = '';
         });
         
+        // --- <<< START OF UPDATED SECTION >>> ---
         document.getElementById('generate-model-btn').addEventListener('click', async () => {
             const promptText = document.getElementById('additional-instructions').value;
             if (!promptText.trim()) {
                 updateHANS("Please enter an instruction for the model.");
                 return;
             }
-            updateHANS("Generating Model... this may take a moment.");
+
+            // --- Timer Logic Start ---
+            if (typingInterval) clearInterval(typingInterval);
+            let seconds = 0;
+            const baseMessage = "Generating Model... this may take a moment.";
+            const updateTimer = () => {
+                hansOutputEl.innerHTML = `${HANS_PREFIX} ${baseMessage} (${seconds}s)`;
+            };
+            updateTimer(); // Show immediately
+            timerInterval = setInterval(() => {
+                seconds++;
+                updateTimer();
+            }, 1000);
+            // --- Timer Logic End ---
+
             try {
                 const objectName = document.getElementById('object-name').value.trim() || 'namelessObject';
                 const isModification = uploadedFiles.length === 0;
@@ -300,6 +315,9 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload),
                 });
+
+                clearInterval(timerInterval); // Stop timer once response is received
+                
                 if (!response.ok) {
                     const errorResult = await response.json();
                     throw new Error(errorResult.message || `Server responded with status: ${response.status}`);
@@ -319,6 +337,7 @@
                 uploadedFiles = [];
                 document.getElementById('additional-instructions').value = '';
             } catch (error) {
+                clearInterval(timerInterval); // Also stop timer on error
                 console.error("Generation Error:", error);
                 if (error.name === 'TypeError') {
                     updateHANS(`Sorry, the connection to the server failed. This may be due to a network issue or a server timeout. Please try again.`);
@@ -327,6 +346,7 @@
                 }
             }
         });
+        // --- <<< END OF UPDATED SECTION >>> ---
         
         init();
     </script>
