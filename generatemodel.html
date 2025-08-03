@@ -11,7 +11,7 @@
             margin: 0;
             background-color: #ffffff;
             color: #000000;
-            display: flex; /* Use flexbox for vertical centering */
+            display: flex;
             justify-content: center;
             padding: 20px 0;
         }
@@ -22,13 +22,13 @@
             max-width: 420px;
             display: flex;
             flex-direction: column;
-            gap: 20px; /* Consistent spacing */
+            gap: 20px;
         }
 
         /* Top UI Container */
         .top-input-row {
             display: flex;
-            align-items: center;
+            align-items: stretch; /* Makes items same height */
             gap: 10px;
         }
         #object-name {
@@ -38,18 +38,20 @@
             border: 1px solid #000;
             border-radius: 0;
             font-size: 14px;
+            box-sizing: border-box;
         }
         #api-key-btn {
             flex-shrink: 0; padding: 12px 15px; background-color: #000; color: #fff;
             border: none; border-radius: 0; cursor: pointer; font-size: 12px; font-weight: 600;
+            box-sizing: border-box;
         }
 
         /* 3D Viewer Container */
         #viewer-container {
             width: 100%;
-            height: 40vh; /* Occupies a significant portion of the screen height */
-            position: relative; /* For the canvas inside */
-            background-color: #ffffff; /* Same as body */
+            height: 40vh;
+            position: relative;
+            background-color: #ffffff;
         }
         #viewer-canvas {
             display: block;
@@ -65,7 +67,7 @@
         }
         .icon-controls { display: flex; justify-content: space-around; text-align: center; padding: 10px 0; }
         .icon-button { cursor: pointer; color: #000; }
-        .icon-button svg { width: 28px; height: 28px; }
+        .icon-button svg { width: 18px; height: 18px; } /* Icons made 25% smaller */
         .icon-button .label { font-size: 12px; margin-top: 5px; }
         
         .action-buttons { display: flex; gap: 10px; }
@@ -79,13 +81,17 @@
         .instructions-group { background-color: #ffffff; padding: 15px; border: 1px solid #000; }
         .instructions-group label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 8px; color: #000; }
         .instructions-group textarea {
-            width: 100%; height: 80px; padding: 10px; border: 1px solid #000;
+            width: 100%; height: 60px; /* Comment field height reduced */
+            padding: 10px; border: none; 
             background-color: #fff; color: #000; border-radius: 0;
             font-size: 14px; box-sizing: border-box; resize: vertical;
         }
 
         .hans-group { background-color: #000; color: #fff; padding: 15px; }
         #hans-output { font-family: "SF Mono", "Consolas", "Menlo", monospace; font-size: 13px; line-height: 1.5; min-height: 20px; }
+        #hans-output-text { white-space: pre-wrap; }
+        .cursor { display: inline-block; background-color: #fff; width: 8px; height: 1em; animation: blink 1s step-end infinite; }
+        @keyframes blink { from, to { background-color: transparent } 50% { background-color: #fff; } }
 
         /* Modals */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
@@ -102,7 +108,7 @@
     
     <div id="app-wrapper">
         <div class="top-input-row">
-            <input type="text" id="object-name" placeholder="geometry">
+            <input type="text" id="object-name" placeholder="Enter object name here...">
             <button id="api-key-btn">Enter API-Key</button>
         </div>
 
@@ -113,7 +119,7 @@
         <div id="bottom-ui-container">
             <div class="icon-controls">
                 <div id="upload-json-btn" class="icon-button" title="Upload a model from a JSON file"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z"/></svg><div class="label">Upload JSON</div></div>
-                <div id="copy-json-btn" class="icon-button" title="View and copy the current model's JSON"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M13 0H6a2 2 0 0 0-2 2 2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h7a2 2 0 0 0 2-2 2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zM5 14.5a1.5 1.5 0 1 1 .001-3.001A1.5 1.5 0 0 1 5 14.5zM4 2a1 1 0 0 1 1-1h1a1 1 0 0 1 1 1v1H4V2zm6 12a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6h5v8zm-4-6.5a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1H6.5a.5.5 0 0 1-.5-.5zM14 12V4h-1v5a1 1 0 0 1-1 1H6v2a1 1 0 0 1-1 1H4v1a1 1 0 0 1-1 1H2.5a.5.5 0 0 1 0-1H3a1 1 0 0 1 1-1V4a1 1 0 0 1 1-1h1V2a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h7a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2h-1v8a2 2 0 0 0 2 2h2z"/></svg><div class="label">Read & Copy JSON</div></div>
+                <div id="copy-json-btn" class="icon-button" title="View and copy the current model's JSON"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H6z"/><path d="M2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1H2z"/></svg><div class="label">Read & Copy JSON</div></div>
                 <div id="download-json-btn" class="icon-button" title="Download the current model as a JSON file"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/></svg><div class="label">Download JSON</div></div>
             </div>
             
@@ -147,14 +153,33 @@
 
         let scene, camera, renderer, controls;
         let currentJsonData = null;
+        let typingInterval;
         const objectGroup = new THREE.Group();
         const HANS_PREFIX = `HANS🧠: `;
 
         const viewerContainer = document.getElementById('viewer-container');
         const viewerCanvas = document.getElementById('viewer-canvas');
+        const hansOutputEl = document.getElementById('hans-output');
 
         function updateHANS(message) {
-            document.getElementById('hans-output').innerHTML = HANS_PREFIX + message;
+            // Stop any existing animation
+            if (typingInterval) clearInterval(typingInterval);
+
+            // Prepare elements
+            hansOutputEl.innerHTML = `${HANS_PREFIX}<span id="hans-output-text"></span><span class="cursor"></span>`;
+            const textEl = document.getElementById('hans-output-text');
+            const cursorEl = hansOutputEl.querySelector('.cursor');
+            
+            let i = 0;
+            typingInterval = setInterval(() => {
+                if (i < message.length) {
+                    textEl.textContent += message.charAt(i);
+                    i++;
+                } else {
+                    clearInterval(typingInterval);
+                    cursorEl.style.display = 'none'; // Hide cursor when done
+                }
+            }, 30); // Typing speed in milliseconds
         }
         
         function init() {
@@ -162,9 +187,8 @@
             scene.background = new THREE.Color(0xffffff);
             scene.add(objectGroup);
 
-            // Camera with robust clipping planes to prevent "crashing" on zoom
             camera = new THREE.PerspectiveCamera(50, viewerContainer.clientWidth / viewerContainer.clientHeight, 0.01, 1000);
-            camera.position.set(-1.1, 0.7, -1.1); // Set closer to the object
+            camera.position.set(-1.1, 0.7, -1.1);
             
             renderer = new THREE.WebGLRenderer({ canvas: viewerCanvas, antialias: true, alpha: true });
             renderer.setPixelRatio(window.devicePixelRatio);
@@ -233,7 +257,7 @@
         }
 
         function loadDefaultCube() {
-            document.getElementById('object-name').value = "Default Cube";
+            document.getElementById('object-name').value = "";
             const cube = {
               "objectName": "Default Cube",
               "parts": [{ "origin": {"x": -0.25, "y": -0.25, "z": 0.0}, "dimensions": {"width": 0.5, "depth": 0.5, "height": 0.5} }]
@@ -242,7 +266,6 @@
         }
 
         function onWindowResize() {
-            // Resize the renderer based on the dedicated container
             const width = viewerContainer.clientWidth;
             const height = viewerContainer.clientHeight;
             camera.aspect = width / height;
@@ -280,7 +303,7 @@
 
         document.getElementById('download-json-btn').addEventListener('click', () => {
             if (!currentJsonData) { updateHANS("No model data to download."); return; }
-            const objectName = document.getElementById('object-name').value.trim() || 'model';
+            const objectName = document.getElementById('object-name').value.trim() || 'namelessObject';
             const downloadData = { ...currentJsonData };
             Object.keys(downloadData).forEach(key => { if (key.toLowerCase().includes('name') && key !== 'name') delete downloadData[key]; });
             const finalData = { "objectName": objectName, ...downloadData };
