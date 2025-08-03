@@ -5,111 +5,15 @@
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
     <title>Generate Model</title>
     <style>
-        /* General Body and Layout */
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            margin: 0;
-            background-color: #ffffff;
-            color: #000000;
-            display: flex;
-            justify-content: center;
-            padding: 20px 0;
-        }
-
-        /* A single container for the whole app */
-        #app-wrapper {
-            width: 90%;
-            max-width: 420px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        /* Top UI Container */
-        .top-input-row {
-            display: flex;
-            align-items: stretch; /* Makes items same height */
-            gap: 10px;
-        }
-        #object-name {
-            flex-grow: 1;
-            background-color: #f0f0f0;
-            padding: 12px;
-            border: 1px solid #000;
-            border-radius: 0;
-            font-size: 14px;
-            box-sizing: border-box;
-        }
-        #api-key-btn {
-            flex-shrink: 0; padding: 12px 15px; background-color: #000; color: #fff;
-            border: none; border-radius: 0; cursor: pointer; font-size: 12px; font-weight: 600;
-            box-sizing: border-box;
-        }
-
-        /* 3D Viewer Container */
-        #viewer-container {
-            width: 100%;
-            height: 40vh;
-            position: relative;
-            background-color: #ffffff;
-        }
-        #viewer-canvas {
-            display: block;
-            width: 100%;
-            height: 100%;
-        }
-
-        /* Bottom UI Container */
-        #bottom-ui-container {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        .icon-controls { display: flex; justify-content: space-around; text-align: center; padding: 10px 0; }
-        .icon-button { cursor: pointer; color: #000; }
-        .icon-button svg { width: 18px; height: 18px; } /* Icons made 25% smaller */
-        .icon-button .label { font-size: 12px; margin-top: 5px; }
-        
-        .action-buttons { display: flex; gap: 10px; }
-        .btn {
-            flex-grow: 1; padding: 12px; font-size: 14px; font-weight: 600;
-            border: none; border-radius: 0; cursor: pointer;
-            display: flex; justify-content: center; align-items: center; gap: 8px;
-            background-color: #000000; color: #ffffff;
-        }
-        
-        .instructions-group { background-color: #ffffff; padding: 15px; border: 1px solid #000; }
-        .instructions-group label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 8px; color: #000; }
-        .instructions-group textarea {
-            width: 100%; height: 60px; /* Comment field height reduced */
-            padding: 10px; border: none; 
-            background-color: #fff; color: #000; border-radius: 0;
-            font-size: 14px; box-sizing: border-box; resize: vertical;
-        }
-
-        .hans-group { background-color: #000; color: #fff; padding: 15px; }
-        #hans-output { font-family: "SF Mono", "Consolas", "Menlo", monospace; font-size: 13px; line-height: 1.5; min-height: 20px; }
-        #hans-output-text { white-space: pre-wrap; }
-        .cursor { display: inline-block; background-color: #fff; width: 8px; height: 1em; animation: blink 1s step-end infinite; }
-        @keyframes blink { from, to { background-color: transparent } 50% { background-color: #fff; } }
-
-        /* Modals */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
-        .modal-content { background-color: #fff; padding: 20px; border-radius: 0; border: 1px solid #000; width: 100%; max-width: 600px; display: flex; flex-direction: column; }
-        .modal-content h3 { margin-top: 0; color: #000; }
-        .modal-content textarea { width: 100%; height: 40vh; resize: none; font-family: monospace; font-size: 12px; margin-bottom: 10px; border-radius: 0; }
-        .modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
-        .modal-btn { background-color: #000; color: #fff; }
-        
-        .hidden-input { display: none; }
+        body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;margin:0;background-color:#fff;color:#000;display:flex;justify-content:center;padding:20px 0}#app-wrapper{width:90%;max-width:420px;display:flex;flex-direction:column;gap:20px}.top-input-row{display:flex;align-items:stretch;gap:10px}#object-name{flex-grow:1;background-color:#f0f0f0;padding:12px;border:1px solid #000;border-radius:0;font-size:14px;box-sizing:border-box}#viewer-container{width:100%;height:40vh;position:relative;background-color:#fff}#viewer-canvas{display:block;width:100%;height:100%}#bottom-ui-container{display:flex;flex-direction:column;gap:15px}.icon-controls{display:flex;justify-content:space-around;text-align:center;padding:10px 0}.icon-button{cursor:pointer;color:#000}.icon-button svg{width:18px;height:18px}.icon-button .label{font-size:12px;margin-top:5px}.action-buttons{display:flex;gap:10px}.btn{flex-grow:1;padding:12px;font-size:14px;font-weight:600;border:none;border-radius:0;cursor:pointer;display:flex;justify-content:center;align-items:center;gap:8px;background-color:#000;color:#fff}.instructions-group{background-color:#fff;padding:15px;border:1px solid #000}.instructions-group label{display:block;font-size:12px;font-weight:600;margin-bottom:8px;color:#000}.instructions-group textarea{width:100%;height:60px;padding:10px;border:none;background-color:#fff;color:#000;border-radius:0;font-size:14px;box-sizing:border-box;resize:vertical}.hans-group{background-color:#000;color:#fff;padding:15px}#hans-output{font-family:"SF Mono",Consolas,Menlo,monospace;font-size:13px;line-height:1.5;min-height:20px}#hans-output-text{white-space:pre-wrap}.cursor{display:inline-block;background-color:#fff;width:8px;height:1em;animation:blink 1s step-end infinite}@keyframes blink{from,to{background-color:transparent}50%{background-color:#fff}}.modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(0,0,0,.7);z-index:1000;justify-content:center;align-items:center;padding:20px;box-sizing:border-box}.modal-content{background-color:#fff;padding:20px;border-radius:0;border:1px solid #000;width:100%;max-width:600px;display:flex;flex-direction:column}.modal-content h3{margin-top:0;color:#000}.modal-content textarea{width:100%;height:40vh;resize:none;font-family:monospace;font-size:12px;margin-bottom:10px;border-radius:0}.modal-actions{display:flex;justify-content:flex-end;gap:10px}.modal-btn{background-color:#000;color:#fff}.hidden-input{display:none}
     </style>
 </head>
 <body>
     
     <div id="app-wrapper">
         <div class="top-input-row">
+            <!-- The API Key button is now removed -->
             <input type="text" id="object-name" placeholder="Enter object name here...">
-            <button id="api-key-btn">Enter API-Key</button>
         </div>
 
         <div id="viewer-container">
@@ -141,8 +45,8 @@
     
     <!-- Modals and Hidden Inputs -->
     <div id="json-modal-overlay" class="modal-overlay"><div class="modal-content"><h3>Current Model JSON</h3><textarea id="json-view-textarea" readonly></textarea><div class="modal-actions"><button id="copy-json-from-modal-btn" class="btn modal-btn">Copy</button><button class="btn modal-btn close-modal-btn">Close</button></div></div></div>
-    <div id="api-key-modal-overlay" class="modal-overlay"><div class="modal-content"><h3>Enter Gemini API Key</h3><input type="password" id="api-key-input" placeholder="Your key is used locally and not stored" style="width: 100%; padding: 10px; border: 1px solid #000; border-radius: 0; box-sizing: border-box; margin-bottom: 10px;"><div class="modal-actions"><button id="save-api-key-btn" class="btn modal-btn">Save</button><button class="btn modal-btn close-modal-btn">Close</button></div></div></div>
-    <input type="file" id="json-upload-input" class="hidden-input" accept=".json, .txt"><input type="file" id="add-files-input" class="hidden-input" multiple>
+    <!-- API Key Modal is removed -->
+    <input type="file" id="json-upload-input" class="hidden-input" accept=".json, .txt"><input type="file" id="add-files-input" class="hidden-input" multiple accept="image/*,application/pdf">
 
     <!-- Three.js Import -->
     <script type="importmap">{ "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js", "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/" } }</script>
@@ -153,6 +57,7 @@
 
         let scene, camera, renderer, controls;
         let currentJsonData = null;
+        let uploadedFiles = []; // NEW: To store file data
         let typingInterval;
         const objectGroup = new THREE.Group();
         const HANS_PREFIX = `HANS🧠: `;
@@ -160,6 +65,7 @@
         const viewerContainer = document.getElementById('viewer-container');
         const viewerCanvas = document.getElementById('viewer-canvas');
         const hansOutputEl = document.getElementById('hans-output');
+        const addFilesInput = document.getElementById('add-files-input');
 
         function updateHANS(message) {
             if (typingInterval) clearInterval(typingInterval);
@@ -198,7 +104,7 @@
             window.addEventListener('resize', onWindowResize);
             loadDefaultCube();
             animate();
-            updateHANS("Hello, this is HANS (Heuristic Agent for Narrating Structures). Let's think of a model.");
+            updateHANS("Hello! Add files and describe the object, or load a model to begin.");
         }
 
         function clearModel() {
@@ -214,6 +120,7 @@
                 return;
             }
             currentJsonData = jsonData;
+            document.getElementById('object-name').value = objectName;
             const material = new THREE.MeshStandardMaterial({ color: 0x666666, transparent: true, opacity: 0.5, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
             const outlineMaterial = new THREE.LineBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.8 });
             const bounds = new THREE.Box3().set(new THREE.Vector3(), new THREE.Vector3());
@@ -233,7 +140,7 @@
             const center = new THREE.Vector3();
             bounds.getCenter(center);
             controls.target.copy(center);
-            updateHANS(`Model "${objectName}" loaded with ${jsonData.parts.length} parts.`);
+            updateHANS(`Model "${objectName}" loaded with ${jsonData.parts.length} parts. You can now give instructions to modify it.`);
         }
 
         function loadDefaultCube() {
@@ -266,11 +173,9 @@
             reader.onload = (e) => {
                 try {
                     const jsonData = JSON.parse(e.target.result);
-                    let objectNameKey = Object.keys(jsonData).find(k => k.toLowerCase().includes('name'));
-                    document.getElementById('object-name').value = jsonData[objectNameKey] || file.name.replace(/\.[^/.]+$/, "");
                     createModel(jsonData);
                 } catch (error) {
-                    updateHANS("Error: Could not parse the selected file. Is it a valid JSON?");
+                    updateHANS("Error: Could not parse the selected JSON file.");
                     clearModel();
                 }
             };
@@ -300,14 +205,7 @@
              document.getElementById('json-view-textarea').value = JSON.stringify(currentJsonData, null, 2);
              document.getElementById('json-modal-overlay').style.display = 'flex';
         });
-        document.getElementById('api-key-btn').addEventListener('click', () => {
-            document.getElementById('api-key-modal-overlay').style.display = 'flex';
-        });
-        document.getElementById('save-api-key-btn').addEventListener('click', () => {
-             const key = document.getElementById('api-key-input').value;
-             updateHANS(key ? "API Key has been set for this session." : "API Key cleared.");
-             document.getElementById('api-key-modal-overlay').style.display = 'none';
-        });
+
         document.querySelectorAll('.close-modal-btn').forEach(btn => {
             btn.addEventListener('click', (e) => { e.target.closest('.modal-overlay').style.display = 'none'; });
         });
@@ -318,35 +216,79 @@
             }, () => { updateHANS("Failed to copy JSON."); });
         });
         
+        // --- <<< START OF NEW/UPDATED SECTION >>> ---
+
+        // Handle the "Add Files" button
         document.getElementById('add-files-btn').addEventListener('click', () => {
-            document.getElementById('add-files-input').click();
-            updateHANS("Add Files: This feature is for UI demonstration.");
+            addFilesInput.click();
+        });
+
+        // Process selected files
+        addFilesInput.addEventListener('change', async (event) => {
+            const files = event.target.files;
+            if (!files.length) return;
+            
+            updateHANS(`Reading ${files.length} file(s)...`);
+            
+            const filePromises = Array.from(files).map(file => {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                        // Get Base64 data, removing the "data:mime/type;base64," part
+                        const base64Data = reader.result.split(',')[1];
+                        resolve({
+                            mimeType: file.type,
+                            data: base64Data
+                        });
+                    };
+                    reader.onerror = reject;
+                    reader.readAsDataURL(file);
+                });
+            });
+
+            try {
+                uploadedFiles = await Promise.all(filePromises);
+                updateHANS(`${uploadedFiles.length} file(s) are ready to be used with your next prompt.`);
+            } catch (error) {
+                updateHANS("Error reading files. Please try again.");
+                console.error("File reading error:", error);
+            }
+            addFilesInput.value = ''; // Clear input for re-selection
         });
         
-        // --- <<< START OF UPDATED SECTION >>> ---
+        // Main "Generate Model" button logic
         document.getElementById('generate-model-btn').addEventListener('click', async () => {
             const promptText = document.getElementById('additional-instructions').value;
             
+            // A prompt is always required
             if (!promptText.trim()) {
-                updateHANS("Please enter an instruction to generate a new model.");
+                updateHANS("Please enter an instruction for the model.");
                 return;
             }
 
-            updateHANS("Thinking... this may take a moment.");
+            updateHANS("Sending request to HANS... this may take a moment.");
 
             try {
+                // Determine if this is a modification or an initial generation
+                const isModification = uploadedFiles.length === 0;
+                
+                const payload = {
+                    prompt: promptText,
+                    // Send current model only if it's a modification request
+                    modelJson: isModification ? currentJsonData : null,
+                    // Send files only if it's an initial request
+                    files: isModification ? [] : uploadedFiles
+                };
+
                 const response = await fetch('/api/generate', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        prompt: promptText,
-                        modelJson: currentJsonData
-                    }),
+                    body: JSON.stringify(payload),
                 });
 
                 if (!response.ok) {
                     const errorResult = await response.json();
-                    throw new Error(errorResult.message || `Server responded with an error: ${response.status}`);
+                    throw new Error(errorResult.message || `Server responded with status: ${response.status}`);
                 }
 
                 const result = await response.json();
@@ -354,20 +296,24 @@
                 if (!result.candidates || !result.candidates[0].content.parts[0].text) {
                     throw new Error("Invalid response structure from Gemini API.");
                 }
-                const geminiResponseText = result.candidates[0].content.parts[0].text;
-                
-                const cleanedJsonString = geminiResponseText.replace(/```json\n|```/g, '').trim();
 
+                const geminiResponseText = result.candidates[0].content.parts[0].text;
+                const cleanedJsonString = geminiResponseText.replace(/```json\n|```/g, '').trim();
                 const newModelJson = JSON.parse(cleanedJsonString);
                 
+                // Success!
                 createModel(newModelJson);
+                
+                // Clear the state for the next request
+                uploadedFiles = [];
+                document.getElementById('additional-instructions').value = '';
 
             } catch (error) {
                 console.error("Generation Error:", error);
-                updateHANS(`Sorry, an error occurred. ${error.message}`);
+                updateHANS(`Sorry, an error occurred: ${error.message}`);
             }
         });
-        // --- <<< END OF UPDATED SECTION >>> ---
+        // --- <<< END OF NEW/UPDATED SECTION >>> ---
         
         // --- START ---
         init();
