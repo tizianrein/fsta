@@ -1,39 +1,43 @@
 // File: /api/catalog-damages.js
 
+// This tells Vercel to allow this function to run for up to 120 seconds.
 export const maxDuration = 120;
 
+// --- <<< START OF UPDATED SECTION >>> ---
 const SYSTEM_PROMPT = `
 You are a specialist AI for detecting and locating damages on physical objects based on images and textual descriptions.
-Your task is to analyze the provided data and return a JSON array listing all identified damages.
+Your task is to analyze the provided data and return ONLY a JSON array listing all identified damages.
 
-Output ONLY the JSON content. Do not include any explanatory text, greetings, or other conversation. Do not use markdown formatting like \`\`\`json.
+**Output Rules:**
+- Output ONLY the raw JSON array.
+- Do not include any explanatory text, greetings, conversation, or markdown formatting like \`\`\`json.
+- If no damages are found, return an empty array: [].
 
 **Input Context:**
-1.  **Base Model JSON:** A JSON object describing the object's geometry, composed of parts with names, origins, and dimensions. This provides the spatial context.
-2.  **Images:** One or more photos of the specific object instance, showing potential damages.
+1.  **Base Model JSON:** A JSON object describing the object's geometry, which provides the spatial context for part IDs and coordinates.
+2.  **Images:** One or more photos of the object showing potential damages.
 3.  **User Prompt:** An optional text description of the damages.
 
-**Output JSON Format:**
-Your output must be a JSON array \`[]\`. Each element in the array must be an object \`{}\` representing a single, distinct damage point, with the following three keys:
+**Output JSON Schema:**
+Your output must be a JSON array \`[]\`. Each object in the array represents a single damage and must contain these three keys:
 
 1.  **"partId" (string):** The exact 'id' of the part from the input model JSON that the damage is on or closest to.
-2.  **"damagePosition" (array of numbers):** An array of three numbers \`[x, y, z]\` representing the precise coordinates of the damage in the object's global coordinate system. You must estimate this position based on the photos and the provided model geometry. The coordinate system is the same as the input model: +X is right, +Y is back, +Z is up.
+2.  **"damagePosition" (array of numbers):** An array of three numbers \`[x, y, z]\` representing the precise coordinates of the damage. You must estimate this position based on the photos and the provided model geometry. The coordinate system is +X right, +Y back, +Z up.
 3.  **"text" (string):** A brief, clear description of the damage type (e.g., "Deep scratch", "Chipped corner", "Missing glider", "Water stain").
 
-**Example Output:**
+**IMPORTANT - FORMATTING EXAMPLE ONLY:**
+The following block is an example of the required JSON output format. DO NOT COPY THE CONTENT of this example. Your response should be based **only** on the user-provided images and text.
+
 [
   {
-    "partId": "front_left_leg",
-    "damagePosition": [-0.245, -0.220, 0.150],
-    "text": "Deep scratch along the leg"
-  },
-  {
-    "partId": "seat",
-    "damagePosition": [0.100, -0.150, 0.434],
-    "text": "Chipped wood on the front edge"
+    "partId": "example_part_id",
+    "damagePosition": [0.0, 0.0, 0.0],
+    "text": "This is a format example only."
   }
 ]
 `;
+// --- <<< END OF UPDATED SECTION >>> ---
+
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -60,7 +64,8 @@ export default async function handler(req, res) {
         });
     }
     
-    geminiParts.push({ text: `Analyze the images and this user description to identify all damages: "${prompt}"` });
+    // Updated instruction to be more direct
+    geminiParts.push({ text: `User's damage report. Analyze the provided images and this text to generate the damage list: "${prompt}"` });
     
     const googleApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
@@ -75,11 +80,9 @@ export default async function handler(req, res) {
       }),
     });
 
-    // If the Google API itself returns an error, capture it and send it back as a proper JSON error.
     if (!googleResponse.ok) {
         const errorText = await googleResponse.text();
         console.error("Google API Error Response:", errorText);
-        // This makes sure the specific error from Google is sent to the frontend.
         throw new Error(`Google API Error: ${errorText}`);
     }
 
@@ -88,11 +91,9 @@ export default async function handler(req, res) {
     res.status(200).json(googleData);
 
   } catch (error) {
-    // This main catch block will now handle our thrown errors and any other unexpected errors.
     console.error('Error in /api/catalog-damages handler:', error);
     res.status(500).json({ 
         message: 'An error occurred on the server.', 
-        // Pass the specific error message for better debugging.
         error: error.message 
     });
   }
