@@ -7,6 +7,9 @@
     <style>
         body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;margin:0;background-color:#fff;color:#000;display:flex;justify-content:center;padding:20px 0}#app-wrapper{width:90%;max-width:420px;display:flex;flex-direction:column;gap:20px}.top-input-row{display:flex;align-items:stretch;gap:10px}#object-name{flex-grow:1;background-color:#f0f0f0;padding:12px;border:1px solid #000;border-radius:0;font-size:14px;box-sizing:border-box}#viewer-container{width:100%;height:40vh;position:relative;background-color:#fff}#viewer-canvas{display:block;width:100%;height:100%}#bottom-ui-container{display:flex;flex-direction:column;gap:15px}.icon-controls{display:flex;justify-content:space-around;text-align:center;padding:10px 0}.icon-button{cursor:pointer;color:#000}.icon-button svg{width:18px;height:18px}.icon-button .label{font-size:12px;margin-top:5px}.action-buttons{display:flex;gap:10px}.btn{flex-grow:1;padding:12px;font-size:14px;font-weight:600;border:none;border-radius:0;cursor:pointer;display:flex;justify-content:center;align-items:center;gap:8px;background-color:#000;color:#fff}.instructions-group{background-color:#fff;padding:15px;border:1px solid #000}.instructions-group label{display:block;font-size:12px;font-weight:600;margin-bottom:8px;color:#000}.instructions-group textarea{width:100%;height:60px;padding:10px;border:none;background-color:#fff;color:#000;border-radius:0;font-size:14px;box-sizing:border-box;resize:vertical}.hans-group{background-color:#000;color:#fff;padding:15px}#hans-output{font-family:"SF Mono",Consolas,Menlo,monospace;font-size:13px;line-height:1.5;min-height:20px}#hans-output-text{white-space:pre-wrap}.cursor{display:inline-block;background-color:#fff;width:8px;height:1em;animation:blink 1s step-end infinite}@keyframes blink{from,to{background-color:transparent}50%{background-color:#fff}}.modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(0,0,0,.7);z-index:1000;justify-content:center;align-items:center;padding:20px;box-sizing:border-box}.modal-content{background-color:#fff;padding:20px;border-radius:0;border:1px solid #000;width:100%;max-width:600px;display:flex;flex-direction:column}.modal-content h3{margin-top:0;color:#000}.modal-content textarea{width:100%;height:40vh;resize:none;font-family:monospace;font-size:12px;margin-bottom:10px;border-radius:0}.modal-actions{display:flex;justify-content:flex-end;gap:10px}.modal-btn{background-color:#000;color:#fff}.hidden-input{display:none}
         #info-box { position: absolute; top: 10px; left: 0px; padding: 0; background-color: transparent; border: none; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 13px; line-height: 1.4; z-index: 101; display: none; pointer-events: none; text-shadow: none; max-width: 250px; }
+        #graph-modal-overlay .modal-content { max-width: 90vw; height: 80vh; }
+        #graph-container { width: 100%; height: calc(100% - 40px); }
+        #graph-container svg { width: 100%; height: 100%; }
     </style>
 </head>
 <body>
@@ -25,6 +28,9 @@
             <div class="icon-controls">
                 <div id="upload-json-btn" class="icon-button" title="Upload an assembly from a JSON file"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z"/></svg><div class="label">Upload JSON</div></div>
                 <div id="copy-json-btn" class="icon-button" title="View and copy the current assembly's JSON"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H6z"/><path d="M2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1H2z"/></svg><div class="label">Read & Copy JSON</div></div>
+                <!-- START: New Graph Icon -->
+                <div id="view-graph-btn" class="icon-button" title="View connection graph"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-diagram-3" viewBox="0 0 16 16"> <path fill-rule="evenodd" d="M6 3.5A1.5 1.5 0 0 1 7.5 2h1A1.5 1.5 0 0 1 10 3.5v1A1.5 1.5 0 0 1 8.5 6v1H14a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-1 0V8h-5v.5a.5.5 0 0 1-1 0V8h-5v.5a.5.5 0 0 1-1 0v-1A.5.5 0 0 1 2 7h4V6A1.5 1.5 0 0 1 7.5 4.5h1A1.5 1.5 0 0 1 10 6v1h4a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-4v1a1.5 1.5 0 0 1-1.5 1.5h-1A1.5 1.5 0 0 1 6 9.5v-1A1.5 1.5 0 0 1 7.5 7h1A1.5 1.5 0 0 1 10 8.5v1a.5.5 0 0 1-1 0v-.5h-1a.5.5 0 0 1-.5-.5V8h-1.5a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5H8V6a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1h4a1.5 1.5 0 0 0 1.5-1.5v-1A1.5 1.5 0 0 0 13.5 4h-4A1.5 1.5 0 0 0 8 5.5v1H4a1.5 1.5 0 0 0-1.5 1.5v1A1.5 1.5 0 0 0 4 11h4a1.5 1.5 0 0 0 1.5-1.5v-1h4a1.5 1.5 0 0 0 1.5-1.5v-1A1.5 1.5 0 0 0 13.5 5h-4A1.5 1.5 0 0 0 8 6.5v1H4a.5.5 0 0 1-.5-.5v-1A.5.5 0 0 1 4 6h4a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5H8v.5a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1A1.5 1.5 0 0 1 7.5 6h1A1.5 1.5 0 0 1 10 7.5v1h4a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-4v.5a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5V11a1.5 1.5 0 0 1 1.5-1.5h1a1.5 1.5 0 0 1 1.5 1.5v1a1.5 1.5 0 0 1-1.5 1.5h-1A1.5 1.5 0 0 1 6 12.5v-1A1.5 1.5 0 0 1 7.5 10h1A1.5 1.5 0 0 1 10 11.5v1a.5.5 0 0 1-1 0v-.5h-1a.5.5 0 0 1-.5-.5V11H6a.5.5 0 0 1-.5-.5v-1A.5.5 0 0 1 6 9h1.5a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5H6v.5a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5V10a1.5 1.5 0 0 1 1.5-1.5h1A1.5 1.5 0 0 1 8.5 10h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1 0-1h1a.5.5 0 0 1 0 1z"/> </svg><div class="label">View Graph</div></div>
+                <!-- END: New Graph Icon -->
                 <div id="download-json-btn" class="icon-button" title="Download the current assembly as a JSON file"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/></svg><div class="label">Download JSON</div></div>
             </div>
             
@@ -46,8 +52,27 @@
     
     <!-- Modals and Hidden Inputs -->
     <div id="json-modal-overlay" class="modal-overlay"><div class="modal-content"><h3>Current Assembly JSON</h3><textarea id="json-view-textarea" readonly></textarea><div class="modal-actions"><button id="copy-json-from-modal-btn" class="btn modal-btn">Copy</button><button class="btn modal-btn close-modal-btn">Close</button></div></div></div>
+    
+    <!-- START: New Graph Modal -->
+    <div id="graph-modal-overlay" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Assembly Connection Graph</h3>
+            <div id="graph-container"></div>
+            <div class="modal-actions">
+                <button class="btn modal-btn close-modal-btn">Close</button>
+            </div>
+        </div>
+    </div>
+    <!-- END: New Graph Modal -->
+
     <input type="file" id="json-upload-input" class="hidden-input" accept=".json, .txt"><input type="file" id="add-files-input" class="hidden-input" multiple accept="image/*,application/pdf">
 
+    <!-- START: Graphviz Library Import -->
+    <script src="https://unpkg.com/d3@7.8.5/dist/d3.min.js"></script>
+    <script src="https://unpkg.com/@hpcc-js/wasm@2.12.2/dist/graphviz.umd.js"></script>
+    <script src="https://unpkg.com/d3-graphviz@5.1.0/build/d3-graphviz.js"></script>
+    <!-- END: Graphviz Library Import -->
+    
     <!-- Three.js Import -->
     <script type="importmap">{ "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js", "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/" } }</script>
 
@@ -178,12 +203,12 @@
             const center = new THREE.Vector3();
             bounds.getCenter(center);
             controls.target.copy(center);
-            updateHANS(`Assembly "${objectName}" loaded with ${jsonData.parts.length} parts. You can now give instructions to modify it.`);
+            updateHANS(`Assembly "${objectName}" loaded with ${jsonData.parts.length} parts. You can now give instructions to modify it or view its connection graph.`);
         }
 
         function loadDefaultCube() {
             document.getElementById('object-name').value = "";
-            const cube = { "objectName": "Default Cube", "parts": [{ "id": "cube", "origin": {"x": -0.25, "y": -0.25, "z": 0.0}, "dimensions": {"width": 0.5, "depth": 0.5, "height": 0.5} }] };
+            const cube = { "objectName": "Default Cube", "parts": [{ "id": "cube", "origin": {"x": -0.25, "y": -0.25, "z": 0.0}, "dimensions": {"width": 0.5, "depth": 0.5, "height": 0.5}, "connections": [] }] };
             createModel(cube);
             document.getElementById('object-name').value = "";
         }
@@ -236,6 +261,47 @@
             }
         }
         
+        // --- START: New Graph Visualization Logic ---
+        function viewGraph() {
+            if (!currentJsonData || !currentJsonData.parts || currentJsonData.parts.length === 0) {
+                updateHANS("No assembly data loaded to generate a graph.");
+                return;
+            }
+
+            let dotString = 'graph G {\n';
+            dotString += '  node [shape=box, style="filled", fillcolor="#f0f0f0"];\n';
+            dotString += '  edge [arrowhead=none];\n\n';
+
+            const addedEdges = new Set();
+            
+            currentJsonData.parts.forEach(part => {
+                // Add each part as a node
+                dotString += `  "${part.id}";\n`;
+
+                // Add edges for its connections
+                if (part.connections && Array.isArray(part.connections)) {
+                    part.connections.forEach(connectedId => {
+                        // Create a canonical key for the edge to avoid duplicates (e.g., A-B and B-A)
+                        const edgeKey = [part.id, connectedId].sort().join('--');
+                        if (!addedEdges.has(edgeKey)) {
+                            dotString += `  "${part.id}" -- "${connectedId}";\n`;
+                            addedEdges.add(edgeKey);
+                        }
+                    });
+                }
+            });
+
+            dotString += '}';
+
+            // Render the graph
+            d3.select("#graph-container").graphviz({ useWorker: false })
+                .renderDot(dotString);
+            
+            // Show the modal
+            document.getElementById('graph-modal-overlay').style.display = 'flex';
+        }
+        // --- END: New Graph Visualization Logic ---
+
         // --- UI EVENT HANDLERS ---
         const uploadJsonInput = document.getElementById('json-upload-input');
         document.getElementById('upload-json-btn').addEventListener('click', () => uploadJsonInput.click());
@@ -278,6 +344,8 @@
              document.getElementById('json-view-textarea').value = JSON.stringify(currentJsonData, null, 2);
              document.getElementById('json-modal-overlay').style.display = 'flex';
         });
+
+        document.getElementById('view-graph-btn').addEventListener('click', viewGraph);
 
         document.querySelectorAll('.close-modal-btn').forEach(btn => {
             btn.addEventListener('click', (e) => { e.target.closest('.modal-overlay').style.display = 'none'; });
@@ -398,4 +466,4 @@
         init();
     </script>
 </body>
-</html>
+</html>```
