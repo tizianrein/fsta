@@ -1,43 +1,54 @@
 // File: /api/catalog-damages.js
 
-// This tells Vercel to allow this function to run for up to 120 seconds.
 export const maxDuration = 120;
 
-// --- <<< START OF UPDATED SECTION >>> ---
+// --- <<< START OF MAJORLY UPDATED SECTION >>> ---
 const SYSTEM_PROMPT = `
-You are a specialist AI for detecting and locating damages on physical objects based on images and textual descriptions.
-Your task is to analyze the provided data and return ONLY a JSON array listing all identified damages.
+You are an expert AI assistant for cataloging damages on 3D models.
+Your primary task is to receive an existing list of damages (as a JSON array), a user prompt describing a new damage, and then return a **complete, updated JSON array** that includes all old damages plus the new one.
+
+**Core Logic:**
+1.  **Receive Existing Data:** You will be given a JSON array named "existingDamages". This represents the current state.
+2.  **Receive New Instruction:** You will be given a "userPrompt" with photos and/or text describing a new damage to add.
+3.  **Analyze and Add:** Analyze the new instruction to determine the properties of the new damage.
+4.  **Generate New ID:** Create a new unique ID for the new damage (e.g., if the last ID was "damage_03", the new one should be "damage_04").
+5.  **Return Complete List:** Your final output must be a single JSON array containing all the objects from the original "existingDamages" list PLUS the newly created damage object. DO NOT lose any of the old damages.
 
 **Output Rules:**
-- Output ONLY the raw JSON array.
-- Do not include any explanatory text, greetings, conversation, or markdown formatting like \`\`\`json.
-- If no damages are found, return an empty array: [].
+- Output ONLY the raw JSON array. Do not use markdown or any other text.
+- If the initial "existingDamages" list is empty or null, create the very first damage object inside a new array.
 
-**Input Context:**
-1.  **Base Model JSON:** A JSON object describing the object's geometry, which provides the spatial context for part IDs and coordinates.
-2.  **Images:** One or more photos of the object showing potential damages.
-3.  **User Prompt:** An optional text description of the damages.
+**JSON Schema for Each Damage Object:**
+Each object in the array must have these keys:
+- **"id" (string):** A unique identifier, e.g., "damage_01", "damage_02".
+- **"type" (string):** A short category for the damage (e.g., "Crack", "Scratch", "Dent", "Scuff Mark", "Stain").
+- **"description" (string):** A detailed sentence describing the damage.
+- **"part_id" (string):** The exact 'id' of the part from the base model JSON that the damage is on.
+- **"coordinates" (object):** An object containing the x, y, z coordinates. The coordinate system is +X right, +Y back, +Z up.
+    - **"x" (number):**
+    - **"y" (number):**
+    - **"z" (number):**
 
-**Output JSON Schema:**
-Your output must be a JSON array \`[]\`. Each object in the array represents a single damage and must contain these three keys:
-
-1.  **"partId" (string):** The exact 'id' of the part from the input model JSON that the damage is on or closest to.
-2.  **"damagePosition" (array of numbers):** An array of three numbers \`[x, y, z]\` representing the precise coordinates of the damage. You must estimate this position based on the photos and the provided model geometry. The coordinate system is +X right, +Y back, +Z up.
-3.  **"text" (string):** A brief, clear description of the damage type (e.g., "Deep scratch", "Chipped corner", "Missing glider", "Water stain").
-
-**IMPORTANT - FORMATTING EXAMPLE ONLY:**
-The following block is an example of the required JSON output format. DO NOT COPY THE CONTENT of this example. Your response should be based **only** on the user-provided images and text.
-
+**Formatting Example (FOR REFERENCE ONLY - DO NOT COPY CONTENT):**
+*If the user's prompt was "add a dent to the backrest", and the existing list had one item, your output should look like this:*
 [
   {
-    "partId": "example_part_id",
-    "damagePosition": [0.0, 0.0, 0.0],
-    "text": "This is a format example only."
+    "id": "damage_01",
+    "type": "Crack",
+    "description": "A fine crack on the top surface of the front left leg.",
+    "part_id": "front_left_leg",
+    "coordinates": { "x": -0.235, "y": -0.22, "z": 0.434 }
+  },
+  {
+    "id": "damage_02",
+    "type": "Dent",
+    "description": "A small dent in the middle of the backrest.",
+    "part_id": "backrest",
+    "coordinates": { "x": 0.0, "y": 0.21, "z": 0.7 }
   }
 ]
 `;
-// --- <<< END OF UPDATED SECTION >>> ---
-
+// --- <<< END OF MAJORLY UPDATED SECTION >>> ---
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -45,17 +56,21 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { prompt, modelJson, files } = req.body;
+    // Now expecting `damageJson` in the payload
+    const { prompt, modelJson, damageJson, files } = req.body;
     const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
-      console.error("GEMINI_API_KEY is not set.");
       return res.status(500).json({ message: "API key is not configured on the server." });
     }
 
     const geminiParts = [
       { text: SYSTEM_PROMPT },
-      { text: `This is the base 3D model geometry for context. Identify damages relative to these parts: ${JSON.stringify(modelJson, null, 2)}` }
+      { text: `Base 3D Model Geometry (for context): ${JSON.stringify(modelJson, null, 2)}` },
+      // Send the existing damages to the AI
+      { text: `Existing Damages List (add to this): ${JSON.stringify(damageJson, null, 2)}` },
+      // The user prompt is the instruction for the *new* damage
+      { text: `User Prompt for New Damage: "${prompt}"` }
     ];
     
     if (files && files.length > 0) {
@@ -64,9 +79,6 @@ export default async function handler(req, res) {
         });
     }
     
-    // Updated instruction to be more direct
-    geminiParts.push({ text: `User's damage report. Analyze the provided images and this text to generate the damage list: "${prompt}"` });
-    
     const googleApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
     const googleResponse = await fetch(googleApiUrl, {
@@ -74,27 +86,20 @@ export default async function handler(req, res) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: [{ parts: geminiParts }],
-        generationConfig: {
-            "responseMimeType": "application/json",
-        }
+        generationConfig: { "responseMimeType": "application/json" }
       }),
     });
 
     if (!googleResponse.ok) {
         const errorText = await googleResponse.text();
-        console.error("Google API Error Response:", errorText);
         throw new Error(`Google API Error: ${errorText}`);
     }
 
     const googleData = await googleResponse.json();
-    
     res.status(200).json(googleData);
 
   } catch (error) {
     console.error('Error in /api/catalog-damages handler:', error);
-    res.status(500).json({ 
-        message: 'An error occurred on the server.', 
-        error: error.message 
-    });
+    res.status(500).json({ message: 'An error occurred on the server.', error: error.message });
   }
 }

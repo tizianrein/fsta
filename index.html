@@ -10,19 +10,20 @@
             line-height: 1.6;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f4;
+            background-color: #fff;
             color: #333;
             display: flex;
             justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+            padding: 20px 0;
+            text-align: center;
         }
+        /* --- UPDATED: Container now matches other pages --- */
         .container {
-            max-width: 800px;
+            max-width: 420px; /* Matched width */
             width: 90%;
             background: #fff;
-            padding: 40px;
-            border: 1px solid #ddd;
+            padding: 20px;
+            /* border has been removed */
             text-align: center;
         }
         h1 {
@@ -45,33 +46,23 @@
             gap: 15px;
         }
         .workflow-nav li a {
-            display: block;
+            display: flex; /* Use flexbox for alignment */
+            align-items: center;
+            gap: 15px; /* Space between emoji and text */
             background-color: #000;
             color: #fff;
             padding: 15px 20px;
             text-decoration: none;
             font-weight: 600;
             font-size: 16px;
-            border: 2px solid #000;
+            text-align: center;
             transition: all 0.3s ease;
-            text-align: left;
-            position: relative;
         }
         .workflow-nav li a:hover {
-            background-color: #fff;
-            color: #000;
+            background-color: #555;
+            color: #fff;
         }
-        .workflow-nav li a::before {
-            font-weight: 900;
-            margin-right: 15px;
-            color: #888;
-        }
-        /* Updated step numbers and labels */
-        .workflow-nav li:nth-child(1) a::before { content: "1."; }
-        .workflow-nav li:nth-child(2) a::before { content: "2."; }
-        .workflow-nav li:nth-child(3) a::before { content: "3."; }
-        .workflow-nav li:nth-child(4) a::before { content: "4."; }
-        .workflow-nav li:nth-child(5) a::before { content: "5."; }
+        /* The ::before pseudo-element is no longer needed */
     </style>
 </head>
 <body>
@@ -81,12 +72,12 @@
         
         <nav>
             <ul class="workflow-nav">
-                <!-- Links point to the correct English-named files -->
-                <li><a href="generate-assembly.html">Generate Assembly</a></li>
-                <li><a href="catalog-damages.html">Catalog Damages</a></li>
-                <li><a href="#">Plan Actions (Coming Soon)</a></li>
-                <li><a href="#">Guide Repair (Coming Soon)</a></li>
-                <li><a href="#">View History (Coming Soon)</a></li>
+                <!-- --- UPDATED: Emojis are now directly in the link --- -->
+                <li><a href="generate-assembly.html"><span>🏗️</span> Generate Assembly</a></li>
+                <li><a href="catalog-damages.html"><span>📍</span> Catalog Damages</a></li>
+                <li><a href="#"><span>📝</span> Plan Actions (Coming Soon)</a></li>
+                <li><a href="#"><span>🛠️</span> Guide Repair (Coming Soon)</a></li>
+                <li><a href="#"><span>📂</span> View History (Coming Soon)</a></li>
             </ul>
         </nav>
     </div>
