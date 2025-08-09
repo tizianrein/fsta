@@ -1,33 +1,33 @@
 // File: /api/generate.js
 
-// --- NEW CONFIGURATION LINE ---
-// This tells Vercel to allow this function to run for up to 120 seconds instead of the default 10.
+// This tells Vercel to allow this function to run for up to 120 seconds.
 export const maxDuration = 120;
 
 const SYSTEM_PROMPT = `
-You are an expert 3D modeler and data structuring AI. Your task is to analyze the provided data of an object or architectural structure and generate a JSON file that describes its structure as a collection of simple box-like parts.
+You are an expert 3D modeler and data structuring AI. Your task is to analyze the provided data of an object and generate a JSON file that describes its structure as a collection of simple box-like parts.
 
 Output ONLY the JSON content. Do not include any explanatory text, greetings, or other conversation before or after the JSON block. Do not use markdown formatting like \`\`\`json.
 
-Input:
+**JSON Output Format and Conventions:**
+Your output must strictly adhere to the following JSON structure.
 
-A single image, multiple images, and/or PDFs of an object or architectural structure. It can also be a request to modify an existing JSON structure.
+*   **`objectName` (string):** A descriptive name for the entire object.
+*   **`parts` (array):** An array of objects, where each object represents a single part.
 
-Output JSON Format and Conventions:
-Your output must strictly adhere to the following JSON structure. You will decompose the subject into its primary constituent cuboid (box-like) components.
-Scale Estimation: Estimate all dimensions in meters based on the visual proportions in the input. If the scale is ambiguous, use a common real-world scale appropriate for the identified object type (e.g., a piece of furniture is human-scaled; a building is architectural-scaled). Prioritize any explicit visual cues for scale (e.g., people, doors, other known objects).
+**Each Part Object must contain:**
+*   **`id` (string):** A UNIQUE, human-readable identifier for the part (e.g., "left_leg", "seat_surface", "top_rail"). This is mandatory and must be unique across all parts.
+*   **`origin` (object):** The corner of the box with the minimum x, y, and z values.
+    *   Coordinate System: The origin (0,0,0) is at the center of the object's footprint. +X is right, +Y is back, +Z is up.
+*   **`dimensions` (object):** The size of the box in meters (width, depth, height).
+*   **`connections` (array of strings):** A list of the 'id's of other parts that this part is physically connected to. For example, if a "table_leg" connects to the "table_top", its connections array would be ["table_top"]. If a part is not connected to anything, provide an empty array [].
 
-Coordinate System:
-The origin (0,0,0) is at the center of the object's footprint on the ground/floor plane.
-The +X axis points to the object's right.
-The +Y axis points to the object's back.
-The +Z axis points upwards.
-
-Part Origin: For each part, the origin coordinates (x, y, z) must represent the corner of the box with the minimum x, y, and z values within the global coordinate system.
-Part Dimensions: dimensions (width, depth, height) correspond to the extent of the box along the +X, +Y, and +Z axes respectively, starting from its origin.
-
-Spatial Relationships: Pay close attention to how parts connect and are positioned relative to each other. The goal is to represent the 3D assembly as accurately as possible using box primitives.
-"Defective" Status: If a part appears clearly damaged, broken, or missing a piece, mark its status as "defective". Otherwise, use "intact". This should only be used for obvious, significant visual defects on a specific, identifiable part.
+**Example Part:**
+{
+  "id": "front_left_leg",
+  "origin": { "x": -0.4, "y": -0.2, "z": 0.0 },
+  "dimensions": { "width": 0.05, "depth": 0.05, "height": 0.7 },
+  "connections": ["side_apron_left", "front_apron"]
+}
 `;
 
 export default async function handler(req, res) {
@@ -54,7 +54,7 @@ export default async function handler(req, res) {
         geminiParts.push({ text: `User's textual instruction: "${prompt}"` });
     } 
     else if (modelJson) {
-        geminiParts.push({ text: `Here is the current JSON model to modify: ${JSON.stringify(modelJson, null, 2)}` });
+        geminiParts.push({ text: `Here is the current JSON assembly to modify: ${JSON.stringify(modelJson, null, 2)}` });
         geminiParts.push({ text: `User's modification instruction: "${prompt}"` });
     }
     else {
