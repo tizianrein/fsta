@@ -68,7 +68,10 @@ export default async function handler(req, res) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: [{ parts: geminiParts }],
+        // --- START: CRITICAL FIX ---
+        // This forces the API to return its response in JSON format.
         generationConfig: { "responseMimeType": "application/json" }
+        // --- END: CRITICAL FIX ---
       }),
     });
 
