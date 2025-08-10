@@ -275,7 +275,31 @@
             document.getElementById('graph-modal-overlay').style.display = 'flex';
         }
 
-        function handleFileUpload(event, fileType) { const file = event.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (e) => { try { const jsonData = JSON.parse(e.target.result); if (fileType === 'model') { createModel(jsonData); } else if (fileType === 'damages') { if (!currentModelJson) { updateMIA("Please load an assembly geometry file first before loading damages."); return; } createDamageDots(jsonData); } } catch (error) { updateMIA(`Error: Could not parse the selected ${fileType} JSON file.`); } }; reader.readAsText(file); event.target.value = ''; }
+        function handleFileUpload(event, fileType) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const jsonData = JSON.parse(e.target.result);
+                    if (fileType === 'model') {
+                        createModel(jsonData);
+                        clearDamages(); // This clears any previous damages, including the default one.
+                    } else if (fileType === 'damages') {
+                        if (!currentModelJson) {
+                            updateMIA("Please load an assembly geometry file first before loading damages.");
+                            return;
+                        }
+                        createDamageDots(jsonData);
+                    }
+                } catch (error) {
+                    updateMIA(`Error: Could not parse the selected ${fileType} JSON file.`);
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
         modelUploadInput.addEventListener('change', (e) => handleFileUpload(e, 'model'));
         damagesUploadInput.addEventListener('change', (e) => handleFileUpload(e, 'damages'));
         let currentAction = '';
