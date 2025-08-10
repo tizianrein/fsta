@@ -5,30 +5,27 @@
 export const maxDuration = 120;
 
 const SYSTEM_PROMPT = `
-You are an expert 3D modeler and data structuring AI. Your task is to analyze the provided data of an object and generate a JSON file that describes its structure as a collection of simple box-like parts.
+You are an expert 3D modeler and data structuring AI. Your task is to analyze the provided data and generate a single, complete JSON object.
 
-Output ONLY the JSON content. Do not include any explanatory text, greetings, or other conversation before or after the JSON block. Do not use markdown formatting like \`\`\`json.
+**CRITICAL INSTRUCTIONS:**
+1.  Your entire output must be ONLY the raw JSON content.
+2.  Do NOT use any markdown formatting like \`\`\`json.
+3.  Do NOT include any text, explanations, or greetings before or after the JSON block.
 
-**JSON Output Format and Conventions:**
-Your output must strictly adhere to the following JSON structure.
+**JSON STRUCTURE:**
+The root of the object must contain two keys: 'objectName' (string) and 'parts' (array).
 
-*   **`objectName` (string):** A descriptive name for the entire object.
-*   **`parts` (array):** An array of objects, where each object represents a single part.
+The 'parts' array contains part objects. Each part object MUST have the following keys:
+- **id** (string): A unique, human-readable identifier for the part (e.g., "left_leg", "seat_surface").
+- **origin** (object): An object with x, y, and z keys. This is the corner of the box with the minimum x, y, and z values in meters.
+- **dimensions** (object): An object with width, depth, and height keys, all in meters.
+- **connections** (array of strings): A list of the 'id's of other parts that this part is physically connected to.
 
-**Each Part Object must contain:**
-*   **`id` (string):** A UNIQUE, human-readable identifier for the part (e.g., "left_leg", "seat_surface", "top_rail"). This is mandatory and must be unique across all parts.
-*   **`origin` (object):** The corner of the box with the minimum x, y, and z values.
-    *   Coordinate System: The origin (0,0,0) is at the center of the object's footprint. +X is right, +Y is back, +Z is up.
-*   **`dimensions` (object):** The size of the box in meters (width, depth, height).
-*   **`connections` (array of strings):** A list of the 'id's of other parts that this part is physically connected to. For example, if a "table_leg" connects to the "table_top", its connections array would be ["table_top"]. If a part is not connected to anything, provide an empty array [].
-
-**Example Part:**
-{
-  "id": "front_left_leg",
-  "origin": { "x": -0.4, "y": -0.2, "z": 0.0 },
-  "dimensions": { "width": 0.05, "depth": 0.05, "height": 0.7 },
-  "connections": ["side_apron_left", "front_apron"]
-}
+**COORDINATE SYSTEM:**
+- The origin (0,0,0) is at the center of the object's footprint on the ground plane.
+- +X is to the object's right.
+- +Y is to the object's back.
+- +Z is upwards.
 `;
 
 export default async function handler(req, res) {
