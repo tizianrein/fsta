@@ -86,7 +86,7 @@ Hello! I am HANS<!DOCTYPE html>
         let typingInterval;
         let timerInterval;
         const objectGroup = new THREE.Group();
-        const HANS_PREFIX = `HANS🧠: `;
+        const HANS_PREFIX = `H.A.N.S.🧠: `;
         const MAX_FILE_SIZE = 3 * 1024 * 1024;
         const MAX_FILES = 10;
         let axesScene, axesCamera;
@@ -154,7 +154,7 @@ Hello! I am HANS<!DOCTYPE html>
             viewerCanvas.addEventListener('click', onObjectClick);
             loadDefaultCube();
             animate();
-            updateHANS("Hello! I am H.A.N.S, the Heuristic Agent for Narrating Structures. Add files and describe the object, or load an assembly to begin.");
+            updateHANS("Hello! I am H.A.N.S., the Heuristic Agent for Narrating Structures. Add files and describe the object, or load an assembly to begin.");
         }
 
         function clearModel() {
