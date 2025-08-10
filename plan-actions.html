@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <title>Step 3: Plan Actions</title>
+    <style>
+        body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;margin:0;background-color:#fff;color:#000;display:flex;justify-content:center;padding:20px 0}#app-wrapper{width:90%;max-width:420px;display:flex;flex-direction:column;gap:20px}#top-header{display:flex;flex-direction:column;gap:20px}.top-input-row{display:flex;align-items:stretch;gap:10px}#object-name{flex-grow:1;background-color:#f0f0f0;padding:12px;border:1px solid #000;border-radius:0;font-size:14px;box-sizing:border-box}#viewer-container{width:100%;height:40vh;position:relative;background-color:#fff}#viewer-canvas{display:block;width:100%;height:100%}#bottom-ui-container{display:flex;flex-direction:column;gap:15px}.icon-controls{display:flex;justify-content:space-around;text-align:center;padding:10px 0}.icon-button{cursor:pointer;color:#000}.icon-button svg{width:18px;height:18px}.icon-button .label{font-size:12px;margin-top:5px}.action-buttons{display:flex;gap:10px}.btn{flex-grow:1;padding:12px;font-size:14px;font-weight:600;border:none;border-radius:0;cursor:pointer;display:flex;justify-content:center;align-items:center;gap:8px;background-color:#000;color:#fff}.instructions-group{background-color:#fff;padding:15px;border:1px solid #000}.instructions-group label{display:block;font-size:12px;font-weight:600;margin-bottom:8px;color:#000}.instructions-group textarea{width:100%;height:60px;padding:10px;border:none;background-color:#fff;color:#000;border-radius:0;font-size:14px;box-sizing:border-box;resize:vertical}.rolf-group{background-color:#000;color:#fff;padding:15px}#rolf-output{font-family:"SF Mono",Consolas,Menlo,monospace;font-size:13px;line-height:1.5;min-height:20px;white-space:pre-wrap}#rolf-output .cursor{display:inline-block;background-color:#fff;width:8px;height:1em;animation:blink 1s step-end infinite}@keyframes blink{from,to{background-color:transparent}50%{background-color:#fff}}.modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(0,0,0,.7);z-index:1000;justify-content:center;align-items:center;padding:20px;box-sizing:border-box}.modal-content{background-color:#fff;padding:20px;border:1px solid #000;width:100%;max-width:400px;display:flex;flex-direction:column;max-height:80vh}.modal-content h3{margin-top:0;color:#000;text-align:center}.modal-body{overflow-y:auto}.brain-option{padding:12px;margin-bottom:10px;border:1px solid #ccc;cursor:pointer;transition:background-color .2s ease,border-color .2s ease}.brain-option:hover{background-color:#f0f0f0}.brain-option.selected{border-color:#000;background-color:#e0e0e0}.brain-option h4{margin:0;font-size:14px;font-weight:normal}.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}.modal-btn{background-color:#000;color:#fff}.hidden-input{display:none}#graph-modal-overlay .modal-content{max-width:90vw;height:80vh}#graph-container{width:100%;height:calc(100% - 40px)}#graph-container svg{width:100%;height:100%}
+    </style>
+</head>
+<body>
+    <div id="app-wrapper">
+        <div id="top-header">
+            <div class="top-input-row">
+                <input type="text" id="object-name" placeholder="Object name..." readonly>
+            </div>
+        </div>
+
+        <div id="viewer-container">
+            <canvas id="viewer-canvas"></canvas>
+        </div>
+        
+        <div id="bottom-ui-container">
+             <div class="icon-controls">
+                <div id="upload-json-btn" class="icon-button" title="Upload a model or damage file"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z"/></svg><div class="label">Upload JSON</div></div>
+                <div id="copy-json-btn" class="icon-button" title="View and copy model or damage JSON"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H6z"/><path d="M2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1H2z"/></svg><div class="label">Read & Copy JSON</div></div>
+                <div id="view-graph-btn" class="icon-button" title="View connection graph"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-share" viewBox="0 0 16 16"><path d="M13.5 1a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.499 2.499 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5zm-8.5 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm11 5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/></svg><div class="label">View Graph</div></div>
+                <div id="download-json-btn" class="icon-button" title="Download model or damage JSON"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/></svg><div class="label">Download JSON</div></div>
+            </div>
+            
+            <div class="action-buttons">
+                <button id="select-brain-btn" class="btn">Select Brain</button>
+                <button id="generate-plan-btn" class="btn">Generate Plan</button>
+            </div>
+
+            <div class="instructions-group">
+                <label for="user-prompt">Make changes or give specific instructions...</label>
+                <textarea id="user-prompt" placeholder="e.g., 'Remove step 2.' or 'Suggest a simpler alternative for step 3.'"></textarea>
+            </div>
+
+            <div class="rolf-group">
+                <div id="rolf-output">R.O.L.F.🤖: Please upload assembly and damage files, then select a brain to generate a repair plan.</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modals -->
+    <div id="brain-modal-overlay" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Select a Repair Brain</h3>
+            <div class="modal-body" id="brain-options-container"></div>
+            <div class="modal-actions">
+                <button id="confirm-brain-btn" class="btn modal-btn">Confirm</button>
+                <button class="btn modal-btn close-modal-btn">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <div id="data-choice-modal-overlay" class="modal-overlay"><div class="modal-content"><h3 id="data-choice-title">Select Data</h3><div class="action-buttons"><button id="choice-btn-model" class="btn modal-btn">📦 Assembly Geometry</button><button id="choice-btn-damages" class="btn modal-btn">📍 Damage Data</button></div><div class="modal-actions" style="margin-top:20px"><button class="btn modal-btn close-modal-btn">Cancel</button></div></div></div>
+    <div id="json-view-modal-overlay" class="modal-overlay"><div class="modal-content"><h3 id="json-view-title">Current JSON</h3><textarea id="json-view-textarea" readonly></textarea><div class="modal-actions"><button id="copy-json-from-modal-btn" class="btn modal-btn">Copy</button><button class="btn modal-btn close-modal-btn">Close</button></div></div></div>
+    <div id="graph-modal-overlay" class="modal-overlay"><div class="modal-content"><h3>Assembly Connection Graph</h3><div id="graph-container"></div><div class="modal-actions"><button class="btn modal-btn close-modal-btn">Close</button></div></div></div>
+    
+    <input type="file" id="assembly-upload-input" class="hidden-input" accept=".json">
+    <input type="file" id="damages-upload-input" class="hidden-input" accept=".json">
+
+    <!-- Libraries -->
+    <script src="https://unpkg.com/d3@7.8.5/dist/d3.min.js"></script>
+    <script src="https://unpkg.com/@hpcc-js/wasm@2.12.2/dist/graphviz.umd.js"></script>
+    <script src="https://unpkg.com/d3-graphviz@5.1.0/build/d3-graphviz.js"></script>
+    <script type="importmap">{"imports": {"three": "https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"}}</script>
+    
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        let scene, camera, renderer, controls, axesScene, axesCamera;
+        let currentModelJson = null, currentDamageJson = null, currentPlanJson = null;
+        let selectedBrain = null, typingInterval;
+
+        const objectGroup = new THREE.Group();
+        const damageSpheres = [];
+        const partMeshesMap = new Map();
+
+        const defaultPartMaterial = new THREE.MeshStandardMaterial({ color: 0x666666, transparent: true, opacity: 0.4, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
+        const highlightPartMaterial = new THREE.MeshStandardMaterial({ color: 0xff8a8a, transparent: true, opacity: 0.9 });
+        const outlineMaterial = new THREE.LineBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.8 });
+        const defaultDotMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+        const highlightDotMaterial = new THREE.MeshBasicMaterial({ color: 0x8b0000, toneMapped: false });
+        
+        const rolfOutputEl = document.getElementById('rolf-output');
+        const brains = [
+            { id: "maintenance-maximalist", name: "Friends of Charlotte Malterre-Barthes (The Maintenance Maximalist)"}, { id: "custodian", name: "The Janitor's Cookbook (Friends of the Custodian)"}, { id: "long-term-thinker", name: "Friends of Stewart Brand (The Long-Term Thinker)"}, { id: "readymade", name: "Friends of Marcel Duchamp (The Readymade Brain)"}, { id: "anarchitect", name: "Friends of Gordon Matta-Clark (The Anarchitect)"}, { id: "critical-conservator", name: "Friends of Cesare Brandi (The Critical Conservator)"}, { id: "baukultur-defender", name: "Friends of Dieter Wieland (The Baukultur Defender)"}, { id: "purist", name: "Friends of John Ruskin (The Purist)"}, { id: "historian-of-layers", name: "Friends of Georg Dehio (The Historian of Layers)"}, { id: "gentle-repairer", name: "Friends of William Morris (The Gentle Repairer)"}, { id: "jeweler-of-joints", name: "Friends of Carlo Scarpa (The Jeweler of Joints)"}, { id: "urbanist", name: "Friends of Jane Jacobs (The Urbanist)"}, { id: "preservation-scientist", name: "Friends of Uta Hassler (The Preservation Scientist)"}, { id: "stylistic-idealist", name: "Friends of Eugène Viollet-le-Duc (The Stylistic Idealist)" }
+        ];
+
+        function updateROLF(message, isTyping = false) {
+            if (typingInterval) clearInterval(typingInterval);
+            rolfOutputEl.innerHTML = '';
+            const prefix = "R.O.L.F.🤖: ";
+            if (isTyping) {
+                rolfOutputEl.innerHTML = `${prefix}<span id="rolf-text"></span><span class="cursor"></span>`;
+                const textEl = document.getElementById('rolf-text');
+                let i = 0;
+                typingInterval = setInterval(() => {
+                    if (i < message.length) {
+                        textEl.textContent += message.charAt(i++);
+                    } else {
+                        clearInterval(typingInterval);
+                        rolfOutputEl.querySelector('.cursor').style.display = 'none';
+                    }
+                }, 20);
+            } else {
+                rolfOutputEl.textContent = prefix + message;
+            }
+        }
+
+        function init() {
+            const viewerContainer = document.getElementById('viewer-container');
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xffffff);
+            camera = new THREE.PerspectiveCamera(50, viewerContainer.clientWidth / viewerContainer.clientHeight, 0.01, 1000);
+            camera.position.set(-1.1, 0.7, -1.1);
+            renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('viewer-canvas'), antialias: true, alpha: true });
+            renderer.autoClear = false;
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(viewerContainer.clientWidth, viewerContainer.clientHeight);
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            scene.add(new THREE.AmbientLight(0xffffff, 0.8), new THREE.DirectionalLight(0xffffff, 0.7), objectGroup);
+            
+            axesScene = new THREE.Scene();
+            const gizmoSize = 2.5;
+            axesCamera = new THREE.OrthographicCamera(-gizmoSize, gizmoSize, gizmoSize, -gizmoSize, -10, 10);
+            const axes = new THREE.AxesHelper(1.5);
+            axes.rotation.x = -Math.PI / 2;
+            axesScene.add(axes);
+            
+            window.addEventListener('resize', () => {
+                const w = viewerContainer.clientWidth, h = viewerContainer.clientHeight;
+                camera.aspect = w / h;
+                camera.updateProjectionMatrix();
+                renderer.setSize(w, h);
+            });
+            animate();
+            populateBrainOptions();
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.clear();
+            renderer.render(scene, camera);
+            renderer.clearDepth();
+            const gizmoViewportSize = 80;
+            renderer.setViewport(10, 10, gizmoViewportSize, gizmoViewportSize);
+            axesCamera.quaternion.copy(camera.quaternion);
+            renderer.render(axesScene, axesCamera);
+            renderer.setViewport(0, 0, renderer.domElement.clientWidth, renderer.domElement.clientHeight);
+        }
+        
+        function clearScene() {
+            while(objectGroup.children.length > 0) objectGroup.remove(objectGroup.children[0]);
+            damageSpheres.forEach(s => scene.remove(s));
+            damageSpheres.length = 0;
+            partMeshesMap.clear();
+        }
+
+        function loadAssembly(jsonData) {
+            clearScene();
+            currentModelJson = jsonData;
+            document.getElementById('object-name').value = jsonData.objectName || "Untitled";
+            jsonData.parts.forEach(part => {
+                const geo = new THREE.BoxGeometry(part.dimensions.width, part.dimensions.height, part.dimensions.depth);
+                const pos = [part.origin.x + part.dimensions.width/2, part.origin.z + part.dimensions.height/2, part.origin.y + part.dimensions.depth/2];
+                const mesh = new THREE.Mesh(geo, defaultPartMaterial);
+                mesh.position.set(...pos);
+                objectGroup.add(mesh);
+                partMeshesMap.set(part.id, mesh);
+                const line = new THREE.LineSegments(new THREE.EdgesGeometry(geo), outlineMaterial);
+                line.position.set(...pos);
+                objectGroup.add(line);
+            });
+            updateROLF("Assembly loaded. Please upload the corresponding damage file.");
+        }
+
+        function loadDamages(jsonData) {
+            if(!currentModelJson) { updateROLF("Error: Please load an assembly file first."); return; }
+            currentDamageJson = jsonData;
+            const dotGeometry = new THREE.SphereGeometry(0.015, 16, 16);
+            jsonData.forEach(damage => {
+                const sphere = new THREE.Mesh(dotGeometry, defaultDotMaterial.clone());
+                sphere.position.set(damage.coordinates.x, damage.coordinates.z, damage.coordinates.y);
+                damageSpheres.push(sphere);
+                scene.add(sphere);
+            });
+            updateROLF("Damages loaded. Select a brain and generate a repair plan.");
+        }
+        
+        function populateBrainOptions() {
+            const container = document.getElementById('brain-options-container');
+            brains.forEach(brain => {
+                const div = document.createElement('div');
+                div.className = 'brain-option';
+                div.dataset.id = brain.id;
+                div.innerHTML = `<h4>${brain.name}</h4>`;
+                div.addEventListener('click', () => {
+                    document.querySelectorAll('.brain-option').forEach(opt => opt.classList.remove('selected'));
+                    div.classList.add('selected');
+                    selectedBrain = brain;
+                });
+                container.appendChild(div);
+            });
+        }
+        
+        function displayPlan(plan) {
+            currentPlanJson = plan;
+            let formattedText = "Repair Plan Generated:\n\n";
+            const allAffectedParts = new Set();
+            const allAffectedDamages = new Set();
+            
+            plan.steps.forEach(step => {
+                formattedText += `Step ${step.step_number}: ${step.title}\n  - ${step.description}\n\n`;
+                step.affected_parts?.forEach(id => allAffectedParts.add(id));
+                step.affected_damages?.forEach(id => allAffectedDamages.add(id));
+            });
+            
+            updateROLF(formattedText);
+            
+            // Highlight all affected parts and damages from the plan
+            partMeshesMap.forEach((mesh, id) => {
+                mesh.material = allAffectedParts.has(id) ? highlightPartMaterial : defaultPartMaterial;
+            });
+        }
+
+        function handleFileUpload(event, fileType) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = e => {
+                const jsonData = JSON.parse(e.target.result);
+                fileType === 'assembly' ? loadAssembly(jsonData) : loadDamages(jsonData);
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+        
+        // --- Event Listeners for Standard Icons ---
+        let currentAction = '';
+        const assemblyInput = document.getElementById('assembly-upload-input');
+        const damagesInput = document.getElementById('damages-upload-input');
+        document.getElementById('upload-json-btn').addEventListener('click', () => { currentAction = 'upload'; document.getElementById('data-choice-title').textContent = "What to upload?"; document.getElementById('data-choice-modal-overlay').style.display = 'flex'; });
+        document.getElementById('copy-json-btn').addEventListener('click', () => { currentAction = 'copy'; document.getElementById('data-choice-title').textContent = "What to copy?"; document.getElementById('data-choice-modal-overlay').style.display = 'flex'; });
+        document.getElementById('download-json-btn').addEventListener('click', () => { currentAction = 'download'; document.getElementById('data-choice-title').textContent = "What to download?"; document.getElementById('data-choice-modal-overlay').style.display = 'flex'; });
+        document.getElementById('choice-btn-model').addEventListener('click', () => {
+            document.getElementById('data-choice-modal-overlay').style.display = 'none';
+            if (currentAction === 'upload') assemblyInput.click();
+            else if (currentAction === 'copy') viewJson('assembly');
+            else if (currentAction === 'download') downloadJson('assembly');
+        });
+        document.getElementById('choice-btn-damages').addEventListener('click', () => {
+            document.getElementById('data-choice-modal-overlay').style.display = 'none';
+            if (currentAction === 'upload') damagesInput.click();
+            else if (currentAction === 'copy') viewJson('damages');
+            else if (currentAction === 'download') downloadJson('damages');
+        });
+        assemblyInput.addEventListener('change', (e) => handleFileUpload(e, 'assembly'));
+        damagesInput.addEventListener('change', (e) => handleFileUpload(e, 'damages'));
+        
+        function viewJson(type) {
+            const data = type === 'assembly' ? currentModelJson : currentDamageJson;
+            if (!data) { updateROLF(`No ${type} data loaded.`); return; }
+            document.getElementById('json-view-title').textContent = `Current ${type} JSON`;
+            document.getElementById('json-view-textarea').value = JSON.stringify(data, null, 2);
+            document.getElementById('json-view-modal-overlay').style.display = 'flex';
+        }
+
+        function downloadJson(type) {
+            const data = type === 'assembly' ? currentModelJson : currentDamageJson;
+            if (!data) { updateROLF(`No ${type} data loaded.`); return; }
+            const name = (document.getElementById('object-name').value || 'object').replace(/\s+/g, '_');
+            const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `${name}_${type}.json`;
+            a.click();
+            URL.revokeObjectURL(a.href);
+        }
+        
+        document.getElementById('view-graph-btn').addEventListener('click', () => {
+            if (!currentModelJson) { updateROLF("Load assembly data to see graph."); return; }
+            const damagedIds = new Set(currentDamageJson ? currentDamageJson.map(d => d.part_id) : []);
+            let dot = 'graph G { graph[rankdir="LR"]; node[shape=box, style="filled"]; edge[arrowhead=none];';
+            currentModelJson.parts.forEach(p => {
+                dot += ` "${p.id}" [fillcolor="${damagedIds.has(p.id) ? '#ff8a8a' : '#f0f0f0'}"];`;
+                p.connections?.forEach(c => dot += ` "${p.id}" -- "${c}";`);
+            });
+            dot += '}';
+            d3.select("#graph-container").graphviz({useWorker: false}).renderDot(dot);
+            document.getElementById('graph-modal-overlay').style.display = 'flex';
+        });
+
+        document.querySelectorAll('.close-modal-btn').forEach(btn => btn.addEventListener('click', (e) => e.target.closest('.modal-overlay').style.display = 'none'));
+        document.getElementById('copy-json-from-modal-btn').addEventListener('click', () => {
+            navigator.clipboard.writeText(document.getElementById('json-view-textarea').value).then(() => {
+                updateROLF("JSON copied to clipboard.");
+                document.getElementById('json-view-modal-overlay').style.display = 'none';
+            });
+        });
+
+        // --- Event Listeners for Main Actions ---
+        document.getElementById('select-brain-btn').addEventListener('click', () => document.getElementById('brain-modal-overlay').style.display = 'flex');
+        document.getElementById('confirm-brain-btn').addEventListener('click', () => {
+            if (selectedBrain) {
+                document.getElementById('select-brain-btn').textContent = selectedBrain.name.split('(')[0].trim();
+                updateROLF(`Brain selected: "${selectedBrain.name}". Ready to generate plan.`);
+            }
+            document.getElementById('brain-modal-overlay').style.display = 'none';
+        });
+
+        document.getElementById('generate-plan-btn').addEventListener('click', async () => {
+            if (!currentModelJson || !currentDamageJson) { updateROLF("Error: Please upload both assembly and damage files first."); return; }
+            if (!selectedBrain && !document.getElementById('user-prompt').value) { updateROLF("Error: Please select a brain or provide instructions."); return; }
+            
+            updateROLF("Generating your repair plan...", true);
+            
+            try {
+                const response = await fetch('/api/plan-actions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ modelJson: currentModelJson, damageJson: currentDamageJson, brain: selectedBrain, userPrompt: document.getElementById('user-prompt').value, existingPlan: currentPlanJson })
+                });
+                
+                if (!response.ok) throw new Error((await response.json()).message || 'Server error');
+                
+                const result = await response.json();
+                if (!result.candidates?.[0]?.content?.parts?.[0]?.text) throw new Error("Invalid API response structure.");
+                
+                const plan = JSON.parse(result.candidates[0].content.parts[0].text.replace(/```json\n|```/g, '').trim());
+                displayPlan(plan);
+                document.getElementById('user-prompt').value = '';
+
+            } catch (error) {
+                console.error("Plan Generation Error:", error);
+                updateROLF(`Sorry, an error occurred: ${error.message}`);
+            }
+        });
+
+        init();
+    </script>
+</body>
+</html>
