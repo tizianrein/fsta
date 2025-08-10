@@ -89,6 +89,7 @@
         const defaultDamage = [{ "id": "damage_01", "type": "Scratch", "description": "A default scratch on the top surface.", "part_id": "cube", "coordinates": { "x": 0.0, "y": 0.0, "z": 0.5 } }];
         const defaultPlan = { "steps": [{ "step_number": 1, "title": "Fill Scratch", "description": "Apply wood filler to the scratch on the top surface.", "tools_required": ["Wood filler"], "affected_parts": ["cube"], "affected_damages": ["damage_01"] }] };
 
+        // --- START: CORRECTED FUNCTION ---
         function updateROLF(message, isTyping = false) {
             if (typingInterval) clearInterval(typingInterval);
             const prefix = "R.O.L.F.🤖: ";
@@ -110,6 +111,7 @@
                 rolfOutputEl.textContent = prefix + message;
             }
         }
+        // --- END: CORRECTED FUNCTION ---
 
         function init() {
             scene = new THREE.Scene();
