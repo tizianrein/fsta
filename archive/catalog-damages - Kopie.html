@@ -70,7 +70,6 @@
         const defaultPartMaterial = new THREE.MeshStandardMaterial({ color: 0x666666, transparent: true, opacity: 0.5 });
         const highlightPartMaterial = new THREE.MeshStandardMaterial({ color: 0xff8a8a, transparent: true, opacity: 0.8 });
         const selectionPartMaterial = new THREE.MeshStandardMaterial({ color: 0x0000ff, transparent: true, opacity: 0.9 });
-        const missingPartMaterial = new THREE.MeshStandardMaterial({ color: 0xffff00, transparent: true, opacity: 0.7 }); // For damaged parts
         const outlineMaterial = new THREE.LineBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.8 });
         const defaultDotMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
         const selectedDotMaterial = new THREE.MeshBasicMaterial({ color: 0x8b0000 });
@@ -101,8 +100,6 @@
                 damageSpheres.push(sphere);
                 scene.add(sphere);
             });
-
-            resetAllMaterials(); // Apply highlighting for damaged parts
             updateMIA(`Processed and visualized ${damageData.length} damages.`);
         }
         
@@ -195,58 +192,11 @@
         function clearDamages() { damageSpheres.forEach(sphere => scene.remove(sphere)); damageSpheres = []; currentDamageJson = null; }
         
         function resetAllMaterials() {
-            // Get a set of all part IDs that have at least one damage point
-            const damagedPartIds = new Set(currentDamageJson ? currentDamageJson.map(d => d.part_id) : []);
-
-            // Set material based on whether the part is in the damaged set
-            partMeshesMap.forEach((mesh, partId) => {
-                if (damagedPartIds.has(partId)) {
-                    mesh.material = missingPartMaterial; // Damaged parts are yellow
-                } else {
-                    mesh.material = defaultPartMaterial; // Undamaged parts are grey
-                }
-            });
-
-            // Reset all damage spheres to the default red
-            damageSpheres.forEach(sphere => {
-                sphere.material = defaultDotMaterial;
-            });
+            partMeshesMap.forEach(mesh => { mesh.material = defaultPartMaterial; });
+            damageSpheres.forEach(sphere => { sphere.material = defaultDotMaterial; });
         }
 
-        function createModel(jsonData) { 
-            clearModel(); 
-            let objectNameKey = Object.keys(jsonData).find(k => k.toLowerCase().includes('name')); 
-            let objectName = jsonData[objectNameKey] || 'Untitled'; 
-            if (!jsonData || !jsonData.parts || !Array.isArray(jsonData.parts)) { 
-                updateMIA("Error: Could not parse assembly file. Is it a valid JSON?"); 
-                return; 
-            } 
-            currentModelJson = jsonData; 
-            document.getElementById('object-name').value = objectName; 
-            const bounds = new THREE.Box3().set(new THREE.Vector3(), new THREE.Vector3()); 
-            jsonData.parts.forEach(part => { 
-                const dims = part.dimensions; 
-                const orig = part.origin; 
-                const geometry = new THREE.BoxGeometry(dims.width, dims.height, dims.depth); 
-                const mesh = new THREE.Mesh(geometry, defaultPartMaterial); // Start with default
-                mesh.position.set( orig.x + dims.width / 2, orig.z + dims.height / 2, orig.y + dims.depth / 2 ); 
-                mesh.userData.part = part; 
-                partMeshesMap.set(part.id, mesh); 
-                objectGroup.add(mesh); 
-                bounds.expandByObject(mesh); 
-                const edges = new THREE.EdgesGeometry(geometry); 
-                const line = new THREE.LineSegments(edges, outlineMaterial); 
-                line.position.copy(mesh.position); 
-                objectGroup.add(line); 
-            }); 
-            
-            resetAllMaterials(); // Apply materials based on any existing damage data
-
-            const center = new THREE.Vector3(); 
-            bounds.getCenter(center); 
-            controls.target.copy(center); 
-            updateMIA(`Assembly "${objectName}" loaded. You can now add photos to catalog damages.`); 
-        }
+        function createModel(jsonData) { clearModel(); let objectNameKey = Object.keys(jsonData).find(k => k.toLowerCase().includes('name')); let objectName = jsonData[objectNameKey] || 'Untitled'; if (!jsonData || !jsonData.parts || !Array.isArray(jsonData.parts)) { updateMIA("Error: Could not parse assembly file. Is it a valid JSON?"); return; } currentModelJson = jsonData; document.getElementById('object-name').value = objectName; const bounds = new THREE.Box3().set(new THREE.Vector3(), new THREE.Vector3()); jsonData.parts.forEach(part => { const dims = part.dimensions; const orig = part.origin; const geometry = new THREE.BoxGeometry(dims.width, dims.height, dims.depth); const mesh = new THREE.Mesh(geometry, defaultPartMaterial); mesh.position.set( orig.x + dims.width / 2, orig.z + dims.height / 2, orig.y + dims.depth / 2 ); mesh.userData.part = part; partMeshesMap.set(part.id, mesh); objectGroup.add(mesh); bounds.expandByObject(mesh); const edges = new THREE.EdgesGeometry(geometry); const line = new THREE.LineSegments(edges, outlineMaterial); line.position.copy(mesh.position); objectGroup.add(line); }); const center = new THREE.Vector3(); bounds.getCenter(center); controls.target.copy(center); updateMIA(`Assembly "${objectName}" loaded. You can now add photos to catalog damages.`); }
         
         function onObjectClick(event) {
             const rect = renderer.domElement.getBoundingClientRect();
@@ -257,24 +207,24 @@
             const sphereIntersects = raycaster.intersectObjects(damageSpheres);
             const partIntersects = raycaster.intersectObjects(Array.from(partMeshesMap.values()));
             
-            resetAllMaterials(); // Reset to default state (grey/yellow)
+            resetAllMaterials();
             
             if (sphereIntersects.length > 0) {
                 const clickedSphere = sphereIntersects[0].object;
                 const damageInfo = clickedSphere.userData.damage;
                 
-                clickedSphere.material = selectedDotMaterial; // Dark red for selected dot
+                clickedSphere.material = selectedDotMaterial;
                 infoBox.style.color = '#ff0000';
                 infoBox.innerHTML = `<b>${damageInfo.type}:</b><br>${damageInfo.description}`;
                 infoBox.style.display = 'block';
                 
                 const associatedPart = partMeshesMap.get(damageInfo.part_id);
-                if (associatedPart) { associatedPart.material = highlightPartMaterial; } // Pinkish-red for associated part
+                if (associatedPart) { associatedPart.material = highlightPartMaterial; }
 
             } else if (partIntersects.length > 0) {
                 const clickedPart = partIntersects[0].object;
                 const partData = clickedPart.userData.part;
-                clickedPart.material = selectionPartMaterial; // Blue for selected part
+                clickedPart.material = selectionPartMaterial;
                 if (partData) {
                     const d = partData.dimensions;
                     infoBox.style.color = '#0000ff';
@@ -335,7 +285,6 @@
                     if (fileType === 'model') {
                         createModel(jsonData);
                         clearDamages(); // This clears any previous damages, including the default one.
-                        resetAllMaterials(); // Ensure materials are correct after clearing damages
                     } else if (fileType === 'damages') {
                         if (!currentModelJson) {
                             updateMIA("Please load an assembly geometry file first before loading damages.");
