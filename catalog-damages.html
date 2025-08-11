@@ -67,10 +67,10 @@
         const partMeshesMap = new Map();
 
         // --- Materials ---
-        const defaultPartMaterial = new THREE.MeshStandardMaterial({ color: 0x666666, transparent: true, opacity: 0.5 });
-        const highlightPartMaterial = new THREE.MeshStandardMaterial({ color: 0xff8a8a, transparent: true, opacity: 0.8 });
+        const intactPartMaterial = new THREE.MeshStandardMaterial({ color: 0x666666, transparent: true, opacity: 0.5 }); // Grey
+        const defectivePartMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000, transparent: true, opacity: 0.7 }); // Red
+        const missingPartMaterial = new THREE.MeshStandardMaterial({ color: 0xffff00, transparent: true, opacity: 0.7 }); // Yellow
         const selectionPartMaterial = new THREE.MeshStandardMaterial({ color: 0x0000ff, transparent: true, opacity: 0.9 });
-        const defectivePartMaterial = new THREE.MeshStandardMaterial({ color: 0xffff00, transparent: true, opacity: 0.7 }); // Yellow for defective
         const outlineMaterial = new THREE.LineBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.8 });
         const defaultDotMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
         const selectedDotMaterial = new THREE.MeshBasicMaterial({ color: 0x8b0000 });
@@ -190,15 +190,15 @@
             partMeshesMap.forEach((mesh, partId) => {
                 const partData = mesh.userData.part;
                 switch (partData.status) {
+                    case 'missing':
+                        mesh.material = missingPartMaterial; // Yellow
+                        break;
                     case 'defective':
-                        mesh.material = defectivePartMaterial;
+                        mesh.material = defectivePartMaterial; // Red
                         break;
                     case 'intact':
-                        mesh.material = defaultPartMaterial;
-                        break;
-                    // 'missing' parts are not in the map, so they are not colored.
-                    default:
-                        mesh.material = defaultPartMaterial;
+                    default: // Fallback for parts with no status or 'intact'
+                        mesh.material = intactPartMaterial; // Grey
                 }
             });
 
@@ -221,16 +221,14 @@
             const bounds = new THREE.Box3().set(new THREE.Vector3(), new THREE.Vector3()); 
             
             jsonData.parts.forEach(part => { 
-                // If a part is marked as missing, do not create a mesh for it.
                 if (part.status === 'missing') {
                     missingPartNames.push(part.name || part.id);
-                    return; // Skip rendering this part
                 }
 
                 const dims = part.dimensions; 
                 const orig = part.origin; 
                 const geometry = new THREE.BoxGeometry(dims.width, dims.height, dims.depth); 
-                const mesh = new THREE.Mesh(geometry, defaultPartMaterial);
+                const mesh = new THREE.Mesh(geometry, intactPartMaterial); // Start with default grey
                 mesh.position.set( orig.x + dims.width / 2, orig.z + dims.height / 2, orig.y + dims.depth / 2 ); 
                 mesh.userData.part = part; 
                 partMeshesMap.set(part.id, mesh); 
@@ -242,7 +240,7 @@
                 objectGroup.add(line); 
             }); 
             
-            resetAllMaterials();
+            resetAllMaterials(); // Apply correct colors based on status
 
             const center = new THREE.Vector3(); 
             bounds.getCenter(center); 
@@ -264,7 +262,7 @@
             const sphereIntersects = raycaster.intersectObjects(damageSpheres);
             const partIntersects = raycaster.intersectObjects(Array.from(partMeshesMap.values()));
             
-            resetAllMaterials(); 
+            resetAllMaterials(); // First, reset everything to its base status color
             
             if (sphereIntersects.length > 0) {
                 const clickedSphere = sphereIntersects[0].object;
@@ -274,12 +272,15 @@
                 infoBox.innerHTML = `<b>${damageInfo.type}:</b><br>${damageInfo.description}`;
                 infoBox.style.display = 'block';
                 const associatedPart = partMeshesMap.get(damageInfo.part_id);
-                if (associatedPart) { associatedPart.material = highlightPartMaterial; }
+                if (associatedPart) { 
+                    // Use selection material for temporary highlight
+                    associatedPart.material = selectionPartMaterial; 
+                }
 
             } else if (partIntersects.length > 0) {
                 const clickedPart = partIntersects[0].object;
                 const partData = clickedPart.userData.part;
-                clickedPart.material = selectionPartMaterial; 
+                clickedPart.material = selectionPartMaterial; // Blue for selected part
                 if (partData) {
                     const d = partData.dimensions;
                     infoBox.style.color = '#0000ff';
@@ -298,9 +299,9 @@
             const addedEdges = new Set();
             
             currentModelJson.parts.forEach(part => {
-                let fillColor = '#f0f0f0'; // intact
-                if (part.status === 'defective') fillColor = '#ffee9c'; // yellow-ish
-                if (part.status === 'missing') fillColor = '#ffc0c0'; // red-ish
+                let fillColor = '#f0f0f0'; // intact (grey)
+                if (part.status === 'defective') fillColor = '#ffc0c0'; // defective (red-ish)
+                if (part.status === 'missing') fillColor = '#ffee9c'; // missing (yellow-ish)
                 
                 dotString += `  "${part.id}" [label="${part.name}\\n(${part.status})", fillcolor="${fillColor}"];\n`;
 
@@ -332,15 +333,12 @@
                     const jsonData = JSON.parse(e.target.result);
                     if (fileType === 'model') {
                         createModel(jsonData);
-                        // When a new model is loaded, assume no damages initially.
                         createDamageDots([]); 
                     } else if (fileType === 'damages') {
                         if (!currentModelJson) {
                             updateMIA("Please load an assembly geometry file first.");
                             return;
                         }
-                        // This option is less relevant now but kept for compatibility.
-                        // It's better to use the main 'Catalog Damages' flow.
                         createDamageDots(jsonData);
                         resetAllMaterials(); 
                     }
