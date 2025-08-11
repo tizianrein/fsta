@@ -4,49 +4,36 @@ export const maxDuration = 120;
 
 // --- <<< START OF MAJORLY UPDATED SECTION >>> ---
 const SYSTEM_PROMPT = `
-You are an expert AI assistant for cataloging damages on 3D models.
-Your primary task is to receive an existing list of damages (as a JSON array), a user prompt describing a new damage, and then return a **complete, updated JSON array** that includes all old damages plus the new one.
+You are an expert AI assistant for assessing and cataloging the state of 3D models by comparing a master parts list with photographic evidence.
+Your primary task is to receive a 3D model's assembly data (modelJson), an existing list of damages (damageJson), and user-provided photos.
 
-**Core Logic:**
-1.  **Receive Existing Data:** You will be given a JSON array named "existingDamages". This represents the current state.
-2.  **Receive New Instruction:** You will be given a "userPrompt" with photos and/or text describing a new damage to add.
-3.  **Analyze and Add:** Analyze the new instruction to determine the properties of the new damage.
-4.  **Generate New ID:** Create a new unique ID for the new damage (e.g., if the last ID was "damage_03", the new one should be "damage_04").
-5.  **Return Complete List:** Your final output must be a single JSON array containing all the objects from the original "existingDamages" list PLUS the newly created damage object. DO NOT lose any of the old damages.
+Your output **MUST BE a single, raw JSON object** with two top-level keys: "updatedModel" and "updatedDamages".
 
-**Output Rules:**
-- Output ONLY the raw JSON array. Do not use markdown or any other text.
-- If the initial "existingDamages" list is empty or null, create the very first damage object inside a new array.
+**Core Logic & Output Schema:**
 
-**JSON Schema for Each Damage Object:**
-Each object in the array must have these keys:
-- **"id" (string):** A unique identifier, e.g., "damage_01", "damage_02".
-- **"type" (string):** A short category for the damage (e.g., "Crack", "Scratch", "Dent", "Scuff Mark", "Stain").
-- **"description" (string):** A detailed sentence describing the damage.
-- **"part_id" (string):** The exact 'id' of the part from the base model JSON that the damage is on.
-- **"coordinates" (object):** An object containing the x, y, z coordinates. The coordinate system is +X right, +Y back, +Z up.
-    - **"x" (number):**
-    - **"y" (number):**
-    - **"z" (number):**
+1.  **Perform Visual Analysis**: Your most important task is to **visually compare the user's photos against the parts list in the \`modelJson\`**. The photos are the primary source of truth for the object's current state. The user's text prompt provides additional context.
 
-**Formatting Example (FOR REFERENCE ONLY - DO NOT COPY CONTENT):**
-*If the user's prompt was "add a dent to the backrest", and the existing list had one item, your output should look like this:*
-[
-  {
-    "id": "damage_01",
-    "type": "Crack",
-    "description": "A fine crack on the top surface of the front left leg.",
-    "part_id": "front_left_leg",
-    "coordinates": { "x": -0.235, "y": -0.22, "z": 0.434 }
-  },
-  {
-    "id": "damage_02",
-    "type": "Dent",
-    "description": "A small dent in the middle of the backrest.",
-    "part_id": "backrest",
-    "coordinates": { "x": 0.0, "y": 0.21, "z": 0.7 }
-  }
-]
+2.  **Generate \`updatedModel\`**:
+    *   Take the \`modelJson\` object as the base.
+    *   You must iterate through **EVERY part** in the \`modelJson.parts\` array and add/update a \`"status"\` key to each one based on your visual analysis.
+    *   **Status Logic (Based on Visual Evidence)**:
+        *   **"missing"**: If a part from the \`modelJson\` is clearly absent in the user's photos, set its status to \`"missing"\`.
+        *   **"defective"**: If a part is visible in the photos but has clear damage (cracks, dents, stains, etc., which you should also catalog in \`updatedDamages\`), set its status to \`"defective"\`.
+        *   **"intact"**: If a part is visible in the photos and appears whole and undamaged, set its status to \`"intact"\`.
+    *   The final \`updatedModel\` must be the complete, original model JSON, with the correct \`"status"\` field added to every part.
+
+3.  **Generate \`updatedDamages\`**:
+    *   Take the \`existingDamages\` JSON array.
+    *   Based on your visual analysis of the photos and the user's text, identify any new damages.
+    *   For each new damage, create a new damage object and add it to the list.
+    *   Generate a new unique ID for each new damage (e.g., if the last was "damage_03", the new one is "damage_04").
+    *   The \`updatedDamages\` key must contain a JSON array with ALL old damages PLUS any newly identified ones.
+    *   **Damage Object Schema**:
+        - "id" (string): e.g., "damage_01"
+        - "type" (string): e.g., "Crack", "Dent", "Scuff Mark"
+        - "description" (string): A detailed sentence.
+        - "part_id" (string): The exact 'id' of the part from the base model.
+        - "coordinates" (object): { "x": number, "y": number, "z": number }
 `;
 // --- <<< END OF MAJORLY UPDATED SECTION >>> ---
 
@@ -56,7 +43,6 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Now expecting `damageJson` in the payload
     const { prompt, modelJson, damageJson, files } = req.body;
     const apiKey = process.env.GEMINI_API_KEY;
 
@@ -66,13 +52,12 @@ export default async function handler(req, res) {
 
     const geminiParts = [
       { text: SYSTEM_PROMPT },
-      { text: `Base 3D Model Geometry (for context): ${JSON.stringify(modelJson, null, 2)}` },
-      // Send the existing damages to the AI
+      { text: `Base 3D Model Geometry (the parts manifest to compare against): ${JSON.stringify(modelJson, null, 2)}` },
       { text: `Existing Damages List (add to this): ${JSON.stringify(damageJson, null, 2)}` },
-      // The user prompt is the instruction for the *new* damage
-      { text: `User Prompt for New Damage: "${prompt}"` }
+      { text: `User Prompt (for context): "${prompt}"` }
     ];
     
+    // Add the image files for visual analysis
     if (files && files.length > 0) {
         files.forEach(file => {
             geminiParts.push({ inlineData: { mimeType: file.mimeType, data: file.data } });
@@ -86,6 +71,7 @@ export default async function handler(req, res) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: [{ parts: geminiParts }],
+        // Instruct Gemini to strictly output JSON
         generationConfig: { "responseMimeType": "application/json" }
       }),
     });

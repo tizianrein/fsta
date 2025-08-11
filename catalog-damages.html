@@ -70,7 +70,7 @@
         const defaultPartMaterial = new THREE.MeshStandardMaterial({ color: 0x666666, transparent: true, opacity: 0.5 });
         const highlightPartMaterial = new THREE.MeshStandardMaterial({ color: 0xff8a8a, transparent: true, opacity: 0.8 });
         const selectionPartMaterial = new THREE.MeshStandardMaterial({ color: 0x0000ff, transparent: true, opacity: 0.9 });
-        const missingPartMaterial = new THREE.MeshStandardMaterial({ color: 0xffff00, transparent: true, opacity: 0.7 }); // For damaged parts
+        const defectivePartMaterial = new THREE.MeshStandardMaterial({ color: 0xffff00, transparent: true, opacity: 0.7 }); // Yellow for defective
         const outlineMaterial = new THREE.LineBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.8 });
         const defaultDotMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
         const selectedDotMaterial = new THREE.MeshBasicMaterial({ color: 0x8b0000 });
@@ -84,12 +84,11 @@
         infoBox = document.getElementById('info-box');
         
         function createDamageDots(damageData) {
+            clearDamages();
             if (!Array.isArray(damageData)) {
-                updateMIA("Error: Damage data from API is not a valid array.");
-                console.error("Invalid Damage Data:", damageData);
+                console.error("Invalid Damage Data received:", damageData);
                 return;
             }
-            clearDamages();
             currentDamageJson = damageData;
             const dotGeometry = new THREE.SphereGeometry(0.015, 16, 16);
             
@@ -97,13 +96,10 @@
                 if (!damage.coordinates || typeof damage.coordinates.x !== 'number') return;
                 const sphere = new THREE.Mesh(dotGeometry, defaultDotMaterial.clone());
                 sphere.position.set(damage.coordinates.x, damage.coordinates.z, damage.coordinates.y);
-                sphere.userData.damage = damage; // Store full damage object
+                sphere.userData.damage = damage;
                 damageSpheres.push(sphere);
                 scene.add(sphere);
             });
-
-            resetAllMaterials(); // Apply highlighting for damaged parts
-            updateMIA(`Processed and visualized ${damageData.length} damages.`);
         }
         
         document.getElementById('catalog-damages-btn').addEventListener('click', async () => {
@@ -113,10 +109,10 @@
             }
             const promptText = document.getElementById('additional-instructions').value.trim();
             if (uploadedFiles.length === 0 && !promptText) {
-                updateMIA("Please add damage photos or describe the new damage in text.");
+                updateMIA("Please add damage photos or describe the new damage/status.");
                 return;
             }
-            updateMIA("Analyzing and adding damage... this may take a moment.");
+            updateMIA("AI is analyzing the assembly status... this may take a moment.");
             try {
                 const payload = {
                     prompt: promptText,
@@ -132,14 +128,8 @@
                 });
                 
                 if (!response.ok) {
-                    let errorMsg;
-                    try {
-                        const errorResult = await response.json();
-                        errorMsg = errorResult.message || JSON.stringify(errorResult);
-                    } catch (e) {
-                        errorMsg = await response.text();
-                    }
-                    throw new Error(errorMsg);
+                    const errorResult = await response.json();
+                    throw new Error(errorResult.message || JSON.stringify(errorResult));
                 }
 
                 const result = await response.json();
@@ -149,9 +139,16 @@
 
                 const geminiResponseText = result.candidates[0].content.parts[0].text;
                 const cleanedJsonString = geminiResponseText.replace(/```json\n|```/g, '').trim();
-                const newFullDamageList = JSON.parse(cleanedJsonString);
+                const fullResponse = JSON.parse(cleanedJsonString);
+
+                if (!fullResponse.updatedModel || !fullResponse.updatedDamages) {
+                    throw new Error("API response is missing 'updatedModel' or 'updatedDamages'.");
+                }
                 
-                createDamageDots(newFullDamageList);
+                // Re-create the model with the new statuses
+                createModel(fullResponse.updatedModel);
+                // Re-create the damage dots with the updated list
+                createDamageDots(fullResponse.updatedDamages);
                 
                 uploadedFiles = [];
                 document.getElementById('additional-instructions').value = '';
@@ -162,30 +159,23 @@
             }
         });
         
-        function updateMIA(message) { if (typingInterval) clearInterval(typingInterval); MIAOutputEl.innerHTML = `${MIA_PREFIX}<span id="MIA-output-text"></span><span class="cursor"></span>`; const textEl = document.getElementById('MIA-output-text'); const cursorEl = MIAOutputEl.querySelector('.cursor'); let i = 0; typingInterval = setInterval(() => { if (i < message.length) { textEl.textContent += message.charAt(i); i++; } else { clearInterval(typingInterval); if (cursorEl) cursorEl.style.display = 'none'; } }, 30); }
+        function updateMIA(message) { if (typingInterval) clearInterval(typingInterval); MIAOutputEl.innerHTML = `${MIA_PREFIX}<span id="MIA-output-text"></span><span class="cursor"></span>`; const textEl = document.getElementById('MIA-output-text'); const cursorEl = MIAOutputEl.querySelector('.cursor'); let i = 0; typingInterval = setInterval(() => { if (i < message.length) { textEl.innerHTML += message.charAt(i); i++; } else { clearInterval(typingInterval); if (cursorEl) cursorEl.style.display = 'none'; } }, 30); }
         
         function loadDefaultCubeAndDamage() {
-            const defaultModel = {
+             const defaultModel = {
                 "objectName": "Default Cube",
                 "parts": [{
                     "id": "cube",
+                    "name": "The Cube",
                     "origin": { "x": -0.25, "y": -0.25, "z": 0.0 },
                     "dimensions": { "width": 0.5, "depth": 0.5, "height": 0.5 },
-                    "connections": []
+                    "connections": [],
+                    "status": "intact" // Add initial status
                 }]
             };
             createModel(defaultModel);
-
-            const defaultDamage = [{
-                "id": "damage_01",
-                "type": "Scratch",
-                "description": "A default scratch on the top surface of the cube.",
-                "part_id": "cube",
-                "coordinates": { "x": 0.0, "y": 0.0, "z": 0.5 }
-            }];
-            createDamageDots(defaultDamage);
-
-            updateMIA("Loaded a default cube with one damage. You can now add more damages or upload your own files.");
+            createDamageDots([]); // Start with no damages
+            updateMIA("Loaded a default cube. You can now describe damages or missing parts.");
         }
         
         function init() { scene = new THREE.Scene(); scene.background = new THREE.Color(0xffffff); scene.add(objectGroup); camera = new THREE.PerspectiveCamera(50, viewerContainer.clientWidth / viewerContainer.clientHeight, 0.01, 1000); camera.position.set(-1.1, 0.7, -1.1); renderer = new THREE.WebGLRenderer({ canvas: viewerCanvas, antialias: true, alpha: true }); renderer.autoClear = false; renderer.setPixelRatio(window.devicePixelRatio); renderer.setSize(viewerContainer.clientWidth, viewerContainer.clientHeight); controls = new OrbitControls(camera, renderer.domElement); controls.enableDamping = true; controls.target.set(0, 0.4, 0); const ambientLight = new THREE.AmbientLight(0xffffff, 0.8); scene.add(ambientLight); const directionalLight = new THREE.DirectionalLight(0xffffff, 0.7); directionalLight.position.set(2, 5, 3); scene.add(directionalLight); axesScene = new THREE.Scene(); const gizmoSize = 2.5; axesCamera = new THREE.OrthographicCamera(-gizmoSize, gizmoSize, gizmoSize, -gizmoSize, -10, 10); const axes = new THREE.AxesHelper(1.5); axes.rotation.x = -Math.PI / 2; axesScene.add(axes); raycaster = new THREE.Raycaster(); mouse = new THREE.Vector2(); window.addEventListener('resize', onWindowResize); viewerCanvas.addEventListener('click', onObjectClick); animate(); loadDefaultCubeAndDamage(); }
@@ -195,19 +185,23 @@
         function clearDamages() { damageSpheres.forEach(sphere => scene.remove(sphere)); damageSpheres = []; currentDamageJson = null; }
         
         function resetAllMaterials() {
-            // Get a set of all part IDs that have at least one damage point
-            const damagedPartIds = new Set(currentDamageJson ? currentDamageJson.map(d => d.part_id) : []);
+            if (!currentModelJson) return;
 
-            // Set material based on whether the part is in the damaged set
             partMeshesMap.forEach((mesh, partId) => {
-                if (damagedPartIds.has(partId)) {
-                    mesh.material = missingPartMaterial; // Damaged parts are yellow
-                } else {
-                    mesh.material = defaultPartMaterial; // Undamaged parts are grey
+                const partData = mesh.userData.part;
+                switch (partData.status) {
+                    case 'defective':
+                        mesh.material = defectivePartMaterial;
+                        break;
+                    case 'intact':
+                        mesh.material = defaultPartMaterial;
+                        break;
+                    // 'missing' parts are not in the map, so they are not colored.
+                    default:
+                        mesh.material = defaultPartMaterial;
                 }
             });
 
-            // Reset all damage spheres to the default red
             damageSpheres.forEach(sphere => {
                 sphere.material = defaultDotMaterial;
             });
@@ -215,20 +209,28 @@
 
         function createModel(jsonData) { 
             clearModel(); 
-            let objectNameKey = Object.keys(jsonData).find(k => k.toLowerCase().includes('name')); 
-            let objectName = jsonData[objectNameKey] || 'Untitled'; 
+            let objectName = jsonData.objectName || 'Untitled'; 
             if (!jsonData || !jsonData.parts || !Array.isArray(jsonData.parts)) { 
-                updateMIA("Error: Could not parse assembly file. Is it a valid JSON?"); 
+                updateMIA("Error: Could not parse assembly file. Is it valid JSON?"); 
                 return; 
             } 
             currentModelJson = jsonData; 
             document.getElementById('object-name').value = objectName; 
+            
+            const missingPartNames = [];
             const bounds = new THREE.Box3().set(new THREE.Vector3(), new THREE.Vector3()); 
+            
             jsonData.parts.forEach(part => { 
+                // If a part is marked as missing, do not create a mesh for it.
+                if (part.status === 'missing') {
+                    missingPartNames.push(part.name || part.id);
+                    return; // Skip rendering this part
+                }
+
                 const dims = part.dimensions; 
                 const orig = part.origin; 
                 const geometry = new THREE.BoxGeometry(dims.width, dims.height, dims.depth); 
-                const mesh = new THREE.Mesh(geometry, defaultPartMaterial); // Start with default
+                const mesh = new THREE.Mesh(geometry, defaultPartMaterial);
                 mesh.position.set( orig.x + dims.width / 2, orig.z + dims.height / 2, orig.y + dims.depth / 2 ); 
                 mesh.userData.part = part; 
                 partMeshesMap.set(part.id, mesh); 
@@ -240,12 +242,17 @@
                 objectGroup.add(line); 
             }); 
             
-            resetAllMaterials(); // Apply materials based on any existing damage data
+            resetAllMaterials();
 
             const center = new THREE.Vector3(); 
             bounds.getCenter(center); 
             controls.target.copy(center); 
-            updateMIA(`Assembly "${objectName}" loaded. You can now add photos to catalog damages.`); 
+            
+            let miaMessage = `Assembly "${objectName}" loaded.`;
+            if (missingPartNames.length > 0) {
+                miaMessage += ` <span style="color: #ffcc00;">Note: ${missingPartNames.length} part(s) marked as missing: ${missingPartNames.join(', ')}.</span>`;
+            }
+            updateMIA(miaMessage);
         }
         
         function onObjectClick(event) {
@@ -257,28 +264,26 @@
             const sphereIntersects = raycaster.intersectObjects(damageSpheres);
             const partIntersects = raycaster.intersectObjects(Array.from(partMeshesMap.values()));
             
-            resetAllMaterials(); // Reset to default state (grey/yellow)
+            resetAllMaterials(); 
             
             if (sphereIntersects.length > 0) {
                 const clickedSphere = sphereIntersects[0].object;
                 const damageInfo = clickedSphere.userData.damage;
-                
-                clickedSphere.material = selectedDotMaterial; // Dark red for selected dot
+                clickedSphere.material = selectedDotMaterial; 
                 infoBox.style.color = '#ff0000';
                 infoBox.innerHTML = `<b>${damageInfo.type}:</b><br>${damageInfo.description}`;
                 infoBox.style.display = 'block';
-                
                 const associatedPart = partMeshesMap.get(damageInfo.part_id);
-                if (associatedPart) { associatedPart.material = highlightPartMaterial; } // Pinkish-red for associated part
+                if (associatedPart) { associatedPart.material = highlightPartMaterial; }
 
             } else if (partIntersects.length > 0) {
                 const clickedPart = partIntersects[0].object;
                 const partData = clickedPart.userData.part;
-                clickedPart.material = selectionPartMaterial; // Blue for selected part
+                clickedPart.material = selectionPartMaterial; 
                 if (partData) {
                     const d = partData.dimensions;
                     infoBox.style.color = '#0000ff';
-                    infoBox.innerHTML = `<b>Part:</b> ${partData.id.replace(/_/g, ' ')}<br><b>Size:</b> ${(d.width*100).toFixed(1)}×${(d.height*100).toFixed(1)}×${(d.depth*100).toFixed(1)} cm`;
+                    infoBox.innerHTML = `<b>Part:</b> ${partData.id.replace(/_/g, ' ')} (${partData.status})<br><b>Size:</b> ${(d.width*100).toFixed(1)}×${(d.height*100).toFixed(1)}×${(d.depth*100).toFixed(1)} cm`;
                     infoBox.style.display = 'block';
                 }
             } else {
@@ -287,41 +292,34 @@
         }
         
         function viewGraph() {
-            if (!currentModelJson || !currentModelJson.parts || currentModelJson.parts.length === 0) {
-                updateMIA("No assembly data loaded to generate a graph.");
-                return;
-            }
+            if (!currentModelJson || !currentModelJson.parts) return;
 
-            const damagedPartIds = new Set(currentDamageJson ? currentDamageJson.map(d => d.part_id) : []);
-
-            let dotString = 'graph G {\n';
-            dotString += '  graph [rankdir="LR" splines=true ranksep=2.5 nodesep=0.5];\n';
-            dotString += '  node [shape=box, style="filled", fontname="Helvetica"];\n';
-            dotString += '  edge [arrowhead=none];\n\n';
-
+            let dotString = 'graph G {\n  graph [rankdir="LR" splines=true ranksep=2.5 nodesep=0.5];\n  node [shape=box, style="filled", fontname="Helvetica"];\n  edge [arrowhead=none];\n\n';
             const addedEdges = new Set();
             
             currentModelJson.parts.forEach(part => {
-                const fillColor = damagedPartIds.has(part.id) ? '#ff8a8a' : '#f0f0f0';
-                dotString += `  "${part.id}" [fillcolor="${fillColor}"];\n`;
+                let fillColor = '#f0f0f0'; // intact
+                if (part.status === 'defective') fillColor = '#ffee9c'; // yellow-ish
+                if (part.status === 'missing') fillColor = '#ffc0c0'; // red-ish
+                
+                dotString += `  "${part.id}" [label="${part.name}\\n(${part.status})", fillcolor="${fillColor}"];\n`;
 
-                if (part.connections && Array.isArray(part.connections)) {
+                if (part.status !== 'missing' && part.connections && Array.isArray(part.connections)) {
                     part.connections.forEach(connectedId => {
-                        const edgeKey = [part.id, connectedId].sort().join('--');
-                        if (!addedEdges.has(edgeKey)) {
-                            dotString += `  "${part.id}" -- "${connectedId}";\n`;
-                            addedEdges.add(edgeKey);
+                        const connectedPart = currentModelJson.parts.find(p => p.id === connectedId);
+                        if (connectedPart && connectedPart.status !== 'missing') {
+                             const edgeKey = [part.id, connectedId].sort().join('--');
+                            if (!addedEdges.has(edgeKey)) {
+                                dotString += `  "${part.id}" -- "${connectedId}";\n`;
+                                addedEdges.add(edgeKey);
+                            }
                         }
                     });
                 }
             });
 
             dotString += '}';
-            
-            d3.select("#graph-container").graphviz({ useWorker: false })
-                .engine('dot')
-                .renderDot(dotString);
-            
+            d3.select("#graph-container").graphviz({ useWorker: false }).engine('dot').renderDot(dotString);
             document.getElementById('graph-modal-overlay').style.display = 'flex';
         }
 
@@ -334,14 +332,17 @@
                     const jsonData = JSON.parse(e.target.result);
                     if (fileType === 'model') {
                         createModel(jsonData);
-                        clearDamages(); // This clears any previous damages, including the default one.
-                        resetAllMaterials(); // Ensure materials are correct after clearing damages
+                        // When a new model is loaded, assume no damages initially.
+                        createDamageDots([]); 
                     } else if (fileType === 'damages') {
                         if (!currentModelJson) {
-                            updateMIA("Please load an assembly geometry file first before loading damages.");
+                            updateMIA("Please load an assembly geometry file first.");
                             return;
                         }
+                        // This option is less relevant now but kept for compatibility.
+                        // It's better to use the main 'Catalog Damages' flow.
                         createDamageDots(jsonData);
+                        resetAllMaterials(); 
                     }
                 } catch (error) {
                     updateMIA(`Error: Could not parse the selected ${fileType} JSON file.`);
