@@ -19,7 +19,7 @@ The 'parts' array contains part objects. Each part object MUST have the followin
 - **id** (string): A unique, human-readable identifier for the part (e.g., "left_leg", "seat_surface").
 - **origin** (object): An object with x, y, and z keys. This is the corner of the box with the minimum x, y, and z values in meters.
 - **dimensions** (object): An object with width, depth, and height keys, all in meters.
-- **parent** (string or null): The 'id' of the single part that this part attaches to. The main, root part of the assembly should have a 'parent' value of null. This creates a clear assembly tree.
+- **connections** (array of strings): A list of the 'id's of other parts that this part is physically connected to.
 
 **COORDINATE SYSTEM:**
 - The origin (0,0,0) is at the center of the object's footprint on the ground plane.
