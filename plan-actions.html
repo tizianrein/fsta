@@ -17,9 +17,9 @@
         #viewer-canvas { display: block; width: 100%; height: 100%; }
         #info-box { position: absolute; top: 10px; left: 0px; padding: 0px; background-color: transparent; border: none; font-family: monospace; font-size: 12px; line-height: 1.4; z-index: 101; display: none; pointer-events: none; max-width: 250px; }
 
-        /* --- NEW: Step Display Styles --- */
-        #step-display-container { display: none; position: absolute; top: 10px; right: 10px; z-index: 100; text-align: right; }
-        #step-counter { font-size: 14px; font-weight: 600; color: #d00; }
+        /* --- MODIFIED: Step Display Styles for Alignment and Font --- */
+        #step-display-container { display: none; position: absolute; top: 10px; right: 10px; z-index: 100; display: flex; flex-direction: column; align-items: flex-end; }
+        #step-counter { font-family: monospace; font-size: 12px; color: #d00; margin-bottom: 5px; }
         .step-nav-arrow { cursor: pointer; display: block; width: 30px; height: 30px; border: 1px solid #d00; color: #d00; background-color: #fff; text-align: center; line-height: 28px; font-size: 20px; margin-top: 5px; user-select: none; }
         .step-nav-arrow.disabled { cursor: not-allowed; color: #ccc; border-color: #ccc; }
         #step-info-panel { display: none; position: absolute; bottom: 10px; left: 10px; right: 10px; background-color: rgba(221, 51, 51, 0.85); color: #fff; padding: 15px; border: 1px solid #d00; cursor: pointer; z-index: 100; }
@@ -53,7 +53,6 @@
         .modal-content { background-color: #fff; padding: 20px; border: 1px solid #000; width: 100%; max-width: 400px; display: flex; flex-direction: column; max-height: 80vh; }
         .modal-content h3 { margin-top: 0; color: #000; text-align: center; }
         .modal-body { overflow-y: auto; }
-        /* --- NEW: Step Detail Modal Styles --- */
         #step-detail-modal-body ul { padding-left: 20px; margin: 10px 0; }
         #step-detail-modal-body li { margin-bottom: 5px; }
         #step-detail-modal-body b { display: block; margin-top: 15px; }
@@ -77,7 +76,7 @@
     <div id="app-wrapper">
         <div id="top-header">
             <div class="top-input-row">
-                <input type="text" id="object-name" placeholder="Object name..." readonly>
+                <input type="text" id="object-name" placeholder="Enter Object name..." readonly>
             </div>
         </div>
 
@@ -85,15 +84,14 @@
             <canvas id="viewer-canvas"></canvas>
             <div id="info-box"></div>
             
-            <!-- --- NEW: Step Display UI --- -->
             <div id="step-display-container">
                 <div id="step-counter"></div>
                 <div id="step-nav-next" class="step-nav-arrow">→</div>
                 <div id="step-nav-prev" class="step-nav-arrow">←</div>
             </div>
             <div id="step-info-panel">
+                <!-- --- MODIFIED: Removed the description paragraph --- -->
                 <h4 id="step-info-title"></h4>
-                <p id="step-info-description"></p>
                 <div class="click-prompt">(Click for more information)</div>
             </div>
         </div>
@@ -127,13 +125,13 @@
     <div id="data-choice-modal-overlay" class="modal-overlay"><div class="modal-content"><h3 id="data-choice-title">Select Data</h3><div class="action-buttons"><button id="choice-btn-assembly" class="btn modal-btn">📦 Assembly</button><button id="choice-btn-damages" class="btn modal-btn">📍 Damages</button><button id="choice-btn-plan" class="btn modal-btn">📋 Plan</button></div><div class="modal-actions" style="margin-top:20px"><button class="btn modal-btn close-modal-btn">Cancel</button></div></div></div>
     <div id="json-view-modal-overlay" class="modal-overlay"><div class="modal-content"><h3 id="json-view-title">Current JSON</h3><textarea id="json-view-textarea" readonly></textarea><div class="modal-actions"><button id="copy-json-from-modal-btn" class="btn modal-btn">Copy</button><button class="btn modal-btn close-modal-btn">Close</button></div></div></div>
     <div id="graph-modal-overlay" class="modal-overlay"><div class="modal-content"><h3 id="graph-title">Graph</h3><div id="graph-container"></div><div class="modal-actions"><button class="btn modal-btn close-modal-btn">Close</button></div></div></div>
-    <!-- --- NEW: Step Detail Modal --- -->
     <div id="step-detail-modal-overlay" class="modal-overlay"><div class="modal-content"><h3>Step Details</h3><div class="modal-body" id="step-detail-modal-body"></div><div class="modal-actions"><button class="btn modal-btn close-modal-btn">Close</button></div></div></div>
 
     <!-- Hidden Inputs -->
     <input type="file" id="assembly-upload-input" class="hidden-input" accept=".json">
     <input type="file" id="damages-upload-input" class="hidden-input" accept=".json">
     <input type="file" id="plan-upload-input" class="hidden-input" accept=".json">
+
 
     <!-- Libraries -->
     <script src="https://unpkg.com/d3@7.8.5/dist/d3.min.js"></script>
@@ -151,7 +149,7 @@
         let scene, camera, renderer, controls, axesScene, axesCamera, infoBox, raycaster, mouse;
         let typingInterval;
         let currentModelJson, currentDamageJson, currentPlanJson, selectedBrain;
-        let currentStepIndex = 0; // --- NEW: State for current step ---
+        let currentStepIndex = 0;
         const objectGroup = new THREE.Group();
         const damageSpheres = [];
         const partMeshesMap = new Map();
@@ -161,7 +159,6 @@
         const viewerCanvas = document.getElementById('viewer-canvas');
         const rolfOutputEl = document.getElementById('rolf-output');
         const userPromptInput = document.getElementById('user-prompt');
-        // --- NEW: Step UI DOM Elements ---
         const stepDisplayContainer = document.getElementById('step-display-container');
         const stepInfoPanel = document.getElementById('step-info-panel');
         const stepCounterEl = document.getElementById('step-counter');
@@ -170,7 +167,6 @@
 
         // --- MATERIALS ---
         const defaultPartMaterial = new THREE.MeshStandardMaterial({ color: 0x666666, transparent: true, opacity: 0.4 });
-        // --- MODIFIED: Renamed for clarity ---
         const stepHighlightMaterial = new THREE.MeshStandardMaterial({ color: 0xdd3333, transparent: true, opacity: 0.85, side: THREE.DoubleSide });
         const selectionPartMaterial = new THREE.MeshStandardMaterial({ color: 0x0000ff, transparent: true, opacity: 0.9 });
         const outlineMaterial = new THREE.LineBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.8 });
@@ -214,15 +210,17 @@
             animate();
         }
 
+        // --- MODIFIED: To clear the object name on initial load ---
         function loadDefaults() {
             const defaultModel = { "objectName": "Default Cube", "parts": [{ "id": "cube", "origin": {"x": -0.25, "y": -0.25, "z": 0.0}, "dimensions": {"width": 0.5, "depth": 0.5, "height": 0.5}, "connections": [] }] };
             const defaultDamage = [{ "id": "damage_01", "type": "Scratch", "description": "A default scratch on the top surface.", "part_id": "cube", "coordinates": { "x": 0.0, "y": 0.0, "z": 0.5 } }];
             const defaultPlan = { "steps": [{ "step_number": 1, "title": "Fill Scratch", "description": "Apply wood filler to the scratch.", "tools_required": ["Wood filler"], "affected_parts": ["cube"], "affected_damages": ["damage_01"] }] };
             createModel(defaultModel);
+            document.getElementById('object-name').value = ""; // Clear the name field for the default view
             createDamages(defaultDamage);
             currentPlanJson = defaultPlan;
             updateROLF("Hello! I am R.O.L.F. -  the Repair Option Layout Finder. Describe your intentions, load a brain, or load a plan to begin.");
-            displayCurrentStep(); // --- NEW: Show default step
+            displayCurrentStep();
         }
 
         function animate() {
@@ -255,8 +253,8 @@
             clearModel();
             clearDamages();
             currentPlanJson = null;
-            currentStepIndex = 0; // --- NEW: Reset index
-            displayCurrentStep(); // --- NEW: Hide UI
+            currentStepIndex = 0;
+            displayCurrentStep();
         }
 
         function clearModel() {
@@ -277,7 +275,6 @@
             damageSpheres.forEach(sphere => { sphere.material = defaultDotMaterial; });
         }
         
-        // --- MODIFIED: Renamed to be more generic ---
         function highlightElements(partsToHighlight, damagesToHighlight, material) {
             resetMaterials();
             
@@ -292,7 +289,7 @@
             });
         }
 
-        // --- NEW: Function to display the current step's info and highlight ---
+        // --- MODIFIED: To only show the title in the info panel ---
         function displayCurrentStep() {
             if (!currentPlanJson || !currentPlanJson.steps || currentPlanJson.steps.length === 0) {
                 stepDisplayContainer.style.display = 'none';
@@ -301,26 +298,21 @@
                 return;
             }
 
-            stepDisplayContainer.style.display = 'block';
+            stepDisplayContainer.style.display = 'flex';
             stepInfoPanel.style.display = 'block';
 
             const step = currentPlanJson.steps[currentStepIndex];
             if (!step) return;
 
-            // Update UI text
             stepCounterEl.textContent = `Current Step: Nr. ${step.step_number}`;
             document.getElementById('step-info-title').textContent = step.title;
-            document.getElementById('step-info-description').textContent = step.description;
 
-            // Update nav arrow states
             stepNavPrevBtn.classList.toggle('disabled', currentStepIndex === 0);
             stepNavNextBtn.classList.toggle('disabled', currentStepIndex === currentPlanJson.steps.length - 1);
             
-            // Highlight relevant parts
             highlightElements(step.affected_parts || [], step.affected_damages || [], stepHighlightMaterial);
         }
 
-        // --- NEW: Function to show the detailed step modal ---
         function showStepDetailModal() {
             if (!currentPlanJson || !currentPlanJson.steps) return;
             const step = currentPlanJson.steps[currentStepIndex];
@@ -399,7 +391,6 @@
         function handleFileUpload(event, type) {
             const file = event.target.files[0];
             if (!file) return;
-            if (type === 'assembly') clearAll();
             
             const reader = new FileReader();
             reader.onload = e => {
@@ -446,7 +437,6 @@
             URL.revokeObjectURL(a.href);
         }
 
-        // --- MODIFIED: To highlight the current step in red ---
         function viewGraph() {
             if (!currentPlanJson) { updateROLF("Generate a repair plan to see its graph."); return; }
             const objectId = (currentModelJson.objectName || 'object').replace(/\s+/g, '_');
@@ -459,9 +449,9 @@
                 const nodeId = `${objectId}-S${step.step_number}`;
                 let style = '';
                 if (step.step_number === currentStepNumber) {
-                    style = ', style=filled, fillcolor="#dd3333", fontcolor=white'; // Highlight current step
+                    style = ', style=filled, fillcolor="#dd3333", fontcolor=white';
                 } else if (step.step_number === 1 || step.step_number === steps.length) {
-                    style = ', style=filled, fillcolor=black, fontcolor=white'; // Start and end nodes
+                    style = ', style=filled, fillcolor=black, fontcolor=white';
                 }
                 dot += `  "${nodeId}" [label="${label}"${style}];\n`;
             });
@@ -483,7 +473,6 @@
             const sphereIntersects = raycaster.intersectObjects(damageSpheres);
             const partIntersects = raycaster.intersectObjects(Array.from(partMeshesMap.values()));
             
-            // --- MODIFIED: We want to keep the current step highlight active
             displayCurrentStep(); 
             infoBox.style.display = 'none';
             
@@ -492,7 +481,7 @@
                 const damageInfo = clickedSphere.userData.damage;
                 clickedSphere.material = selectedDotMaterial;
                 infoBox.style.color = '#ff0000';
-                infoBox.innerHTML = `<b>${damageInfo.type} (${damageInfo.id}):</b><br>${damageInfo.description} Part: ${damageInfo.part_id}.`;
+                infoBox.innerHTML = `<b>${damageInfo.type} (${damageInfo.id}):</b><br>${damageInfo.description}<br>Part: ${damageInfo.part_id}.`;
                 infoBox.style.display = 'block';
 
             } else if (partIntersects.length > 0) {
@@ -529,12 +518,9 @@
             window.addEventListener('resize', onWindowResize);
             viewerCanvas.addEventListener('click', onObjectClick);
 
-            // --- Main Action Buttons ---
-            // --- MODIFIED: Added logic to preserve step index ---
             document.getElementById('generate-plan-btn').addEventListener('click', async () => {
                 if (!currentModelJson || !currentDamageJson) { updateROLF("Error: Please upload both assembly and damage files first."); return; }
                 
-                // --- NEW: Preserve current step number if possible ---
                 let previousStepNumber = -1;
                 if(currentPlanJson && currentPlanJson.steps[currentStepIndex]) {
                     previousStepNumber = currentPlanJson.steps[currentStepIndex].step_number;
@@ -553,13 +539,12 @@
                     const newPlan = JSON.parse(result.candidates[0].content.parts[0].text.replace(/```json\n|```/g, '').trim());
                     currentPlanJson = newPlan;
                     
-                    // --- NEW: Find new index for the preserved step number ---
                     const newIndex = newPlan.steps.findIndex(step => step.step_number === previousStepNumber);
                     currentStepIndex = newIndex !== -1 ? newIndex : 0;
                     
                     updateROLF(`Plan generated with ${newPlan.steps.length} steps. View the details or graph.`, false);
                     userPromptInput.value = '';
-                    displayCurrentStep(); // --- MODIFIED: Call this to update UI
+                    displayCurrentStep();
 
                 } catch (error) {
                     console.error("Plan Generation Error:", error);
@@ -576,7 +561,6 @@
                 document.getElementById('brain-modal-overlay').style.display = 'none';
             });
             
-            // --- Icon Buttons & Modals ---
             let currentAction = '';
             const openChoiceModal = (action) => {
                 currentAction = action;
@@ -599,6 +583,7 @@
             document.getElementById('assembly-upload-input').addEventListener('change', (e) => handleFileUpload(e, 'assembly'));
             document.getElementById('damages-upload-input').addEventListener('change', (e) => handleFileUpload(e, 'damages'));
             document.getElementById('plan-upload-input').addEventListener('change', (e) => handleFileUpload(e, 'plan'));
+
             
             document.getElementById('choice-btn-assembly').addEventListener('click', () => { choiceActions[currentAction]?.('assembly'); document.getElementById('data-choice-modal-overlay').style.display = 'none'; });
             document.getElementById('choice-btn-damages').addEventListener('click', () => { choiceActions[currentAction]?.('damages'); document.getElementById('data-choice-modal-overlay').style.display = 'none'; });
@@ -612,7 +597,6 @@
                 });
             });
 
-            // --- NEW: Step Navigation Event Listeners ---
             stepNavNextBtn.addEventListener('click', () => {
                 if (currentStepIndex < currentPlanJson.steps.length - 1) {
                     currentStepIndex++;
@@ -627,7 +611,7 @@
             });
             stepInfoPanel.addEventListener('click', showStepDetailModal);
         }
-
+        
         // --- INITIALIZE THE APP ---
         init();
     </script>
