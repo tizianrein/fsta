@@ -1,366 +1,83 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-    <title>Step 3: Plan Actions</title>
-    <style>
-        body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;margin:0;background-color:#fff;color:#000;display:flex;justify-content:center;padding:20px 0}#app-wrapper{width:90%;max-width:420px;display:flex;flex-direction:column;gap:20px}#top-header{display:flex;flex-direction:column;gap:20px}.top-input-row{display:flex;align-items:stretch;gap:10px}#object-name{flex-grow:1;background-color:#f0f0f0;padding:12px;border:1px solid #000;border-radius:0;font-size:14px;box-sizing:border-box}#viewer-container{width:100%;height:40vh;position:relative;background-color:#fff}#viewer-canvas{display:block;width:100%;height:100%}#bottom-ui-container{display:flex;flex-direction:column;gap:15px}.icon-controls{display:flex;justify-content:space-around;text-align:center;padding:10px 0}.icon-button{cursor:pointer;color:#000}.icon-button svg{width:24px;height:24px}.action-buttons{display:flex;gap:10px}.btn{flex-grow:1;padding:12px;font-size:14px;font-weight:600;border:none;border-radius:0;cursor:pointer;display:flex;justify-content:center;align-items:center;gap:8px;background-color:#000;color:#fff}.instructions-group{background-color:#fff;padding:15px;border:1px solid #000}.instructions-group label{display:block;font-size:12px;font-weight:600;margin-bottom:8px;color:#000}.instructions-group textarea{width:100%;height:60px;padding:10px;border:none;background-color:#fff;color:#000;border-radius:0;font-size:14px;box-sizing:border-box;resize:vertical}.rolf-group{background-color:#000;color:#fff;padding:15px}#rolf-output{font-family:"SF Mono",Consolas,Menlo,monospace;font-size:13px;line-height:1.5;min-height:20px;white-space:pre-wrap}#rolf-output .cursor{display:inline-block;background-color:#fff;width:8px;height:1em;animation:blink 1s step-end infinite}@keyframes blink{from,to{background-color:transparent}50%{background-color:#fff}}.modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(0,0,0,.7);z-index:1000;justify-content:center;align-items:center;padding:20px;box-sizing:border-box}.modal-content{background-color:#fff;padding:20px;border:1px solid #000;width:100%;max-width:400px;display:flex;flex-direction:column;max-height:80vh}.modal-content h3{margin-top:0;color:#000;text-align:center}.modal-body{overflow-y:auto}.brain-option{padding:12px;margin-bottom:10px;border:1px solid #ccc;cursor:pointer;transition:background-color .2s ease,border-color .2s ease}.brain-option:hover{background-color:#f0f0f0}.brain-option.selected{border-color:#000;background-color:#e0e0e0}.brain-option h4{margin:0;font-size:14px;font-weight:normal}.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}.modal-btn{background-color:#000;color:#fff}.hidden-input{display:none}#graph-modal-overlay .modal-content{max-width:90vw;height:80vh}#graph-container{width:100%;height:calc(100% - 40px)}#graph-container svg{width:100%;height:100%}
-    </style>
-</head>
-<body>
-    <div id="app-wrapper">
-        <div id="top-header">
-            <div class="top-input-row">
-                <input type="text" id="object-name" placeholder="Object name..." readonly>
-            </div>
-        </div>
+// File: /api/plan-actions.js
 
-        <div id="viewer-container">
-            <canvas id="viewer-canvas"></canvas>
-        </div>
-        
-        <div id="bottom-ui-container">
-             <div class="icon-controls">
-                <div id="upload-json-btn" class="icon-button" title="Upload JSON"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z"/></svg></div>
-                <div id="copy-json-btn" class="icon-button" title="Read & Copy JSON"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H6z"/><path d="M2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1H2z"/></svg></div>
-                <div id="view-plan-graph-btn" class="icon-button" title="View plan graph"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-share" viewBox="0 0 16 16"><path d="M13.5 1a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.499 2.499 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5zm-8.5 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm11 5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/></svg></div>
-                <div id="download-json-btn" class="icon-button" title="Download JSON"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/></svg></div>
-            </div>
-            
-            <div class="action-buttons">
-                <button id="select-brain-btn" class="btn">Select Brain</button>
-                <button id="generate-plan-btn" class="btn">Generate Plan</button>
-            </div>
+// Allow the function to run for up to 120 seconds for complex plans
+export const maxDuration = 120;
 
-            <div class="instructions-group">
-                <label for="user-prompt">Make changes or give specific instructions...</label>
-                <textarea id="user-prompt" placeholder="e.g., 'Remove step 2.' or 'Suggest a simpler alternative for step 3.'"></textarea>
-            </div>
+// --- A NEW, MORE ROBUST SYSTEM PROMPT ---
+const SYSTEM_PROMPT = `
+You are an expert AI assistant specializing in creating repair plans for 3D objects.
+Your primary task is to generate a step-by-step repair plan based on a 3D model's assembly data, a list of damages, and user instructions.
 
-            <div class="rolf-group">
-                <div id="rolf-output"></div>
-            </div>
-        </div>
-    </div>
+**CRITICAL OUTPUT REQUIREMENTS:**
+1.  Your entire output **MUST BE a single, raw JSON object**.
+2.  Do NOT use any markdown formatting like \`\`\`json. Your response must start with \`{\` and end with \`}\`.
+3.  Do NOT include any explanatory text, greetings, or apologies before or after the JSON content.
+
+**PLAN GENERATION LOGIC:**
+- Analyze the provided 'modelJson' to understand the object's parts.
+- Analyze the 'damageJson' to understand the specific issues to address.
+- If an 'existingPlan' is provided, use the 'userPrompt' to modify that plan.
+- If 'existingPlan' is null, create a brand new plan from scratch based on the damages.
+- The plan should be logical and sequential.
+
+**JSON OUTPUT SCHEMA:**
+The root object must contain a single key: "steps".
+The "steps" key must contain an array of step objects. Each step object MUST have the following structure:
+- "step_number" (number): The sequential number of the step, starting from 1.
+- "title" (string): A short, descriptive title for the step (e.g., "Stabilize Chair Frame").
+- "description" (string): A more detailed explanation of the action to be taken.
+- "tools_required" (array of strings): A list of tools or materials needed for this step.
+- "affected_parts" (array of strings): A list of part 'id's from the modelJson that are affected by this step.
+- "affected_damages" (array of strings): A list of damage 'id's from the damageJson that this step addresses.
+`;
+
+export default async function handler(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ message: 'Method Not Allowed' });
+  }
+
+  try {
+    // Note: We are no longer expecting 'brain' in the request body
+    const { modelJson, damageJson, userPrompt, existingPlan } = req.body;
+    const apiKey = process.env.GEMINI_API_KEY;
+
+    if (!apiKey) {
+      return res.status(500).json({ message: "API key is not configured on the server." });
+    }
+
+    const geminiParts = [
+      { text: SYSTEM_PROMPT },
+      { text: `Base 3D Model: ${JSON.stringify(modelJson, null, 2)}` },
+      { text: `List of Damages to Address: ${JSON.stringify(damageJson, null, 2)}` },
+      { text: `Existing Plan (modify this if not null): ${JSON.stringify(existingPlan, null, 2)}` },
+      { text: `User's Instructions: "${userPrompt || 'No specific instructions provided.'}"` }
+    ];
     
-    <!-- Modals -->
-    <div id="brain-modal-overlay" class="modal-overlay"><div class="modal-content"><h3>Select a Repair Brain (Optional)</h3><div class="modal-body" id="brain-options-container"></div><div class="modal-actions"><button id="confirm-brain-btn" class="btn modal-btn">Confirm</button><button class="btn modal-btn close-modal-btn">Cancel</button></div></div></div>
-    <div id="data-choice-modal-overlay" class="modal-overlay"><div class="modal-content"><h3 id="data-choice-title">Select Data</h3><div class="action-buttons"><button id="choice-btn-model" class="btn modal-btn">📦 Assembly</button><button id="choice-btn-damages" class="btn modal-btn">📍 Damages</button><button id="choice-btn-plan" class="btn modal-btn">📋 Plan</button></div><div class="modal-actions" style="margin-top:20px"><button class="btn modal-btn close-modal-btn">Cancel</button></div></div></div>
-    <div id="json-view-modal-overlay" class="modal-overlay"><div class="modal-content"><h3 id="json-view-title">Current JSON</h3><textarea id="json-view-textarea" readonly></textarea><div class="modal-actions"><button id="copy-json-from-modal-btn" class="btn modal-btn">Copy</button><button class="btn modal-btn close-modal-btn">Close</button></div></div></div>
-    <div id="graph-modal-overlay" class="modal-overlay"><div class="modal-content"><h3 id="graph-title">Graph</h3><div id="graph-container"></div><div class="modal-actions"><button class="btn modal-btn close-modal-btn">Close</button></div></div></div>
-    
-    <input type="file" id="assembly-upload-input" class="hidden-input" accept=".json">
-    <input type="file" id="damages-upload-input" class="hidden-input" accept=".json">
+    const googleApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
 
-    <!-- Libraries -->
-    <script src="https://unpkg.com/d3@7.8.5/dist/d3.min.js"></script>
-    <script src="https://unpkg.com/@hpcc-js/wasm@2.12.2/dist/graphviz.umd.js"></script>
-    <script src="https://unpkg.com/d3-graphviz@5.1.0/build/d3-graphviz.js"></script>
-    <script type="importmap">{"imports": {"three": "https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"}}</script>
-    
-    <script type="module">
-        import * as THREE from 'three';
-        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-
-        let scene, camera, renderer, controls, axesScene, axesCamera, typingInterval;
-        let currentModelJson, currentDamageJson, currentPlanJson, selectedBrain;
-        const objectGroup = new THREE.Group();
-        const damageSpheres = [];
-        const partMeshesMap = new Map();
-        
-        const viewerContainer = document.getElementById('viewer-container');
-        const viewerCanvas = document.getElementById('viewer-canvas');
-        const rolfOutputEl = document.getElementById('rolf-output');
-
-        const defaultPartMaterial = new THREE.MeshStandardMaterial({ color: 0x666666, transparent: true, opacity: 0.4, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
-        const outlineMaterial = new THREE.LineBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.8 });
-        const defaultDotMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-        const brains = [ { id: "maintenance-maximalist", name: "The Maintenance Maximalist" }, { id: "custodian", name: "The Janitor's Cookbook" }, { id: "long-term-thinker", name: "The Long-Term Thinker" }, { id: "readymade", name: "The Readymade Brain" }, { id: "anarchitect", name: "The Anarchitect" }, { id: "critical-conservator", name: "The Critical Conservator" }, { id: "baukultur-defender", name: "The Baukultur Defender" }, { id: "purist", name: "The Purist" }, { id: "historian-of-layers", name: "The Historian of Layers" }, { id: "gentle-repairer", name: "The Gentle Repairer" }, { id: "jeweler-of-joints", name: "The Jeweler of Joints" }, { id: "urbanist", name: "The Urbanist" }, { id: "preservation-scientist", name: "The Preservation Scientist" }, { id: "stylistic-idealist", name: "The Stylistic Idealist" }];
-
-        const defaultModel = {
-            "objectName": "Default Cube",
-            "parts": [{ "id": "cube", "origin": {"x": -0.25, "y": -0.25, "z": 0.0}, "dimensions": {"width": 0.5, "depth": 0.5, "height": 0.5}, "connections": [] }]
-        };
-        const defaultDamage = [{
-            "id": "damage_01", "type": "Scratch", "description": "A default scratch on the top surface.", "part_id": "cube", "coordinates": { "x": 0.0, "y": 0.0, "z": 0.5 }
-        }];
-        const defaultPlan = {
-            "steps": [{ "step_number": 1, "title": "Fill Scratch", "description": "Apply wood filler to the scratch on the top surface.", "tools_required": ["Wood filler"], "affected_parts": ["cube"], "affected_damages": ["damage_01"] }]
-        };
-
-        function updateROLF(message, isTyping = false) {
-            if (typingInterval) clearInterval(typingInterval);
-            const prefix = "R.O.L.F.🤖: ";
-            if (isTyping) {
-                rolfOutputEl.innerHTML = `${prefix}<span id="rolf-text"></span><span class="cursor"></span>`;
-                const textEl = document.getElementById('rolf-text');
-                const cursorEl = rolfOutputEl.querySelector('.cursor');
-                if (!textEl || !cursorEl) return;
-                let i = 0;
-                typingInterval = setInterval(() => {
-                    if (i < message.length) {
-                        textEl.textContent += message.charAt(i++);
-                    } else {
-                        clearInterval(typingInterval);
-                        if (cursorEl) cursorEl.style.display = 'none';
-                    }
-                }, 20);
-            } else {
-                rolfOutputEl.textContent = prefix + message;
-            }
+    const googleResponse = await fetch(googleApiUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: geminiParts }],
+        // This new configuration is critical: it forces the Gemini model to output valid JSON.
+        generationConfig: { 
+            "responseMimeType": "application/json" 
         }
+      }),
+    });
 
-        function init() {
-            scene = new THREE.Scene();
-            scene.background = new THREE.Color(0xffffff);
-            scene.add(objectGroup);
-            camera = new THREE.PerspectiveCamera(50, viewerContainer.clientWidth / viewerContainer.clientHeight, 0.01, 1000);
-            camera.position.set(-1.1, 0.7, -1.1);
-            renderer = new THREE.WebGLRenderer({ canvas: viewerCanvas, antialias: true, alpha: true });
-            renderer.autoClear = false;
-            renderer.setPixelRatio(window.devicePixelRatio);
-            renderer.setSize(viewerContainer.clientWidth, viewerContainer.clientHeight);
-            controls = new OrbitControls(camera, renderer.domElement);
-            controls.enableDamping = true;
-            controls.target.set(0, 0.4, 0);
-            scene.add(new THREE.AmbientLight(0xffffff, 0.8), new THREE.DirectionalLight(0xffffff, 0.7, 3));
-            axesScene = new THREE.Scene();
-            const gizmoSize = 2.5;
-            axesCamera = new THREE.OrthographicCamera(-gizmoSize, gizmoSize, gizmoSize, -gizmoSize, -10, 10);
-            const axes = new THREE.AxesHelper(1.5);
-            axes.rotation.x = -Math.PI / 2;
-            axesScene.add(axes);
-            window.addEventListener('resize', onWindowResize);
-            loadDefaults();
-            animate();
-            populateBrainOptions();
-        }
+    if (!googleResponse.ok) {
+        const errorText = await googleResponse.text();
+        // This will now give us a much more detailed error from the Google API side
+        throw new Error(`Google API Error: ${errorText}`);
+    }
 
-        function loadDefaults() {
-            loadAssembly(defaultModel);
-            loadDamages(defaultDamage);
-            displayPlanSummary(defaultPlan);
-            updateROLF("This is a default example. Upload your own assembly to begin.");
-        }
+    const googleData = await googleResponse.json();
+    res.status(200).json(googleData);
 
-        function onWindowResize() {
-            const w = viewerContainer.clientWidth, h = viewerContainer.clientHeight;
-            camera.aspect = w / h;
-            camera.updateProjectionMatrix();
-            renderer.setSize(w, h);
-        }
-
-        function animate() {
-            requestAnimationFrame(animate);
-            controls.update();
-            renderer.clear();
-            renderer.render(scene, camera);
-            renderer.clearDepth();
-            const gizmoSize = 80;
-            renderer.setViewport(10, 10, gizmoSize, gizmoSize);
-            axesCamera.quaternion.copy(camera.quaternion);
-            renderer.render(axesScene, axesCamera);
-            renderer.setViewport(0, 0, renderer.domElement.clientWidth, renderer.domElement.clientHeight);
-        }
-
-        function clearAll() {
-            while (objectGroup.children.length > 0) objectGroup.remove(objectGroup.children[0]);
-            damageSpheres.forEach(s => scene.remove(s));
-            damageSpheres.length = 0;
-            partMeshesMap.clear();
-            currentModelJson = null;
-            currentDamageJson = null;
-            currentPlanJson = null;
-            document.getElementById('object-name').value = "";
-        }
-        
-        function clearDamages() {
-             damageSpheres.forEach(s => scene.remove(s));
-             damageSpheres.length = 0;
-             currentDamageJson = null;
-        }
-
-        function loadAssembly(jsonData) {
-            currentModelJson = jsonData;
-            document.getElementById('object-name').value = jsonData.objectName || "Untitled";
-            const bounds = new THREE.Box3();
-            jsonData.parts.forEach(part => {
-                const geo = new THREE.BoxGeometry(part.dimensions.width, part.dimensions.height, part.dimensions.depth);
-                const pos = new THREE.Vector3(part.origin.x + part.dimensions.width/2, part.origin.z + part.dimensions.height/2, part.origin.y + part.dimensions.depth/2);
-                const mesh = new THREE.Mesh(geo, defaultPartMaterial);
-                mesh.position.copy(pos);
-                objectGroup.add(mesh);
-                const line = new THREE.LineSegments(new THREE.EdgesGeometry(geo), outlineMaterial);
-                line.position.copy(pos);
-                objectGroup.add(line);
-                partMeshesMap.set(part.id, mesh);
-            });
-            bounds.setFromObject(objectGroup);
-            const center = new THREE.Vector3();
-            bounds.getCenter(center);
-            controls.target.copy(center);
-        }
-
-        function loadDamages(jsonData) {
-            clearDamages();
-            if(!currentModelJson) { updateROLF("Error: Please load an assembly file first."); return; }
-            currentDamageJson = jsonData;
-            const dotGeometry = new THREE.SphereGeometry(0.015, 16, 16);
-            jsonData.forEach(damage => {
-                const sphere = new THREE.Mesh(dotGeometry, defaultDotMaterial.clone());
-                sphere.position.set(damage.coordinates.x, damage.coordinates.z, damage.coordinates.y);
-                damageSpheres.push(sphere);
-                scene.add(sphere);
-            });
-        }
-        
-        function displayPlanSummary(plan) {
-            currentPlanJson = plan;
-            if(plan && plan.steps) {
-                 updateROLF(`Plan generated with ${plan.steps.length} steps. View the plan details or graph.`, true);
-            }
-        }
-
-        function populateBrainOptions() {
-            const container = document.getElementById('brain-options-container');
-            brains.forEach(brain => {
-                const div = document.createElement('div');
-                div.className = 'brain-option';
-                div.dataset.id = brain.id;
-                div.innerHTML = `<h4>${brain.name}</h4>`;
-                div.addEventListener('click', () => {
-                    document.querySelectorAll('.brain-option').forEach(opt => opt.classList.remove('selected'));
-                    div.classList.add('selected');
-                    selectedBrain = brain;
-                });
-                container.appendChild(div);
-            });
-        }
-        
-        function handleFileUpload(event, type) {
-            const file = event.target.files[0];
-            if (!file) return;
-            if (type === 'assembly') clearAll();
-            
-            const reader = new FileReader();
-            reader.onload = e => {
-                try {
-                    const data = JSON.parse(e.target.result);
-                    if (type === 'assembly') {
-                        loadAssembly(data);
-                        updateROLF("Assembly loaded. Please upload the corresponding damage file.");
-                    } else {
-                        loadDamages(data);
-                        updateROLF("Damages loaded. You can now generate a repair plan.");
-                    }
-                } catch (err) {
-                    updateROLF(`Error parsing ${type} file: ${err.message}`);
-                }
-            };
-            reader.readAsText(file);
-            event.target.value = '';
-        }
-
-        let currentAction = '';
-        const openChoiceModal = (action) => {
-            currentAction = action;
-            document.getElementById('data-choice-title').textContent = `What to ${action}?`;
-            document.getElementById('data-choice-modal-overlay').style.display = 'flex';
-        };
-        const choiceActions = {
-            upload: (type) => document.getElementById(`${type}-upload-input`).click(),
-            copy: (type) => viewJson(type),
-            download: (type) => downloadJson(type),
-        };
-        document.getElementById('upload-json-btn').addEventListener('click', () => openChoiceModal('upload'));
-        document.getElementById('copy-json-btn').addEventListener('click', () => openChoiceModal('copy'));
-        document.getElementById('download-json-btn').addEventListener('click', () => openChoiceModal('download'));
-        document.getElementById('choice-btn-model').addEventListener('click', () => { choiceActions[currentAction]?.('assembly'); document.getElementById('data-choice-modal-overlay').style.display = 'none'; });
-        document.getElementById('choice-btn-damages').addEventListener('click', () => { choiceActions[currentAction]?.('damages'); document.getElementById('data-choice-modal-overlay').style.display = 'none'; });
-        document.getElementById('choice-btn-plan').addEventListener('click', () => { choiceActions[currentAction]?.('plan'); document.getElementById('data-choice-modal-overlay').style.display = 'none'; });
-        document.getElementById('assembly-upload-input').addEventListener('change', (e) => handleFileUpload(e, 'assembly'));
-        document.getElementById('damages-upload-input').addEventListener('change', (e) => handleFileUpload(e, 'damages'));
-        
-        function viewJson(type) {
-            const dataMap = { assembly: currentModelJson, damages: currentDamageJson, plan: currentPlanJson };
-            if (!dataMap[type]) { updateROLF(`No ${type} data loaded.`); return; }
-            document.getElementById('json-view-title').textContent = `Current ${type} JSON`;
-            document.getElementById('json-view-textarea').value = JSON.stringify(dataMap[type], null, 2);
-            document.getElementById('json-view-modal-overlay').style.display = 'flex';
-        }
-
-        function downloadJson(type) {
-            const dataMap = { assembly: currentModelJson, damages: currentDamageJson, plan: currentPlanJson };
-            if (!dataMap[type]) { updateROLF(`No ${type} data loaded.`); return; }
-            const name = (document.getElementById('object-name').value || 'object').replace(/\s+/g, '_');
-            const blob = new Blob([JSON.stringify(dataMap[type], null, 2)], {type: 'application/json'});
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = `${name}_${type}.json`;
-            a.click();
-            URL.revokeObjectURL(a.href);
-        }
-        
-        document.getElementById('view-plan-graph-btn').addEventListener('click', () => {
-            if (!currentPlanJson) { updateROLF("Generate a repair plan to see its graph."); return; }
-            const objectId = (currentModelJson.objectName || 'object').replace(/\s+/g, '_');
-            let dot = `digraph RepairPlan {\n  rankdir=LR;\n  node [shape=circle, fontname="Helvetica,Arial,sans-serif", style=solid, fixedsize=true, width=1.8];\n  edge [fontname="Helvetica,Arial,sans-serif"];\n\n`;
-            const steps = currentPlanJson.steps;
-            steps.forEach((step, i) => {
-                const label = step.title.replace(/\s+/g, '\\n');
-                const nodeId = `${objectId}-S${step.step_number}`;
-                let style = (i === 0 || i === steps.length - 1) ? ', style=filled, fillcolor=black, fontcolor=white' : '';
-                dot += `  "${nodeId}" [label="${label}"${style}];\n`;
-            });
-            for (let i = 0; i < steps.length - 1; i++) {
-                dot += `  "${objectId}-S${steps[i].step_number}" -> "${objectId}-S${steps[i+1].step_number}";\n`;
-            }
-            dot += '}';
-            document.getElementById('graph-title').textContent = "Repair Plan Graph";
-            d3.select("#graph-container").graphviz({useWorker: false}).renderDot(dot);
-            document.getElementById('graph-modal-overlay').style.display = 'flex';
-        });
-
-        document.querySelectorAll('.close-modal-btn').forEach(btn => btn.addEventListener('click', e => e.target.closest('.modal-overlay').style.display = 'none'));
-        document.getElementById('copy-json-from-modal-btn').addEventListener('click', () => {
-            navigator.clipboard.writeText(document.getElementById('json-view-textarea').value).then(() => {
-                updateROLF("JSON copied to clipboard.");
-                document.getElementById('json-view-modal-overlay').style.display = 'none';
-            });
-        });
-
-        document.getElementById('select-brain-btn').addEventListener('click', () => document.getElementById('brain-modal-overlay').style.display = 'flex');
-        document.getElementById('confirm-brain-btn').addEventListener('click', () => {
-            if (selectedBrain) {
-                document.getElementById('select-brain-btn').textContent = selectedBrain.name;
-                updateROLF(`Brain selected: "${selectedBrain.name}". Ready to generate plan.`);
-            }
-            document.getElementById('brain-modal-overlay').style.display = 'none';
-        });
-
-        document.getElementById('generate-plan-btn').addEventListener('click', async () => {
-            if (!currentModelJson || !currentDamageJson) { updateROLF("Error: Please upload both assembly and damage files first."); return; }
-            updateROLF("Generating your repair plan...", true);
-            try {
-                const response = await fetch('/api/plan-actions', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ modelJson: currentModelJson, damageJson: currentDamageJson, brain: selectedBrain, userPrompt: document.getElementById('user-prompt').value, existingPlan: currentPlanJson })
-                });
-                if (!response.ok) throw new Error((await response.json()).message || 'Server error');
-                const result = await response.json();
-                if (!result.candidates?.[0]?.content?.parts?.[0]?.text) throw new Error("Invalid API response structure.");
-                const newPlan = JSON.parse(result.candidates[0].content.parts[0].text.replace(/```json\n|```/g, '').trim());
-                displayPlanSummary(newPlan);
-                document.getElementById('user-prompt').value = '';
-            } catch (error) {
-                console.error("Plan Generation Error:", error);
-                updateROLF(`Sorry, an error occurred: ${error.message}`, true);
-            }
-        });
-
-        init();
-    </script>
-</body>
-</html>
+  } catch (error) {
+    console.error('Error in /api/plan-actions handler:', error);
+    res.status(500).json({ message: 'An error occurred on the server.', error: error.message });
+  }
+}
