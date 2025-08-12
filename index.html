@@ -34,7 +34,43 @@
             font-size: 18px;
             color: #666;
             margin-top: 0;
+            margin-bottom: 20px;
+        }
+        .author {
+            font-size: 16px;
+            color: #555;
+            margin-top: -10px;
+            margin-bottom: 25px;
+        }
+        .author a {
+            color: #000;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        .author a:hover {
+            text-decoration: underline;
+        }
+        .external-links {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin-top: 50;
             margin-bottom: 30px;
+            align-items: center;
+        }
+        .external-links a {
+            color: #333;
+            text-decoration: none;
+            font-size: 24px;
+            transition: transform 0.2s ease;
+        }
+        .external-links a:hover {
+            transform: scale(1.15);
+        }
+        .external-links a svg {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
         }
         .workflow-nav {
             list-style: none;
@@ -67,8 +103,12 @@
 <body>
     <div class="container">
         <h1>From Structure to Action</h1>
-        <p class="subtitle">A digital workflow for AI-assisted analysis and restoration of objects.</p>
+        <p class="subtitle">Machine Reasoning and the Logics of Repair</p>
         
+        <p class="author">
+            <a href="http://www.tizianrein.de" target="_blank" rel="noopener noreferrer">Tizian Rein</a>
+        </p>
+
         <nav>
             <ul class="workflow-nav">
                 <li><a href="generate-assembly.html" target="_blank" rel="noopener noreferrer"><span>🧱</span> Generate Assembly</a></li>
@@ -78,6 +118,7 @@
                 <li><a href="view-history.html" target="_blank" rel="noopener noreferrer"><span>📂</span> View History</a></li>
             </ul>
         </nav>
+
     </div>
 </body>
 </html>
