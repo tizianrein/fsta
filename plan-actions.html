@@ -133,6 +133,7 @@
     <!-- Hidden Inputs -->
     <input type="file" id="assembly-upload-input" class="hidden-input" accept=".json">
     <input type="file" id="damages-upload-input" class="hidden-input" accept=".json">
+    <input type="file" id="plan-upload-input" class="hidden-input" accept=".json">
 
     <!-- Libraries -->
     <script src="https://unpkg.com/d3@7.8.5/dist/d3.min.js"></script>
@@ -405,11 +406,17 @@
                 try {
                     const data = JSON.parse(e.target.result);
                     if (type === 'assembly') {
+                        clearAll();
                         createModel(data);
                         updateROLF("Assembly loaded. Please upload the corresponding damage file.");
-                    } else { // damages
+                    } else if (type === 'damages') {
                         createDamages(data);
                         updateROLF("Damages loaded. You can now generate a repair plan.");
+                    } else if (type === 'plan') {
+                        currentPlanJson = data;
+                        currentStepIndex = 0;
+                        displayCurrentStep();
+                        updateROLF(`Plan loaded with ${data.steps.length} steps.`);
                     }
                 } catch (err) {
                     updateROLF(`Error parsing ${type} file: ${err.message}`);
@@ -591,6 +598,7 @@
             document.getElementById('view-plan-graph-btn').addEventListener('click', viewGraph);
             document.getElementById('assembly-upload-input').addEventListener('change', (e) => handleFileUpload(e, 'assembly'));
             document.getElementById('damages-upload-input').addEventListener('change', (e) => handleFileUpload(e, 'damages'));
+            document.getElementById('plan-upload-input').addEventListener('change', (e) => handleFileUpload(e, 'plan'));
             
             document.getElementById('choice-btn-assembly').addEventListener('click', () => { choiceActions[currentAction]?.('assembly'); document.getElementById('data-choice-modal-overlay').style.display = 'none'; });
             document.getElementById('choice-btn-damages').addEventListener('click', () => { choiceActions[currentAction]?.('damages'); document.getElementById('data-choice-modal-overlay').style.display = 'none'; });
