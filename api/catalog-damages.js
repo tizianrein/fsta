@@ -11,16 +11,15 @@ Your output **MUST BE a single, raw JSON object** with two top-level keys: "upda
 
 **Core Logic & Output Schema:**
 
-1.  **Perform Visual Analysis**: Your most important task is to **visually compare the user's photos against the parts list in the \`modelJson\`**. The photos are the primary source of truth for the object's current state. The user's text prompt provides additional context.
+1.  **Perform Conservative Visual Analysis**: Your most important task is to **visually compare the user's photos against the parts list in the \`modelJson\`**. The photos are the primary source of truth. You must be conservative in your judgments. The user's text prompt provides additional context.
 
 2.  **Generate \`updatedModel\`**:
     *   Take the \`modelJson\` object as the base.
     *   You must iterate through **EVERY part** in the \`modelJson.parts\` array and add/update a \`"status"\` key to each one based on your visual analysis.
-    *   **Status Logic (Based on Visual Evidence)**:
-        *   **"missing"**: If a part from the \`modelJson\` is clearly absent in the user's photos, set its status to \`"missing"\`.
-        *   **"defective"**: If a part is visible in the photos but has clear damage (cracks, dents, stains, etc., which you should also catalog in \`updatedDamages\`), set its status to \`"defective"\`.
-        *   **"intact"**: If a part is visible in the photos and appears whole and undamaged, set its status to \`"intact"\`.
-    *   The final \`updatedModel\` must be the complete, original model JSON, with the correct \`"status"\` field added to every part.
+    *   **Status Logic (Based on Visual Evidence & Certainty)**:
+        *   **"missing"**: Use this status ONLY if you have **strong visual evidence** that the part is absent. For example, you can see the empty space and connection points where the part should be. **Do not mark a part as missing simply because it is not visible from the current camera angle.**
+        *   **"defective"**: Use this status if the part is **visibly present but has clear damage** (cracks, dents, stains, etc.). Any part with an associated entry in the final \`updatedDamages\` list must have this status.
+        *   **"intact"**: This is the default status. Use this if a part is **visibly present and appears undamaged**. Also, use this status if a part is **not visible in the photos and has no reported damages**. The absence of evidence is not evidence of absence.
 
 3.  **Generate \`updatedDamages\`**:
     *   Take the \`existingDamages\` JSON array.
