@@ -18,14 +18,14 @@
         #info-box { position: absolute; top: 10px; left: 0px; padding: 0px; background-color: transparent; border: none; font-family: monospace; font-size: 12px; line-height: 1.4; z-index: 101; display: none; pointer-events: none; max-width: 250px; }
 
         /* --- MODIFIED: Step Display Styles for Alignment and Font --- */
-        #step-display-container { display: none; position: absolute; top: 10px; right: 10px; z-index: 100; display: flex; flex-direction: column; align-items: flex-end; }
+        #step-display-container { display: none; position: absolute; top: 10px; right: 0px; z-index: 100; display: flex; flex-direction: column; align-items: flex-end; }
         #step-counter { font-family: monospace; font-size: 12px; color: #d00; margin-bottom: 5px; }
         .step-nav-arrow { cursor: pointer; display: block; width: 30px; height: 30px; border: 1px solid #d00; color: #d00; background-color: #fff; text-align: center; line-height: 28px; font-size: 20px; margin-top: 5px; user-select: none; }
         .step-nav-arrow.disabled { cursor: not-allowed; color: #ccc; border-color: #ccc; }
-        #step-info-panel { display: none; position: absolute; bottom: 10px; left: 10px; right: 10px; background-color: rgba(221, 51, 51, 0.85); color: #fff; padding: 15px; border: 1px solid #d00; cursor: pointer; z-index: 100; }
-        #step-info-panel h4 { margin: 0 0 5px 0; font-size: 16px; font-weight: bold; }
+        #step-info-panel { display: none; position: absolute; bottom: 10px; left: 0px; right: 0px; background-color: rgba(221, 51, 51, 0.85); color: #fff; padding: 15px; border: 1px solid #d00; cursor: pointer; z-index: 100; }
+        #step-info-panel h4 { margin: 0 0 5px 0; font-size: 16px; font-weight: bold; text-align: center;  }
         #step-info-panel p { margin: 0; font-size: 12px; }
-        #step-info-panel .click-prompt { font-size: 10px; text-transform: uppercase; margin-top: 8px; opacity: 0.8; text-align: center; }
+        #step-info-panel .click-prompt { font-size: 8px; text-transform: uppercase; margin-top: 8px; opacity: 0.8; text-align: center; }
 
         #bottom-ui-container { display: flex; flex-direction: column; gap: 15px; }
         .icon-controls { display: flex; justify-content: space-around; text-align: center; padding: 10px 0; }
@@ -166,10 +166,10 @@
         const stepNavPrevBtn = document.getElementById('step-nav-prev');
 
         // --- MATERIALS ---
-        const defaultPartMaterial = new THREE.MeshStandardMaterial({ color: 0x666666, transparent: true, opacity: 0.4 });
-        const stepHighlightMaterial = new THREE.MeshStandardMaterial({ color: 0xdd3333, transparent: true, opacity: 0.85, side: THREE.DoubleSide });
-        const selectionPartMaterial = new THREE.MeshStandardMaterial({ color: 0x0000ff, transparent: true, opacity: 0.9 });
-        const outlineMaterial = new THREE.LineBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.8 });
+        const defaultPartMaterial = new THREE.MeshStandardMaterial({ color: 0x666666, transparent: true, opacity: 0.4, side: THREE.DoubleSide });
+        const stepHighlightMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000, transparent: true, opacity: 0.4, side: THREE.DoubleSide });
+        const selectionPartMaterial = new THREE.MeshStandardMaterial({ color: 0x0000ff, transparent: true, opacity: 0.8, side: THREE.DoubleSide });
+        const outlineMaterial = new THREE.LineBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.8});
         const defaultDotMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
         const selectedDotMaterial = new THREE.MeshBasicMaterial({ color: 0x6f0000 });
         
