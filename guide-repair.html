@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-    <title>Step 4: Execute Plan</title>
+    <title>Step 4: Guide Repair</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛠️</text></svg>">
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; background-color: #fff; color: #000; display: flex; justify-content: center; padding: 20px 0; }
@@ -25,6 +25,12 @@
         #step-info-panel h4 { margin: 0 0 5px 0; font-size: 16px; font-weight: bold; text-align: center;  }
         #step-info-panel p { margin: 0; font-size: 12px; }
         #step-info-panel .click-prompt { font-size: 8px; text-transform: uppercase; margin-top: 8px; opacity: 0.8; text-align: center; }
+
+        /* --- <<< NEWLY ADDED CODE >>> --- */
+        #step-info-panel.completed {
+            background-color: rgba(25, 135, 84, 0.85); /* Green background */
+            border-color: #198754; /* Darker green border */
+        }
 
         #bottom-ui-container { display: flex; flex-direction: column; gap: 15px; }
         .icon-controls { display: flex; justify-content: space-around; text-align: center; padding: 10px 0; }
@@ -104,9 +110,7 @@
             <div class="action-buttons">
                 <button id="start-btn" class="btn btn-primary">Start</button>
                 <button id="done-btn" class="btn btn-success disabled">Done!</button>
-                <!-- --- <<< CHANGE #1: Button text changed >>> --- -->
                 <button id="ask-question-btn" class="btn btn-dark">Ask</button>
-                <!-- --- <<< CHANGE #2: Button class changed to btn-dark >>> --- -->
                 <button id="comment-btn" class="btn btn-dark">Comment</button>
             </div>
 
@@ -293,7 +297,6 @@
             });
         }
         
-        // --- <<< CHANGE #3: New function to save comments robustly >>> ---
         function saveCurrentComment() {
             if (!currentHistoryJson || !currentHistoryJson.steps[currentStepIndex]) return;
             const step = currentHistoryJson.steps[currentStepIndex];
@@ -313,6 +316,9 @@
 
             const step = currentHistoryJson.steps[currentStepIndex];
             if (!step) return;
+
+            // --- <<< INTEGRATED CHANGE >>> ---
+            stepInfoPanel.classList.toggle('completed', step.completed);
 
             stepCounterEl.textContent = `Current Step: Nr. ${step.step_number}`;
             document.getElementById('step-info-title').textContent = step.title + (step.completed ? ' (Done)' : '');
