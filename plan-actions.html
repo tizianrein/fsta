@@ -456,7 +456,6 @@
                 let attributes = [];
                 let styleProperties = [];
 
-                // 1. Determine base shape and style based on keywords
                 let shape = 'circle';
                 if (removeKeywords.some(kw => titleLower.includes(kw))) {
                     shape = 'doublecircle';
@@ -466,7 +465,6 @@
                 }
                 attributes.push(`shape=${shape}`);
                 
-                // 2. Determine colors and fill
                 if (step.step_number === currentStepNumber) {
                     styleProperties.push('filled');
                     attributes.push('fillcolor="#dd3333"');
@@ -477,16 +475,13 @@
                     attributes.push('fontcolor=white');
                 }
 
-                // 3. Combine style properties into a single style attribute
                 if (styleProperties.length > 0) {
                     attributes.push(`style="${styleProperties.join(',')}"`);
                 }
 
-                // 4. Build the final node string
                 dot += `  "${nodeId}" [label="${label}", ${attributes.join(', ')}];\n`;
             });
 
-            // 5. Add edges
             for (let i = 0; i < steps.length - 1; i++) {
                 dot += `  "${objectId}-S${steps[i].step_number}" -> "${objectId}-S${steps[i+1].step_number}";\n`;
             }
