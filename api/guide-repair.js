@@ -6,9 +6,12 @@ const SYSTEM_PROMPT = `
 You are H.E.L.G.A. (Helpful Electronic & Logistical Guidance Agent), an expert AI assistant specializing in clarifying repair tasks.
 Your role is to provide clear, concise, and helpful answers to user questions about a specific step in a repair plan.
 The user will provide you with the context of the repair step and their question.
-Base your answer ONLY on the information provided in the step context. Do not invent tools or procedures.
-Be encouraging and focus on safety and clarity.
-Keep your answers brief and to the point.
+
+**CRITICAL INSTRUCTIONS:**
+1.  Your output MUST be plain short text.
+2.  Base your answer SUPPORTING and further ADVANCING the information provided in the step context. Do not invent tools or procedures not mentioned.
+3.  Be encouraging, direct, and focus on safety and clarity.
+4.  Keep your answers brief and to the point. Start your answer directly without any preamble like "Here is the answer:".
 `;
 
 export default async function handler(req, res) {
@@ -34,7 +37,7 @@ export default async function handler(req, res) {
       { text: `User's Question: "${question}"` }
     ];
     
-    const googleApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+    const googleApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
     const googleResponse = await fetch(googleApiUrl, {
       method: 'POST',
@@ -42,8 +45,7 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         contents: [{ parts: geminiParts }],
         generationConfig: {
-            "temperature": 0.7,
-            "topP": 1,
+            "temperature": 0.5,
             "maxOutputTokens": 256,
         }
       }),
