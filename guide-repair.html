@@ -425,7 +425,7 @@
                 const currentStep = currentHistoryJson.steps[currentStepIndex];
                 updateHELGA("Thinking...", true);
                 try {
-                    const response = await fetch('/api/ask-helga', {
+                    const response = await fetch('/api/guide-repair', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ question, stepContext: currentStep })
