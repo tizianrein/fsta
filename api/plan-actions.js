@@ -28,7 +28,7 @@ Your primary task is to generate a step-by-step repair plan based on a 3D model'
 The root object must contain a single key: "steps".
 The "steps" key must contain an array of step objects. Each step object MUST have the following structure:
 - "step_number" (number): The sequential number of the step, starting from 1.
-- "title" (string): **A very short, action-focused title with a MAXIMUM of eight words.** Do NOT mention the location of the damage in the title (e.g., use "Secure Cracked Leg" instead of "Clamp and Glue Crack on Back Left Leg").
+- "title" (string): **A short, action-focused title with a MAXIMUM of eight words.** Do NOT mention the location of the damage or the part in the title (e.g., use "Clamp and Glue Crack" instead of "Clamp and Glue Crack on Back Left Leg").
 - "description" (string): **A precise, rich, and highly detailed explanation of the action.** This must be thorough enough for a novice to follow. Include specific instructions on what to look for, what physical motions to make (e.g., "turn counter-clockwise," "apply even pressure," "pull gently upwards"), the expected outcome of the action, and any relevant safety advice.
 - "tools_required" (array of strings): A list of all tools or materials needed for this specific step (e.g., "Phillips #1 Screwdriver," "Wood Glue").
 - "affected_parts" (array of strings): A list of part 'id's from the modelJson that are directly manipulated or affected in this step.
