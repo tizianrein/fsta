@@ -437,30 +437,60 @@
             URL.revokeObjectURL(a.href);
         }
 
+        // --- MODIFIED: Graphviz function updated with new styling logic ---
         function viewGraph() {
-            if (!currentPlanJson) { updateROLF("Generate a repair plan to see its graph."); return; }
-            const objectId = (currentModelJson.objectName || 'object').replace(/\s+/g, '_');
-            let dot = `digraph RepairPlan {\n  rankdir=LR;\n  node [shape=circle, fontname="Helvetica,Arial,sans-serif", style=solid, fixedsize=true, width=1.8];\n  edge [fontname="Helvetica,Arial,sans-serif"];\n\n`;
-            const steps = currentPlanJson.steps;
-            const currentStepNumber = steps[currentStepIndex].step_number;
+            if (!currentPlanJson || !currentPlanJson.steps || currentPlanJson.steps.length === 0) {
+                updateROLF("Generate or load a repair plan to see its graph.");
+                return;
+            }
 
+            const objectId = (currentModelJson?.objectName || 'object').replace(/\s+/g, '_');
+            const steps = currentPlanJson.steps;
+            const currentStepNumber = steps[currentStepIndex]?.step_number;
+
+            // Keywords to identify step types
+            const removeKeywords = ['remove', 'unscrew', 'detach', 'disassemble', 'pry', 'take off', 'unclip'];
+            const addKeywords = ['add', 'apply', 'install', 'attach', 'secure', 'clamp', 'glue', 'insert', 'place', 'reassemble'];
+
+            // Base DOT string
+            let dot = `digraph RepairPlan {\n  rankdir=LR;\n  node [fontname="Helvetica,Arial,sans-serif", fixedsize=true, width=1.8];\n  edge [fontname="Helvetica,Arial,sans-serif"];\n\n`;
+
+            // Define nodes with conditional styling
             steps.forEach(step => {
                 const label = step.title.replace(/\s+/g, '\\n');
                 const nodeId = `${objectId}-S${step.step_number}`;
-                let style = '';
-                if (step.step_number === currentStepNumber) {
-                    style = ', style=filled, fillcolor="#dd3333", fontcolor=white';
-                } else if (step.step_number === 1 || step.step_number === steps.length) {
-                    style = ', style=filled, fillcolor=black, fontcolor=white';
+                const titleLower = step.title.toLowerCase();
+                let nodeAttrs = '';
+
+                // Determine node shape and style
+                if (removeKeywords.some(kw => titleLower.includes(kw))) {
+                    nodeAttrs = 'shape=doublecircle, style=dotted'; // Dotted double circle for REMOVE actions
+                } else if (addKeywords.some(kw => titleLower.includes(kw))) {
+                    nodeAttrs = 'shape=doublecircle'; // Normal double circle for ADD actions
+                } else {
+                    nodeAttrs = 'shape=circle'; // Default single circle
                 }
-                dot += `  "${nodeId}" [label="${label}"${style}];\n`;
+                
+                // Highlight the current step
+                if (step.step_number === currentStepNumber) {
+                    nodeAttrs += ', style="filled,${nodeAttrs.includes("dotted") ? "dotted" : ""}", fillcolor="#dd3333", fontcolor=white';
+                }
+                // Special style for first and last nodes
+                else if (step.step_number === 1 || step.step_number === steps.length) {
+                     nodeAttrs += ', style="filled,${nodeAttrs.includes("dotted") ? "dotted" : ""}", fillcolor=black, fontcolor=white';
+                }
+
+                dot += `  "${nodeId}" [label="${label}", ${nodeAttrs}];\n`;
             });
+
+            // Define edges between nodes
             for (let i = 0; i < steps.length - 1; i++) {
                 dot += `  "${objectId}-S${steps[i].step_number}" -> "${objectId}-S${steps[i+1].step_number}";\n`;
             }
             dot += '}';
+
             document.getElementById('graph-title').textContent = "Repair Plan Graph";
-            d3.select("#graph-container").graphviz({useWorker: false}).engine('dot').renderDot(dot);
+            d3.select("#graph-container").graphviz({ useWorker: false }).engine('dot').renderDot(dot);
             document.getElementById('graph-modal-overlay').style.display = 'flex';
         }
 

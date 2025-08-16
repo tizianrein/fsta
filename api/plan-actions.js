@@ -28,8 +28,8 @@ Your primary task is to generate a step-by-step repair plan based on a 3D model'
 The root object must contain a single key: "steps".
 The "steps" key must contain an array of step objects. Each step object MUST have the following structure:
 - "step_number" (number): The sequential number of the step, starting from 1.
-- "title" (string): A short, descriptive title for the step (e.g., "Unscrew Back Panel Retaining Screws").
-- "description" (string): **A precise and rich explanation of the action.** This must be detailed enough for a novice to follow. Include what to look for, what specific motions to make (e.g., "turn counter-clockwise," "pull gently upwards"), and what the immediate result should be.
+- "title" (string): **A very short, action-focused title with a MAXIMUM of eight words.** Do NOT mention the location of the damage in the title (e.g., use "Secure Cracked Leg" instead of "Clamp and Glue Crack on Back Left Leg").
+- "description" (string): **A precise, rich, and highly detailed explanation of the action.** This must be thorough enough for a novice to follow. Include specific instructions on what to look for, what physical motions to make (e.g., "turn counter-clockwise," "apply even pressure," "pull gently upwards"), the expected outcome of the action, and any relevant safety advice.
 - "tools_required" (array of strings): A list of all tools or materials needed for this specific step (e.g., "Phillips #1 Screwdriver," "Wood Glue").
 - "affected_parts" (array of strings): A list of part 'id's from the modelJson that are directly manipulated or affected in this step.
 - "affected_damages" (array of strings): A list of damage 'id's from the damageJson that this step directly addresses or contributes to fixing.
@@ -41,7 +41,6 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Note: We are no longer expecting 'brain' in the request body
     const { modelJson, damageJson, userPrompt, existingPlan } = req.body;
     const apiKey = process.env.GEMINI_API_KEY;
 
@@ -57,14 +56,13 @@ export default async function handler(req, res) {
       { text: `User's Instructions: "${userPrompt || 'No specific instructions provided.'}"` }
     ];
     
-    const googleApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+    const googleApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
     const googleResponse = await fetch(googleApiUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: [{ parts: geminiParts }],
-        // This new configuration is critical: it forces the Gemini model to output valid JSON.
         generationConfig: { 
             "responseMimeType": "application/json" 
         }
@@ -73,7 +71,6 @@ export default async function handler(req, res) {
 
     if (!googleResponse.ok) {
         const errorText = await googleResponse.text();
-        // This will now give us a much more detailed error from the Google API side
         throw new Error(`Google API Error: ${errorText}`);
     }
 
