@@ -401,11 +401,14 @@
             }
 
             const objectId = (currentModelJson?.objectName || 'object').replace(/\s+/g, '_');
-            const steps = currentPlanJson.steps;
+            const steps = currentHistoryJson.steps; // CORRECTED VARIABLE
             const currentStepNumber = steps[currentStepIndex]?.step_number;
 
             const removeKeywords = ['remove', 'unscrew', 'detach', 'disassemble', 'pry', 'take off', 'unclip', 'sand', 'cut', 'unfasten', 'separate', 'take out', 'disconnect'];
             const addKeywords = ['add', 'apply', 'install', 'attach', 'secure', 'clamp', 'glue', 'insert', 'place', 'reassemble', 'fill', 'coat'];
+            const doneColor = "#198754"; 
+            const currentColor = "#dd3333";
+            const defaultNodeColor = "black";
 
             let dot = `digraph RepairPlan {\n  rankdir=LR;\n  node [fontname="Helvetica,Arial,sans-serif", fixedsize=true, width=1.6, height=1.2];\n  edge [fontname="Helvetica,Arial,sans-serif"];\n\n`;
 
@@ -415,31 +418,29 @@
                 const titleLower = step.title.toLowerCase();
                 
                 let attributes = [];
-                let styleProperties = [];
+                let styleProperties = ['filled']; 
 
                 let shape = 'circle';
                 if (removeKeywords.some(kw => titleLower.includes(kw))) {
                     shape = 'doublecircle';
-                    styleProperties.push('dashed');
                 } else if (addKeywords.some(kw => titleLower.includes(kw))) {
                     shape = 'doublecircle';
                 }
                 attributes.push(`shape=${shape}`);
                 
-                if (step.step_number === currentStepNumber) {
-                    styleProperties.push('filled');
-                    attributes.push('fillcolor="#dd3333"');
+                if (step.completed) {
+                    attributes.push(`fillcolor="${doneColor}"`);
                     attributes.push('fontcolor=white');
-                } else if (step.step_number === 1 || step.step_number === steps.length) {
-                    styleProperties.push('filled');
-                    attributes.push('fillcolor=black');
+                } else if (step.step_number === currentStepNumber) {
+                    attributes.push(`fillcolor="${currentColor}"`);
+                    attributes.push('fontcolor=white');
+                } else {
+                    attributes.push(`fillcolor="${defaultNodeColor}"`);
                     attributes.push('fontcolor=white');
                 }
 
-                if (styleProperties.length > 0) {
-                    attributes.push(`style="${styleProperties.join(',')}"`);
-                }
-
+                attributes.push(`style="${styleProperties.join(',')}"`);
+                
                 dot += `  "${nodeId}" [label="${label}", ${attributes.join(', ')}];\n`;
             });
 
@@ -449,7 +450,7 @@
             dot += '}';
 
             document.getElementById('graph-title').textContent = "Repair Plan Graph";
-            d3.select("#graph-container").graphviz({ useWorker: false }).engine('dot').renderDot(dot);
+            d3.select("#graph-container").graphviz({ useWorker: false }).renderDot(dot);
             document.getElementById('graph-modal-overlay').style.display = 'flex';
         }
 
