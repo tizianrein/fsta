@@ -17,7 +17,6 @@
         #viewer-canvas { display: block; width: 100%; height: 100%; }
         #info-box { position: absolute; top: 10px; left: 0px; padding: 0px; background-color: transparent; border: none; font-family: monospace; font-size: 12px; line-height: 1.4; z-index: 101; display: none; pointer-events: none; max-width: 250px; }
 
-        /* --- MODIFIED: Step Display Styles for Alignment and Font --- */
         #step-display-container { display: none; position: absolute; top: 10px; right: 0px; z-index: 100; display: flex; flex-direction: column; align-items: flex-end; }
         #step-counter { font-family: monospace; font-size: 12px; color: #d00; margin-bottom: 5px; }
         .step-nav-arrow { cursor: pointer; display: block; width: 30px; height: 30px; border: 1px solid #d00; color: #d00; background-color: #fff; text-align: center; line-height: 28px; font-size: 20px; margin-top: 5px; user-select: none; }
@@ -90,7 +89,6 @@
                 <div id="step-nav-prev" class="step-nav-arrow">←</div>
             </div>
             <div id="step-info-panel">
-                <!-- --- MODIFIED: Removed the description paragraph --- -->
                 <h4 id="step-info-title"></h4>
                 <div class="click-prompt">(Click for more information)</div>
             </div>
@@ -210,13 +208,12 @@
             animate();
         }
 
-        // --- MODIFIED: To clear the object name on initial load ---
         function loadDefaults() {
             const defaultModel = { "objectName": "Default Cube", "parts": [{ "id": "cube", "origin": {"x": -0.25, "y": -0.25, "z": 0.0}, "dimensions": {"width": 0.5, "depth": 0.5, "height": 0.5}, "connections": [] }] };
             const defaultDamage = [{ "id": "damage_01", "type": "Scratch", "description": "A default scratch on the top surface.", "part_id": "cube", "coordinates": { "x": 0.0, "y": 0.0, "z": 0.5 } }];
             const defaultPlan = { "steps": [{ "step_number": 1, "title": "Fill Scratch", "description": "Apply wood filler to the scratch.", "tools_required": ["Wood filler"], "affected_parts": ["cube"], "affected_damages": ["damage_01"] }] };
             createModel(defaultModel);
-            document.getElementById('object-name').value = ""; // Clear the name field for the default view
+            document.getElementById('object-name').value = "";
             createDamages(defaultDamage);
             currentPlanJson = defaultPlan;
             updateROLF("Hello! I am R.O.L.F. -  the Repair Option Layout Finder. Describe your intentions, load a brain, or load a plan to begin.");
@@ -289,7 +286,6 @@
             });
         }
 
-        // --- MODIFIED: To only show the title in the info panel ---
         function displayCurrentStep() {
             if (!currentPlanJson || !currentPlanJson.steps || currentPlanJson.steps.length === 0) {
                 stepDisplayContainer.style.display = 'none';
@@ -437,7 +433,7 @@
             URL.revokeObjectURL(a.href);
         }
 
-        // --- MODIFIED: Graphviz function updated with new styling logic ---
+        // --- CORRECTED: Graphviz function with valid syntax ---
         function viewGraph() {
             if (!currentPlanJson || !currentPlanJson.steps || currentPlanJson.steps.length === 0) {
                 updateROLF("Generate or load a repair plan to see its graph.");
@@ -448,42 +444,43 @@
             const steps = currentPlanJson.steps;
             const currentStepNumber = steps[currentStepIndex]?.step_number;
 
-            // Keywords to identify step types
             const removeKeywords = ['remove', 'unscrew', 'detach', 'disassemble', 'pry', 'take off', 'unclip'];
             const addKeywords = ['add', 'apply', 'install', 'attach', 'secure', 'clamp', 'glue', 'insert', 'place', 'reassemble'];
 
-            // Base DOT string
             let dot = `digraph RepairPlan {\n  rankdir=LR;\n  node [fontname="Helvetica,Arial,sans-serif", fixedsize=true, width=1.8];\n  edge [fontname="Helvetica,Arial,sans-serif"];\n\n`;
 
-            // Define nodes with conditional styling
             steps.forEach(step => {
                 const label = step.title.replace(/\s+/g, '\\n');
                 const nodeId = `${objectId}-S${step.step_number}`;
                 const titleLower = step.title.toLowerCase();
-                let nodeAttrs = '';
-
-                // Determine node shape and style
-                if (removeKeywords.some(kw => titleLower.includes(kw))) {
-                    nodeAttrs = 'shape=doublecircle, style=dotted'; // Dotted double circle for REMOVE actions
-                } else if (addKeywords.some(kw => titleLower.includes(kw))) {
-                    nodeAttrs = 'shape=doublecircle'; // Normal double circle for ADD actions
-                } else {
-                    nodeAttrs = 'shape=circle'; // Default single circle
-                }
                 
-                // Highlight the current step
-                if (step.step_number === currentStepNumber) {
-                    nodeAttrs += ', style="filled,${nodeAttrs.includes("dotted") ? "dotted" : ""}", fillcolor="#dd3333", fontcolor=white';
-                }
-                // Special style for first and last nodes
-                else if (step.step_number === 1 || step.step_number === steps.length) {
-                     nodeAttrs += ', style="filled,${nodeAttrs.includes("dotted") ? "dotted" : ""}", fillcolor=black, fontcolor=white';
+                let nodeShape = 'circle';
+                let styleParts = [];
+
+                if (removeKeywords.some(kw => titleLower.includes(kw))) {
+                    nodeShape = 'doublecircle';
+                    styleParts.push('dotted');
+                } else if (addKeywords.some(kw => titleLower.includes(kw))) {
+                    nodeShape = 'doublecircle';
                 }
 
-                dot += `  "${nodeId}" [label="${label}", ${nodeAttrs}];\n`;
+                let finalAttrs = `shape=${nodeShape}`;
+
+                if (step.step_number === currentStepNumber) {
+                    styleParts.push('filled');
+                    finalAttrs += ', fillcolor="#dd3333", fontcolor=white';
+                } else if (step.step_number === 1 || step.step_number === steps.length) {
+                    styleParts.push('filled');
+                    finalAttrs += ', fillcolor=black, fontcolor=white';
+                }
+
+                if (styleParts.length > 0) {
+                    finalAttrs += `, style="${styleParts.join(',')}"`;
+                }
+
+                dot += `  "${nodeId}" [label="${label}", ${finalAttrs}];\n`;
             });
 
-            // Define edges between nodes
             for (let i = 0; i < steps.length - 1; i++) {
                 dot += `  "${objectId}-S${steps[i].step_number}" -> "${objectId}-S${steps[i+1].step_number}";\n`;
             }
@@ -620,30 +617,4 @@
             document.getElementById('choice-btn-plan').addEventListener('click', () => { choiceActions[currentAction]?.('plan'); document.getElementById('data-choice-modal-overlay').style.display = 'none'; });
 
             document.querySelectorAll('.close-modal-btn').forEach(btn => btn.addEventListener('click', e => e.target.closest('.modal-overlay').style.display = 'none'));
-            document.getElementById('copy-json-from-modal-btn').addEventListener('click', () => {
-                navigator.clipboard.writeText(document.getElementById('json-view-textarea').value).then(() => {
-                    updateROLF("JSON copied to clipboard.");
-                    document.getElementById('json-view-modal-overlay').style.display = 'none';
-                });
-            });
-
-            stepNavNextBtn.addEventListener('click', () => {
-                if (currentStepIndex < currentPlanJson.steps.length - 1) {
-                    currentStepIndex++;
-                    displayCurrentStep();
-                }
-            });
-            stepNavPrevBtn.addEventListener('click', () => {
-                if (currentStepIndex > 0) {
-                    currentStepIndex--;
-                    displayCurrentStep();
-                }
-            });
-            stepInfoPanel.addEventListener('click', showStepDetailModal);
-        }
-        
-        // --- INITIALIZE THE APP ---
-        init();
-    </script>
-</body>
-</html>
+            document.getElementById('copy-json-from-
