@@ -420,6 +420,7 @@ function viewGraph() {
                 let shape = 'circle';
                 if (removeKeywords.some(kw => titleLower.includes(kw))) {
                     shape = 'doublecircle';
+                    styleProperties.push('dashed');
                 } else if (addKeywords.some(kw => titleLower.includes(kw))) {
                     shape = 'doublecircle';
                 }
@@ -431,9 +432,13 @@ function viewGraph() {
                 } else if (step.step_number === currentStepNumber) {
                     attributes.push(`fillcolor="#dd3333"`);
                     attributes.push('fontcolor=white');
-                } else {
-                    attributes.push(`fillcolor="black"`);
+                } else if (step.step_number === 1 || step.step_number === steps.length) {
+                    styleProperties.push('filled');
+                    attributes.push('fillcolor=black');
                     attributes.push('fontcolor=white');
+                } else {
+                    attributes.push(`fillcolor="white"`);
+                    attributes.push('fontcolor=black');
                 }
 
                 attributes.push(`style="${styleProperties.join(',')}"`);
