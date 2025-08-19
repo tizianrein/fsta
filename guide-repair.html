@@ -384,6 +384,7 @@
 
         function highlightElements(partsToHighlight = [], damagesToHighlight = [], material) {
             partMeshesMap.forEach(mesh => { mesh.material = defaultPartMaterial; });
+            damageSpheres.forEach(sphere => { sphere.material = defaultDotMaterial; });
             damagesToHighlight.forEach(damageId => {
                 const sphere = damageSpheres.find(s => s.userData.damage.id === damageId);
                 if (sphere) sphere.material = selectedDotMaterial;
@@ -392,6 +393,43 @@
                 const mesh = partMeshesMap.get(partId);
                 if (mesh) mesh.material = material;
             });
+        }
+
+        function onObjectClick(event) {
+            const rect = renderer.domElement.getBoundingClientRect();
+            mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+            raycaster.setFromCamera(mouse, camera);
+
+            const sphereIntersects = raycaster.intersectObjects(damageSpheres);
+            const partIntersects = raycaster.intersectObjects(Array.from(partMeshesMap.values()));
+            
+            const step = currentHistoryJson?.steps?.[currentStepIndex];
+            if (step) {
+                highlightElements(step.affected_parts || [], step.affected_damages || [], stepHighlightMaterial);
+            }
+
+            infoBox.style.display = 'none';
+            
+            if (sphereIntersects.length > 0) {
+                const clickedSphere = sphereIntersects[0].object;
+                const damageInfo = clickedSphere.userData.damage;
+                clickedSphere.material = selectedDotMaterial;
+                infoBox.style.color = '#ff0000';
+                infoBox.innerHTML = `<b>${damageInfo.type} (${damageInfo.id}):</b><br>${damageInfo.description} Part: ${damageInfo.part_id}.`;
+                infoBox.style.display = 'block';
+
+            } else if (partIntersects.length > 0) {
+                const clickedPart = partIntersects[0].object;
+                const partData = clickedPart.userData.part;
+                clickedPart.material = selectionPartMaterial;
+                if (partData) {
+                    const d = partData.dimensions;
+                    infoBox.style.color = '#0000ff';
+                    infoBox.innerHTML = `<b>Part:</b> ${partData.id.replace(/_/g, ' ')}<br><b>Size:</b> ${(d.width*100).toFixed(1)} x ${(d.depth*100).toFixed(1)} x ${(d.height*100).toFixed(1)} cm`;
+                    infoBox.style.display = 'block';
+                }
+            }
         }
 
 function viewGraph() {
@@ -458,7 +496,7 @@ function viewGraph() {
 
         function setupEventListeners() {
             window.addEventListener('resize', onWindowResize);
-            viewerCanvas.addEventListener('click', (event) => { /* Click logic here */ });
+            viewerCanvas.addEventListener('click', onObjectClick);
 
             startBtn.addEventListener('click', () => {
                 if (startBtn.classList.contains('disabled')) return;
