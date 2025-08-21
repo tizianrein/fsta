@@ -247,7 +247,7 @@
             const center = new THREE.Vector3();
             bounds.getCenter(center);
             controls.target.copy(center);
-            updateHANS(`Assembly "${objectName-input.value}" loaded with ${jsonData.parts.length} parts. You can now modify it.`);
+            updateHANS(`Assembly "${objectNameInput.value}" loaded with ${jsonData.parts.length} parts. You can now modify it.`);
         }
 
         function updateHANS(message, isTyping = false) {
