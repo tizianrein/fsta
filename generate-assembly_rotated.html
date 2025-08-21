@@ -102,7 +102,6 @@
 
     <!-- Libraries -->
     <script src="https://unpkg.com/d3@7.8.5/dist/d3.min.js"></script>
-    <script src="https://unpkg.com/@hpcc-js/wasm@2.12.2/dist/graphviz.umd.js"></script>
     <script src="https://unpkg.com/d3-graphviz@5.1.0/build/d3-graphviz.js"></script>
     <script type="importmap">{"imports": {"three": "https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"}}</script>
 
@@ -170,9 +169,9 @@
         }
 
         function loadDefaults() {
-            const defaultModel = { "objectName": "Default Cube", "parts": [{ "id": "cube", "origin": {"x": -0.25, "y": -0.25, "z": 0.0}, "dimensions": {"width": 0.5, "depth": 0.5, "height": 0.5}, "connections": [] }] };
+            const defaultModel = { "objectName": "Default Cube", "parts": [{ "id": "cube", "origin": {"x": 0, "y": 0.25, "z": 0}, "dimensions": {"width": 0.5, "depth": 0.5, "height": 0.5}, "rotation": {"x": 0, "y": 0, "z": 0}, "connections": [] }] };
             createModel(defaultModel);
-            objectNameInput.value = ""; // Clear name for user input
+            objectNameInput.value = "Default Cube"; 
             updateHANS("Hello! I am H.A.N.S. -  the Heuristic Agent for Narrating Structures. Add files or describe an object, or load an assembly to begin.");
         }
 
@@ -207,48 +206,45 @@
             partMeshesMap.forEach(mesh => { mesh.material = defaultPartMaterial; });
         }
 
-        function createModel(jsonData) {
-            clearModel();
-            if (!jsonData || !jsonData.parts || !Array.isArray(jsonData.parts)) {
-                updateHANS("Error: Could not parse assembly file. Is it valid JSON?");
-                return;
-            }
-            currentModelJson = jsonData;
-            objectNameInput.value = jsonData.objectName || "Untitled";
-            
-            const bounds = new THREE.Box3();
-            jsonData.parts.forEach(part => {
-                const geo = new THREE.BoxGeometry(part.dimensions.width, part.dimensions.height, part.dimensions.depth);
-                const pos = new THREE.Vector3(part.origin.x, part.origin.y, part.origin.z);
-                const rot = new THREE.Euler(
-                    part.rotation?.x || 0,
-                    part.rotation?.y || 0,
-                    part.rotation?.z || 0,
-                    'YXZ' // Explicitly set the same rotation order as the prompt
-                );
-
-                // Create mesh and its outline
-                const mesh = new THREE.Mesh(geo, defaultPartMaterial);
-                const line = new THREE.LineSegments(new THREE.EdgesGeometry(geo), outlineMaterial);
-
-                // Apply identical transforms to both the mesh and its outline
-                mesh.position.copy(pos);
-                mesh.rotation.copy(rot);
-                line.position.copy(pos);
-                line.rotation.copy(rot);
-                
-                mesh.userData.part = part;
-                objectGroup.add(mesh);
-                objectGroup.add(line);
-                partMeshesMap.set(part.id, mesh);
-            });
-
-            bounds.setFromObject(objectGroup);
-            const center = new THREE.Vector3();
-            bounds.getCenter(center);
-            controls.target.copy(center);
-            updateHANS(`Assembly "${objectNameInput.value}" loaded with ${jsonData.parts.length} parts. You can now modify it.`);
+    function createModel(jsonData) {
+        clearModel();
+        if (!jsonData || !jsonData.parts || !Array.isArray(jsonData.parts)) {
+            updateHANS("Error: Could not parse assembly file. Is it valid JSON?");
+            return;
         }
+        currentModelJson = jsonData;
+        objectNameInput.value = jsonData.objectName || "Untitled";
+        
+        const bounds = new THREE.Box3();
+        jsonData.parts.forEach(part => {
+            const geo = new THREE.BoxGeometry(part.dimensions.width, part.dimensions.height, part.dimensions.depth);
+            
+            const pos = new THREE.Vector3(part.origin.x, part.origin.y, part.origin.z);
+
+            const partGroup = new THREE.Group();
+            const mesh = new THREE.Mesh(geo, defaultPartMaterial);
+            const line = new THREE.LineSegments(new THREE.EdgesGeometry(geo), outlineMaterial);
+            
+            partGroup.add(mesh);
+            partGroup.add(line);
+            
+            partGroup.position.copy(pos);
+            
+            if (part.rotation) {
+                partGroup.rotation.set(part.rotation.x || 0, part.rotation.y || 0, part.rotation.z || 0, 'YXZ');
+            }
+            
+            partGroup.userData.part = part;
+            objectGroup.add(partGroup);
+            partMeshesMap.set(part.id, mesh);
+        });
+
+        bounds.setFromObject(objectGroup);
+        const center = new THREE.Vector3();
+        bounds.getCenter(center);
+        controls.target.copy(center);
+        updateHANS(`Assembly "${objectNameInput.value}" loaded with ${jsonData.parts.length} parts. You can now modify it.`);
+    }
 
         function updateHANS(message, isTyping = false) {
             if (typingInterval) clearInterval(typingInterval);
@@ -389,9 +385,17 @@
                     if (timerInterval) clearInterval(timerInterval);
 
                     if (!response.ok) {
-                        const errorResult = await response.json();
-                        throw new Error(errorResult.message || `Server responded with status: ${response.status}`);
+                        let errorMsg = `Server responded with status: ${response.status}`;
+                        const contentType = response.headers.get("content-type");
+                        if (contentType && contentType.indexOf("application/json") !== -1) {
+                            const errorResult = await response.json();
+                            errorMsg = errorResult.message || JSON.stringify(errorResult);
+                        } else {
+                            errorMsg = await response.text();
+                        }
+                        throw new Error(errorMsg);
                     }
+
                     const result = await response.json();
                     if (!result.candidates?.[0]?.content?.parts?.[0]?.text) {
                          if(result.candidates?.[0]?.finishReason === "SAFETY") {

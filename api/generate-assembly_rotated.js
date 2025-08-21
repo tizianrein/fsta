@@ -19,7 +19,7 @@ The 'parts' array contains part objects. Each part object MUST have the followin
 - **id** (string): A unique, human-readable identifier for the part (e.g., "left_leg", "seat_surface").
 - **origin** (object): An object with x, y, and z keys. This represents the **center point** of the part in meters.
 - **dimensions** (object): An object with width (along X), height (along Y), and depth (along Z) keys, all in meters.
-- **rotation** (object): An object with x, y, and z keys, all in radians. Rotations are applied in 'YXZ' order.
+- **rotation** (object): An object with x, y, and z keys, all in radians.
     - x: Rotation around the X-axis (Pitch).
     - y: Rotation around the Y-axis (Yaw).
     - z: Rotation around the Z-axis (Roll).
@@ -30,16 +30,6 @@ The 'parts' array contains part objects. Each part object MUST have the followin
 - **+X** is to the object's **right**.
 - **+Y** is **upwards**.
 - **+Z** is to the object's **back**.
-
-**EXAMPLE OF A ROTATED PART:**
-To create a panel that is tilted back by 45 degrees (like a chair backrest), you must apply a **positive rotation around the X-axis**.
-{
-  "id": "tilted_panel",
-  "origin": { "x": 0, "y": 0.5, "z": 0 },
-  "dimensions": { "width": 1.0, "height": 1.0, "depth": 0.1 },
-  "rotation": { "x": 0.7854, "y": 0, "z": 0 }, // 0.7854 radians is 45 degrees
-  "connections": []
-}
 `;
 
 export default async function handler(req, res) {
