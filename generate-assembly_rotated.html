@@ -207,48 +207,48 @@
             partMeshesMap.forEach(mesh => { mesh.material = defaultPartMaterial; });
         }
 
-    function createModel(jsonData) {
-        clearModel();
-        if (!jsonData || !jsonData.parts || !Array.isArray(jsonData.parts)) {
-            updateHANS("Error: Could not parse assembly file. Is it valid JSON?");
-            return;
-        }
-        currentModelJson = jsonData;
-        objectNameInput.value = jsonData.objectName || "Untitled";
-        
-        const bounds = new THREE.Box3();
-        jsonData.parts.forEach(part => {
-            const geo = new THREE.BoxGeometry(part.dimensions.width, part.dimensions.height, part.dimensions.depth);
-            
-            // SIMPLIFIED: The 'origin' from the JSON is now the center position directly.
-            const pos = new THREE.Vector3(part.origin.x, part.origin.y, part.origin.z);
-
-            const partGroup = new THREE.Group();
-            const mesh = new THREE.Mesh(geo, defaultPartMaterial);
-            const line = new THREE.LineSegments(new THREE.EdgesGeometry(geo), outlineMaterial);
-            
-            partGroup.add(mesh);
-            partGroup.add(line);
-            
-            // Set the position of the group to the part's center.
-            partGroup.position.copy(pos);
-            
-            // Apply rotation around this center point.
-            if (part.rotation) {
-                partGroup.rotation.set(part.rotation.x || 0, part.rotation.y || 0, part.rotation.z || 0, 'YXZ');
+        function createModel(jsonData) {
+            clearModel();
+            if (!jsonData || !jsonData.parts || !Array.isArray(jsonData.parts)) {
+                updateHANS("Error: Could not parse assembly file. Is it valid JSON?");
+                return;
             }
+            currentModelJson = jsonData;
+            objectNameInput.value = jsonData.objectName || "Untitled";
             
-            partGroup.userData.part = part;
-            objectGroup.add(partGroup);
-            partMeshesMap.set(part.id, mesh);
-        });
+            const bounds = new THREE.Box3();
+            jsonData.parts.forEach(part => {
+                const geo = new THREE.BoxGeometry(part.dimensions.width, part.dimensions.height, part.dimensions.depth);
+                const pos = new THREE.Vector3(part.origin.x, part.origin.y, part.origin.z);
+                const rot = new THREE.Euler(
+                    part.rotation?.x || 0,
+                    part.rotation?.y || 0,
+                    part.rotation?.z || 0,
+                    'YXZ' // Explicitly set the same rotation order as the prompt
+                );
 
-        bounds.setFromObject(objectGroup);
-        const center = new THREE.Vector3();
-        bounds.getCenter(center);
-        controls.target.copy(center);
-        updateHANS(`Assembly "${objectNameInput.value}" loaded with ${jsonData.parts.length} parts. You can now modify it.`);
-    }
+                // Create mesh and its outline
+                const mesh = new THREE.Mesh(geo, defaultPartMaterial);
+                const line = new THREE.LineSegments(new THREE.EdgesGeometry(geo), outlineMaterial);
+
+                // Apply identical transforms to both the mesh and its outline
+                mesh.position.copy(pos);
+                mesh.rotation.copy(rot);
+                line.position.copy(pos);
+                line.rotation.copy(rot);
+                
+                mesh.userData.part = part;
+                objectGroup.add(mesh);
+                objectGroup.add(line);
+                partMeshesMap.set(part.id, mesh);
+            });
+
+            bounds.setFromObject(objectGroup);
+            const center = new THREE.Vector3();
+            bounds.getCenter(center);
+            controls.target.copy(center);
+            updateHANS(`Assembly "${objectName-input.value}" loaded with ${jsonData.parts.length} parts. You can now modify it.`);
+        }
 
         function updateHANS(message, isTyping = false) {
             if (typingInterval) clearInterval(typingInterval);
