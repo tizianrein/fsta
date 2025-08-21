@@ -170,10 +170,22 @@
         }
 
         function loadDefaults() {
-            const defaultModel = { "objectName": "Default Cube", "parts": [{ "id": "cube", "origin": {"x": -0.25, "y": -0.25, "z": 0.0}, "dimensions": {"width": 0.5, "depth": 0.5, "height": 0.5}, "connections": [] }] };
+            const defaultModel = {
+                "objectName": "Default Cube",
+                "parts": [{
+                    "id": "cube",
+                    "parent": null,
+                    "dimensions": { "width": 0.5, "height": 0.5, "depth": 0.5 },
+                    "attachment": {
+                        "origin": { "x": 0, "y": 0.25, "z": 0 }, // Center of a cube sitting on the ground
+                        "rotation": { "x": 0, "y": 0, "z": 0 }
+                    },
+                    "connections": []
+                }]
+            };
             createModel(defaultModel);
-            objectNameInput.value = ""; // Clear name for user input
-            updateHANS("Hello! I am H.A.N.S. -  the Heuristic Agent for Narrating Structures. Add files or describe an object, or load an assembly to begin.");
+            objectNameInput.value = "Default Cube";
+            updateHANS("Hello! I am H.A.N.S. Add files or describe an object to begin.");
         }
 
         function animate() {
@@ -215,44 +227,46 @@
             }
             currentModelJson = jsonData;
             objectNameInput.value = jsonData.objectName || "Untitled";
-            
-            const bounds = new THREE.Box3();
+
+            const partObjects = new Map(); // Store all created three.js objects
+
+            // --- First Pass: Create all part objects ---
             jsonData.parts.forEach(part => {
                 const geo = new THREE.BoxGeometry(part.dimensions.width, part.dimensions.height, part.dimensions.depth);
-                const pos = new THREE.Vector3(part.origin.x, part.origin.y, part.origin.z);
-
-                // --- START OF THE FIX ---
-
-                // Step 1: Create an Euler object from the JSON data, specifying the order.
-                const euler = new THREE.Euler(
-                    part.rotation?.x || 0,
-                    part.rotation?.y || 0,
-                    part.rotation?.z || 0,
-                    'YXZ' // This order should match the prompt's instruction
-                );
-
-                // Step 2: Create a Quaternion from this Euler object. This is the key step.
-                const quaternion = new THREE.Quaternion().setFromEuler(euler);
-
-                // --- END OF THE FIX ---
-
-                const partGroup = new THREE.Group();
                 const mesh = new THREE.Mesh(geo, defaultPartMaterial);
                 const line = new THREE.LineSegments(new THREE.EdgesGeometry(geo), outlineMaterial);
                 
+                const partGroup = new THREE.Group(); // Use a group for each part
                 partGroup.add(mesh);
                 partGroup.add(line);
                 
-                // Apply position and the NEW quaternion rotation
-                partGroup.position.copy(pos);
-                partGroup.quaternion.copy(quaternion); // Use .quaternion instead of .rotation
+                partGroup.name = part.id; // For debugging
+                mesh.userData.part = part; // For raycasting
                 
-                partGroup.userData.part = part;
-                objectGroup.add(partGroup);
+                partObjects.set(part.id, partGroup);
                 partMeshesMap.set(part.id, mesh);
             });
 
-            bounds.setFromObject(objectGroup);
+            // --- Second Pass: Assemble the hierarchy ---
+            jsonData.parts.forEach(part => {
+                const partObject = partObjects.get(part.id);
+                if (!partObject) return;
+
+                // Apply local transformations
+                const attachment = part.attachment;
+                partObject.position.set(attachment.origin.x, attachment.origin.y, attachment.origin.z);
+                partObject.rotation.set(attachment.rotation.x, attachment.rotation.y, attachment.rotation.z, 'YXZ');
+
+                if (part.parent && partObjects.has(part.parent)) {
+                    // If it has a parent, add it to the parent object
+                    partObjects.get(part.parent).add(partObject);
+                } else {
+                    // Otherwise, it's a root object, add it directly to the scene's main group
+                    objectGroup.add(partObject);
+                }
+            });
+
+            const bounds = new THREE.Box3().setFromObject(objectGroup);
             const center = new THREE.Vector3();
             bounds.getCenter(center);
             controls.target.copy(center);
