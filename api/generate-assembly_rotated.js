@@ -5,7 +5,7 @@
 export const maxDuration = 120;
 
 const SYSTEM_PROMPT = `
-You are an expert 3D modeler and data structuring AI. Your task is to analyze the provided data and generate a single, complete JSON object with absolute precision.
+You are an expert 3D modeler and data structuring AI. Your task is to analyze the provided data and generate a single, complete JSON object.
 
 **CRITICAL INSTRUCTIONS:**
 1.  Your entire output must be ONLY the raw JSON content.
@@ -13,37 +13,32 @@ You are an expert 3D modeler and data structuring AI. Your task is to analyze th
 3.  Do NOT include any text, explanations, or greetings before or after the JSON block.
 
 **JSON STRUCTURE:**
-The root of the object must contain 'objectName' and 'parts'. Each part has:
-- **id** (string): Unique identifier.
-- **origin** (object): The center point of the part in meters {x, y, z}.
-- **dimensions** (object): Size in meters {width, height, depth}.
-- **rotation** (object): Rotation in radians {x, y, z}.
-- **connections** (array of strings): IDs of connected parts.
+The root of the object must contain two keys: 'objectName' (string) and 'parts' (array).
 
-**COORDINATE SYSTEM:**
+The 'parts' array contains part objects. Each part object MUST have the following keys:
+- **id** (string): A unique, human-readable identifier for the part (e.g., "left_leg", "seat_surface").
+- **origin** (object): An object with x, y, and z keys. This represents the **center point** of the part in meters.
+- **dimensions** (object): An object with width (along X), height (along Y), and depth (along Z) keys, all in meters.
+- **rotation** (object): An object with x, y, and z keys, all in radians. Rotations are applied in 'YXZ' order.
+    - x: Rotation around the X-axis (Pitch).
+    - y: Rotation around the Y-axis (Yaw).
+    - z: Rotation around the Z-axis (Roll).
+- **connections** (array of strings): A list of the 'id's of other parts that this part is physically connected to.
+
+**COORDINATE SYSTEM (IMPORTANT):**
+- The origin (0,0,0) is at the center of the object's footprint on the ground plane.
 - **+X** is to the object's **right**.
 - **+Y** is **upwards**.
 - **+Z** is to the object's **back**.
 
-**ROTATION CONVENTION (VERY IMPORTANT):**
-Rotations follow the right-hand rule.
-- **Rotation around X-axis:** A **POSITIVE** value tilts the top of the part **BACKWARDS** (towards +Z). A **NEGATIVE** value tilts it **FORWARDS** (towards -Z).
-- **Rotation around Y-axis:** A **POSITIVE** value turns the part **COUNTER-CLOCKWISE** when viewed from above (left turn).
-- **Rotation around Z-axis:** A **POSITIVE** value rolls the top of the part to the **LEFT** (towards -X).
-
-**EXAMPLE OF ROTATION DIRECTION:**
-To create a panel tilted by 45 degrees (0.7854 radians):
-
-// To tilt it BACKWARDS (like a chair backrest):
+**EXAMPLE OF A ROTATED PART:**
+To create a panel that is tilted back by 45 degrees (like a chair backrest), you must apply a **positive rotation around the X-axis**.
 {
-  "id": "tilted_panel_backwards",
-  "rotation": { "x": 0.7854, "y": 0, "z": 0 } // POSITIVE X rotation
-}
-
-// To tilt it FORWARDS:
-{
-  "id": "tilted_panel_forwards",
-  "rotation": { "x": -0.7854, "y": 0, "z": 0 } // NEGATIVE X rotation
+  "id": "tilted_panel",
+  "origin": { "x": 0, "y": 0.5, "z": 0 },
+  "dimensions": { "width": 1.0, "height": 1.0, "depth": 0.1 },
+  "rotation": { "x": 0.7854, "y": 0, "z": 0 }, // 0.7854 radians is 45 degrees
+  "connections": []
 }
 `;
 

@@ -220,35 +220,26 @@
             jsonData.parts.forEach(part => {
                 const geo = new THREE.BoxGeometry(part.dimensions.width, part.dimensions.height, part.dimensions.depth);
                 const pos = new THREE.Vector3(part.origin.x, part.origin.y, part.origin.z);
-
-                // --- START OF THE FIX ---
-
-                // Step 1: Create an Euler object from the JSON data, specifying the order.
-                const euler = new THREE.Euler(
+                const rot = new THREE.Euler(
                     part.rotation?.x || 0,
                     part.rotation?.y || 0,
                     part.rotation?.z || 0,
-                    'YXZ' // This order should match the prompt's instruction
+                    'YXZ' // Explicitly set the same rotation order as the prompt
                 );
 
-                // Step 2: Create a Quaternion from this Euler object. This is the key step.
-                const quaternion = new THREE.Quaternion().setFromEuler(euler);
-
-                // --- END OF THE FIX ---
-
-                const partGroup = new THREE.Group();
+                // Create mesh and its outline
                 const mesh = new THREE.Mesh(geo, defaultPartMaterial);
                 const line = new THREE.LineSegments(new THREE.EdgesGeometry(geo), outlineMaterial);
+
+                // Apply identical transforms to both the mesh and its outline
+                mesh.position.copy(pos);
+                mesh.rotation.copy(rot);
+                line.position.copy(pos);
+                line.rotation.copy(rot);
                 
-                partGroup.add(mesh);
-                partGroup.add(line);
-                
-                // Apply position and the NEW quaternion rotation
-                partGroup.position.copy(pos);
-                partGroup.quaternion.copy(quaternion); // Use .quaternion instead of .rotation
-                
-                partGroup.userData.part = part;
-                objectGroup.add(partGroup);
+                mesh.userData.part = part;
+                objectGroup.add(mesh);
+                objectGroup.add(line);
                 partMeshesMap.set(part.id, mesh);
             });
 
