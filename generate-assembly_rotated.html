@@ -219,8 +219,10 @@
         const bounds = new THREE.Box3();
         jsonData.parts.forEach(part => {
             const geo = new THREE.BoxGeometry(part.dimensions.width, part.dimensions.height, part.dimensions.depth);
-            const pos = new THREE.Vector3(part.origin.x + part.dimensions.width/2, part.origin.z + part.dimensions.height/2, part.origin.y + part.dimensions.depth/2);
             
+            // SIMPLIFIED: The 'origin' from the JSON is now the center position directly.
+            const pos = new THREE.Vector3(part.origin.x, part.origin.y, part.origin.z);
+
             const partGroup = new THREE.Group();
             const mesh = new THREE.Mesh(geo, defaultPartMaterial);
             const line = new THREE.LineSegments(new THREE.EdgesGeometry(geo), outlineMaterial);
@@ -228,16 +230,19 @@
             partGroup.add(mesh);
             partGroup.add(line);
             
+            // Set the position of the group to the part's center.
             partGroup.position.copy(pos);
             
+            // Apply rotation around this center point.
             if (part.rotation) {
-                partGroup.rotation.set(part.rotation.x || 0, part.rotation.z || 0, part.rotation.y || 0, 'YXZ');
+                partGroup.rotation.set(part.rotation.x || 0, part.rotation.y || 0, part.rotation.z || 0, 'YXZ');
             }
             
             partGroup.userData.part = part;
             objectGroup.add(partGroup);
-            partMeshesMap.set(part.id, mesh); // Keep mapping to the mesh for raycasting
+            partMeshesMap.set(part.id, mesh);
         });
+
         bounds.setFromObject(objectGroup);
         const center = new THREE.Vector3();
         bounds.getCenter(center);

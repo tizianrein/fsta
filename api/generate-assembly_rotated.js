@@ -17,7 +17,7 @@ The root of the object must contain two keys: 'objectName' (string) and 'parts' 
 
 The 'parts' array contains part objects. Each part object MUST have the following keys:
 - **id** (string): A unique, human-readable identifier for the part (e.g., "left_leg", "seat_surface").
-- **origin** (object): An object with x, y, and z keys. This is the corner of the box with the minimum x, y, and z values in meters.
+- **origin** (object): An object with x, y, and z keys. This represents the **center point** of the part in meters.
 - **dimensions** (object): An object with width (along X), height (along Y), and depth (along Z) keys, all in meters.
 - **rotation** (object): An object with x, y, and z keys, all in radians.
     - x: Rotation around the X-axis (Pitch).
