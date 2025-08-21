@@ -219,9 +219,22 @@
             const bounds = new THREE.Box3();
             jsonData.parts.forEach(part => {
                 const geo = new THREE.BoxGeometry(part.dimensions.width, part.dimensions.height, part.dimensions.depth);
-                
-                // SIMPLIFIED: The 'origin' from the JSON is now the center position directly.
                 const pos = new THREE.Vector3(part.origin.x, part.origin.y, part.origin.z);
+
+                // --- START OF THE FIX ---
+
+                // Step 1: Create an Euler object from the JSON data, specifying the order.
+                const euler = new THREE.Euler(
+                    part.rotation?.x || 0,
+                    part.rotation?.y || 0,
+                    part.rotation?.z || 0,
+                    'YXZ' // This order should match the prompt's instruction
+                );
+
+                // Step 2: Create a Quaternion from this Euler object. This is the key step.
+                const quaternion = new THREE.Quaternion().setFromEuler(euler);
+
+                // --- END OF THE FIX ---
 
                 const partGroup = new THREE.Group();
                 const mesh = new THREE.Mesh(geo, defaultPartMaterial);
@@ -230,13 +243,9 @@
                 partGroup.add(mesh);
                 partGroup.add(line);
                 
-                // Set the position of the group to the part's center.
+                // Apply position and the NEW quaternion rotation
                 partGroup.position.copy(pos);
-                
-                // Apply rotation around this center point.
-                if (part.rotation) {
-                    partGroup.rotation.set(part.rotation.x || 0, part.rotation.y || 0, part.rotation.z || 0, 'YXZ');
-                }
+                partGroup.quaternion.copy(quaternion); // Use .quaternion instead of .rotation
                 
                 partGroup.userData.part = part;
                 objectGroup.add(partGroup);
