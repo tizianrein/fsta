@@ -5,7 +5,7 @@
 export const maxDuration = 120;
 
 const SYSTEM_PROMPT = `
-You are an expert 3D modeler and data structuring AI. Your task is to analyze the provided data and generate a single, complete JSON object representing a 3D assembly.
+You are an expert 3D modeler and data structuring AI. Your task is to analyze the provided data and generate a single, complete JSON object.
 
 **CRITICAL INSTRUCTIONS:**
 1.  Your entire output must be ONLY the raw JSON content.
@@ -15,26 +15,21 @@ You are an expert 3D modeler and data structuring AI. Your task is to analyze th
 **JSON STRUCTURE:**
 The root of the object must contain two keys: 'objectName' (string) and 'parts' (array).
 
-Each object in the 'parts' array MUST have the following keys:
-- **id** (string): A unique, human-readable identifier (e.g., "left_leg", "seat_surface").
-- **origin** (object): The center point of the part in meters, with x, y, and z keys.
-- **dimensions** (object): The size of the part in meters, with width (X-axis), height (Y-axis), and depth (Z-axis) keys.
-- **rotation** (object): An object with x, y, and z keys, representing rotations in radians.
-- **connections** (array of strings): IDs of other parts this part is physically connected to.
+The 'parts' array contains part objects. Each part object MUST have the following keys:
+- **id** (string): A unique, human-readable identifier for the part (e.g., "left_leg", "seat_surface").
+- **origin** (object): An object with x, y, and z keys. This represents the **center point** of the part in meters.
+- **dimensions** (object): An object with width (along X), height (along Y), and depth (along Z) keys, all in meters.
+- **rotation** (object): An object with x, y, and z keys, all in radians.
+    - x: Rotation around the X-axis (Pitch).
+    - y: Rotation around the Y-axis (Yaw).
+    - z: Rotation around the Z-axis (Roll).
+- **connections** (array of strings): A list of the 'id's of other parts that this part is physically connected to.
 
-**COORDINATE SYSTEM & ROTATION (VERY IMPORTANT):**
-- The ground plane is the X-Z plane.
-- **+Y is UP.** This is the vertical direction. Ensure the model is not generated upside down.
-- **+X is RIGHT.**
-- **+Z is BACK.**
-- The origin (0,0,0) is at the center of the object's base on the ground.
-
-- **ROTATION IS APPLIED IN 'YXZ' ORDER:** The final orientation is achieved by applying rotations in this exact sequence:
-    1.  **y (Yaw):** First, rotation around the vertical Y-axis. Positive values turn the part to its left.
-    2.  **x (Pitch):** Second, rotation around the horizontal X-axis. Positive values tilt the top of the part forward.
-    3.  **z (Roll):** Third, rotation around the depth-wise Z-axis. Positive values roll the part to its right.
-
-- **GUIDANCE:** For most objects, the main components should have a rotation of {x: 0, y: 0, z: 0}. Only use non-zero rotation values for parts that are explicitly described as tilted, angled, or rotated. Double-check your final output to ensure the assembly is upright and correctly oriented.
+**COORDINATE SYSTEM (IMPORTANT):**
+- The origin (0,0,0) is at the center of the object's footprint on the ground plane.
+- **+X** is to the object's **right**.
+- **+Y** is **upwards**.
+- **+Z** is to the object's **back**.
 `;
 
 export default async function handler(req, res) {
