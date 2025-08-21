@@ -17,16 +17,19 @@ The root of the object must contain two keys: 'objectName' (string) and 'parts' 
 
 The 'parts' array contains part objects. Each part object MUST have the following keys:
 - **id** (string): A unique, human-readable identifier for the part (e.g., "left_leg", "seat_surface").
-- **origin** (object): An object with x, y, and z keys. This is the corner of the box with the minimum x, y, and z values in meters.
-- **dimensions** (object): An object with width, depth, and height keys, all in meters.
-- **rotation** (object): An object with x, y, and z keys. These represent the rotation of the part in radians around each respective axis. Default is {"x": 0, "y": 0, "z": 0}.
+- **origin** (object): An object with x, y, and z keys. This represents the **center point** of the part in meters.
+- **dimensions** (object): An object with width (along X), height (along Y), and depth (along Z) keys, all in meters.
+- **rotation** (object): An object with x, y, and z keys, all in radians.
+    - x: Rotation around the X-axis (Pitch).
+    - y: Rotation around the Y-axis (Yaw).
+    - z: Rotation around the Z-axis (Roll).
 - **connections** (array of strings): A list of the 'id's of other parts that this part is physically connected to.
 
-**COORDINATE SYSTEM:**
+**COORDINATE SYSTEM (IMPORTANT):**
 - The origin (0,0,0) is at the center of the object's footprint on the ground plane.
-- +X is to the object's right.
-- +Y is to the object's back.
-- +Z is upwards.
+- **+X** is to the object's **right**.
+- **+Y** is **upwards**.
+- **+Z** is to the object's **back**.
 `;
 
 export default async function handler(req, res) {
