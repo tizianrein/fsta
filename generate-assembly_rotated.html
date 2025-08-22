@@ -327,7 +327,7 @@
             });
             dot += '}';
             document.getElementById('graph-title').textContent = "Assembly Connection Graph";
-            d3.select("#graph-container").graphviz({useWorker: false}).engine('dot').renderDot(dot);
+            d3.select("#graph-container").graphviz({useWorker: false}).engine('twopi').renderDot(dot);
             document.getElementById('graph-modal-overlay').style.display = 'flex';
         }
 
