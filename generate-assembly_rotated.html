@@ -157,7 +157,7 @@
             const gizmoSize = 2.5;
             axesCamera = new THREE.OrthographicCamera(-gizmoSize, gizmoSize, gizmoSize, -gizmoSize, -10, 10);
             const axes = new THREE.AxesHelper(1.5);
-            axes.rotation.x = -Math.PI / 2; // Rotate gizmo to make Z-axis point up
+            // axes.rotation.x = -Math.PI / 2; // Rotate gizmo to make Z-axis point up
             axesScene.add(axes);
             
             infoBox = document.getElementById('info-box');
