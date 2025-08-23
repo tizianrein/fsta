@@ -1,906 +1,413 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-    <title>Step 1: Generate Assembly</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧱</text></svg>">
-    <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; background-color: #fff; color: #000; display: flex; justify-content: center; padding: 20px 0; }
-
-        #app-wrapper { width: 90%; max-width: 420px; display: flex; flex-direction: column; gap: 20px; }
-        #top-header { display: flex; flex-direction: column; gap: 20px; }
-        .top-input-row { display: flex; align-items: stretch; gap: 10px; }
-        #object-name { flex-grow: 1; background-color: #fff; padding: 12px; border: 1px solid #000; border-radius: 0; font-size: 14px; box-sizing: border-box; }
-
-        #viewer-container { width: 100%; height: 40vh; position: relative; background-color: #fff; }
-        #viewer-canvas { display: block; width: 100%; height: 100%; }
-        #info-box { position: absolute; top: 10px; left: 0px; padding: 0px; background-color: transparent; border: none; font-family: monospace; font-size: 12px; line-height: 1.4; z-index: 101; display: none; pointer-events: none; max-width: 250px; }
-
-        /* VR overlay UI */
-        #vr-ui { position:absolute; right:10px; top:10px; z-index:102; display:flex; gap:8px; align-items:center; background:#fff; border:1px solid #000; padding:6px 8px; }
-        #vr-ui label { font-size:12px; margin-right:4px; color:#000; }
-        #vr-ui input[type=range]{ width:110px; }
-        #recenter-vr-btn { padding:6px 8px; font-size:12px; line-height:1; background:#000; color:#fff; border:none; cursor:pointer; }
-        /* Reposition the native VR button inside the viewer */
-        #VRButton { position:absolute !important; right:10px; bottom:10px; z-index:102; font-weight:600; }
-
-        #bottom-ui-container { display: flex; flex-direction: column; gap: 15px; }
-        .icon-controls { display: flex; justify-content: space-around; text-align: center; padding: 10px 0; }
-        .icon-button { cursor: pointer; color: #000; }
-        .icon-button svg { width: 18px; height: 18px; }
-        .icon-button .label { font-size: 12px; margin-top: 5px; }
-
-        .action-buttons { display: flex; gap: 10px; }
-        .btn { flex-grow: 1; padding: 12px; font-size: 14px; font-weight: 600; border: none; border-radius: 0; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; background-color: #000; color: #fff; }
-
-        .instructions-group { background-color: #fff; padding: 15px; border: 1px solid #000; }
-        .instructions-group label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 8px; color: #000; }
-        .instructions-group textarea { width: 100%; height: 60px; padding: 10px; border: none; background-color: #fff; color: #000; border-radius: 0; font-size: 14px; box-sizing: border-box; resize: vertical; }
-
-        .hans-group { background-color: #000; color: #fff; padding: 15px; }
-        #hans-output { font-family: "SF Mono", Consolas, Menlo, monospace; font-size: 13px; line-height: 1.5; min-height: 20px; white-space: pre-wrap; }
-        #hans-output .cursor { display: inline-block; background-color: #fff; width: 8px; height: 1em; animation: blink 1s step-end infinite; }
-
-        @keyframes blink { from, to { background-color: transparent; } 50% { background-color: #fff; } }
-
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,.7); z-index: 1000; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
-        .modal-content { background-color: #fff; padding: 20px; border: 1px solid #000; width: 100%; max-width: 400px; display: flex; flex-direction: column; max-height: 80vh; position: relative; }
-        .svg-save-btn { position: absolute; top: 20px; left: 20px; flex-grow: 0; z-index: 10; }
-        .modal-content h3 { margin-top: 0; color: #000; text-align: center; }
-        .modal-body { overflow-y: auto; }
-
-        .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
-        .modal-btn { background-color: #000; color: #fff; }
-        .hidden-input { display: none; }
-
-        #json-view-modal-overlay .modal-content textarea { width: 100%; height: 40vh; resize: none; font-family: monospace; font-size: 12px; margin-bottom: 10px; border-radius: 0; }
-        #graph-modal-overlay .modal-content { max-width: 90vw; height: 80vh; }
-        #graph-container { width: 100%; flex-grow: 1; min-height: 0; }
-        #graph-container svg { width: 100%; height: 100%; }
-        #graph-title { margin-top: 45px; }
-        
-        #settings-btn { flex-grow: 0; padding: 0 12px; }
-        .settings-group { margin-bottom: 20px; }
-        .settings-group label { display: block; font-size: 14px; margin-bottom: 8px; }
-        .settings-input { width: 100%; padding: 10px; border: 1px solid #000; border-radius: 0; font-size: 14px; box-sizing: border-box; }
-        .checkbox-group { display: flex; align-items: center; gap: 10px; }
-        .checkbox-group input { width: auto; }
-        .checkbox-group label { margin-bottom: 0; font-size: 12px; font-weight: normal; }
-    </style>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <title>Assembly Viewer + VR & AR</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🧱</text></svg>">
+  <style>
+    :root { color-scheme: light; }
+    html, body { margin:0; padding:0; height:100%; font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif; background:#fff; color:#000; }
+    #app { display:grid; grid-template-rows:auto 1fr auto; height:100%; max-width:980px; margin:0 auto; }
+    header { padding:12px 16px; border-bottom:1px solid #000; display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    header h1 { font-size:16px; margin:0 8px 0 0; font-weight:700; }
+    input[type="file"], input[type="text"] { border:1px solid #000; padding:8px; background:#fff; color:#000; border-radius:0; font-size:14px; }
+    button { background:#000; color:#fff; border:none; border-radius:0; padding:10px 12px; font-weight:600; cursor:pointer; }
+    button[disabled] { opacity:.5; cursor:not-allowed; }
+    .ghost { background:#fff; color:#000; border:1px solid #000; }
+    #viewer { position:relative; height:60vh; }
+    #three-canvas { width:100%; height:100%; display:block; }
+    #hud { position:absolute; top:10px; left:10px; display:flex; gap:8px; flex-wrap:wrap; z-index:2; }
+    #msg { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; font-size:12px; white-space:pre-wrap; }
+    #controls { padding:12px 16px; border-top:1px solid #000; display:flex; flex-wrap:wrap; gap:8px; align-items:center; justify-content:space-between; }
+    #controls .left, #controls .right { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    .pill { padding:6px 10px; border:1px dashed #000; background:#fff; font-size:12px; }
+    label.slider { display:flex; align-items:center; gap:8px; font-size:12px; }
+    input[type="range"] { accent-color:#000; }
+    #ar-launch-ios { display:none; } /* becomes visible if iOS detected */
+    #ar-viewer { width:1px; height:1px; position:absolute; left:-9999px; top:-9999px; } /* hidden model-viewer used only for AR launch */
+    .hint { font-size:12px; opacity:.8; }
+  </style>
+  <!-- three.js + helpers -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+  <!-- model-viewer for AR (Android Scene Viewer / WebXR; iOS will use Quick Look via USDZ link) -->
+  <script type="module" src="https://unpkg.com/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
 </head>
 <body>
-    <div id="app-wrapper">
-        <div id="top-header">
-            <div class="top-input-row">
-                <input type="text" id="object-name" placeholder="Enter object name...">
-                <button id="settings-btn" class="btn icon-button" title="Settings">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="3"></circle>
-                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-                    </svg>
-                </button>
-            </div>
-        </div>
+  <div id="app">
+    <header>
+      <h1>Assembly → VR & AR</h1>
+      <input id="object-name" type="text" placeholder="Object name…" style="min-width:160px"/>
+      <input id="json-file" type="file" accept=".json"/>
+      <button id="load-demo" class="ghost">Load Demo</button>
+      <span class="pill">iOS: Quick Look (USDZ) · Android: Scene Viewer (GLB)</span>
+    </header>
 
-        <div id="viewer-container">
-            <canvas id="viewer-canvas"></canvas>
-            <div id="info-box"></div>
+    <main id="viewer">
+      <canvas id="three-canvas"></canvas>
+      <div id="hud">
+        <button id="btn-reset" title="Reset View">Reset</button>
+        <button id="btn-explode" class="ghost" title="Explode View">Explode</button>
+        <button id="btn-vr" title="Enter VR" disabled>Enter VR</button>
+        <button id="btn-ar-ios" title="Place in Room (iOS)" style="display:none">Place in Room (iOS)</button>
+        <button id="btn-ar-android" class="ghost" title="Place in Room (Android)">Place in Room</button>
+      </div>
+      <div id="msg" style="position:absolute; right:10px; top:10px; max-width:50ch;"></div>
+      <!-- Hidden AR launcher (Android / WebXR via model-viewer) -->
+      <model-viewer id="ar-viewer"
+        ar
+        ar-modes="scene-viewer webxr quick-look"
+        camera-controls
+        environment-image="neutral"
+        exposure="1"
+        shadow-intensity="0"
+        style="display:none">
+      </model-viewer>
+      <!-- iOS AR Quick Look trigger -->
+      <a id="ar-launch-ios" rel="ar" href="#">View in AR</a>
+    </main>
 
-            <!-- VR UI overlay -->
-            <div id="vr-ui">
-                <label for="scale-slider">Scale</label>
-                <input id="scale-slider" type="range" min="0.05" max="10" step="0.01" value="1">
-                <button id="recenter-vr-btn">Recenter</button>
-            </div>
-        </div>
+    <footer id="controls">
+      <div class="left">
+        <label class="slider">Scale
+          <input id="scale-range" type="range" min="0.1" max="4" step="0.01" value="1"/>
+          <span id="scale-value">1.00×</span>
+        </label>
+        <span class="hint">Use this before entering VR/AR to size the object.</span>
+      </div>
+      <div class="right">
+        <button id="btn-export-glb" class="ghost">Export GLB</button>
+        <button id="btn-export-usdz" class="ghost">Export USDZ</button>
+      </div>
+    </footer>
+  </div>
 
-        <div id="bottom-ui-container">
-            <div class="icon-controls">
-                <div id="upload-json-btn" class="icon-button" title="Upload Assembly JSON"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z"/></svg><div class="label">Upload</div></div>
-                <div id="copy-json-btn" class="icon-button" title="Read & Copy Assembly JSON"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H6z"/><path d="M2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1H2z"/></svg><div class="label">Read & Copy</div></div>
-                <div id="explode-view-btn" class="icon-button" title="Explode View"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M5.828 10.172a.5.5 0 0 0-.707 0l-4.096 4.096V11.5a.5.5 0 0 0-1 0v3.975a.5.5 0 0 0 .5.5H4.5a.5.5 0 0 0 0-1H1.732l4.096-4.096a.5.5 0 0 0 0-.707zm4.344-4.344a.5.5 0 0 0 .707 0l4.096-4.096V4.5a.5.5 0 1 0 1 0V.525a.5.5 0 0 0-.5-.5H11.5a.5.5 0 0 0 0 1h2.768l-4.096 4.096a.5.5 0 0 0 0 .707z"/></svg><div class="label">Explode</div></div>
-                <div id="reset-view-btn" class="icon-button" title="Reset View" style="display:none;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M.172 15.828a.5.5 0 0 0 .707 0l4.096-4.096V14.5a.5.5 0 1 0 1 0v-3.975a.5.5 0 0 0-.5-.5H1.5a.5.5 0 0 0 0 1h2.768L.172 15.121a.5.5 0 0 0 0 .707zM15.828.172a.5.5 0 0 0-.707 0l-4.096 4.096V1.5a.5.5 0 1 0-1 0v3.975a.5.5 0 0 0 .5.5H14.5a.5.5 0 0 0 0-1h-2.768L15.828.879a.5.5 0 0 0 0-.707z"/></svg><div class="label">Restore</div></div>
-                <div id="view-graph-btn" class="icon-button" title="View connection graph"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-share" viewBox="0 0 16 16"><path d="M13.5 1a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.499 2.499 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5zm-8.5 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm11 5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/></svg><div class="label">Graph</div></div>
-                <div id="download-json-btn" class="icon-button" title="Download Assembly JSON"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/></svg><div class="label">Download</div></div>
-            </div>
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { VRButton } from 'three/addons/webxr/VRButton.js';
+    import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
+    import { USDZExporter } from 'three/addons/exporters/USDZExporter.js';
 
-            <div class="action-buttons">
-                <button id="add-files-btn" class="btn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M4.5 3a2.5 2.5 0 0 1 5 0v9a1.5 1.5 0 0 1-3 0V5a.5.5 0 0 1 1 0v7a.5.5 0 0 0 1 0V3a1.5 1.5 0 1 0-3 0v9a2.5 2.5 0 0 0 5 0V5a.5.5 0 0 1 1 0v7a3.5 3.5 0 1 1-7 0V3z"/></svg>Add Files</button>
-                <button id="generate-assembly-btn" class="btn">🧱 Generate Assembly</button>
-            </div>
+    // --- DOM
+    const canvas = document.getElementById('three-canvas');
+    const msg = document.getElementById('msg');
+    const objectNameInput = document.getElementById('object-name');
+    const jsonFile = document.getElementById('json-file');
+    const btnDemo = document.getElementById('load-demo');
+    const btnReset = document.getElementById('btn-reset');
+    const btnExplode = document.getElementById('btn-explode');
+    const btnVR = document.getElementById('btn-vr');
+    const btnARIOS = document.getElementById('btn-ar-ios');
+    const iosARLink = document.getElementById('ar-launch-ios');
+    const btnARAndroid = document.getElementById('btn-ar-android');
+    const mv = document.getElementById('ar-viewer');
+    const scaleRange = document.getElementById('scale-range');
+    const scaleValue = document.getElementById('scale-value');
+    const btnExportGLB = document.getElementById('btn-export-glb');
+    const btnExportUSDZ = document.getElementById('btn-export-usdz');
 
-            <div class="instructions-group">
-                <label for="user-prompt">Describe Geometry (optional, use with photos for better results)...</label>
-                <textarea id="user-prompt" placeholder="e.g., 'Add a Box on top' or 'Move backrest 1 cm in direction of x-axis'"></textarea>
-            </div>
+    // --- THREE basics
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    renderer.setPixelRatio(devicePixelRatio);
+    renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
+    renderer.xr.enabled = true; // allow VR if present
 
-            <div class="hans-group">
-                <div id="hans-output"></div>
-            </div>
-        </div>
-    </div>
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xffffff);
 
-    <!-- Modals -->
-    <div id="data-choice-modal-overlay" class="modal-overlay"><div class="modal-content"><h3 id="data-choice-title">Select Data</h3><div class="action-buttons"><button id="choice-btn-assembly" class="btn modal-btn">📦 Assembly</button></div><div class="modal-actions" style="margin-top:20px"><button class="btn modal-btn close-modal-btn">Cancel</button></div></div></div>
-    <div id="json-view-modal-overlay" class="modal-overlay"><div class="modal-content"><h3 id="json-view-title">Current JSON</h3><textarea id="json-view-textarea" readonly></textarea><div class="modal-actions"><button id="copy-json-from-modal-btn" class="btn modal-btn">Copy</button><button class="btn modal-btn close-modal-btn">Close</button></div></div></div>
-    <div id="graph-modal-overlay" class="modal-overlay"><div class="modal-content"><button id="save-graph-svg-btn" class="btn modal-btn svg-save-btn">Save as SVG</button><h3 id="graph-title">Graph</h3><div id="graph-container"></div><div class="modal-actions"><button class="btn modal-btn close-modal-btn">Close</button></div></div></div>
-    <div id="settings-modal-overlay" class="modal-overlay">
-        <div class="modal-content">
-            <h3>Settings</h3>
-            <div class="settings-group">
-                <label for="model-select">Select AI Model</label>
-                <select id="model-select" class="settings-input">
-                    <option value="gemini-2.5-flash-lite">Fast</option>
-                    <option value="gemini-2.5-flash">Balanced</option>
-                    <option value="gemini-2.5-pro" selected>Accurate</option>
-                </select>
-            </div>
-            <div class="settings-group">
-                <label for="temperature-slider">Creativity (Temperature): <span id="temperature-value">0.5</span></label>
-                <input type="range" id="temperature-slider" class="settings-input" min="0" max="1" step="0.1" value="0.5">
-            </div>
-            <div class="settings-group checkbox-group">
-                <input type="checkbox" id="allow-rotations-checkbox" class="settings-input">
-                <label for="allow-rotations-checkbox">Model with Rotations (Experimental)</label>
-            </div>
-            <div class="modal-actions">
-                <button id="save-settings-btn" class="btn modal-btn">Save</button>
-                <button class="btn modal-btn close-modal-btn">Cancel</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Hidden Inputs -->
-    <input type="file" id="assembly-upload-input" class="hidden-input" accept=".json, .txt">
-    <input type="file" id="add-files-input" class="hidden-input" multiple accept="image/*,application/pdf">
+    const camera = new THREE.PerspectiveCamera(55, 1, 0.01, 1000);
+    camera.position.set(1.2, 1.0, 1.2);
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
 
-    <!-- Libraries -->
-    <script src="https://unpkg.com/d3@7.8.5/dist/d3.min.js"></script>
-    <script src="https://unpkg.com/d3-graphviz@5.1.0/build/d3-graphviz.js"></script>
-    <script type="importmap">{
-      "imports": {
-        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    const ambient = new THREE.AmbientLight(0xffffff, 0.9);
+    const dir = new THREE.DirectionalLight(0xffffff, 0.8);
+    dir.position.set(3, 5, 2);
+    scene.add(ambient, dir);
+
+    const root = new THREE.Group();
+    scene.add(root);
+
+    const defaultMat = new THREE.MeshStandardMaterial({ color: 0x666666, transparent: true, opacity: 0.85 });
+    const edgeMat = new THREE.LineBasicMaterial({ color: 0x111111, transparent: true, opacity: 0.7 });
+
+    let currentJSON = null;
+    let originalPositions = new Map(); // for explode/reset
+    let explodeOn = false;
+
+    function fitCameraToObject(object) {
+      const box = new THREE.Box3().setFromObject(object);
+      const size = box.getSize(new THREE.Vector3());
+      const center = box.getCenter(new THREE.Vector3());
+      controls.target.copy(center);
+      camera.position.copy(center.clone().add(new THREE.Vector3(size.x, size.y, size.z).multiplyScalar(1.2)));
+      camera.near = Math.max(0.01, Math.min(size.length() / 100, 0.1));
+      camera.far = Math.max(10, size.length() * 10);
+      camera.updateProjectionMatrix();
+    }
+
+    function clearModel() {
+      while (root.children.length) root.remove(root.children[0]);
+      originalPositions.clear();
+    }
+
+    function buildFromJSON(json) {
+      clearModel();
+      currentJSON = json;
+      objectNameInput.value = json.objectName || 'Untitled';
+
+      if (!json.parts || !Array.isArray(json.parts) || json.parts.length === 0) {
+        setMsg('No parts found in JSON.');
+        return;
       }
-    }</script>
+      json.parts.forEach(part => {
+        const w = Number(part.dimensions?.width ?? 0.1);
+        const h = Number(part.dimensions?.height ?? 0.1);
+        const d = Number(part.dimensions?.depth ?? 0.1);
+        const geo = new THREE.BoxGeometry(w, h, d);
 
-    <script type="module">
-        import * as THREE from 'three';
-        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-        import { VRButton } from 'three/addons/webxr/VRButton.js';
-        import { XRControllerModelFactory } from 'three/addons/webxr/XRControllerModelFactory.js';
+        const g = new THREE.Group();
+        const mesh = new THREE.Mesh(geo, defaultMat);
+        const edges = new THREE.LineSegments(new THREE.EdgesGeometry(geo), edgeMat);
+        g.add(mesh, edges);
 
-        // --- CONSTANTS & GLOBALS ---
-        const HANS_PREFIX = "H.A.N.S.🌟: ";
-        const MAX_FILE_SIZE = 3 * 1024 * 1024;
-        const MAX_FILES = 10;
-        const ANIMATION_DURATION = 800; // ms
-        const DEFAULT_VR_DISTANCE = 1.5; // meters in front of user
-        const MIN_SCALE = 0.05, MAX_SCALE = 10;
+        const x = Number(part.origin?.x ?? 0);
+        const y = Number(part.origin?.y ?? 0);
+        const z = Number(part.origin?.z ?? 0);
+        g.position.set(x, y, z);
 
-        let scene, camera, renderer, controls, axesScene, axesCamera, infoBox, raycaster, mouse;
-        let typingInterval, timerInterval;
-        let currentModelJson = null;
-        let uploadedFiles = [];
-        let selectedPartId = null;
-        let mouseDownPos = null;
-        const objectGroup = new THREE.Group();
-        const partMeshesMap = new Map();
-        let activeAnimations = [];
-        let temperature = 0.5;
-        let geminiModel = 'gemini-2.5-pro';
-        let allowRotations = false;
-
-        // VR-related refs
-        let scaleSlider, recenterBtn;
-        let controller1, controller2, controllerGrip1, controllerGrip2;
-        const controllerRays = new Map();
-        const controllerFactory = new XRControllerModelFactory();
-        const tmpMatrix = new THREE.Matrix4();
-        const tmpVecA = new THREE.Vector3();
-        const tmpVecB = new THREE.Vector3();
-        let squeezeState = { left:false, right:false };
-        let dragOffset = new THREE.Vector3();
-        let twoHand = { baseDist: 0, baseScale: 1 };
-
-        // --- DOM ELEMENTS ---
-        const viewerContainer = document.getElementById('viewer-container');
-        const viewerCanvas = document.getElementById('viewer-canvas');
-        const hansOutputEl = document.getElementById('hans-output');
-        const userPromptInput = document.getElementById('user-prompt');
-        const objectNameInput = document.getElementById('object-name');
-        const explodeBtn = document.getElementById('explode-view-btn');
-        const resetBtn = document.getElementById('reset-view-btn');
-        const settingsBtn = document.getElementById('settings-btn');
-        const settingsModal = document.getElementById('settings-modal-overlay');
-        const modelSelect = document.getElementById('model-select');
-        const temperatureSlider = document.getElementById('temperature-slider');
-        const temperatureValue = document.getElementById('temperature-value');
-        const saveSettingsBtn = document.getElementById('save-settings-btn');
-        const allowRotationsCheckbox = document.getElementById('allow-rotations-checkbox');
-
-        // --- MATERIALS ---
-        const defaultPartMaterial = new THREE.MeshStandardMaterial({ color: 0x666666, transparent: true, opacity: 0.4 });
-        const selectionPartMaterial = new THREE.MeshStandardMaterial({ color: 0x0000ff, transparent: true, opacity: 0.9 });
-        const outlineMaterial = new THREE.LineBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.8 });
-
-        // --- CORE 3D & UI FUNCTIONS ---
-        function init() {
-            scene = new THREE.Scene();
-            scene.background = new THREE.Color(0xffffff);
-            scene.add(objectGroup);
-
-            // Ground grid helps scale perception in VR
-            const grid = new THREE.GridHelper(10, 20, 0x888888, 0xcccccc);
-            grid.position.y = 0;
-            scene.add(grid);
-
-            camera = new THREE.PerspectiveCamera(50, viewerContainer.clientWidth / viewerContainer.clientHeight, 0.01, 1000);
-            camera.position.set(1.0, 1.0, 1.0);
-
-            renderer = new THREE.WebGLRenderer({ canvas: viewerCanvas, antialias: true, alpha: true });
-            renderer.autoClear = false;
-            renderer.setPixelRatio(window.devicePixelRatio);
-            renderer.setSize(viewerContainer.clientWidth, viewerContainer.clientHeight);
-
-            // --- WebXR (VR) ---
-            renderer.xr.enabled = true;
-            renderer.xr.setReferenceSpaceType('local-floor');
-            renderer.xr.setFoveation(0.5); // subtle perf/clarity tradeoff
-
-            // Move the native VR button into the viewer
-            const vrBtn = VRButton.createButton(renderer);
-            viewerContainer.appendChild(vrBtn);
-
-            // Controls for desktop
-            controls = new OrbitControls(camera, renderer.domElement);
-            controls.enableDamping = true;
-            controls.target.set(0, 0, 0);
-
-            // Lights
-            const hemi = new THREE.HemisphereLight(0xffffff, 0xb0b0b0, 0.7);
-            const dir = new THREE.DirectionalLight(0xffffff, 0.7);
-            dir.position.set(3, 5, 2);
-            scene.add(hemi, dir);
-
-            // Axes mini-gizmo (desktop only)
-            axesScene = new THREE.Scene();
-            const gizmoSize = 2.5;
-            axesCamera = new THREE.OrthographicCamera(-gizmoSize, gizmoSize, gizmoSize, -gizmoSize, -10, 10);
-            const axes = new THREE.AxesHelper(1.5);
-            axesScene.add(axes);
-            
-            infoBox = document.getElementById('info-box');
-            raycaster = new THREE.Raycaster();
-            mouse = new THREE.Vector2();
-            mouseDownPos = new THREE.Vector2();
-
-            // VR controllers
-            setupControllers();
-
-            setupEventListeners();
-            loadDefaults();
-
-            // XR-friendly render loop
-            renderer.setAnimationLoop(animate);
+        // Rotation if provided (YXZ order)
+        const rot = part.rotation;
+        if (rot && typeof rot === 'object') {
+          g.rotation.set(rot.x || 0, rot.y || 0, rot.z || 0, 'YXZ');
         }
 
-        function setupControllers(){
-            // Controller helpers (rays)
-            const makeRay = () => {
-                const geo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,-1)]);
-                const mat = new THREE.LineBasicMaterial({ color: 0x2222ff });
-                const line = new THREE.Line(geo, mat);
-                line.name = 'ray';
-                line.scale.z = 2.0;
-                return line;
-            };
+        originalPositions.set(g, g.position.clone());
+        root.add(g);
+      });
 
-            controller1 = renderer.xr.getController(0);
-            controller2 = renderer.xr.getController(1);
+      root.scale.setScalar(Number(scaleRange.value));
+      fitCameraToObject(root);
+      setMsg(`Loaded: ${json.parts.length} part(s).`);
+    }
 
-            controller1.add(makeRay());
-            controller2.add(makeRay());
-            controllerRays.set(controller1, controller1.getObjectByName('ray'));
-            controllerRays.set(controller2, controller2.getObjectByName('ray'));
+    function setMsg(t) {
+      msg.textContent = t;
+    }
 
-            controllerGrip1 = renderer.xr.getControllerGrip(0);
-            controllerGrip2 = renderer.xr.getControllerGrip(1);
-            controllerGrip1.add(controllerFactory.createControllerModel(controllerGrip1));
-            controllerGrip2.add(controllerFactory.createControllerModel(controllerGrip2));
+    function animate() {
+      requestAnimationFrame(animate);
+      controls.update();
+      renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
+      camera.aspect = canvas.clientWidth / canvas.clientHeight;
+      camera.updateProjectionMatrix();
+      renderer.render(scene, camera);
+    }
+    animate();
 
-            // Selection on trigger
-            const onSelectStart = (e) => {
-                const hit = intersectFromController(e.target);
-                if (hit) {
-                    highlightPart(hit.object);
-                    pulseHaptics(e);
-                } else {
-                    resetMaterials();
-                }
-            };
-            controller1.addEventListener('selectstart', onSelectStart);
-            controller2.addEventListener('selectstart', onSelectStart);
+    // --- Explode / Reset
+    function explodeParts(on) {
+      const box = new THREE.Box3().setFromObject(root);
+      const center = box.getCenter(new THREE.Vector3());
+      const size = box.getSize(new THREE.Vector3());
+      const explodeFactor = Math.max(size.x, size.y, size.z) * 0.25;
 
-            // Grip for drag/scale
-            const onSqueezeStart = (e) => {
-                const hand = e.data?.handedness || 'unknown';
-                if (hand === 'left') squeezeState.left = true;
-                if (hand === 'right') squeezeState.right = true;
-
-                if (squeezeState.left && squeezeState.right) {
-                    twoHand.baseDist = controllersDistance();
-                    twoHand.baseScale = objectGroup.scale.x;
-                } else {
-                    // One-hand drag: cache offset between controller and model
-                    const c = e.target;
-                    const cPos = worldPosOf(c);
-                    dragOffset.copy(objectGroup.position).sub(cPos);
-                    dragOffset.y = 0; // keep on floor
-                }
-                pulseHaptics(e, 0.4, 40);
-            };
-            const onSqueezeEnd = (e) => {
-                const hand = e.data?.handedness || 'unknown';
-                if (hand === 'left') squeezeState.left = false;
-                if (hand === 'right') squeezeState.right = false;
-                pulseHaptics(e, 0.2, 20);
-            };
-            controller1.addEventListener('squeezestart', onSqueezeStart);
-            controller2.addEventListener('squeezestart', onSqueezeStart);
-            controller1.addEventListener('squeezeend', onSqueezeEnd);
-            controller2.addEventListener('squeezeend', onSqueezeEnd);
-
-            scene.add(controller1, controller2, controllerGrip1, controllerGrip2);
+      root.children.forEach(ch => {
+        const from = originalPositions.get(ch);
+        if (!from) return;
+        if (on) {
+          const dir = from.clone().sub(center).normalize().multiplyScalar(explodeFactor);
+          ch.position.copy(from.clone().add(dir));
+        } else {
+          ch.position.copy(from);
         }
+      });
+    }
 
-        function pulseHaptics(event, intensity=0.5, duration=60){
-            const gp = event.data?.gamepad;
-            const actuator = gp?.hapticActuators?.[0];
-            if (actuator && actuator.pulse) {
-                actuator.pulse(intensity, duration);
-            }
+    // --- Export helpers
+    async function exportGLBBlob() {
+      const exporter = new GLTFExporter();
+      const clone = root.clone(true);
+      return new Promise((resolve, reject) => {
+        exporter.parse(
+          clone,
+          glb => {
+            const blob = new Blob([glb], { type: 'model/gltf-binary' });
+            resolve(blob);
+          },
+          err => reject(err),
+          { binary: true }
+        );
+      });
+    }
+
+    async function exportUSDZBlob() {
+      const exporter = new USDZExporter();
+      const arraybuffer = await exporter.parse(root, { includeUVs: false });
+      return new Blob([arraybuffer], { type: 'model/vnd.usdz+zip' });
+    }
+
+    function downloadBlob(blob, filename) {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+
+    // --- Platform checks
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+    // Show proper AR buttons
+    if (isIOS) {
+      btnARIOS.style.display = '';
+      iosARLink.style.display = 'inline-block';
+      btnARAndroid.style.display = 'none';
+    }
+
+    // VR availability (immersive-vr)
+    if (navigator.xr && navigator.xr.isSessionSupported) {
+      navigator.xr.isSessionSupported('immersive-vr').then(supported => {
+        if (supported) {
+          btnVR.disabled = false;
         }
+      });
+    }
 
-        function worldPosOf(obj) {
-            return new THREE.Vector3().setFromMatrixPosition(obj.matrixWorld);
-        }
+    // --- Events
+    jsonFile.addEventListener('change', async (e) => {
+      const f = e.target.files?.[0];
+      if (!f) return;
+      const text = await f.text();
+      try {
+        const json = JSON.parse(text);
+        buildFromJSON(json);
+      } catch (err) {
+        setMsg('Invalid JSON: ' + err.message);
+      }
+    });
 
-        function controllersDistance(){
-            const a = worldPosOf(controller1);
-            const b = worldPosOf(controller2);
-            return a.distanceTo(b);
-        }
+    btnDemo.addEventListener('click', () => {
+      const demo = {
+        "objectName": "Demo Chair (Boxy)",
+        "parts": [
+          { "id":"seat","origin":{"x":0,"y":0.45,"z":0},"dimensions":{"width":0.46,"height":0.04,"depth":0.46},"connections":["leg_fl","leg_fr","leg_rl","leg_rr","back"} },
+          { "id":"leg_fl","origin":{"x":-0.2,"y":0.22,"z":-0.2},"dimensions":{"width":0.04,"height":0.44,"depth":0.04},"connections":["seat"] },
+          { "id":"leg_fr","origin":{"x":0.2,"y":0.22,"z":-0.2},"dimensions":{"width":0.04,"height":0.44,"depth":0.04},"connections":["seat"] },
+          { "id":"leg_rl","origin":{"x":-0.2,"y":0.22,"z":0.2},"dimensions":{"width":0.04,"height":0.44,"depth":0.04},"connections":["seat","back"] },
+          { "id":"leg_rr","origin":{"x":0.2,"y":0.22,"z":0.2},"dimensions":{"width":0.04,"height":0.44,"depth":0.04},"connections":["seat","back"] },
+          { "id":"back","origin":{"x":0,"y":0.75,"z":0.22},"dimensions":{"width":0.46,"height":0.5,"depth":0.04},"connections":["seat","leg_rl","leg_rr"] }
+        ]
+      };
+      buildFromJSON(demo);
+    });
 
-        function intersectFromController(controller){
-            tmpMatrix.identity().extractRotation(controller.matrixWorld);
-            const rayOrigin = new THREE.Vector3().setFromMatrixPosition(controller.matrixWorld);
-            const rayDirection = new THREE.Vector3(0,0,-1).applyMatrix4(tmpMatrix);
+    btnReset.addEventListener('click', () => {
+      explodeOn = false;
+      explodeParts(false);
+      root.scale.setScalar(Number(scaleRange.value));
+      fitCameraToObject(root);
+    });
 
-            raycaster.set(rayOrigin, rayDirection);
-            const intersects = raycaster.intersectObjects(Array.from(partMeshesMap.values()));
-            return intersects[0] || null;
-        }
+    btnExplode.addEventListener('click', () => {
+      explodeOn = !explodeOn;
+      explodeParts(explodeOn);
+    });
 
-        function loadDefaults() {
-            const defaultModel = { "objectName": "Default Cube", "parts": [{ "id": "cube", "origin": {"x": 0, "y": 0.25, "z": 0}, "dimensions": {"width": 0.5, "depth": 0.5, "height": 0.5}, "connections": [] }] };
-            createModel(defaultModel);
-            objectNameInput.value = ""; 
-            updateHANS("Hello! I am H.A.N.S. -  the Heuristic Agent for Narrating Structures. Add files or describe an object, or load an assembly to begin.");
-        }
+    // VR button uses three.js VRButton under the hood
+    btnVR.addEventListener('click', () => {
+      // Attach VRButton lazily to body (creates the native button + enters session)
+      const vrBtn = VRButton.createButton(renderer);
+      vrBtn.style.display = 'none';
+      document.body.appendChild(vrBtn);
+      vrBtn.click();
+    });
 
-        function animate() {
-            // Controller live rays lengthen a bit when pointing at a hit
-            if (renderer.xr.isPresenting) {
-                [controller1, controller2].forEach(c => {
-                    const line = controllerRays.get(c);
-                    if (!line) return;
-                    const hit = intersectFromController(c);
-                    line.material.color.set(hit ? 0x00aaff : 0x2222ff);
-                    line.scale.z = hit ? Math.min(hit.distance, 3) : 2.0;
-                });
+    // AR (Android via model-viewer)
+    btnARAndroid.addEventListener('click', async () => {
+      if (!currentJSON) { setMsg('Load an assembly JSON first.'); return; }
+      try {
+        setMsg('Preparing GLB for AR…');
+        const glb = await exportGLBBlob();
+        const url = URL.createObjectURL(glb);
+        mv.src = url;
+        mv.scale = `${root.scale.x} ${root.scale.y} ${root.scale.z}`; // applied in webxr mode
+        // Trigger AR
+        mv.activateAR();
+        setTimeout(() => URL.revokeObjectURL(url), 60_000);
+        setMsg('If nothing happens, ensure Chrome with Scene Viewer is available.');
+      } catch (err) {
+        setMsg('GLB export failed: ' + err.message);
+      }
+    });
 
-                // Two-hand scale
-                if (squeezeState.left && squeezeState.right && twoHand.baseDist > 0) {
-                    const dist = controllersDistance();
-                    const factor = THREE.MathUtils.clamp(dist / twoHand.baseDist, MIN_SCALE / twoHand.baseScale, MAX_SCALE / twoHand.baseScale);
-                    setModelScale(twoHand.baseScale * factor);
-                    if (scaleSlider) scaleSlider.value = objectGroup.scale.x.toFixed(3);
-                }
-                // One-hand drag
-                else if (squeezeState.left || squeezeState.right) {
-                    const c = squeezeState.left ? controller1 : controller2;
-                    const target = worldPosOf(c).add(dragOffset);
-                    target.y = 0;
-                    objectGroup.position.lerp(target, 0.35); // smooth
-                }
+    // AR (iOS via Quick Look USDZ)
+    btnARIOS.addEventListener('click', async () => {
+      if (!currentJSON) { setMsg('Load an assembly JSON first.'); return; }
+      try {
+        setMsg('Preparing USDZ for iOS AR…');
+        const usdz = await exportUSDZBlob();
+        const url = URL.createObjectURL(usdz);
+        iosARLink.href = url;
+        iosARLink.click(); // open Quick Look
+        setTimeout(() => URL.revokeObjectURL(url), 60_000);
+      } catch (err) {
+        setMsg('USDZ export failed: ' + err.message);
+      }
+    });
 
-                // Thumbstick fine-scale (any controller)
-                [controller1, controller2].forEach(c => {
-                    const gp = c?.userData?.inputSource?.gamepad || c?.data?.gamepad || null;
-                    if (!gp || !gp.axes) return;
-                    const y = gp.axes[3] !== undefined ? gp.axes[3] : gp.axes[1] || 0;
-                    if (Math.abs(y) > 0.15) {
-                        const s = THREE.MathUtils.clamp(objectGroup.scale.x * (1 - y * 0.02), MIN_SCALE, MAX_SCALE);
-                        setModelScale(s);
-                        if (scaleSlider) scaleSlider.value = s.toFixed(3);
-                    }
-                });
-            }
+    // Exports
+    btnExportGLB.addEventListener('click', async () => {
+      if (!currentJSON) { setMsg('Load an assembly JSON first.'); return; }
+      try {
+        const glb = await exportGLBBlob();
+        const name = (objectNameInput.value || 'object').replace(/\\s+/g, '_');
+        downloadBlob(glb, name + '.glb');
+        setMsg('GLB exported.');
+      } catch (err) {
+        setMsg('GLB export failed: ' + err.message);
+      }
+    });
 
-            // Handle active animations for explode/reset
-            if (activeAnimations.length > 0) {
-                const now = performance.now();
-                activeAnimations.forEach(anim => {
-                    const elapsedTime = now - anim.startTime;
-                    let progress = Math.min(elapsedTime / ANIMATION_DURATION, 1);
-                    const easedProgress = 1 - Math.pow(1 - progress, 3);
-                    anim.mesh.position.lerpVectors(anim.start, anim.end, easedProgress);
-                });
-                activeAnimations = activeAnimations.filter(anim => now - anim.startTime < ANIMATION_DURATION);
-            }
+    btnExportUSDZ.addEventListener('click', async () => {
+      if (!currentJSON) { setMsg('Load an assembly JSON first.'); return; }
+      try {
+        const usdz = await exportUSDZBlob();
+        const name = (objectNameInput.value || 'object').replace(/\\s+/g, '_');
+        downloadBlob(usdz, name + '.usdz');
+        setMsg('USDZ exported.');
+      } catch (err) {
+        setMsg('USDZ export failed: ' + err.message);
+      }
+    });
 
-            controls.update();
-            renderer.clear();
-            renderer.render(scene, camera);
+    // Scaling
+    scaleRange.addEventListener('input', () => {
+      const s = Number(scaleRange.value);
+      root.scale.setScalar(s);
+      scaleValue.textContent = s.toFixed(2) + '×';
+    });
 
-            // Draw mini-axes only in non‑VR
-            if (!renderer.xr.isPresenting) {
-                renderer.clearDepth();
-                const gizmoSize = 80;
-                renderer.setViewport(10, 10, gizmoSize, gizmoSize);
-                axesCamera.quaternion.copy(camera.quaternion);
-                renderer.render(axesScene, axesCamera);
-                renderer.setViewport(0, 0, renderer.domElement.clientWidth, renderer.domElement.clientHeight);
-            }
-        }
+    // Resize
+    const ro = new ResizeObserver(() => {
+      renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
+      camera.aspect = canvas.clientWidth / canvas.clientHeight;
+      camera.updateProjectionMatrix();
+    });
+    ro.observe(document.getElementById('viewer'));
 
-        function onWindowResize() {
-            const w = viewerContainer.clientWidth, h = viewerContainer.clientHeight;
-            camera.aspect = w / h;
-            camera.updateProjectionMatrix();
-            renderer.setSize(w, h);
-        }
-
-        function clearModel() {
-            activeAnimations = [];
-            while (objectGroup.children.length > 0) objectGroup.remove(objectGroup.children[0]);
-            partMeshesMap.clear();
-            currentModelJson = null;
-            objectNameInput.value = "";
-        }
-
-        function resetMaterials() {
-            partMeshesMap.forEach(mesh => { mesh.material = defaultPartMaterial; });
-        }
-
-        function createModel(jsonData) {
-            clearModel();
-            if (!jsonData || !jsonData.parts || !Array.isArray(jsonData.parts)) {
-                updateHANS("Error: Could not parse assembly file. Is it valid JSON?");
-                return;
-            }
-            currentModelJson = jsonData;
-            objectNameInput.value = jsonData.objectName || "Untitled";
-            
-            const bounds = new THREE.Box3();
-            jsonData.parts.forEach(part => {
-                const geo = new THREE.BoxGeometry(part.dimensions.width, part.dimensions.height, part.dimensions.depth);
-                const pos = new THREE.Vector3(part.origin.x, part.origin.y, part.origin.z);
-
-                const partGroup = new THREE.Group();
-                const mesh = new THREE.Mesh(geo, defaultPartMaterial);
-                const line = new THREE.LineSegments(new THREE.EdgesGeometry(geo), outlineMaterial);
-                
-                partGroup.add(mesh);
-                partGroup.add(line);
-                partGroup.userData.originalPosition = pos.clone();
-                
-                partGroup.position.copy(pos);
-                
-                // Normalize rotation data (robustness)
-                if (!part.rotation || typeof part.rotation !== 'object') {
-                    part.rotation = { x: 0, y: 0, z: 0 };
-                }
-                partGroup.rotation.set(
-                    part.rotation.x || 0,
-                    part.rotation.y || 0,
-                    part.rotation.z || 0,
-                    'YXZ'
-                );
-                
-                partGroup.userData.part = part;
-                objectGroup.add(partGroup);
-                partMeshesMap.set(part.id, mesh);
-            });
-
-            bounds.setFromObject(objectGroup);
-            const center = new THREE.Vector3();
-            bounds.getCenter(center);
-            controls.target.copy(center);
-
-            resetBtn.style.display = 'none';
-            explodeBtn.style.display = 'inline-block';
-
-            // Nice initial placement for both flat & VR
-            placeModelInFrontOfUser(renderer.xr.isPresenting ? DEFAULT_VR_DISTANCE : 1.2);
-            setModelScale(1);
-
-            updateHANS(`Assembly "${objectNameInput.value}" loaded with ${jsonData.parts.length} parts. You can now modify it.`);
-        }
-
-        function updateHANS(message, isTyping = false) {
-            if (typingInterval) clearInterval(typingInterval);
-            if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
-
-            if (isTyping) {
-                let seconds = 0;
-                const updateTimer = () => {
-                    hansOutputEl.innerHTML = `${HANS_PREFIX}${message} (${seconds}s)`;
-                };
-                updateTimer();
-                timerInterval = setInterval(() => { seconds++; updateTimer(); }, 1000);
-            } else {
-                hansOutputEl.innerHTML = `${HANS_PREFIX}<span id="hans-text"></span><span class="cursor"></span>`;
-                const textEl = document.getElementById('hans-text');
-                const cursorEl = hansOutputEl.querySelector('.cursor');
-                if (!textEl || !cursorEl) return;
-                let i = 0;
-                typingInterval = setInterval(() => {
-                    if (i < message.length) { textEl.textContent += message.charAt(i++); }
-                    else { clearInterval(typingInterval); if (cursorEl) cursorEl.style.display = 'none'; }
-                }, 20);
-            }
-        }
-        
-        function handleFileUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = e => {
-                try {
-                    const data = JSON.parse(e.target.result);
-                    createModel(data);
-                } catch (err) {
-                    updateHANS(`Error parsing assembly file: ${err.message}`);
-                }
-            };
-            reader.readAsText(file);
-            event.target.value = '';
-        }
-
-        function viewJson() {
-            if (!currentModelJson) { updateHANS(`No assembly data loaded.`); return; }
-            document.getElementById('json-view-title').textContent = `Current Assembly JSON`;
-            document.getElementById('json-view-textarea').value = JSON.stringify(currentModelJson, null, 2);
-            document.getElementById('json-view-modal-overlay').style.display = 'flex';
-        }
-
-        function downloadJson() {
-            if (!currentModelJson) { updateHANS(`No assembly data loaded.`); return; }
-            const name = (objectNameInput.value || 'object').replace(/\s+/g, '_');
-            const blob = new Blob([JSON.stringify(currentModelJson, null, 2)], {type: 'application/json'});
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = `${name}_assembly.json`;
-            a.click();
-            URL.revokeObjectURL(a.href);
-        }
-
-        function viewGraph() {
-            if (!currentModelJson || !currentModelJson.parts) { updateHANS("Generate or load an assembly to see its graph."); return; }
-            let dot = `graph G {\n  graph [rankdir="LR" splines=true ranksep=2.5 nodesep=0.5];\n  node [shape=box, style="filled", fillcolor="#f0f0f0", fontname="Helvetica,Arial,sans-serif"];\n  edge [arrowhead=none];\n\n`;
-            const addedEdges = new Set();
-            
-            currentModelJson.parts.forEach(part => {
-                const isSelected = part.id === selectedPartId;
-                const nodeStyle = isSelected ? ' [style="filled,bold", fillcolor="#0000ff", fontcolor="#ffffff"]' : '';
-                dot += `  "${part.id}"${nodeStyle};\n`;
-                
-                part.connections?.forEach(connectedId => {
-                    const edgeKey = [part.id, connectedId].sort().join('--');
-                    if (!addedEdges.has(edgeKey)) {
-                        dot += `  "${part.id}" -- "${connectedId}";\n`;
-                        addedEdges.add(edgeKey);
-                    }
-                });
-            });
-            dot += '}';
-            document.getElementById('graph-title').textContent = "Assembly Connection Graph";
-            d3.select("#graph-container").graphviz({useWorker: false}).engine('dot').renderDot(dot);
-            document.getElementById('graph-modal-overlay').style.display = 'flex';
-        }
-
-        function onObjectClick(event) {
-            const rect = renderer.domElement.getBoundingClientRect();
-            mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-            mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-            raycaster.setFromCamera(mouse, camera);
-
-            const partIntersects = raycaster.intersectObjects(Array.from(partMeshesMap.values()));
-            
-            resetMaterials();
-            infoBox.style.display = 'none';
-            selectedPartId = null;
-
-            if (partIntersects.length > 0) {
-                const clickedMesh = partIntersects[0].object;
-                highlightPart(clickedMesh);
-            }
-        }
-
-        function highlightPart(mesh){
-            const partData = mesh.parent.userData.part;
-            mesh.material = selectionPartMaterial;
-
-            if (partData) {
-                selectedPartId = partData.id;
-                const d = partData.dimensions;
-                infoBox.style.color = '#0000ff';
-                infoBox.innerHTML = `<b>Part:</b> ${partData.id.replace(/_/g, ' ')}<br><b>Size:</b> ${(d.width*100).toFixed(1)} x ${(d.depth*100).toFixed(1)} x ${(d.height*100).toFixed(1)} cm`;
-                infoBox.style.display = 'block';
-            }
-        }
-
-        function animateParts(isExploding) {
-            if (objectGroup.children.length === 0) return;
-            activeAnimations = [];
-            
-            const bounds = new THREE.Box3().setFromObject(objectGroup);
-            const center = new THREE.Vector3();
-            bounds.getCenter(center);
-            const size = bounds.getSize(new THREE.Vector3());
-            const explodeFactor = Math.max(size.x, size.y, size.z, size.length()) * 0.1;
-
-            objectGroup.children.forEach(partGroup => {
-                if (partGroup.userData.originalPosition) {
-                    const startPosition = partGroup.position.clone();
-                    let targetPosition;
-
-                    if (isExploding) {
-                        const direction = partGroup.userData.originalPosition.clone().sub(center).normalize();
-                        targetPosition = partGroup.userData.originalPosition.clone().add(direction.multiplyScalar(explodeFactor));
-                    } else {
-                        targetPosition = partGroup.userData.originalPosition.clone();
-                    }
-
-                    activeAnimations.push({
-                        mesh: partGroup,
-                        start: startPosition,
-                        end: targetPosition,
-                        startTime: performance.now()
-                    });
-                }
-            });
-        }
-
-        function placeModelInFrontOfUser(distance = DEFAULT_VR_DISTANCE) {
-            const xrCam = renderer.xr.isPresenting ? renderer.xr.getCamera(camera) : camera;
-            const camPos = new THREE.Vector3().setFromMatrixPosition(xrCam.matrixWorld);
-            const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(xrCam.quaternion).normalize();
-            const target = camPos.clone().add(forward.multiplyScalar(distance));
-            target.y = 0; // keep on floor
-            objectGroup.position.copy(target);
-            objectGroup.quaternion.copy(xrCam.quaternion);
-        }
-
-        function setModelScale(s) {
-            const clamped = THREE.MathUtils.clamp(s, MIN_SCALE, MAX_SCALE);
-            objectGroup.scale.setScalar(clamped);
-        }
-        
-        function setupEventListeners() {
-            window.addEventListener('resize', onWindowResize);
-
-            // Desktop click-to-select
-            viewerCanvas.addEventListener('mousedown', (event) => { mouseDownPos.set(event.clientX, event.clientY); });
-            viewerCanvas.addEventListener('mouseup', (event) => {
-                const currentMousePos = new THREE.Vector2(event.clientX, event.clientY);
-                if (mouseDownPos.distanceTo(currentMousePos) < 5) onObjectClick(event);
-            });
-
-            // Generate via API
-            document.getElementById('generate-assembly-btn').addEventListener('click', async () => {
-                const promptText = userPromptInput.value;
-                if (!promptText.trim()) { updateHANS("Please enter an instruction for the assembly."); return; }
-
-                updateHANS("Generating Assembly... this may take a moment.", true);
-                
-                try {
-                    const isModification = uploadedFiles.length === 0;
-                    const payload = {
-                        prompt: promptText,
-                        objectName: objectNameInput.value.trim() || 'Untitled Object',
-                        modelJson: isModification ? currentModelJson : null,
-                        files: isModification ? [] : uploadedFiles,
-                        temperature: temperature,
-                        geminiModel: geminiModel,
-                        allowRotations: allowRotations
-                    };
-
-                    const response = await fetch('/api/generate-assembly_new', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload),
-                    });
-                    
-                    if (timerInterval) clearInterval(timerInterval);
-
-                    if (!response.ok) {
-                        let errorMsg = `Server responded with status: ${response.status}`;
-                        const contentType = response.headers.get("content-type");
-                        if (contentType && contentType.indexOf("application/json") !== -1) {
-                            const errorResult = await response.json();
-                            errorMsg = errorResult.message || JSON.stringify(errorResult);
-                        } else {
-                            errorMsg = await response.text();
-                        }
-                        throw new Error(errorMsg);
-                    }
-
-                    const result = await response.json();
-                    if (!result.candidates?.[0]?.content?.parts?.[0]?.text) {
-                         if(result.candidates?.[0]?.finishReason === "SAFETY") {
-                            throw new Error("Generation failed due to safety policies. Please modify your prompt.");
-                         }
-                         throw new Error("Invalid API response structure.");
-                    }
-                    const newPlan = JSON.parse(result.candidates[0].content.parts[0].text.replace(/```json\n|```/g, '').trim());
-                    createModel(newPlan);
-                    uploadedFiles = [];
-                    userPromptInput.value = '';
-
-                } catch (error) {
-                    console.error("Generation Error:", error);
-                    updateHANS(`Sorry, an error occurred: ${error.message}`, false);
-                }
-            });
-
-            document.getElementById('add-files-btn').addEventListener('click', () => document.getElementById('add-files-input').click());
-            document.getElementById('add-files-input').addEventListener('change', async (event) => {
-                const files = event.target.files;
-                if (!files.length) return;
-                if (files.length > MAX_FILES) { updateHANS(`Please select a maximum of ${MAX_FILES} files.`); return; }
-                
-                updateHANS(`Reading ${files.length} file(s)...`);
-                const filePromises = Array.from(files).map(file => {
-                     if (file.size > MAX_FILE_SIZE) {
-                        updateHANS(`Error: File "${file.name}" is too large (limit is 3 MB).`);
-                        return null;
-                    }
-                    return new Promise((resolve, reject) => {
-                        const reader = new FileReader();
-                        reader.onload = () => resolve({ mimeType: file.type, data: reader.result.split(',')[1] });
-                        reader.onerror = reject;
-                        reader.readAsDataURL(file);
-                    });
-                }).filter(p => p !== null);
-
-                try {
-                    uploadedFiles = await Promise.all(filePromises);
-                    updateHANS(`${uploadedFiles.length} file(s) are ready. Provide a prompt and click 'Generate Assembly'.`);
-                } catch (error) {
-                    updateHANS("Error reading files. Please try again.");
-                }
-                event.target.value = '';
-            });
-
-            explodeBtn.addEventListener('click', () => {
-                animateParts(true);
-                explodeBtn.style.display = 'none';
-                resetBtn.style.display = 'inline-block';
-            });
-            resetBtn.addEventListener('click', () => {
-                animateParts(false);
-                resetBtn.style.display = 'none';
-                explodeBtn.style.display = 'inline-block';
-            });
-            
-            let currentAction = '';
-            const openChoiceModal = (action) => {
-                currentAction = action;
-                document.getElementById('data-choice-title').textContent = `What to ${action}?`;
-                document.getElementById('choice-btn-assembly').style.display = 'block';
-                document.getElementById('data-choice-modal-overlay').style.display = 'flex';
-            };
-            const choiceActions = {
-                upload: () => document.getElementById(`assembly-upload-input`).click(),
-                copy: () => viewJson(),
-                download: () => downloadJson(),
-            };
-
-            document.getElementById('upload-json-btn').addEventListener('click', () => openChoiceModal('upload'));
-            document.getElementById('copy-json-btn').addEventListener('click', () => openChoiceModal('copy'));
-            document.getElementById('download-json-btn').addEventListener('click', () => openChoiceModal('download'));
-            document.getElementById('view-graph-btn').addEventListener('click', viewGraph);
-            document.getElementById('assembly-upload-input').addEventListener('change', handleFileUpload);
-            
-            document.getElementById('choice-btn-assembly').addEventListener('click', () => { 
-                choiceActions[currentAction]?.(); 
-                document.getElementById('data-choice-modal-overlay').style.display = 'none'; 
-            });
-
-            document.querySelectorAll('.close-modal-btn').forEach(btn => btn.addEventListener('click', e => e.target.closest('.modal-overlay').style.display = 'none'));
-            
-            document.getElementById('copy-json-from-modal-btn').addEventListener('click', () => {
-                navigator.clipboard.writeText(document.getElementById('json-view-textarea').value).then(() => {
-                    updateHANS("JSON copied to clipboard.");
-                    document.getElementById('json-view-modal-overlay').style.display = 'none';
-                });
-            });
-
-            document.getElementById('save-graph-svg-btn').addEventListener('click', () => {
-                const svgEl = document.querySelector('#graph-container svg');
-                if (!svgEl) {
-                    updateHANS("Could not find the graph SVG to save.");
-                    return;
-                }
-                
-                svgEl.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-                const svgData = new XMLSerializer().serializeToString(svgEl);
-                const blob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
-
-                const a = document.createElement('a');
-                a.href = URL.createObjectURL(blob);
-                const name = (objectNameInput.value || 'object').replace(/\s+/g, '_');
-                a.download = `${name}_graph.svg`;
-                
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(a.href);
-                
-                updateHANS("Graph saved as SVG.");
-            });
-            
-            settingsBtn.addEventListener('click', () => {
-                modelSelect.value = geminiModel;
-                temperatureSlider.value = temperature;
-                temperatureValue.textContent = temperature;
-                allowRotationsCheckbox.checked = allowRotations;
-                settingsModal.style.display = 'flex';
-            });
-
-            temperatureSlider.addEventListener('input', () => {
-                temperatureValue.textContent = temperatureSlider.value;
-            });
-
-            saveSettingsBtn.addEventListener('click', () => {
-                geminiModel = modelSelect.value;
-                temperature = parseFloat(temperatureSlider.value);
-                allowRotations = allowRotationsCheckbox.checked;
-                settingsModal.style.display = 'none';
-                const rotationStatus = allowRotations ? 'Enabled' : 'Disabled';
-                updateHANS(`Settings updated. Model: ${modelSelect.options[modelSelect.selectedIndex].text}, Temp: ${temperature}, Rotations: ${rotationStatus}.`);
-            });
-
-            // VR UI elements
-            scaleSlider = document.getElementById('scale-slider');
-            recenterBtn = document.getElementById('recenter-vr-btn');
-
-            scaleSlider.addEventListener('input', () => {
-                const s = parseFloat(scaleSlider.value || '1');
-                setModelScale(s);
-            });
-
-            recenterBtn.addEventListener('click', () => {
-                placeModelInFrontOfUser();
-            });
-
-            // XR session lifecycle
-            renderer.xr.addEventListener('sessionstart', () => {
-                updateHANS('Entering VR… placing model in front of you.');
-                if (!objectGroup.scale || objectGroup.scale.lengthSq?.() === 0) setModelScale(1);
-                placeModelInFrontOfUser();
-            });
-
-            renderer.xr.addEventListener('sessionend', () => {
-                updateHANS('Exited VR.');
-            });
-        }
-
-        init();
-    </script>
+    // Friendly startup message
+    setMsg('Load an assembly JSON (same schema as your app). Then: • Enter VR (if available) • Place in Room (iOS/Android).');
+  </script>
 </body>
 </html>
