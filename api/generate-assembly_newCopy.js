@@ -1,10 +1,10 @@
-// File: /api/generate-assembly_new.js
+// File: /api/generate.js
 
-export const maxDuration = 120; // Allow up to 120 seconds for complex generations
+// --- NEW CONFIGURATION LINE ---
+// This tells Vercel to allow this function to run for up to 120 seconds instead of the default 10.
+export const maxDuration = 120;
 
-// --- DYNAMIC SYSTEM PROMPT ---
-// Base prompt with common instructions
-const BASE_SYSTEM_PROMPT = `
+const SYSTEM_PROMPT = `
 You are an expert 3D modeler and data structuring AI. Your task is to analyze the provided data and generate a single, complete JSON object representing a 3D assembly.
 
 **CRITICAL INSTRUCTIONS:**
@@ -19,36 +19,23 @@ Each object in the 'parts' array MUST have the following keys:
 - **id** (string): A unique, human-readable identifier (e.g., "left_leg", "seat_surface").
 - **origin** (object): The center point of the part in meters, with x, y, and z keys.
 - **dimensions** (object): The size of the part in meters, with width (X-axis), height (Y-axis), and depth (Z-axis) keys.
+- **rotation** (object): An object with x, y, and z keys, representing rotations in radians.
 - **connections** (array of strings): IDs of other parts this part is physically connected to.
 
-**COORDINATE SYSTEM (VERY IMPORTANT):**
+**COORDINATE SYSTEM & ROTATION (VERY IMPORTANT):**
 - The ground plane is the X-Z plane.
-- **+Y is UP.** This is the vertical direction.
+- **+Y is UP.** This is the vertical direction. Ensure the model is not generated upside down.
 - **+X is RIGHT.**
 - **+Z is BACK.**
 - The origin (0,0,0) is at the center of the object's base on the ground.
-`;
 
-// Segment for when rotations ARE allowed
-const ROTATION_PROMPT_SEGMENT = `
-**ROTATION (ENABLED - EXPERIMENTAL):**
-- Each part object MUST include a 'rotation' key.
-- The 'rotation' key should be an object with x, y, and z keys, representing rotations in radians.
-- Use non-zero rotation values for parts that are explicitly described as tilted, angled, or rotated.
-- **ROTATION IS APPLIED IN 'YXZ' ORDER:**
-    1.  y (Yaw): Rotation around the vertical Y-axis.
-    2.  x (Pitch): Rotation around the horizontal X-axis.
-    3.  z (Roll): Rotation around the depth-wise Z-axis.
-`;
+- **ROTATION IS APPLIED IN 'YXZ' ORDER:** The final orientation is achieved by applying rotations in this exact sequence:
+    1.  **y (Yaw):** First, rotation around the vertical Y-axis. Positive values turn the part to its left.
+    2.  **x (Pitch):** Second, rotation around the horizontal X-axis. Positive values tilt the top of the part forward.
+    3.  **z (Roll):** Third, rotation around the depth-wise Z-axis. Positive values roll the part to its right.
 
-// Segment for when rotations ARE NOT allowed
-const NO_ROTATION_PROMPT_SEGMENT = `
-**ROTATION (DISABLED):**
-- You MUST **OMIT** the 'rotation' key entirely from all part objects.
-- Do NOT include \`"rotation": {"x": 0, "y": 0, "z": 0}\`. The key should not be present at all.
-- Achieve different orientations by carefully adjusting the 'origin' and 'dimensions' of the parts.
+- **GUIDANCE:** For most objects, the main components should have a rotation of {x: 0, y: 0, z: 0}. Only use non-zero rotation values for parts that are explicitly described as tilted, angled, or rotated. Double-check your final output to ensure the assembly is upright and correctly oriented.
 `;
-
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -56,18 +43,16 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { prompt, modelJson, files, temperature, geminiModel, allowRotations } = req.body;
+    // MODIFIED: Destructure new parameters
+    const { prompt, modelJson, files, temperature, geminiModel } = req.body;
     const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
       return res.status(500).json({ message: "API key is not configured on the server." });
     }
 
-    // --- Conditionally construct the final system prompt ---
-    const finalSystemPrompt = BASE_SYSTEM_PROMPT + (allowRotations ? ROTATION_PROMPT_SEGMENT : NO_ROTATION_PROMPT_SEGMENT);
-
     const geminiParts = [
-      { text: finalSystemPrompt },
+      { text: SYSTEM_PROMPT },
     ];
     
     if (files && files.length > 0) {
@@ -84,14 +69,17 @@ export default async function handler(req, res) {
         geminiParts.push({ text: `User's instruction: "${prompt}"` });
     }
     
+    // ADDED: Set defaults for new parameters
     const model = geminiModel || 'gemini-2.5-pro';
-    const temp = temperature !== undefined ? temperature : 0.5;
+    const temp = temperature !== undefined ? temperature : 0.4;
     
+    // MODIFIED: Use the model variable in the URL
     const googleApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
     const googleResponse = await fetch(googleApiUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      // MODIFIED: Add generationConfig with temperature
       body: JSON.stringify({
         contents: [{ parts: geminiParts }],
         generationConfig: {
