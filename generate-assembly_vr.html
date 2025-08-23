@@ -1,0 +1,659 @@
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { VRButton } from 'three/addons/webxr/VRButton.js';
+        import { ARButton } from 'three/addons/webxr/ARButton.js';
+
+        // --- CONSTANTS & GLOBALS ---
+        const HANS_PREFIX = "H.A.N.S.🌟: ";
+        const MAX_FILE_SIZE = 3 * 1024 * 1024;
+        const MAX_FILES = 10;
+        const ANIMATION_DURATION = 800; // ms
+        let scene, camera, renderer, controls, axesScene, axesCamera, infoBox, raycaster, mouse;
+        let typingInterval, timerInterval;
+        let currentModelJson = null;
+        let uploadedFiles = [];
+        let selectedPartId = null;
+        let mouseDownPos = null;
+        const objectGroup = new THREE.Group();
+        const partMeshesMap = new Map();
+        let activeAnimations = [];
+        let temperature = 0.5;
+        let geminiModel = 'gemini-2.5-pro';
+        let allowRotations = false;
+        
+        // --- XR GLOBALS ---
+        let reticle, hitTestSource = null, hitTestSourceRequested = false;
+        let originalObjectPosition = new THREE.Vector3();
+        let originalObjectScale = new THREE.Vector3();
+        let appWrapper; // To hide/show UI
+
+        // --- DOM ELEMENTS ---
+        const viewerContainer = document.getElementById('viewer-container');
+        const viewerCanvas = document.getElementById('viewer-canvas');
+        const hansOutputEl = document.getElementById('hans-output');
+        const userPromptInput = document.getElementById('user-prompt');
+        const objectNameInput = document.getElementById('object-name');
+        const explodeBtn = document.getElementById('explode-view-btn');
+        const resetBtn = document.getElementById('reset-view-btn');
+        const settingsBtn = document.getElementById('settings-btn');
+        const settingsModal = document.getElementById('settings-modal-overlay');
+        const modelSelect = document.getElementById('model-select');
+        const temperatureSlider = document.getElementById('temperature-slider');
+        const temperatureValue = document.getElementById('temperature-value');
+        const saveSettingsBtn = document.getElementById('save-settings-btn');
+        const allowRotationsCheckbox = document.getElementById('allow-rotations-checkbox');
+
+        // --- MATERIALS ---
+        const defaultPartMaterial = new THREE.MeshStandardMaterial({ color: 0x666666, transparent: true, opacity: 0.4 });
+        const selectionPartMaterial = new THREE.MeshStandardMaterial({ color: 0x0000ff, transparent: true, opacity: 0.9 });
+        const outlineMaterial = new THREE.LineBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.8 });
+
+        // --- CORE 3D & UI FUNCTIONS ---
+        function init() {
+            appWrapper = document.getElementById('app-wrapper'); // Get UI wrapper
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xffffff);
+            scene.add(objectGroup);
+
+            camera = new THREE.PerspectiveCamera(50, viewerContainer.clientWidth / viewerContainer.clientHeight, 0.01, 1000);
+            camera.position.set(1.0, 1.0, 1.0);
+
+            renderer = new THREE.WebGLRenderer({ canvas: viewerCanvas, antialias: true, alpha: true });
+            renderer.autoClear = false;
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(viewerContainer.clientWidth, viewerContainer.clientHeight);
+
+            // --- XR SETUP START ---
+            renderer.xr.enabled = true;
+
+            // Add VR Button
+            const vrButton = VRButton.createButton(renderer);
+            vrButton.style.position = 'absolute';
+            vrButton.style.bottom = '20px';
+            vrButton.style.right = '20px';
+            vrButton.style.zIndex = '1000';
+            document.body.appendChild(vrButton);
+
+            // Add AR Button
+            const arButton = ARButton.createButton(renderer, {
+                requiredFeatures: ['hit-test'] // Feature for placing objects
+            });
+            arButton.style.position = 'absolute';
+            arButton.style.bottom = '20px';
+            arButton.style.right = vrButton.offsetWidth + 30 + 'px'; // Position next to VR button
+            arButton.style.zIndex = '1000';
+            document.body.appendChild(arButton);
+            
+            // Reticle for AR placement
+            const reticleGeo = new THREE.RingGeometry(0.05, 0.07, 32).rotateX(-Math.PI / 2);
+            const reticleMat = new THREE.MeshBasicMaterial();
+            reticle = new THREE.Mesh(reticleGeo, reticleMat);
+            reticle.matrixAutoUpdate = false;
+            reticle.visible = false;
+            scene.add(reticle);
+
+            function onSelect() {
+                if (reticle.visible) {
+                    objectGroup.position.setFromMatrixPosition(reticle.matrix);
+                    objectGroup.visible = true;
+                }
+            }
+            renderer.xr.addEventListener('select', onSelect);
+
+            // Handle session start/end to show/hide UI
+            renderer.xr.addEventListener('sessionstart', onSessionStart);
+            renderer.xr.addEventListener('sessionend', onSessionEnd);
+            // --- XR SETUP END ---
+
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.target.set(0, 0, 0);
+
+            const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 3);
+            light.position.set(0.5, 1, 0.25);
+            scene.add(light);
+            
+            axesScene = new THREE.Scene();
+            const gizmoSize = 2.5;
+            axesCamera = new THREE.OrthographicCamera(-gizmoSize, gizmoSize, gizmoSize, -gizmoSize, -10, 10);
+            const axes = new THREE.AxesHelper(1.5);
+            axesScene.add(axes);
+            
+            infoBox = document.getElementById('info-box');
+            raycaster = new THREE.Raycaster();
+            mouse = new THREE.Vector2();
+            mouseDownPos = new THREE.Vector2();
+
+            setupEventListeners();
+            loadDefaults();
+            
+            // Use setAnimationLoop for XR compatibility
+            renderer.setAnimationLoop(animate);
+        }
+
+        function loadDefaults() {
+            const defaultModel = { "objectName": "Default Cube", "parts": [{ "id": "cube", "origin": {"x": 0, "y": 0.25, "z": 0}, "dimensions": {"width": 0.5, "depth": 0.5, "height": 0.5}, "connections": [] }] };
+            createModel(defaultModel);
+            objectNameInput.value = ""; 
+            updateHANS("Hello! I am H.A.N.S. Ready for 3D, AR, and VR. Add files or describe an object to begin.");
+        }
+
+        function animate(timestamp, frame) {
+            // Handle active animations for explode/reset
+            if (activeAnimations.length > 0) {
+                const now = performance.now();
+                activeAnimations.forEach(anim => {
+                    const elapsedTime = now - anim.startTime;
+                    let progress = Math.min(elapsedTime / ANIMATION_DURATION, 1);
+                    const easedProgress = 1 - Math.pow(1 - progress, 3);
+                    anim.mesh.position.lerpVectors(anim.start, anim.end, easedProgress);
+                });
+                activeAnimations = activeAnimations.filter(anim => now - anim.startTime < ANIMATION_DURATION);
+            }
+
+            // --- XR-SPECIFIC RENDER LOGIC ---
+            if (renderer.xr.isPresenting) {
+                // Handle AR Hit-testing
+                if (frame) {
+                    const referenceSpace = renderer.xr.getReferenceSpace();
+                    const session = renderer.xr.getSession();
+
+                    if (hitTestSourceRequested === false) {
+                        session.requestReferenceSpace('viewer').then(referenceSpace => {
+                            session.requestHitTestSource({ space: referenceSpace }).then(source => {
+                                hitTestSource = source;
+                            });
+                        });
+                        session.addEventListener('end', () => {
+                            hitTestSourceRequested = false;
+                            hitTestSource = null;
+                        });
+                        hitTestSourceRequested = true;
+                    }
+
+                    if (hitTestSource) {
+                        const hitTestResults = frame.getHitTestResults(hitTestSource);
+                        if (hitTestResults.length) {
+                            const hit = hitTestResults[0];
+                            reticle.visible = true;
+                            reticle.matrix.fromArray(hit.getPose(referenceSpace).transform.matrix);
+                        } else {
+                            reticle.visible = false;
+                        }
+                    }
+                }
+            } else {
+                 // --- Original 2D view logic ---
+                controls.update();
+            }
+            
+            renderer.clear();
+            renderer.render(scene, camera);
+            renderer.clearDepth();
+
+            // Do not render axes helper in XR mode
+            if (!renderer.xr.isPresenting) {
+                const gizmoSize = 80;
+                renderer.setViewport(10, 10, gizmoSize, gizmoSize);
+                axesCamera.quaternion.copy(camera.quaternion);
+                renderer.render(axesScene, axesCamera);
+                renderer.setViewport(0, 0, renderer.domElement.clientWidth, renderer.domElement.clientHeight);
+            }
+        }
+
+        function onWindowResize() {
+            const w = viewerContainer.clientWidth, h = viewerContainer.clientHeight;
+            camera.aspect = w / h;
+            camera.updateProjectionMatrix();
+            renderer.setSize(w, h);
+        }
+
+        // --- XR Session Management ---
+        function onSessionStart() {
+            appWrapper.style.display = 'none'; // Hide UI
+            // Save original state
+            originalObjectPosition.copy(objectGroup.position);
+            originalObjectScale.copy(objectGroup.scale);
+
+            // In AR, hide the object until it's placed by the user
+            const session = renderer.xr.getSession();
+            if (session.environmentBlendMode === 'additive' || session.environmentBlendMode === 'alpha-blend') { // AR mode check
+                objectGroup.visible = false;
+
+                // Scale down the model to a reasonable tabletop size
+                const bounds = new THREE.Box3().setFromObject(objectGroup);
+                const size = bounds.getSize(new THREE.Vector3());
+                const maxDim = Math.max(size.x, size.y, size.z);
+                const scale = 0.5 / maxDim; // Aim for a max dimension of 50cm
+                objectGroup.scale.set(scale, scale, scale);
+            }
+        }
+
+        function onSessionEnd() {
+            appWrapper.style.display = 'flex'; // Show UI
+            // Restore original state
+            objectGroup.position.copy(originalObjectPosition);
+            objectGroup.scale.copy(originalObjectScale);
+            objectGroup.visible = true;
+
+            // Clean up XR state
+            reticle.visible = false;
+            hitTestSource = null;
+            hitTestSourceRequested = false;
+        }
+
+
+        function clearModel() {
+            activeAnimations = [];
+            while (objectGroup.children.length > 0) objectGroup.remove(objectGroup.children[0]);
+            partMeshesMap.clear();
+            currentModelJson = null;
+            objectNameInput.value = "";
+        }
+
+        function resetMaterials() {
+            partMeshesMap.forEach(mesh => { mesh.material = defaultPartMaterial; });
+        }
+
+        function createModel(jsonData) {
+            clearModel();
+            if (!jsonData || !jsonData.parts || !Array.isArray(jsonData.parts)) {
+                updateHANS("Error: Could not parse assembly file. Is it valid JSON?");
+                return;
+            }
+            currentModelJson = jsonData;
+            objectNameInput.value = jsonData.objectName || "Untitled";
+            
+            const bounds = new THREE.Box3();
+            jsonData.parts.forEach(part => {
+                const geo = new THREE.BoxGeometry(part.dimensions.width, part.dimensions.height, part.dimensions.depth);
+                const pos = new THREE.Vector3(part.origin.x, part.origin.y, part.origin.z);
+
+                const partGroup = new THREE.Group();
+                const mesh = new THREE.Mesh(geo, defaultPartMaterial);
+                const line = new THREE.LineSegments(new THREE.EdgesGeometry(geo), outlineMaterial);
+                
+                partGroup.add(mesh);
+                partGroup.add(line);
+                partGroup.userData.originalPosition = pos.clone();
+                
+                partGroup.position.copy(pos);
+                
+                if (!part.rotation || typeof part.rotation !== 'object') {
+                    part.rotation = { x: 0, y: 0, z: 0 };
+                }
+
+                partGroup.rotation.set(
+                    part.rotation.x || 0,
+                    part.rotation.y || 0,
+                    part.rotation.z || 0,
+                    'YXZ'
+                );
+                
+                partGroup.userData.part = part;
+                objectGroup.add(partGroup);
+                partMeshesMap.set(part.id, mesh);
+            });
+
+            // Center the entire group so it's easier to place in AR/VR
+            const groupBox = new THREE.Box3().setFromObject(objectGroup);
+            const groupCenter = groupBox.getCenter(new THREE.Vector3());
+            objectGroup.children.forEach(child => {
+                child.position.sub(groupCenter);
+            });
+
+            bounds.setFromObject(objectGroup);
+            const center = new THREE.Vector3();
+            bounds.getCenter(center);
+            controls.target.copy(center);
+
+            resetBtn.style.display = 'none';
+            explodeBtn.style.display = 'inline-block';
+
+            updateHANS(`Assembly "${objectNameInput.value}" loaded with ${jsonData.parts.length} parts. You can now modify it.`);
+        }
+
+        function updateHANS(message, isTyping = false) {
+            if (typingInterval) clearInterval(typingInterval);
+            if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+
+            if (isTyping) {
+                let seconds = 0;
+                const updateTimer = () => {
+                    hansOutputEl.innerHTML = `${HANS_PREFIX}${message} (${seconds}s)`;
+                };
+                updateTimer();
+                timerInterval = setInterval(() => {
+                    seconds++;
+                    updateTimer();
+                }, 1000);
+            } else {
+                hansOutputEl.innerHTML = `${HANS_PREFIX}<span id="hans-text"></span><span class="cursor"></span>`;
+                const textEl = document.getElementById('hans-text');
+                const cursorEl = hansOutputEl.querySelector('.cursor');
+                if (!textEl || !cursorEl) return;
+                let i = 0;
+                typingInterval = setInterval(() => {
+                    if (i < message.length) {
+                        textEl.textContent += message.charAt(i++);
+                    } else {
+                        clearInterval(typingInterval);
+                        if (cursorEl) cursorEl.style.display = 'none';
+                    }
+                }, 20);
+            }
+        }
+        
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = e => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    createModel(data);
+                } catch (err) {
+                    updateHANS(`Error parsing assembly file: ${err.message}`);
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        function viewJson() {
+            if (!currentModelJson) { updateHANS(`No assembly data loaded.`); return; }
+            document.getElementById('json-view-title').textContent = `Current Assembly JSON`;
+            document.getElementById('json-view-textarea').value = JSON.stringify(currentModelJson, null, 2);
+            document.getElementById('json-view-modal-overlay').style.display = 'flex';
+        }
+
+        function downloadJson() {
+            if (!currentModelJson) { updateHANS(`No assembly data loaded.`); return; }
+            const name = (objectNameInput.value || 'object').replace(/\s+/g, '_');
+            const blob = new Blob([JSON.stringify(currentModelJson, null, 2)], {type: 'application/json'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `${name}_assembly.json`;
+            a.click();
+            URL.revokeObjectURL(a.href);
+        }
+
+        function viewGraph() {
+            if (!currentModelJson || !currentModelJson.parts) { updateHANS("Generate or load an assembly to see its graph."); return; }
+            let dot = `graph G {\n  graph [rankdir="LR" splines=true ranksep=2.5 nodesep=0.5];\n  node [shape=box, style="filled", fillcolor="#f0f0f0", fontname="Helvetica,Arial,sans-serif"];\n  edge [arrowhead=none];\n\n`;
+            const addedEdges = new Set();
+            
+            currentModelJson.parts.forEach(part => {
+                const isSelected = part.id === selectedPartId;
+                const nodeStyle = isSelected ? ' [style="filled,bold", fillcolor="#0000ff", fontcolor="#ffffff"]' : '';
+                dot += `  "${part.id}"${nodeStyle};\n`;
+                
+                part.connections?.forEach(connectedId => {
+                    const edgeKey = [part.id, connectedId].sort().join('--');
+                    if (!addedEdges.has(edgeKey)) {
+                        dot += `  "${part.id}" -- "${connectedId}";\n`;
+                        addedEdges.add(edgeKey);
+                    }
+                });
+            });
+            dot += '}';
+            document.getElementById('graph-title').textContent = "Assembly Connection Graph";
+            d3.select("#graph-container").graphviz({useWorker: false}).engine('dot').renderDot(dot);
+            document.getElementById('graph-modal-overlay').style.display = 'flex';
+        }
+
+        function onObjectClick(event) {
+            if (renderer.xr.isPresenting) return; // Disable clicks in XR mode
+            const rect = renderer.domElement.getBoundingClientRect();
+            mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+            raycaster.setFromCamera(mouse, camera);
+
+            const partIntersects = raycaster.intersectObjects(Array.from(partMeshesMap.values()));
+            
+            resetMaterials();
+            infoBox.style.display = 'none';
+            selectedPartId = null;
+
+            if (partIntersects.length > 0) {
+                const clickedMesh = partIntersects[0].object;
+                const partData = clickedMesh.parent.userData.part;
+                
+                clickedMesh.material = selectionPartMaterial;
+
+                if (partData) {
+                    selectedPartId = partData.id;
+                    const d = partData.dimensions;
+                    infoBox.style.color = '#0000ff';
+                    infoBox.innerHTML = `<b>Part:</b> ${partData.id.replace(/_/g, ' ')}<br><b>Size:</b> ${(d.width*100).toFixed(1)} x ${(d.depth*100).toFixed(1)} x ${(d.height*100).toFixed(1)} cm`;
+                    infoBox.style.display = 'block';
+                }
+            }
+        }
+
+        function animateParts(isExploding) {
+            if (objectGroup.children.length === 0) return;
+            activeAnimations = [];
+            
+            // Re-calculate the group center for explosion logic
+            const groupBox = new THREE.Box3().setFromObject(objectGroup);
+            const center = groupBox.getCenter(new THREE.Vector3());
+            const size = groupBox.getSize(new THREE.Vector3());
+            const explodeFactor = Math.max(size.x, size.y, size.z) * 0.5;
+
+            objectGroup.children.forEach(partGroup => {
+                // originalPosition is relative to the group's pre-centered state, so we use its current position as the base
+                const originalLocalPos = partGroup.position.clone();
+                partGroup.userData.originalLocalPosition = originalLocalPos;
+                
+                const startPosition = partGroup.position.clone();
+                let targetPosition;
+                
+                if (isExploding) {
+                    const direction = startPosition.clone().sub(center).normalize();
+                    targetPosition = startPosition.clone().add(direction.multiplyScalar(explodeFactor));
+                } else {
+                    targetPosition = partGroup.userData.originalLocalPosition || startPosition;
+                }
+
+                activeAnimations.push({
+                    mesh: partGroup,
+                    start: startPosition,
+                    end: targetPosition,
+                    startTime: performance.now()
+                });
+            });
+        }
+        
+        function setupEventListeners() {
+            window.addEventListener('resize', onWindowResize);
+
+            viewerCanvas.addEventListener('mousedown', (event) => {
+                mouseDownPos.set(event.clientX, event.clientY);
+            });
+
+            viewerCanvas.addEventListener('mouseup', (event) => {
+                const currentMousePos = new THREE.Vector2(event.clientX, event.clientY);
+                if (mouseDownPos.distanceTo(currentMousePos) < 5) {
+                    onObjectClick(event);
+                }
+            });
+
+            document.getElementById('generate-assembly-btn').addEventListener('click', async () => {
+                const promptText = userPromptInput.value;
+                if (!promptText.trim()) { updateHANS("Please enter an instruction for the assembly."); return; }
+
+                updateHANS("Generating Assembly... this may take a moment.", true);
+                
+                try {
+                    const isModification = uploadedFiles.length === 0;
+                    const payload = {
+                        prompt: promptText,
+                        objectName: objectNameInput.value.trim() || 'Untitled Object',
+                        modelJson: isModification ? currentModelJson : null,
+                        files: isModification ? [] : uploadedFiles,
+                        temperature: temperature,
+                        geminiModel: geminiModel,
+                        allowRotations: allowRotations
+                    };
+
+                    const response = await fetch('/api/generate-assembly_new', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload),
+                    });
+                    
+                    if (timerInterval) clearInterval(timerInterval);
+
+                    if (!response.ok) {
+                        let errorMsg = `Server responded with status: ${response.status}`;
+                        const contentType = response.headers.get("content-type");
+                        if (contentType && contentType.indexOf("application/json") !== -1) {
+                            const errorResult = await response.json();
+                            errorMsg = errorResult.message || JSON.stringify(errorResult);
+                        } else {
+                            errorMsg = await response.text();
+                        }
+                        throw new Error(errorMsg);
+                    }
+
+                    const result = await response.json();
+                    if (!result.candidates?.[0]?.content?.parts?.[0]?.text) {
+                         if(result.candidates?.[0]?.finishReason === "SAFETY") {
+                            throw new Error("Generation failed due to safety policies. Please modify your prompt.");
+                         }
+                         throw new Error("Invalid API response structure.");
+                    }
+                    const newPlan = JSON.parse(result.candidates[0].content.parts[0].text.replace(/```json\n|```/g, '').trim());
+                    createModel(newPlan);
+                    uploadedFiles = [];
+                    userPromptInput.value = '';
+
+                } catch (error) {
+                    console.error("Generation Error:", error);
+                    updateHANS(`Sorry, an error occurred: ${error.message}`, false);
+                }
+            });
+
+            document.getElementById('add-files-btn').addEventListener('click', () => document.getElementById('add-files-input').click());
+            document.getElementById('add-files-input').addEventListener('change', async (event) => {
+                const files = event.target.files;
+                if (!files.length) return;
+                if (files.length > MAX_FILES) { updateHANS(`Please select a maximum of ${MAX_FILES} files.`); return; }
+                
+                updateHANS(`Reading ${files.length} file(s)...`);
+                const filePromises = Array.from(files).map(file => {
+                     if (file.size > MAX_FILE_SIZE) {
+                        updateHANS(`Error: File "${file.name}" is too large (limit is 3 MB).`);
+                        return null;
+                    }
+                    return new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onload = () => resolve({ mimeType: file.type, data: reader.result.split(',')[1] });
+                        reader.onerror = reject;
+                        reader.readAsDataURL(file);
+                    });
+                }).filter(p => p !== null);
+
+                try {
+                    uploadedFiles = await Promise.all(filePromises);
+                    updateHANS(`${uploadedFiles.length} file(s) are ready. Provide a prompt and click 'Generate Assembly'.`);
+                } catch (error) {
+                    updateHANS("Error reading files. Please try again.");
+                }
+                event.target.value = '';
+            });
+
+            explodeBtn.addEventListener('click', () => {
+                animateParts(true);
+                explodeBtn.style.display = 'none';
+                resetBtn.style.display = 'inline-block';
+            });
+            resetBtn.addEventListener('click', () => {
+                animateParts(false);
+                resetBtn.style.display = 'none';
+                explodeBtn.style.display = 'inline-block';
+            });
+            
+            let currentAction = '';
+            const openChoiceModal = (action) => {
+                currentAction = action;
+                document.getElementById('data-choice-title').textContent = `What to ${action}?`;
+                document.getElementById('choice-btn-assembly').style.display = 'block';
+                document.getElementById('data-choice-modal-overlay').style.display = 'flex';
+            };
+            const choiceActions = {
+                upload: () => document.getElementById(`assembly-upload-input`).click(),
+                copy: () => viewJson(),
+                download: () => downloadJson(),
+            };
+
+            document.getElementById('upload-json-btn').addEventListener('click', () => openChoiceModal('upload'));
+            document.getElementById('copy-json-btn').addEventListener('click', () => openChoiceModal('copy'));
+            document.getElementById('download-json-btn').addEventListener('click', () => openChoiceModal('download'));
+            document.getElementById('view-graph-btn').addEventListener('click', viewGraph);
+            document.getElementById('assembly-upload-input').addEventListener('change', handleFileUpload);
+            
+            document.getElementById('choice-btn-assembly').addEventListener('click', () => { 
+                choiceActions[currentAction]?.(); 
+                document.getElementById('data-choice-modal-overlay').style.display = 'none'; 
+            });
+
+            document.querySelectorAll('.close-modal-btn').forEach(btn => btn.addEventListener('click', e => e.target.closest('.modal-overlay').style.display = 'none'));
+            
+            document.getElementById('copy-json-from-modal-btn').addEventListener('click', () => {
+                navigator.clipboard.writeText(document.getElementById('json-view-textarea').value).then(() => {
+                    updateHANS("JSON copied to clipboard.");
+                    document.getElementById('json-view-modal-overlay').style.display = 'none';
+                });
+            });
+
+            document.getElementById('save-graph-svg-btn').addEventListener('click', () => {
+                const svgEl = document.querySelector('#graph-container svg');
+                if (!svgEl) {
+                    updateHANS("Could not find the graph SVG to save.");
+                    return;
+                }
+                
+                svgEl.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+                const svgData = new XMLSerializer().serializeToString(svgEl);
+                const blob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
+
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                const name = (objectNameInput.value || 'object').replace(/\s+/g, '_');
+                a.download = `${name}_graph.svg`;
+                
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(a.href);
+                
+                updateHANS("Graph saved as SVG.");
+            });
+            
+            settingsBtn.addEventListener('click', () => {
+                modelSelect.value = geminiModel;
+                temperatureSlider.value = temperature;
+                temperatureValue.textContent = temperature;
+                allowRotationsCheckbox.checked = allowRotations;
+                settingsModal.style.display = 'flex';
+            });
+
+            temperatureSlider.addEventListener('input', () => {
+                temperatureValue.textContent = temperatureSlider.value;
+            });
+
+            saveSettingsBtn.addEventListener('click', () => {
+                geminiModel = modelSelect.value;
+                temperature = parseFloat(temperatureSlider.value);
+                allowRotations = allowRotationsCheckbox.checked;
+                settingsModal.style.display = 'none';
+                const rotationStatus = allowRotations ? 'Enabled' : 'Disabled';
+                updateHANS(`Settings updated. Model: ${modelSelect.options[modelSelect.selectedIndex].text}, Temp: ${temperature}, Rotations: ${rotationStatus}.`);
+            });
+        }
+
+        init();
+    </script>
