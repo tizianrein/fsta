@@ -185,7 +185,7 @@
             scene.add(objectGroup);
 
             camera = new THREE.PerspectiveCamera(50, viewerContainer.clientWidth / viewerContainer.clientHeight, 0.01, 1000);
-            camera.position.set(1.0, 1.0, 1.0);
+            camera.position.set(1.0, 0.9, 1.2);
 
             renderer = new THREE.WebGLRenderer({ canvas: viewerCanvas, antialias: true, alpha: true });
             renderer.autoClear = false;
