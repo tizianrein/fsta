@@ -459,7 +459,7 @@
             const center = new THREE.Vector3();
             bounds.getCenter(center);
             const size = bounds.getSize(new THREE.Vector3());
-            const explodeFactor = Math.max(size.x, size.y, size.z, size.length()) * 0.5;
+            const explodeFactor = Math.max(size.x, size.y, size.z, size.length()) * 0.1;
 
             objectGroup.children.forEach(partGroup => {
                 if (partGroup.userData.originalPosition) {
