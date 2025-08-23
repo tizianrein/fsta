@@ -1,4 +1,4 @@
-// File: /api/generate-assembly_rotated.js
+// File: /api/generate.js
 
 // --- NEW CONFIGURATION LINE ---
 // This tells Vercel to allow this function to run for up to 120 seconds instead of the default 10.
@@ -23,18 +23,18 @@ Each object in the 'parts' array MUST have the following keys:
 - **connections** (array of strings): IDs of other parts this part is physically connected to.
 
 **COORDINATE SYSTEM & ROTATION (VERY IMPORTANT):**
-- The ground plane is the X-Y plane.
-- **+Z is UP.** This is the vertical direction. Ensure the model is generated upright.
+- The ground plane is the X-Z plane.
+- **+Y is UP.** This is the vertical direction. Ensure the model is not generated upside down.
 - **+X is RIGHT.**
-- **+Y is BACK.**
+- **+Z is BACK.**
 - The origin (0,0,0) is at the center of the object's base on the ground.
 
 - **ROTATION IS APPLIED IN 'YXZ' ORDER:** The final orientation is achieved by applying rotations in this exact sequence:
-    1.  **y:** First, rotation around the Y-axis (the back/front axis).
-    2.  **x:** Second, rotation around the X-axis (the right/left axis).
-    3.  **z:** Third, rotation around the Z-axis (the vertical/up axis).
+    1.  **y (Yaw):** First, rotation around the vertical Y-axis. Positive values turn the part to its left.
+    2.  **x (Pitch):** Second, rotation around the horizontal X-axis. Positive values tilt the top of the part forward.
+    3.  **z (Roll):** Third, rotation around the depth-wise Z-axis. Positive values roll the part to its right.
 
-- **GUIDANCE:** For most objects, the main components should have a rotation of {x: 0, y: 0, z: 0}. Only use non-zero rotation values for parts that are explicitly described as tilted, angled, or rotated. Double-check your final output to ensure the assembly is upright and correctly oriented according to the Z-up coordinate system.
+- **GUIDANCE:** For most objects, the main components should have a rotation of {x: 0, y: 0, z: 0}. Only use non-zero rotation values for parts that are explicitly described as tilted, angled, or rotated. Double-check your final output to ensure the assembly is upright and correctly oriented.
 `;
 
 export default async function handler(req, res) {
