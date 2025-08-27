@@ -32,6 +32,8 @@ Your output **MUST BE a single, raw JSON object** with two top-level keys: "upda
         - "type" (string): A specific damage category (e.g., "Crack", "Dent", "Scuff Mark", "Corrosion").
         - "description" (string): A detailed sentence describing the damage, its appearance, and location.
         - "coordinates" (object): The estimated center of the damage on the part's surface in the model's coordinate system { "x": number, "y": number, "z": number }.
+          **VERY IMPORTANT GEOMETRY RULE:** Parts may have a "rotation" property. The part's "origin" is its center *before* rotation. For a rotated part, you CANNOT simply take the origin's X/Z and change the Y value to estimate a location. This will be wrong.
+          **A much better strategy is to use the part's "origin" as the starting point for your coordinate estimation.** This will place the damage along the central axis of the part. From there, you can make a small adjustment based on the damage description (e.g., 'lower end', 'top corner'), but the final coordinate should be very close to the part's origin. It is better to be centered on the part than to be floating in space.
         - "severity" (string): An assessment of the damage level. MUST be one of: "minor", "moderate", "major", "critical".
         - "confidence" (number): Your confidence in this assessment, from 0.0 (uncertain) to 1.0 (certain).
         - "evidence" (string): A brief description of the visual evidence from the photos that supports this finding. e.g., "A hairline fracture is visible on the upper left corner of the part in the first image."
