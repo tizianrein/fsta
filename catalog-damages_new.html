@@ -365,16 +365,55 @@
         function createDamages(jsonData) {
             clearDamages();
             if(!currentModelJson) { updateMIA("Error: Please load an assembly file first."); return; }
+            if (!jsonData || !Array.isArray(jsonData)) return;
+
             currentDamageJson = jsonData;
-            const dotGeometry = new THREE.SphereGeometry(0.015, 16, 16);
+            const dotGeometry = new THREE.SphereGeometry(SPHERE_BASE_RADIUS, 16, 16);
+
             jsonData.forEach(damage => {
+                // Ensure we have the necessary data to proceed
+                if (!damage.coordinates || !damage.part_id) return;
+
+                const partData = currentModelJson.parts.find(p => p.id === damage.part_id);
+                if (!partData) {
+                    console.warn(`Could not find part with id "${damage.part_id}" for damage "${damage.id}".`);
+                    return; // Skip this damage marker if its part doesn't exist
+                }
+
+                // --- Start of Robust Coordinate Calculation ---
+
+                // 1. Define the part's center (origin) and the AI's naive coordinate.
+                const origin = new THREE.Vector3(partData.origin.x, partData.origin.y, partData.origin.z);
+                const naiveCoord = new THREE.Vector3(damage.coordinates.x, damage.coordinates.y, damage.coordinates.z);
+
+                // 2. Calculate the offset vector from the part's center to the naive coordinate.
+                // This represents the damage's position relative to the part's center in an un-rotated state.
+                const offset = new THREE.Vector3().subVectors(naiveCoord, origin);
+                
+                // 3. Create an Euler rotation object from the part's data.
+                // The 'YXZ' order must match the order used when creating the part in createModel().
+                const euler = new THREE.Euler(
+                    partData.rotation?.x || 0,
+                    partData.rotation?.y || 0,
+                    partData.rotation?.z || 0,
+                    'YXZ' 
+                );
+
+                // 4. Apply the part's rotation to the offset vector. This is the key step.
+                offset.applyEuler(euler);
+
+                // 5. Add the now-rotated offset back to the part's origin to get the final, correct world position.
+                const finalPosition = new THREE.Vector3().addVectors(origin, offset);
+                
+                // --- End of Robust Coordinate Calculation ---
+
                 const sphere = new THREE.Mesh(dotGeometry, defaultDotMaterial.clone());
-                sphere.position.set(damage.coordinates.x, damage.coordinates.z, damage.coordinates.y);
+                sphere.position.copy(finalPosition);
                 sphere.userData.damage = damage;
                 damageSpheres.push(sphere);
                 scene.add(sphere);
             });
-            resetMaterials(); // Re-apply base colors after adding new elements
+            resetMaterials(); 
         }
 
         function updateMIA(message, isTyping = false) {
