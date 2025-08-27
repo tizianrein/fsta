@@ -11,32 +11,34 @@ Your output **MUST BE a single, raw JSON object** with two top-level keys: "upda
 
 **Core Logic & Output Schema:**
 
-1.  **Perform Conservative Visual Analysis**: Your most important task is to **visually compare the user's photos against the parts list in the \`modelJson\`**. The photos are the primary source of truth. You must be conservative in your judgments. The user's text prompt provides additional context.
+1.  **Perform Visual Analysis**: Compare the user's photos against the parts list in the \`modelJson\`. The user's text prompt provides additional context.
 
 2.  **Generate \`updatedModel\`**:
     *   Take the \`modelJson\` object as the base.
-    *   You must iterate through **EVERY part** in the \`modelJson.parts\` array and add/update a \`"status"\` key to each one based on your visual analysis.
-    *   **Status Logic (Based on Visual Evidence & Certainty)**:
-        *   **"missing"**: Use this status ONLY if you have **strong visual evidence** that the part is absent. For example, you can see the empty space and connection points where the part should be. **Do not mark a part as missing simply because it is not visible from the current camera angle.**
-        *   **"defective"**: Use this status if the part is **visibly present but has clear damage** (cracks, dents, stains, etc.). Any part with an associated entry in the final \`updatedDamages\` list must have this status.
-        *   **"intact"**: This is the default status. Use this if a part is **visibly present and appears undamaged**. Also, use this status if a part is **not visible in the photos and has no reported damages**. The absence of evidence is not evidence of absence.
+    *   Iterate through **EVERY part** in the \`modelJson.parts\` array and add/update a \`"status"\` key for each one.
+    *   **Status Logic**: "missing" (strong visual evidence of absence), "defective" (visibly present but damaged), "intact" (default; visibly present and undamaged, or not visible).
 
 3.  **Generate \`updatedDamages\`**:
-    *   Take the \`existingDamages\` JSON array as a base.
-    *   Based on your visual analysis of the photos and the user's text, identify any new damages.
-    *   For each new damage, create a new damage object and add it to the list. Ensure the final list contains ALL old damages plus any newly identified ones.
-    *   Generate a new unique ID for each new damage (e.g., if the last was "damage_03", the new one is "damage_04").
+    *   Take the \`existingDamages\` array as a base and add new damage objects.
     *   **Damage Object Schema (CRITICAL):**
         - "id" (string): A new unique ID for the damage (e.g., "damage_04").
         - "part_id" (string): The exact 'id' of the affected part from the 'modelJson'.
-        - "type" (string): A specific damage category (e.g., "Crack", "Dent", "Scuff Mark", "Corrosion").
-        - "description" (string): A detailed sentence describing the damage, its appearance, and location.
-        - "coordinates" (object): The estimated center of the damage on the part's surface in the model's coordinate system { "x": number, "y": number, "z": number }.
-          **VERY IMPORTANT GEOMETRY RULE:** Parts may have a "rotation" property. The part's "origin" is its center *before* rotation. For a rotated part, you CANNOT simply take the origin's X/Z and change the Y value to estimate a location. This will be wrong.
-          **A much better strategy is to use the part's "origin" as the starting point for your coordinate estimation.** This will place the damage along the central axis of the part. From there, you can make a small adjustment based on the damage description (e.g., 'lower end', 'top corner'), but the final coordinate should be very close to the part's origin. It is better to be centered on the part than to be floating in space.
-        - "severity" (string): An assessment of the damage level. MUST be one of: "minor", "moderate", "major", "critical".
-        - "confidence" (number): Your confidence in this assessment, from 0.0 (uncertain) to 1.0 (certain).
-        - "evidence" (string): A brief description of the visual evidence from the photos that supports this finding. e.g., "A hairline fracture is visible on the upper left corner of the part in the first image."
+        - "type" (string): A specific damage category (e.g., "Crack", "Dent", "Scuff Mark").
+        - "description" (string): A detailed sentence describing the damage.
+        - **"local_coordinates" (object): THIS IS YOUR PRIMARY TASK. You must calculate the damage's position as an offset from the part's own center (its 'origin'), in its own un-rotated coordinate system. This is a local {x, y, z} vector.**
+            - **How to calculate \`local_coordinates\`:**
+            1. Find the part in \`modelJson\` using its \`part_id\`.
+            2. Look at its \`dimensions\` object (width, height, depth). These correspond to the X, Y, and Z axes of the part itself.
+            3. Based on the user's description (e.g., "lower end", "front face", "top right corner"), calculate the offset.
+            - **Examples:**
+                - For a part with dimensions {"width": 0.3, "height": 15.0, "depth": 0.3}:
+                - "lower end": The offset would be along the Y-axis. The local coordinate would be \`{ "x": 0, "y": -7.5, "z": 0 }\` (since height is 15.0, half of that downwards).
+                - "front face": The offset would be along the Z-axis. The local coordinate would be \`{ "x": 0, "y": 0, "z": 1.5 }\` (half of the depth).
+                - "right side": The offset would be along the X-axis. The local coordinate would be \`{ "x": 0.15, "y": 0, "z": 0 }\` (half of the width).
+            - **DO NOT output the final world \`coordinates\` field.** The user's application will calculate that.
+        - "severity" (string): "minor", "moderate", "major", or "critical".
+        - "confidence" (number): 0.0 to 1.0.
+        - "evidence" (string): Brief description of visual evidence.
 `;
 // --- <<< END OF MAJORLY UPDATED SECTION >>> ---
 
