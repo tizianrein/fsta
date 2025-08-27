@@ -445,7 +445,8 @@
                     selectedPartId = partData.id;
                     const d = partData.dimensions;
                     infoBox.style.color = '#0000ff';
-                    infoBox.innerHTML = `<b>Part:</b> ${partData.id.replace(/_/g, ' ')}<br><b>Size:</b> ${(d.width*100).toFixed(1)} x ${(d.depth*100).toFixed(1)} x ${(d.height*100).toFixed(1)} cm`;
+                    const matLine = partData.material ? `<br><b>Material:</b> ${partData.material}` : '';
+                    infoBox.innerHTML = `<b>Part:</b> ${partData.id.replace(/_/g, ' ')}<br><b>Size:</b> ${(d.width*100).toFixed(1)} x ${(d.depth*100).toFixed(1)} x ${(d.height*100).toFixed(1)} cm${matLine}`;
                     infoBox.style.display = 'block';
                 }
             }

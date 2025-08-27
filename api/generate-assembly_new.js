@@ -20,6 +20,7 @@ Each object in the 'parts' array MUST have the following keys:
 - **origin** (object): The center point of the part in meters, with x, y, and z keys.
 - **dimensions** (object): The size of the part in meters, with width (X-axis), height (Y-axis), and depth (Z-axis) keys.
 - **connections** (array of strings): IDs of other parts this part is physically connected to.
+- **material** (string, optional): The main material of this part (e.g., "timber", "metal", "plastic").
 
 **COORDINATE SYSTEM (VERY IMPORTANT):**
 - The ground plane is the X-Z plane.
