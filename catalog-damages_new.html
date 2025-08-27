@@ -117,13 +117,17 @@
                 <label for="model-select">Select AI Model</label>
                 <select id="model-select" class="settings-input">
                     <option value="gemini-2.5-flash-lite">Fast</option>
-                    <option value="gemini-2.5-flash" selected>Balanced (Vision)</option>
-                    <option value="gemini-2.5-pro">Accurate (Vision)</option>
+                    <option value="gemini-2.5-flash" selected>Balanced</option>
+                    <option value="gemini-2.5-pro">Accurate</option>
                 </select>
             </div>
             <div class="settings-group">
                 <label for="temperature-slider">Creativity (Temperature): <span id="temperature-value">0.4</span></label>
                 <input type="range" id="temperature-slider" class="settings-input" min="0" max="1" step="0.1" value="0.4">
+            </div>
+            <div class="settings-group">
+                <label for="sphere-scale-slider">Damage Marker Scale: <span id="sphere-scale-value">1.00</span></label>
+                <input type="range" id="sphere-scale-slider" class="settings-input" min="0.5" max="5" step="0.1" value="1.0">
             </div>
             <div class="modal-actions">
                 <button id="save-settings-btn" class="btn modal-btn">Save</button>
@@ -151,6 +155,7 @@
         const MAX_FILE_SIZE = 3 * 1024 * 1024;
         const MAX_FILES = 10;
         const ANIMATION_DURATION = 800; // ms
+        const SPHERE_BASE_RADIUS = 0.015;
         let scene, camera, renderer, controls, axesScene, axesCamera, infoBox, raycaster, mouse;
         let typingInterval, timerInterval;
         let currentModelJson = null;
@@ -163,6 +168,7 @@
         let activeAnimations = [];
         let temperature = 0.4;
         let geminiModel = 'gemini-2.5-flash';
+        let sphereScale = 1.0;
 
         // --- DOM ELEMENTS ---
         const viewerContainer = document.getElementById('viewer-container');
@@ -177,6 +183,8 @@
         const modelSelect = document.getElementById('model-select');
         const temperatureSlider = document.getElementById('temperature-slider');
         const temperatureValue = document.getElementById('temperature-value');
+        const sphereScaleSlider = document.getElementById('sphere-scale-slider');
+        const sphereScaleValue = document.getElementById('sphere-scale-value');
         const saveSettingsBtn = document.getElementById('save-settings-btn');
         
         // --- MATERIALS ---
@@ -247,7 +255,7 @@
             }
 
             const time = Date.now() * 0.008;
-            const scale = 1 + Math.sin(time) * 0.1;
+            const scale = sphereScale * (1 + Math.sin(time) * 0.1);
             damageSpheres.forEach(sphere => sphere.scale.set(scale, scale, scale));
             
             controls.update();
@@ -360,7 +368,7 @@
             if (!jsonData || !Array.isArray(jsonData)) return;
 
             currentDamageJson = jsonData;
-            const dotGeometry = new THREE.SphereGeometry(0.015, 16, 16);
+            const dotGeometry = new THREE.SphereGeometry(SPHERE_BASE_RADIUS, 16, 16);
             jsonData.forEach(damage => {
                 const sphere = new THREE.Mesh(dotGeometry, defaultDotMaterial.clone());
                 sphere.position.set(damage.coordinates.x, damage.coordinates.y, damage.coordinates.z);
@@ -652,14 +660,18 @@
                 modelSelect.value = geminiModel;
                 temperatureSlider.value = temperature;
                 temperatureValue.textContent = temperature;
+                sphereScaleSlider.value = sphereScale;
+                sphereScaleValue.textContent = sphereScale.toFixed(2);
                 settingsModal.style.display = 'flex';
             });
 
             temperatureSlider.addEventListener('input', () => { temperatureValue.textContent = temperatureSlider.value; });
+            sphereScaleSlider.addEventListener('input', () => { sphereScaleValue.textContent = parseFloat(sphereScaleSlider.value).toFixed(2); });
 
             saveSettingsBtn.addEventListener('click', () => {
                 geminiModel = modelSelect.value;
                 temperature = parseFloat(temperatureSlider.value);
+                sphereScale = parseFloat(sphereScaleSlider.value);
                 settingsModal.style.display = 'none';
                 updateMIA(`Settings updated. Model: ${modelSelect.options[modelSelect.selectedIndex].text}, Temp: ${temperature}.`);
             });
