@@ -456,7 +456,7 @@
                 if (part.status === 'defective') fillColor = '#ffc0c0'; // red
                 if (part.status === 'missing') fillColor = '#ffee9c'; // yellow
                 const label = part.name || part.id;
-                dot += `  "${part.id}" [label="${label}\\n(${part.status || 'intact'})", fillcolor="${fillColor}"];\n`;
+                dot += `  "${part.id}" [label="${label}", fillcolor="${fillColor}"];\n`;
                 if (part.status !== 'missing') {
                     part.connections?.forEach(connectedId => {
                         const connectedPart = currentModelJson.parts.find(p => p.id === connectedId);
