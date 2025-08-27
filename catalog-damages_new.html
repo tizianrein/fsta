@@ -371,41 +371,51 @@
             const dotGeometry = new THREE.SphereGeometry(SPHERE_BASE_RADIUS, 16, 16);
 
             jsonData.forEach(damage => {
-                const sphere = new THREE.Mesh(dotGeometry, defaultDotMaterial.clone());
+                const sphere = new THREE.Mesh(dotGeometry, defaultMaterial.clone());
                 let finalPosition = null;
 
-                // Path 1: New, precise method using local coordinates
-                if (damage.local_coordinates && damage.part_id) {
-                    const partData = currentModelJson.parts.find(p => p.id === damage.part_id);
-                    if (partData) {
-                        const origin = new THREE.Vector3(partData.origin.x, partData.origin.y, partData.origin.z);
-                        const offset = new THREE.Vector3(damage.local_coordinates.x, damage.local_coordinates.y, damage.local_coordinates.z);
-                        
-                        // Create an Euler rotation from the part's data
-                        // The 'YXZ' order must match the order used when creating the part in createModel()
-                        const euler = new THREE.Euler(
-                            partData.rotation?.x || 0,
-                            partData.rotation?.y || 0,
-                            partData.rotation?.z || 0,
-                            'YXZ' 
-                        );
-
-                        // Apply the part's rotation to the local offset vector
-                        offset.applyEuler(euler);
-
-                        // Add the rotated offset to the part's origin to get the final world position
-                        finalPosition = new THREE.Vector3().addVectors(origin, offset);
-                        
-                        // Store the calculated world coordinates back into the object for consistency
-                        damage.coordinates = { x: finalPosition.x, y: finalPosition.y, z: finalPosition.z };
-
-                    } else {
-                        console.warn(`Could not find part with id "${damage.part_id}" for damage "${damage.id}".`);
-                    }
-                // Path 2: Backward compatibility for old JSON files that already have world coordinates
-                } else if (damage.coordinates) {
-                    finalPosition = new THREE.Vector3(damage.coordinates.x, damage.coordinates.y, damage.coordinates.z);
+                const partData = currentModelJson.parts.find(p => p.id === damage.part_id);
+                if (!partData) {
+                    console.warn(`Could not find part with id "${damage.part_id}" for damage "${damage.id}".`);
+                    return; // Skip this damage marker
                 }
+
+                // --- START OF NEW ROBUST LOGIC ---
+
+                // PATH 1: The AI behaved correctly and gave us local coordinates. This is the ideal path.
+                if (damage.local_coordinates) {
+                    const origin = new THREE.Vector3(partData.origin.x, partData.origin.y, partData.origin.z);
+                    const offset = new THREE.Vector3(damage.local_coordinates.x, damage.local_coordinates.y, damage.local_coordinates.z);
+                    
+                    const euler = new THREE.Euler(
+                        partData.rotation?.x || 0,
+                        partData.rotation?.y || 0,
+                        partData.rotation?.z || 0,
+                        'YXZ' 
+                    );
+                    
+                    offset.applyEuler(euler);
+                    finalPosition = new THREE.Vector3().addVectors(origin, offset);
+                    
+                    // Store the calculated world coordinates back into the object for consistency
+                    damage.coordinates = { x: finalPosition.x, y: finalPosition.y, z: finalPosition.z };
+
+                // PATH 2: The AI failed and gave us world coordinates, or we are loading an old file.
+                // We MUST check if the associated part is rotated.
+                } else if (damage.coordinates) {
+                    // SUB-PATH 2A: Part IS rotated. The world coordinates are WRONG.
+                    // Place the marker at the part's origin as a "best-effort" visual indicator.
+                    if (partData.rotation) {
+                        console.warn(`Damage "${damage.id}" used world coordinates on a ROTATED part "${partData.id}". This is inaccurate. Placing marker at part's origin as a fallback.`);
+                        finalPosition = new THREE.Vector3(partData.origin.x, partData.origin.y, partData.origin.z);
+
+                    // SUB-PATH 2B: Part is NOT rotated. The world coordinates are likely correct.
+                    } else {
+                        finalPosition = new THREE.Vector3(damage.coordinates.x, damage.coordinates.y, damage.coordinates.z);
+                    }
+                }
+
+                // --- END OF NEW ROBUST LOGIC ---
 
                 if (finalPosition) {
                     sphere.position.copy(finalPosition);
