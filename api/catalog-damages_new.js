@@ -25,17 +25,7 @@ Your output **MUST BE a single, raw JSON object** with two top-level keys: "upda
         - "part_id" (string): The exact 'id' of the affected part from the 'modelJson'.
         - "type" (string): A specific damage category (e.g., "Crack", "Dent", "Scuff Mark").
         - "description" (string): A detailed sentence describing the damage.
-        - **"local_coordinates" (object): THIS IS YOUR PRIMARY TASK. You must calculate the damage's position as an offset from the part's own center (its 'origin'), in its own un-rotated coordinate system. This is a local {x, y, z} vector.**
-            - **How to calculate \`local_coordinates\`:**
-            1. Find the part in \`modelJson\` using its \`part_id\`.
-            2. Look at its \`dimensions\` object (width, height, depth). These correspond to the X, Y, and Z axes of the part itself.
-            3. Based on the user's description (e.g., "lower end", "front face", "top right corner"), calculate the offset.
-            - **Examples:**
-                - For a part with dimensions {"width": 0.3, "height": 15.0, "depth": 0.3}:
-                - "lower end": The offset would be along the Y-axis. The local coordinate would be \`{ "x": 0, "y": -7.5, "z": 0 }\` (since height is 15.0, half of that downwards).
-                - "front face": The offset would be along the Z-axis. The local coordinate would be \`{ "x": 0, "y": 0, "z": 1.5 }\` (half of the depth).
-                - "right side": The offset would be along the X-axis. The local coordinate would be \`{ "x": 0.15, "y": 0, "z": 0 }\` (half of the width).
-            - **DO NOT output the final world \`coordinates\` field.** The user's application will calculate that.
+        - "coordinates" (object): { "x": number, "y": number, "z": number }
         - "severity" (string): "minor", "moderate", "major", or "critical".
         - "confidence" (number): 0.0 to 1.0.
         - "evidence" (string): Brief description of visual evidence.
