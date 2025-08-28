@@ -25,7 +25,7 @@ Your output **MUST BE a single, raw JSON object** with two top-level keys: "upda
         - "part_id" (string): The exact 'id' of the affected part from the 'modelJson'.
         - "type" (string): A specific damage category (e.g., "Crack", "Dent", "Scuff Mark").
         - "description" (string): A detailed sentence describing the damage.
-        - "coordinates" (object): Estimate the damage's exact world coordinates { "x": number, "y": number, "z": number } as if the part had NO rotation.
+        - "coordinates" (object): Estimate the damage's exact coordinates { "x": number, "y": number, "z": number } as if the part had NO rotation. Use the parts origin and size in order to estimate the location of the damage on the part.
         - "severity" (string): "minor", "moderate", "major", or "critical".
         - "confidence" (number): 0.0 to 1.0.
         - "evidence" (string): Brief description of visual evidence.
