@@ -90,6 +90,14 @@
                 <div id="explode-view-btn" class="icon-button" title="Explode View"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M5.828 10.172a.5.5 0 0 0-.707 0l-4.096 4.096V11.5a.5.5 0 0 0-1 0v3.975a.5.5 0 0 0 .5.5H4.5a.5.5 0 0 0 0-1H1.732l4.096-4.096a.5.5 0 0 0 0-.707zm4.344-4.344a.5.5 0 0 0 .707 0l4.096-4.096V4.5a.5.5 0 1 0 1 0V.525a.5.5 0 0 0-.5-.5H11.5a.5.5 0 0 0 0 1h2.768l-4.096 4.096a.5.5 0 0 0 0 .707z"/></svg><div class="label">Explode</div></div>
                 <div id="reset-view-btn" class="icon-button" title="Reset View" style="display:none;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M.172 15.828a.5.5 0 0 0 .707 0l4.096-4.096V14.5a.5.5 0 1 0 1 0v-3.975a.5.5 0 0 0-.5-.5H1.5a.5.5 0 0 0 0 1h2.768L.172 15.121a.5.5 0 0 0 0 .707zM15.828.172a.5.5 0 0 0-.707 0l-4.096 4.096V1.5a.5.5 0 1 0-1 0v3.975a.5.5 0 0 0 .5.5H14.5a.5.5 0 0 0 0-1h-2.768L15.828.879a.5.5 0 0 0 0-.707z"/></svg><div class="label">Restore</div></div>
                 <div id="view-graph-btn" class="icon-button" title="View connection graph"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-share" viewBox="0 0 16 16"><path d="M13.5 1a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.499 2.499 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5zm-8.5 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm11 5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/></svg><div class="label">Graph</div></div>
+                <div id="download-drawings-btn" class="icon-button" title="Download Drawings">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="2" width="14" height="14" rx="2"></rect>
+                    <line x1="9" y1="6" x2="9" y2="12"></line>
+                    <line x1="6" y1="9" x2="12" y2="9"></line>
+                    </svg>
+                    <div class="label">Drawings</div>
+                </div>
                 <div id="download-json-btn" class="icon-button" title="Download Assembly JSON"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/></svg><div class="label">Download</div></div>
             </div>
 
@@ -332,6 +340,148 @@
             explodeBtn.style.display = 'inline-block';
 
             updateHANS(`Assembly "${objectNameInput.value}" loaded with ${jsonData.parts.length} parts. You can now modify it.`);
+        }
+
+        // --- SVG DRAWING FUNCTIONS ---
+
+        // Creates a 6 view orthographic SVG of the current assembly
+        function generateAssemblySVG(assemblyJson) {
+            const { objectName, parts } = assemblyJson || {};
+            if (!parts || parts.length === 0) return '';
+
+            // Collect world space vertices for each part
+            const allWorldVertices = new Map();
+            const globalBBox = new THREE.Box3();
+
+            parts.forEach(part => {
+                const center = new THREE.Vector3(part.origin.x, part.origin.y, part.origin.z);
+                const w = part.dimensions.width, h = part.dimensions.height, d = part.dimensions.depth;
+                const local = [
+                new THREE.Vector3(-w/2,-h/2, d/2), new THREE.Vector3( w/2,-h/2, d/2),
+                new THREE.Vector3( w/2, h/2, d/2), new THREE.Vector3(-w/2, h/2, d/2),
+                new THREE.Vector3(-w/2,-h/2,-d/2), new THREE.Vector3( w/2,-h/2,-d/2),
+                new THREE.Vector3( w/2, h/2,-d/2), new THREE.Vector3(-w/2, h/2,-d/2)
+                ];
+
+                const euler = new THREE.Euler(part.rotation?.x || 0, part.rotation?.y || 0, part.rotation?.z || 0, 'YXZ');
+                const q = new THREE.Quaternion().setFromEuler(euler);
+                const m = new THREE.Matrix4().compose(center, q, new THREE.Vector3(1,1,1));
+
+                const world = local.map(v => v.clone().applyMatrix4(m));
+                allWorldVertices.set(part.id, world);
+                world.forEach(v => globalBBox.expandByPoint(v));
+            });
+
+            // Layout
+            const scale = 200;
+            const pad = 60;
+            const size = globalBBox.getSize(new THREE.Vector3());
+            const viewW = Math.max(size.x, size.z) * scale;
+            const viewH = Math.max(size.y, size.z) * scale;
+            const svgW = (viewW * 4) + (pad * 5);
+            const svgH = (viewH * 3) + (pad * 4);
+
+            // Views
+            const views = {
+                TOP:    { x: viewW + pad*2,     y: pad,                 p: v => ({ x: v.x,  y: v.z  }), dir: new THREE.Vector3( 0, 1, 0) },
+                LEFT:   { x: pad,               y: viewH + pad*2,       p: v => ({ x: -v.z, y: -v.y }), dir: new THREE.Vector3(-1, 0, 0) },
+                FRONT:  { x: viewW + pad*2,     y: viewH + pad*2,       p: v => ({ x: v.x,  y: -v.y }), dir: new THREE.Vector3( 0, 0, 1) },
+                RIGHT:  { x: viewW*2 + pad*3,   y: viewH + pad*2,       p: v => ({ x: v.z,  y: -v.y }), dir: new THREE.Vector3( 1, 0, 0) },
+                BACK:   { x: viewW*3 + pad*4,   y: viewH + pad*2,       p: v => ({ x: -v.x, y: -v.y }), dir: new THREE.Vector3( 0, 0,-1) },
+                BOTTOM: { x: viewW + pad*2,     y: viewH*2 + pad*3,     p: v => ({ x: v.x,  y: -v.z }), dir: new THREE.Vector3( 0,-1, 0) },
+            };
+
+            const faces = [[0,1,2,3],[5,4,7,6],[1,5,6,2],[4,0,3,7],[3,2,6,7],[4,5,1,0]];
+            const edges = [[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
+            let svgGroups = '';
+
+            for (const [name, view] of Object.entries(views)) {
+                const projected = [];
+                allWorldVertices.forEach(verts => verts.forEach(v => projected.push(view.p(v))));
+                const bounds = projected.reduce((a,p)=>({
+                minX: Math.min(a.minX,p.x), minY: Math.min(a.minY,p.y),
+                maxX: Math.max(a.maxX,p.x), maxY: Math.max(a.maxY,p.y)
+                }), {minX:Infinity, minY:Infinity, maxX:-Infinity, maxY:-Infinity});
+
+                const cx = (bounds.minX + bounds.maxX)/2;
+                const cy = (bounds.minY + bounds.maxY)/2;
+
+                const groupT = `translate(${view.x}, ${view.y})`;
+                const contentT = `translate(${viewW/2}, ${viewH/2}) scale(${scale}) translate(${-cx}, ${-cy})`;
+
+                let hidden = '', visible = '';
+                parts.forEach(part => {
+                const verts = allWorldVertices.get(part.id);
+                if (!verts) return;
+
+                const visibleEdges = new Set();
+                faces.forEach(f => {
+                    const v0=verts[f[0]], v1=verts[f[1]], v2=verts[f[2]];
+                    const n = new THREE.Vector3().crossVectors(
+                    new THREE.Vector3().subVectors(v1,v0),
+                    new THREE.Vector3().subVectors(v2,v0)
+                    ).normalize();
+                    if (n.dot(view.dir) > 0) {
+                    for (let i=0;i<f.length;i++) {
+                        visibleEdges.add([f[i], f[(i+1)%f.length]].sort().join('-'));
+                    }
+                    }
+                });
+
+                edges.forEach(e => {
+                    const key = [...e].sort().join('-');
+                    const p1 = view.p(verts[e[0]]), p2 = view.p(verts[e[1]]);
+                    const line = `<line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" />`;
+                    if (visibleEdges.has(key)) visible += line; else hidden += line;
+                });
+                });
+
+                svgGroups += `
+                <g transform="${groupT}">
+                    <text x="${viewW/2}" y="${viewH+20}" text-anchor="middle" font-size="14" font-family="sans-serif">${name}</text>
+                    <g transform="${contentT}">
+                    <g class="hidden-lines">${hidden}</g>
+                    <g class="visible-lines">${visible}</g>
+                    </g>
+                </g>`;
+            }
+
+            const style = `
+                <style>
+                line{fill:none;stroke-linecap:round;}
+                .visible-lines line{stroke:#000;stroke-width:${1/scale};}
+                .hidden-lines line{stroke:#888;stroke-width:${0.5/scale};stroke-dasharray:${2.5/scale};}
+                .label{font-size:16px;font-family:sans-serif;}
+                </style>`;
+
+            return `<svg width="${svgW}" height="${svgH}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${svgW} ${svgH}">
+                ${style}
+                <rect x="0" y="0" width="${svgW}" height="${svgH}" fill="#fff"/>
+                <text x="${pad}" y="35" class="label" font-weight="bold">Assembly: ${objectName || 'Untitled'}</text>
+                ${svgGroups}
+            </svg>`;
+            }
+
+            // Triggers the SVG download for the current assembly
+            function downloadAssemblyDrawing() {
+            if (!currentModelJson || !currentModelJson.parts) {
+                updateHANS("Please load an assembly first.");
+                return;
+            }
+            updateHANS("Generating assembly drawing...", true);
+            setTimeout(() => {
+                const svg = generateAssemblySVG(currentModelJson);
+                if (!svg) { updateHANS("Failed to generate drawing."); return; }
+                const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                const name = (objectNameInput.value || 'assembly').replace(/\s+/g, '_');
+                a.href = url;
+                a.download = `${name}_drawing.svg`;
+                a.click();
+                URL.revokeObjectURL(url);
+                updateHANS("Assembly drawing downloaded.");
+            }, 50);
         }
 
         function updateHANS(message, isTyping = false) {
@@ -611,6 +761,7 @@
             document.getElementById('copy-json-btn').addEventListener('click', () => openChoiceModal('copy'));
             document.getElementById('download-json-btn').addEventListener('click', () => openChoiceModal('download'));
             document.getElementById('view-graph-btn').addEventListener('click', viewGraph);
+            document.getElementById('download-drawings-btn').addEventListener('click', downloadAssemblyDrawing);
             document.getElementById('assembly-upload-input').addEventListener('change', handleFileUpload);
             
             document.getElementById('choice-btn-assembly').addEventListener('click', () => { 
