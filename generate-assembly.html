@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-    <title>Step 1: Generate Assembly</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧱</text></svg>">
+    <title>Step 2: Catalog Damages</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📍</text></svg>">
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; background-color: #fff; color: #000; display: flex; justify-content: center; padding: 20px 0; }
 
         #app-wrapper { width: 90%; max-width: 420px; display: flex; flex-direction: column; gap: 20px; }
         #top-header { display: flex; flex-direction: column; gap: 20px; }
         .top-input-row { display: flex; align-items: stretch; gap: 10px; }
-        #object-name { flex-grow: 1; background-color: #fff; padding: 12px; border: 1px solid #000; border-radius: 0; font-size: 14px; box-sizing: border-box; }
+        #object-name { flex-grow: 1; background-color: #f0f0f0; padding: 12px; border: 1px solid #000; border-radius: 0; font-size: 14px; box-sizing: border-box; }
 
         #viewer-container { width: 100%; height: 40vh; position: relative; background-color: #fff; }
         #viewer-canvas { display: block; width: 100%; height: 100%; }
@@ -30,9 +30,9 @@
         .instructions-group label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 8px; color: #000; }
         .instructions-group textarea { width: 100%; height: 60px; padding: 10px; border: none; background-color: #fff; color: #000; border-radius: 0; font-size: 14px; box-sizing: border-box; resize: vertical; }
 
-        .hans-group { background-color: #000; color: #fff; padding: 15px; }
-        #hans-output { font-family: "SF Mono", Consolas, Menlo, monospace; font-size: 13px; line-height: 1.5; min-height: 20px; white-space: pre-wrap; }
-        #hans-output .cursor { display: inline-block; background-color: #fff; width: 8px; height: 1em; animation: blink 1s step-end infinite; }
+        .MIA-group { background-color: #000; color: #fff; padding: 15px; }
+        #MIA-output { font-family: "SF Mono", Consolas, Menlo, monospace; font-size: 13px; line-height: 1.5; min-height: 20px; white-space: pre-wrap; }
+        #MIA-output .cursor { display: inline-block; background-color: #fff; width: 8px; height: 1em; animation: blink 1s step-end infinite; }
 
         @keyframes blink {
             from, to { background-color: transparent; }
@@ -69,36 +69,45 @@
 
         <div id="bottom-ui-container">
             <div class="icon-controls">
-                <div id="upload-json-btn" class="icon-button" title="Upload Assembly JSON"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z"/></svg><div class="label">Upload JSON</div></div>
-                <div id="copy-json-btn" class="icon-button" title="Read & Copy Assembly JSON"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H6z"/><path d="M2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1H2z"/></svg><div class="label">Read & Copy JSON</div></div>
-                <div id="view-graph-btn" class="icon-button" title="View connection graph"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-share" viewBox="0 0 16 16"><path d="M13.5 1a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.499 2.499 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5zm-8.5 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm11 5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/></svg><div class="label">View Graph</div></div>
-                <div id="download-json-btn" class="icon-button" title="Download Assembly JSON"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/></svg><div class="label">Download JSON</div></div>
+                <div id="upload-json-btn" class="icon-button" title="Upload JSON"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z"/></svg><div class="label">Upload</div></div>
+                <div id="copy-json-btn" class="icon-button" title="Read & Copy JSON"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H6z"/><path d="M2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1H2z"/></svg><div class="label">Read & Copy</div></div>
+                <div id="view-graph-btn" class="icon-button" title="View connection graph"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-share" viewBox="0 0 16 16"><path d="M13.5 1a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.499 2.499 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5zm-8.5 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm11 5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/></svg><div class="label">Graph</div></div>
+                <div id="download-drawings-btn" class="icon-button" title="Download Drawings">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="2" y="2" width="14" height="14" rx="2"/>
+                      <line x1="9" y1="6" x2="9" y2="12"/>
+                      <line x1="6" y1="9" x2="12" y2="9"/>
+                    </svg>
+                    <div class="label">Drawings</div>
+                </div>
+                <div id="download-json-btn" class="icon-button" title="Download JSON"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/></svg><div class="label">Download</div></div>
             </div>
 
             <div class="action-buttons">
                 <button id="add-files-btn" class="btn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M4.5 3a2.5 2.5 0 0 1 5 0v9a1.5 1.5 0 0 1-3 0V5a.5.5 0 0 1 1 0v7a.5.5 0 0 0 1 0V3a1.5 1.5 0 1 0-3 0v9a2.5 2.5 0 0 0 5 0V5a.5.5 0 0 1 1 0v7a3.5 3.5 0 1 1-7 0V3z"/></svg>Add Files</button>
-                <button id="generate-assembly-btn" class="btn">🧱 Generate Assembly</button>
+                <button id="catalog-damages-btn" class="btn">📍 Catalog Damages</button>
             </div>
 
             <div class="instructions-group">
-                <label for="user-prompt">Describe Geometry (optional, use with photos for better results)...</label>
-                <textarea id="user-prompt" placeholder="e.g., 'Add a Box on top' or 'Move backrest 1 cm in direction of x-axis'"></textarea>
+                <label for="user-prompt">Describe Damages (optional, use with photos for better results)...</label>
+                <textarea id="user-prompt" placeholder="e.g., 'Severe crack on front left leg.' or 'Remove Damage Number 2.'"></textarea>
             </div>
 
-            <div class="hans-group">
-                <div id="hans-output"></div>
+            <div class="MIA-group">
+                <div id="MIA-output"></div>
             </div>
         </div>
     </div>
-
+    
     <!-- Modals -->
-    <div id="data-choice-modal-overlay" class="modal-overlay"><div class="modal-content"><h3 id="data-choice-title">Select Data</h3><div class="action-buttons"><button id="choice-btn-assembly" class="btn modal-btn">📦 Assembly</button></div><div class="modal-actions" style="margin-top:20px"><button class="btn modal-btn close-modal-btn">Cancel</button></div></div></div>
+    <div id="data-choice-modal-overlay" class="modal-overlay"><div class="modal-content"><h3 id="data-choice-title">Select Data</h3><div class="action-buttons"><button id="choice-btn-assembly" class="btn modal-btn">📦 Assembly</button><button id="choice-btn-damages" class="btn modal-btn">📍 Damages</button></div><div class="modal-actions" style="margin-top:20px"><button class="btn modal-btn close-modal-btn">Cancel</button></div></div></div>
     <div id="json-view-modal-overlay" class="modal-overlay"><div class="modal-content"><h3 id="json-view-title">Current JSON</h3><textarea id="json-view-textarea" readonly></textarea><div class="modal-actions"><button id="copy-json-from-modal-btn" class="btn modal-btn">Copy</button><button class="btn modal-btn close-modal-btn">Close</button></div></div></div>
     <div id="graph-modal-overlay" class="modal-overlay"><div class="modal-content"><h3 id="graph-title">Graph</h3><div id="graph-container"></div><div class="modal-actions"><button class="btn modal-btn close-modal-btn">Close</button></div></div></div>
 
     <!-- Hidden Inputs -->
     <input type="file" id="assembly-upload-input" class="hidden-input" accept=".json, .txt">
-    <input type="file" id="add-files-input" class="hidden-input" multiple accept="image/*,application/pdf">
+    <input type="file" id="damages-upload-input" class="hidden-input" accept=".json, .txt">
+    <input type="file" id="add-files-input" class="hidden-input" multiple accept="image/*">
 
     <!-- Libraries -->
     <script src="https://unpkg.com/d3@7.8.5/dist/d3.min.js"></script>
@@ -111,27 +120,30 @@
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
         // --- CONSTANTS & GLOBALS ---
-        const HANS_PREFIX = "H.A.N.S.🌟: ";
-        const MAX_FILE_SIZE = 3 * 1024 * 1024;
-        const MAX_FILES = 10;
+        const MIA_PREFIX = "M.I.A.🔎: ";
         let scene, camera, renderer, controls, axesScene, axesCamera, infoBox, raycaster, mouse;
-        let typingInterval, timerInterval;
+        let typingInterval;
         let currentModelJson = null;
+        let currentDamageJson = null;
         let uploadedFiles = [];
         const objectGroup = new THREE.Group();
+        const damageSpheres = [];
         const partMeshesMap = new Map();
 
         // --- DOM ELEMENTS ---
         const viewerContainer = document.getElementById('viewer-container');
         const viewerCanvas = document.getElementById('viewer-canvas');
-        const hansOutputEl = document.getElementById('hans-output');
+        const MIAOutputEl = document.getElementById('MIA-output');
         const userPromptInput = document.getElementById('user-prompt');
-        const objectNameInput = document.getElementById('object-name');
 
         // --- MATERIALS ---
-        const defaultPartMaterial = new THREE.MeshStandardMaterial({ color: 0x666666, transparent: true, opacity: 0.4 });
-        const selectionPartMaterial = new THREE.MeshStandardMaterial({ color: 0x0000ff, transparent: true, opacity: 0.9 });
+        const intactPartMaterial = new THREE.MeshStandardMaterial({ color: 0x666666, transparent: true, opacity: 0.4, side: THREE.DoubleSide });
+        const defectivePartMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000, transparent: true, opacity: 0.4, side: THREE.DoubleSide });
+        const missingPartMaterial = new THREE.MeshStandardMaterial({ color: 0xffff00, transparent: true, opacity: 0.4, side: THREE.DoubleSide });
+        const selectionPartMaterial = new THREE.MeshStandardMaterial({ color: 0x0000ff, transparent: true, opacity: 0.8, side: THREE.DoubleSide });
         const outlineMaterial = new THREE.LineBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.8 });
+        const defaultDotMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+        const selectedDotMaterial = new THREE.MeshBasicMaterial({ color: 0x6f0000 });
 
         // --- CORE 3D & UI FUNCTIONS ---
         function init() {
@@ -170,15 +182,20 @@
         }
 
         function loadDefaults() {
-            const defaultModel = { "objectName": "Default Cube", "parts": [{ "id": "cube", "origin": {"x": -0.25, "y": -0.25, "z": 0.0}, "dimensions": {"width": 0.5, "depth": 0.5, "height": 0.5}, "connections": [] }] };
+            const defaultModel = {"objectName": "Default Cube","parts": [{"id": "cube","status": "defective","origin": { "x": -0.25, "y": -0.25, "z": 0.0 },"dimensions": { "width": 0.5, "depth": 0.5, "height": 0.5 },"connections": []}]};
+            const defaultDamage = [{"id": "damage_01","type": "Scratch","description": "A default scratch.","part_id": "cube","coordinates": { "x": 0.0, "y": 0.0, "z": 0.5 }}];
             createModel(defaultModel);
-            objectNameInput.value = ""; // Clear name for user input
-            updateHANS("Hello! I am H.A.N.S. -  the Heuristic Agent for Narrating Structures. Add files or describe an object, or load an assembly to begin.");
+            createDamages(defaultDamage);
+            document.getElementById('object-name').value = "";
+            updateMIA("Hello! I am M.I.A. -  the Mapping & Inspection Agent. Add files or describe a damage, or load damages from a JSON to begin.");
         }
 
         function animate() {
             requestAnimationFrame(animate);
             controls.update();
+            const time = Date.now() * 0.008;
+            const scale = 1 + Math.sin(time) * 0.1;
+            damageSpheres.forEach(sphere => sphere.scale.set(scale, scale, scale));
             renderer.clear();
             renderer.render(scene, camera);
             renderer.clearDepth();
@@ -195,32 +212,55 @@
             camera.updateProjectionMatrix();
             renderer.setSize(w, h);
         }
+        
+        function clearAll() {
+            clearModel();
+            clearDamages();
+        }
 
         function clearModel() {
             while (objectGroup.children.length > 0) objectGroup.remove(objectGroup.children[0]);
             partMeshesMap.clear();
             currentModelJson = null;
-            objectNameInput.value = "";
+            document.getElementById('object-name').value = "";
+        }
+
+        function clearDamages() {
+             damageSpheres.forEach(s => scene.remove(s));
+             damageSpheres.length = 0;
+             currentDamageJson = null;
         }
 
         function resetMaterials() {
-            partMeshesMap.forEach(mesh => { mesh.material = defaultPartMaterial; });
+            partMeshesMap.forEach((mesh, partId) => {
+                const partData = mesh.userData.part;
+                switch (partData.status) {
+                    case 'missing': mesh.material = missingPartMaterial; break;
+                    case 'defective': mesh.material = defectivePartMaterial; break;
+                    default: mesh.material = intactPartMaterial;
+                }
+            });
+            damageSpheres.forEach(sphere => { sphere.material = defaultDotMaterial; });
         }
 
         function createModel(jsonData) {
             clearModel();
             if (!jsonData || !jsonData.parts || !Array.isArray(jsonData.parts)) {
-                updateHANS("Error: Could not parse assembly file. Is it valid JSON?");
+                updateMIA("Error: Could not parse assembly file. Is it valid JSON?");
                 return;
             }
             currentModelJson = jsonData;
-            objectNameInput.value = jsonData.objectName || "Untitled";
+            document.getElementById('object-name').value = jsonData.objectName || "Untitled";
             
             const bounds = new THREE.Box3();
             jsonData.parts.forEach(part => {
                 const geo = new THREE.BoxGeometry(part.dimensions.width, part.dimensions.height, part.dimensions.depth);
-                const pos = new THREE.Vector3(part.origin.x + part.dimensions.width/2, part.origin.z + part.dimensions.height/2, part.origin.y + part.dimensions.depth/2);
-                const mesh = new THREE.Mesh(geo, defaultPartMaterial);
+                const pos = new THREE.Vector3(
+                    part.origin.x + part.dimensions.width / 2, 
+                    part.origin.z + part.dimensions.height / 2, 
+                    part.origin.y + part.dimensions.depth / 2
+                );
+                const mesh = new THREE.Mesh(geo, intactPartMaterial);
                 mesh.position.copy(pos);
                 mesh.userData.part = part;
                 objectGroup.add(mesh);
@@ -228,92 +268,116 @@
                 line.position.copy(pos);
                 objectGroup.add(line);
                 partMeshesMap.set(part.id, mesh);
+                bounds.expandByObject(mesh);
             });
             bounds.setFromObject(objectGroup);
             const center = new THREE.Vector3();
             bounds.getCenter(center);
             controls.target.copy(center);
-            updateHANS(`Assembly "${objectNameInput.value}" loaded with ${jsonData.parts.length} parts. You can now modify it.`);
+            resetMaterials();
+            updateMIA(`Assembly "${jsonData.objectName}" loaded. Please upload the corresponding damage file or catalog new damages.`);
         }
 
-        function updateHANS(message, isTyping = false) {
-            if (typingInterval) clearInterval(typingInterval);
-            if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+        function createDamages(jsonData) {
+            clearDamages();
+            if(!currentModelJson) { updateMIA("Error: Please load an assembly file first."); return; }
+            if(!jsonData || !Array.isArray(jsonData)) return;
+            currentDamageJson = jsonData;
+            const dotGeometry = new THREE.SphereGeometry(0.015, 16, 16);
+            jsonData.forEach(damage => {
+                const sphere = new THREE.Mesh(dotGeometry, defaultDotMaterial.clone());
+                sphere.position.set(damage.coordinates.x, damage.coordinates.z, damage.coordinates.y);
+                sphere.userData.damage = damage;
+                damageSpheres.push(sphere);
+                scene.add(sphere);
+            });
+            resetMaterials();
+        }
 
-            if (isTyping) {
-                let seconds = 0;
-                const updateTimer = () => {
-                    hansOutputEl.innerHTML = `${HANS_PREFIX}${message} (${seconds}s)`;
-                };
-                updateTimer();
-                timerInterval = setInterval(() => {
-                    seconds++;
-                    updateTimer();
-                }, 1000);
-            } else {
-                hansOutputEl.innerHTML = `${HANS_PREFIX}<span id="hans-text"></span><span class="cursor"></span>`;
-                const textEl = document.getElementById('hans-text');
-                const cursorEl = hansOutputEl.querySelector('.cursor');
-                if (!textEl || !cursorEl) return;
-                let i = 0;
-                typingInterval = setInterval(() => {
-                    if (i < message.length) {
-                        textEl.textContent += message.charAt(i++);
-                    } else {
-                        clearInterval(typingInterval);
-                        if (cursorEl) cursorEl.style.display = 'none';
-                    }
-                }, 20);
-            }
+        function updateMIA(message, isTyping = false) {
+            if (typingInterval) clearInterval(typingInterval);
+            const prefix = isTyping ? `${MIA_PREFIX}${message}` : `${MIA_PREFIX}<span id="mia-text"></span><span class="cursor"></span>`;
+            MIAOutputEl.innerHTML = prefix;
+            if (isTyping) return;
+            
+            const textEl = document.getElementById('mia-text');
+            const cursorEl = MIAOutputEl.querySelector('.cursor');
+            if (!textEl || !cursorEl) return;
+            let i = 0;
+            typingInterval = setInterval(() => {
+                if (i < message.length) {
+                    textEl.innerHTML += message.charAt(i++);
+                } else {
+                    clearInterval(typingInterval);
+                    if (cursorEl) cursorEl.style.display = 'none';
+                }
+            }, 20);
         }
         
-        function handleFileUpload(event) {
+        function handleFileUpload(event, type) {
             const file = event.target.files[0];
             if (!file) return;
             const reader = new FileReader();
             reader.onload = e => {
                 try {
                     const data = JSON.parse(e.target.result);
-                    createModel(data);
+                    if (type === 'assembly') {
+                        clearAll();
+                        createModel(data);
+                    } else { // damages
+                        createDamages(data);
+                        updateMIA("Damage data loaded. You can now catalog further damages.");
+                    }
                 } catch (err) {
-                    updateHANS(`Error parsing assembly file: ${err.message}`);
+                    updateMIA(`Error parsing ${type} file: ${err.message}`);
                 }
             };
             reader.readAsText(file);
             event.target.value = '';
         }
 
-        function viewJson() {
-            if (!currentModelJson) { updateHANS(`No assembly data loaded.`); return; }
-            document.getElementById('json-view-title').textContent = `Current Assembly JSON`;
-            document.getElementById('json-view-textarea').value = JSON.stringify(currentModelJson, null, 2);
+        function viewJson(type) {
+            const dataMap = { assembly: currentModelJson, damages: currentDamageJson };
+            if (!dataMap[type]) { updateMIA(`No ${type} data loaded.`); return; }
+            document.getElementById('json-view-title').textContent = `Current ${type} JSON`;
+            document.getElementById('json-view-textarea').value = JSON.stringify(dataMap[type], null, 2);
             document.getElementById('json-view-modal-overlay').style.display = 'flex';
         }
 
-        function downloadJson() {
-            if (!currentModelJson) { updateHANS(`No assembly data loaded.`); return; }
-            const name = (objectNameInput.value || 'object').replace(/\s+/g, '_');
-            const blob = new Blob([JSON.stringify(currentModelJson, null, 2)], {type: 'application/json'});
+        function downloadJson(type) {
+            const dataMap = { assembly: currentModelJson, damages: currentDamageJson };
+            if (!dataMap[type]) { updateMIA(`No ${type} data loaded.`); return; }
+            const name = (document.getElementById('object-name').value || 'object').replace(/\s+/g, '_');
+            const blob = new Blob([JSON.stringify(dataMap[type], null, 2)], {type: 'application/json'});
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
-            a.download = `${name}_assembly.json`;
+            a.download = `${name}_${type}.json`;
             a.click();
             URL.revokeObjectURL(a.href);
         }
 
         function viewGraph() {
-            if (!currentModelJson || !currentModelJson.parts) { updateHANS("Generate or load an assembly to see its graph."); return; }
+            if (!currentModelJson) { updateMIA("Load an assembly to see its graph."); return; }
             let dot = `graph G {\n  graph [rankdir="LR" splines=true ranksep=2.5 nodesep=0.5];\n  node [shape=box, style="filled", fillcolor="#f0f0f0", fontname="Helvetica,Arial,sans-serif"];\n  edge [arrowhead=none];\n\n`;
             const addedEdges = new Set();
             currentModelJson.parts.forEach(part => {
-                dot += `  "${part.id}";\n`;
-                part.connections?.forEach(connectedId => {
-                    const edgeKey = [part.id, connectedId].sort().join('--');
-                    if (!addedEdges.has(edgeKey)) {
-                        dot += `  "${part.id}" -- "${connectedId}";\n`;
-                        addedEdges.add(edgeKey);
-                    }
-                });
+                let fillColor = '#f0f0f0'; // intact
+                if (part.status === 'defective') fillColor = '#ffc0c0';
+                if (part.status === 'missing') fillColor = '#ffee9c';
+                const label = part.name || part.id;
+                dot += `  "${part.id}" [label="${label}\\n(${part.status})", fillcolor="${fillColor}"];\n`;
+                if (part.status !== 'missing') {
+                    part.connections?.forEach(connectedId => {
+                        const connectedPart = currentModelJson.parts.find(p => p.id === connectedId);
+                        if (connectedPart && connectedPart.status !== 'missing') {
+                            const edgeKey = [part.id, connectedId].sort().join('--');
+                            if (!addedEdges.has(edgeKey)) {
+                                dot += `  "${part.id}" -- "${connectedId}";\n`;
+                                addedEdges.add(edgeKey);
+                            }
+                        }
+                    });
+                }
             });
             dot += '}';
             document.getElementById('graph-title').textContent = "Assembly Connection Graph";
@@ -327,12 +391,21 @@
             mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
             raycaster.setFromCamera(mouse, camera);
 
+            const sphereIntersects = raycaster.intersectObjects(damageSpheres);
             const partIntersects = raycaster.intersectObjects(Array.from(partMeshesMap.values()));
             
             resetMaterials();
             infoBox.style.display = 'none';
+            
+            if (sphereIntersects.length > 0) {
+                const clickedSphere = sphereIntersects[0].object;
+                const damageInfo = clickedSphere.userData.damage;
+                clickedSphere.material = selectedDotMaterial;
+                infoBox.style.color = '#ff0000';
+                infoBox.innerHTML = `<b>${damageInfo.type} (${damageInfo.id}):</b><br>${damageInfo.description} Part: ${damageInfo.part_id}.`;
+                infoBox.style.display = 'block';
 
-            if (partIntersects.length > 0) {
+            } else if (partIntersects.length > 0) {
                 const clickedPart = partIntersects[0].object;
                 const partData = clickedPart.userData.part;
                 clickedPart.material = selectionPartMaterial;
@@ -344,55 +417,185 @@
                 }
             }
         }
+
+        // --- FINALIZED SVG DRAWING FUNCTIONS ---
+
+        /**
+         * Generates a 6-view orthographic projection SVG for the entire assembly with a scale bar.
+         * @param {object} assemblyJson - The complete assembly JSON object.
+         * @param {object} damageJson - The complete damage JSON object.
+         * @returns {string} - A complete SVG string for the assembly drawing.
+         */
+        function generateAssemblySVG(assemblyJson, damageJson) {
+            const { objectName, parts } = assemblyJson;
+            if (!parts || parts.length === 0) return '';
+
+            const allWorldVertices = new Map();
+            const globalBBox = new THREE.Box3();
+
+            parts.forEach(part => {
+                const centerPos = new THREE.Vector3(
+                    part.origin.x + part.dimensions.width / 2,
+                    part.origin.z + part.dimensions.height / 2, // JSON z -> THREE.js y
+                    part.origin.y + part.dimensions.depth / 2   // JSON y -> THREE.js z
+                );
+                const w = part.dimensions.width, h = part.dimensions.height, d = part.dimensions.depth;
+                const localVertices = [
+                    new THREE.Vector3(-w/2,-h/2,d/2), new THREE.Vector3(w/2,-h/2,d/2), new THREE.Vector3(w/2,h/2,d/2), new THREE.Vector3(-w/2,h/2,d/2),
+                    new THREE.Vector3(-w/2,-h/2,-d/2), new THREE.Vector3(w/2,-h/2,-d/2), new THREE.Vector3(w/2,h/2,-d/2), new THREE.Vector3(-w/2,h/2,-d/2)
+                ];
+                const partMatrix = new THREE.Matrix4().compose(centerPos, new THREE.Quaternion(), new THREE.Vector3(1, 1, 1));
+                const worldVertices = localVertices.map(v => v.clone().applyMatrix4(partMatrix));
+                allWorldVertices.set(part.id, worldVertices);
+                worldVertices.forEach(v => globalBBox.expandByPoint(v));
+            });
+
+            const globalSize = globalBBox.getSize(new THREE.Vector3());
+            const scale = 200;
+            const padding = 60;
+            const viewWidth = Math.max(globalSize.x, globalSize.z) * scale;
+            const viewHeight = Math.max(globalSize.y, globalSize.z) * scale;
+            const svgWidth = (viewWidth * 4) + (padding * 5);
+            const svgHeight = (viewHeight * 3) + (padding * 4);
+
+            const views = {
+                'TOP':    { x: viewWidth + padding*2, y: padding,                  p: v => ({ x: v.x, y: v.z }),  dir: new THREE.Vector3(0, 1, 0) },
+                'LEFT':   { x: padding,                 y: viewHeight + padding*2,   p: v => ({ x: -v.z, y: -v.y }), dir: new THREE.Vector3(-1, 0, 0) },
+                'FRONT':  { x: viewWidth + padding*2, y: viewHeight + padding*2,   p: v => ({ x: v.x, y: -v.y }), dir: new THREE.Vector3(0, 0, 1) },
+                'RIGHT':  { x: viewWidth*2 + padding*3, y: viewHeight + padding*2,   p: v => ({ x: v.z,y: -v.y }), dir: new THREE.Vector3(1, 0, 0) },
+                'BACK':   { x: viewWidth*3 + padding*4, y: viewHeight + padding*2,   p: v => ({ x: -v.x,y: -v.y }), dir: new THREE.Vector3(0, 0, -1) },
+                'BOTTOM': { x: viewWidth + padding*2, y: viewHeight*2 + padding*3, p: v => ({ x: v.x, y: -v.z }), dir: new THREE.Vector3(0, -1, 0) },
+            };
+            
+            const faces = [[0,1,2,3],[5,4,7,6],[1,5,6,2],[4,0,3,7],[3,2,6,7],[4,5,1,0]];
+            const edges = [[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
+            let svgElements = '';
+
+            for (const [name, view] of Object.entries(views)) {
+                const projectedPoints = [];
+                allWorldVertices.forEach(verts => verts.forEach(v => projectedPoints.push(view.p(v))));
+                const pBounds=projectedPoints.reduce((a,p)=>({minX:Math.min(a.minX,p.x),minY:Math.min(a.minY,p.y),maxX:Math.max(a.maxX,p.x),maxY:Math.max(a.maxY,p.y)}),{minX:Infinity,minY:Infinity,maxX:-Infinity,maxY:-Infinity});
+                const centerX = (pBounds.minX + pBounds.maxX)/2, centerY = (pBounds.minY + pBounds.maxY)/2;
+                
+                const groupTransform = `translate(${view.x}, ${view.y})`;
+                const contentTransform = `translate(${viewWidth/2}, ${viewHeight/2}) scale(${scale}) translate(${-centerX}, ${-centerY})`;
+                
+                let hiddenLinesHTML = '', visibleLinesHTML = '';
+                parts.forEach(part => {
+                    let partHidden = '', partVisible = '';
+                    const worldVertices = allWorldVertices.get(part.id);
+                    if (!worldVertices) return;
+                    const visibleEdges = new Set();
+                    if (part.status !== 'missing') {
+                        faces.forEach(faceIndices => {
+                            const v0=worldVertices[faceIndices[0]], v1=worldVertices[faceIndices[1]], v2=worldVertices[faceIndices[2]];
+                            const faceNormal=new THREE.Vector3().crossVectors(new THREE.Vector3().subVectors(v1,v0),new THREE.Vector3().subVectors(v2,v0)).normalize();
+                            if (faceNormal.dot(view.dir) > 0) {
+                               for (let i=0; i<faceIndices.length; i++) visibleEdges.add([faceIndices[i], faceIndices[(i+1)%faceIndices.length]].sort().join('-'));
+                            }
+                        });
+                    }
+                    edges.forEach(edgeIndices => {
+                        const edgeKey = [...edgeIndices].sort().join('-');
+                        const p1 = view.p(worldVertices[edgeIndices[0]]), p2 = view.p(worldVertices[edgeIndices[1]]);
+                        const line = `<line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" />`;
+                        if (visibleEdges.has(edgeKey)) partVisible += line; else partHidden += line;
+                    });
+                    const statusClass = `part-${part.status || 'intact'}`;
+                    hiddenLinesHTML += `<g class="${statusClass}">${partHidden}</g>`;
+                    visibleLinesHTML += `<g class="${statusClass}">${partVisible}</g>`;
+                });
+                
+                let damageMarkers = '';
+                (damageJson || []).forEach(damage => {
+                    const damagePos3D = new THREE.Vector3(damage.coordinates.x, damage.coordinates.z, damage.coordinates.y);
+                    const p = view.p(damagePos3D);
+                    damageMarkers += `<circle cx="${p.x}" cy="${p.y}" r="${2/scale}" class="damage-marker" />`;
+                });
+
+                svgElements += `<g transform="${groupTransform}"><text x="${viewWidth/2}" y="${viewHeight+20}" text-anchor="middle" font-size="14" font-family="sans-serif">${name}</text><g transform="${contentTransform}"><g class="hidden-lines">${hiddenLinesHTML}</g><g class="visible-lines">${visibleLinesHTML}</g>${damageMarkers}</g></g>`;
+            }
+
+            // --- Generate Scale Bar ---
+            let scaleBarHTML = '';
+            const worldCenterY = globalBBox.getCenter(new THREE.Vector3()).y;
+            const middleRowYCenter = (viewHeight + padding * 2) + viewHeight / 2;
+            const scaleBarX = views['RIGHT'].x - padding / 2;
+            const tickWidth = padding * 0.4;
+            const minY = globalBBox.min.y;
+            const maxY = globalBBox.max.y;
+            let currentTickWorldY = Math.ceil(maxY / 0.1) * 0.1;
+
+            while (currentTickWorldY >= minY) {
+                const y_pixel = middleRowYCenter - (currentTickWorldY - worldCenterY) * scale;
+                scaleBarHTML += `<line x1="${scaleBarX - tickWidth / 2}" y1="${y_pixel}" x2="${scaleBarX + tickWidth / 2}" y2="${y_pixel}" />`;
+                currentTickWorldY -= 0.1;
+            }
+            svgElements += `<g class="scale-bar">${scaleBarHTML}</g>`;
+            
+            const style = `<style>line{fill:none;stroke-linecap:round;}.visible-lines .part-intact line{stroke:#000;stroke-width:${1/scale};}.visible-lines .part-defective line{stroke:#D00;stroke-width:${1.2/scale};}.hidden-lines .part-intact line{stroke:#888;stroke-width:${0.5/scale};stroke-dasharray:${2.5/scale};}.hidden-lines .part-defective line{stroke:#F88;stroke-width:${0.6/scale};stroke-dasharray:${2.5/scale};}.part-missing line{stroke:#F90;stroke-width:${0.8/scale};stroke-dasharray:${2.5/scale};}.damage-marker{fill:#D00;stroke:none;}.scale-bar line{stroke:#000;stroke-width:0.5;}.label{font-size:16px;font-family:sans-serif;}</style>`;
+
+            return `<svg width="${svgWidth}" height="${svgHeight}" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 ${svgWidth} ${svgHeight}">${style}<rect x="0" y="0" width="${svgWidth}" height="${svgHeight}" fill="#fff" /><text x="${padding}" y="35" class="label" font-weight="bold">Assembly: ${objectName}</text>${svgElements}</svg>`;
+        }
+
+        /**
+         * Triggers the download of a single SVG technical drawing for the entire assembly.
+         */
+        function downloadAssemblyDrawing() {
+            if (!currentModelJson || !currentModelJson.parts) {
+                updateMIA("Please load an assembly file first.");
+                return;
+            }
+            updateMIA("Generating assembly drawing...", true);
+            setTimeout(() => {
+                const svgData = generateAssemblySVG(currentModelJson, currentDamageJson);
+                if (!svgData) { updateMIA("Failed to generate drawing. No parts found."); return; }
+                const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                const objName = (document.getElementById('object-name').value || 'assembly').replace(/\s+/g, '_');
+                a.download = `${objName}_drawing.svg`;
+                a.click();
+                URL.revokeObjectURL(url);
+                updateMIA("Assembly drawing downloaded successfully.");
+            }, 50);
+        }
         
         // --- EVENT LISTENERS ---
         function setupEventListeners() {
             window.addEventListener('resize', onWindowResize);
             viewerCanvas.addEventListener('click', onObjectClick);
 
-            // --- Main Action Buttons ---
-            document.getElementById('generate-assembly-btn').addEventListener('click', async () => {
-                const promptText = userPromptInput.value;
-                if (!promptText.trim()) { updateHANS("Please enter an instruction for the assembly."); return; }
-
-                updateHANS("Generating Assembly... this may take a moment.", true);
+            document.getElementById('catalog-damages-btn').addEventListener('click', async () => {
+                if (!currentModelJson) { updateMIA("Please upload an assembly JSON first."); return; }
+                const promptText = userPromptInput.value.trim();
+                if (uploadedFiles.length === 0 && !promptText) { updateMIA("Add damage photos or describe the damage."); return; }
+                
+                updateMIA("AI is analyzing the assembly status...", true);
                 
                 try {
-                    const isModification = uploadedFiles.length === 0;
-                    const payload = {
-                        prompt: promptText,
-                        objectName: objectNameInput.value.trim() || 'Untitled Object',
-                        modelJson: isModification ? currentModelJson : null,
-                        files: isModification ? [] : uploadedFiles
-                    };
-
-                    const response = await fetch('/api/generate-assembly', {
+                    const payload = { prompt: promptText, modelJson: currentModelJson, damageJson: currentDamageJson || [], files: uploadedFiles };
+                    const response = await fetch('/api/catalog-damages', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload),
                     });
-                    
-                    if (timerInterval) clearInterval(timerInterval);
-
-                    if (!response.ok) {
-                        const errorResult = await response.json();
-                        throw new Error(errorResult.message || `Server responded with status: ${response.status}`);
-                    }
+                    if (!response.ok) throw new Error((await response.json()).message || 'Server error');
                     const result = await response.json();
-                    if (!result.candidates?.[0]?.content?.parts?.[0]?.text) {
-                         if(result.candidates?.[0]?.finishReason === "SAFETY") {
-                            throw new Error("Generation failed due to safety policies. Please modify your prompt.");
-                         }
-                         throw new Error("Invalid API response structure.");
-                    }
-                    const newPlan = JSON.parse(result.candidates[0].content.parts[0].text.replace(/```json\n|```/g, '').trim());
-                    createModel(newPlan);
+                    if (!result.candidates?.[0]?.content?.parts?.[0]?.text) throw new Error("Invalid API response structure.");
+                    const fullResponse = JSON.parse(result.candidates[0].content.parts[0].text.replace(/```json\n|```/g, '').trim());
+                    if (!fullResponse.updatedModel || !fullResponse.updatedDamages) throw new Error("API response missing required data.");
+
+                    createModel(fullResponse.updatedModel);
+                    createDamages(fullResponse.updatedDamages);
+                    updateMIA("Analysis complete. Model and damages have been updated.", false);
                     uploadedFiles = [];
                     userPromptInput.value = '';
 
                 } catch (error) {
-                    console.error("Generation Error:", error);
-                    updateHANS(`Sorry, an error occurred: ${error.message}`, false);
+                    console.error("Damage Cataloging Error:", error);
+                    updateMIA(`Sorry, an error occurred: ${error.message}`, false);
                 }
             });
 
@@ -400,66 +603,57 @@
             document.getElementById('add-files-input').addEventListener('change', async (event) => {
                 const files = event.target.files;
                 if (!files.length) return;
-                if (files.length > MAX_FILES) { updateHANS(`Please select a maximum of ${MAX_FILES} files.`); return; }
-                
-                updateHANS(`Reading ${files.length} file(s)...`);
+                updateMIA(`Reading ${files.length} photo(s)...`);
                 const filePromises = Array.from(files).map(file => {
-                     if (file.size > MAX_FILE_SIZE) {
-                        updateHANS(`Error: File "${file.name}" is too large (limit is 3 MB).`);
-                        return null;
-                    }
                     return new Promise((resolve, reject) => {
                         const reader = new FileReader();
                         reader.onload = () => resolve({ mimeType: file.type, data: reader.result.split(',')[1] });
                         reader.onerror = reject;
                         reader.readAsDataURL(file);
                     });
-                }).filter(p => p !== null);
-
+                });
                 try {
                     uploadedFiles = await Promise.all(filePromises);
-                    updateHANS(`${uploadedFiles.length} file(s) are ready. Provide a prompt and click 'Generate Assembly'.`);
+                    updateMIA(`${uploadedFiles.length} photo(s) are ready. Click 'Catalog Damages' to analyze.`);
                 } catch (error) {
-                    updateHANS("Error reading files. Please try again.");
+                    updateMIA("Error reading files. Please try again.");
                 }
                 event.target.value = '';
             });
 
-            // --- Icon Buttons & Modals ---
             let currentAction = '';
             const openChoiceModal = (action) => {
                 currentAction = action;
                 document.getElementById('data-choice-title').textContent = `What to ${action}?`;
-                document.getElementById('choice-btn-assembly').style.display = 'block';
                 document.getElementById('data-choice-modal-overlay').style.display = 'flex';
             };
             const choiceActions = {
-                upload: () => document.getElementById(`assembly-upload-input`).click(),
-                copy: () => viewJson(),
-                download: () => downloadJson(),
+                upload: (type) => document.getElementById(`${type}-upload-input`).click(),
+                copy: (type) => viewJson(type),
+                download: (type) => downloadJson(type),
             };
 
             document.getElementById('upload-json-btn').addEventListener('click', () => openChoiceModal('upload'));
             document.getElementById('copy-json-btn').addEventListener('click', () => openChoiceModal('copy'));
             document.getElementById('download-json-btn').addEventListener('click', () => openChoiceModal('download'));
             document.getElementById('view-graph-btn').addEventListener('click', viewGraph);
-            document.getElementById('assembly-upload-input').addEventListener('change', handleFileUpload);
+            document.getElementById('download-drawings-btn').addEventListener('click', downloadAssemblyDrawing);
+
+            document.getElementById('assembly-upload-input').addEventListener('change', (e) => handleFileUpload(e, 'assembly'));
+            document.getElementById('damages-upload-input').addEventListener('change', (e) => handleFileUpload(e, 'damages'));
             
-            document.getElementById('choice-btn-assembly').addEventListener('click', () => { 
-                choiceActions[currentAction]?.(); 
-                document.getElementById('data-choice-modal-overlay').style.display = 'none'; 
-            });
+            document.getElementById('choice-btn-assembly').addEventListener('click', () => { choiceActions[currentAction]?.('assembly'); document.getElementById('data-choice-modal-overlay').style.display = 'none'; });
+            document.getElementById('choice-btn-damages').addEventListener('click', () => { choiceActions[currentAction]?.('damages'); document.getElementById('data-choice-modal-overlay').style.display = 'none'; });
 
             document.querySelectorAll('.close-modal-btn').forEach(btn => btn.addEventListener('click', e => e.target.closest('.modal-overlay').style.display = 'none'));
             document.getElementById('copy-json-from-modal-btn').addEventListener('click', () => {
                 navigator.clipboard.writeText(document.getElementById('json-view-textarea').value).then(() => {
-                    updateHANS("JSON copied to clipboard.");
+                    updateMIA("JSON copied to clipboard.");
                     document.getElementById('json-view-modal-overlay').style.display = 'none';
                 });
             });
         }
-
-        // --- INITIALIZE THE APP ---
+        
         init();
     </script>
 </body>
