@@ -1,9 +1,7 @@
-// File: /api/plan-actions.js
+// File: /api/plan-actions_new.js
 
-// Allow the function to run for up to 120 seconds for complex plans
 export const maxDuration = 120;
 
-// --- A NEW, MORE ROBUST SYSTEM PROMPT ---
 const SYSTEM_PROMPT = `
 You are an expert AI assistant specializing in creating repair plans for 3D objects.
 Your primary task is to generate a step-by-step repair plan based on a 3D model's assembly data, a list of damages, and user instructions.
@@ -20,20 +18,26 @@ Your primary task is to generate a step-by-step repair plan based on a 3D model'
 - If 'existingPlan' is null, create a brand new plan from scratch based on the damages.
 
 **TASK DECOMPOSITION:**
-- **Decompose Complex Actions:** Your primary goal is to break down the repair process into the smallest possible, logical actions. A user should be able to complete one step without needing to guess what to do next. [1, 7, 12]
+- **Decompose Complex Actions:** Your primary goal is to break down the repair process into the smallest possible, logical actions.
 - **More Steps are Better:** Always favor creating more, simpler steps over fewer, complicated ones. For example, instead of one step for "Remove the back panel," create separate steps for "Unscrew the four corner screws," "Gently pry open the left seam," and "Lift the panel away."
-- **Sequential and Logical:** The plan must follow a logical and safe sequence. Steps must build upon each other correctly from disassembly to repair to reassembly.
+- **Sequential and Logical:** The plan must follow a logical and safe sequence from disassembly to repair to reassembly.
 
 **JSON OUTPUT SCHEMA:**
-The root object must contain a single key: "steps".
-The "steps" key must contain an array of step objects. Each step object MUST have the following structure:
-- "step_number" (number): The sequential number of the step, starting from 1.
-- "title" (string): **A short, action-focused title with a MAXIMUM of four words.** Do NOT mention the location of the damage or the part in the title (e.g., use "Clamp and Glue Crack" instead of "Clamp and Glue Crack on Back Left Leg").
-- "description" (string): **A precise, rich, and highly detailed explanation of the action.** This must be thorough enough for a novice to follow. Include specific instructions on what to look for, what physical motions to make (e.g., "turn counter-clockwise," "apply even pressure," "pull gently upwards"), the expected outcome of the action, and any relevant safety advice.
-- "tools_required" (array of strings): A list of all tools or materials needed for this specific step (e.g., "Phillips #1 Screwdriver," "Wood Glue").
-- "affected_parts" (array of strings): A list of part 'id's from the modelJson that are directly manipulated or affected in this step.
-- "affected_damages" (array of strings): A list of damage 'id's from the damageJson that this step directly addresses or contributes to fixing.
+The root object must contain a single key: "steps". Each step object MUST have the following structure:
+- "step_number" (number): Sequential number, starting from 1.
+- "title" (string): A short, action-focused title with a MAXIMUM of four words.
+- "description" (string): A precise, rich, and highly detailed explanation of the action.
+- "tools_required" (array of strings): Tools or materials for this specific step.
+- "affected_parts" (array of strings): Part 'id's from modelJson directly manipulated in this step.
+- "affected_damages" (array of strings): Damage 'id's from damageJson addressed in this step.
 `;
+
+const BRAIN_PROMPTS = {
+    "maintenance-maximalist": "REPAIR PHILOSOPHY: Over-engineer the solution for maximum durability and longevity. Suggest reinforcing weak areas, even if they aren't currently damaged. Favor modern, high-strength materials and techniques.",
+    "gentle-repairer": "REPAIR PHILOSOPHY: Use the least invasive techniques possible. Prioritize preservation and reversibility. Avoid replacing original parts unless absolutely necessary. Use materials that are compatible with the original.",
+    "purist": "REPAIR PHILOSOPHY: Restore the object to its exact original state using period-correct materials and techniques. The repair should be invisible. Authenticity is the highest priority.",
+    "critical-conservator": "REPAIR PHILOSOPHY: Stabilize the object and prevent further decay. Clearly distinguish new materials from old ('legibility of the intervention'). The history of the object, including its damages, has value and should not be completely erased."
+};
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -41,7 +45,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { modelJson, damageJson, userPrompt, existingPlan } = req.body;
+    const { modelJson, damageJson, userPrompt, existingPlan, brainId, geminiModel, temperature } = req.body;
     const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
@@ -49,21 +53,32 @@ export default async function handler(req, res) {
     }
 
     const geminiParts = [
-      { text: SYSTEM_PROMPT },
+      { text: SYSTEM_PROMPT }
+    ];
+
+    // Add brain-specific instructions if a valid brainId is provided
+    if (brainId && BRAIN_PROMPTS[brainId]) {
+        geminiParts.push({ text: BRAIN_PROMPTS[brainId] });
+    }
+
+    geminiParts.push(
       { text: `Base 3D Model: ${JSON.stringify(modelJson, null, 2)}` },
       { text: `List of Damages to Address: ${JSON.stringify(damageJson, null, 2)}` },
       { text: `Existing Plan (modify this if not null): ${JSON.stringify(existingPlan, null, 2)}` },
       { text: `User's Instructions: "${userPrompt || 'No specific instructions provided.'}"` }
-    ];
+    );
     
-    const googleApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    const model = geminiModel || 'gemini-1.5-flash';
+    const temp = temperature !== undefined ? temperature : 0.4;
+    const googleApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
     const googleResponse = await fetch(googleApiUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: [{ parts: geminiParts }],
-        generationConfig: { 
+        generationConfig: {
+            "temperature": temp,
             "responseMimeType": "application/json" 
         }
       }),
