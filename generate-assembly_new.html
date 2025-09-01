@@ -1,851 +1,679 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-<title>Step 2: Catalog Damages</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📍</text></svg>">
-<style>
-body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; background-color: #fff; color: #000; display: flex; justify-content: center; padding: 20px 0; }
-#app-wrapper { width: 90%; max-width: 420px; display: flex; flex-direction: column; gap: 20px; }
-    #top-header { display: flex; flex-direction: column; gap: 20px; }
-    .top-input-row { display: flex; align-items: stretch; gap: 10px; }
-    #object-name { flex-grow: 1; background-color: #f0f0f0; padding: 12px; border: 1px solid #000; border-radius: 0; font-size: 14px; box-sizing: border-box; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <title>Step 1: Generate Assembly</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧱</text></svg>">
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; background-color: #fff; color: #000; display: flex; justify-content: center; padding: 20px 0; }
 
-    #viewer-container { width: 100%; height: 40vh; position: relative; background-color: #fff; }
-    #viewer-canvas { display: block; width: 100%; height: 100%; }
-    #info-box { position: absolute; top: 10px; left: 0px; padding: 0px; background-color: transparent; border: none; font-family: monospace; font-size: 12px; line-height: 1.4; z-index: 101; display: none; pointer-events: none; max-width: 250px; }
+        #app-wrapper { width: 90%; max-width: 420px; display: flex; flex-direction: column; gap: 20px; }
+        #top-header { display: flex; flex-direction: column; gap: 20px; }
+        .top-input-row { display: flex; align-items: stretch; gap: 10px; }
+        #object-name { flex-grow: 1; background-color: #fff; padding: 12px; border: 1px solid #000; border-radius: 0; font-size: 14px; box-sizing: border-box; }
 
-    #bottom-ui-container { display: flex; flex-direction: column; gap: 15px; }
-    .icon-controls { display: flex; justify-content: space-around; text-align: center; padding: 10px 0; }
-    .icon-button { cursor: pointer; color: #000; }
-    .icon-button svg { width: 18px; height: 18px; }
-    .icon-button .label { font-size: 12px; margin-top: 5px; }
+        #viewer-container { width: 100%; height: 40vh; position: relative; background-color: #fff; }
+        #viewer-canvas { display: block; width: 100%; height: 100%; }
+        #info-box { position: absolute; top: 10px; left: 0px; padding: 0px; background-color: transparent; border: none; font-family: monospace; font-size: 12px; line-height: 1.4; z-index: 101; display: none; pointer-events: none; max-width: 250px; }
 
-    .action-buttons { display: flex; gap: 10px; }
-    .btn { flex-grow: 1; padding: 12px; font-size: 14px; font-weight: 600; border: none; border-radius: 0; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; background-color: #000; color: #fff; }
+        #bottom-ui-container { display: flex; flex-direction: column; gap: 15px; }
+        .icon-controls { display: flex; justify-content: space-around; text-align: center; padding: 10px 0; }
+        .icon-button { cursor: pointer; color: #000; }
+        .icon-button svg { width: 18px; height: 18px; }
+        .icon-button .label { font-size: 12px; margin-top: 5px; }
 
-    .instructions-group { background-color: #fff; padding: 15px; border: 1px solid #000; }
-    .instructions-group label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 8px; color: #000; }
-    .instructions-group textarea { width: 100%; height: 60px; padding: 10px; border: none; background-color: #fff; color: #000; border-radius: 0; font-size: 14px; box-sizing: border-box; resize: vertical; }
+        .action-buttons { display: flex; gap: 10px; }
+        .btn { flex-grow: 1; padding: 12px; font-size: 14px; font-weight: 600; border: none; border-radius: 0; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; background-color: #000; color: #fff; }
 
-    .MIA-group { background-color: #000; color: #fff; padding: 15px; }
-    #MIA-output { font-family: "SF Mono", Consolas, Menlo, monospace; font-size: 13px; line-height: 1.5; min-height: 20px; white-space: pre-wrap; }
-    #MIA-output .cursor { display: inline-block; background-color: #fff; width: 8px; height: 1em; animation: blink 1s step-end infinite; }
+        .instructions-group { background-color: #fff; padding: 15px; border: 1px solid #000; }
+        .instructions-group label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 8px; color: #000; }
+        .instructions-group textarea { width: 100%; height: 60px; padding: 10px; border: none; background-color: #fff; color: #000; border-radius: 0; font-size: 14px; box-sizing: border-box; resize: vertical; }
 
-    @keyframes blink {
-        from, to { background-color: transparent; }
-        50% { background-color: #fff; }
-    }
+        .hans-group { background-color: #000; color: #fff; padding: 15px; }
+        #hans-output { font-family: "SF Mono", Consolas, Menlo, monospace; font-size: 13px; line-height: 1.5; min-height: 20px; white-space: pre-wrap; }
+        #hans-output .cursor { display: inline-block; background-color: #fff; width: 8px; height: 1em; animation: blink 1s step-end infinite; }
 
-    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,.7); z-index: 1000; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
-    .modal-content { background-color: #fff; padding: 20px; border: 1px solid #000; width: 100%; max-width: 400px; display: flex; flex-direction: column; max-height: 80vh; position: relative; }
-    .svg-save-btn { position: absolute; top: 20px; left: 20px; flex-grow: 0; z-index: 10; }
-    .modal-content h3 { margin-top: 0; color: #000; text-align: center; }
-    .modal-body { overflow-y: auto; }
+        @keyframes blink {
+            from, to { background-color: transparent; }
+            50% { background-color: #fff; }
+        }
 
-    .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
-    .modal-btn { background-color: #000; color: #fff; }
-    .hidden-input { display: none; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,.7); z-index: 1000; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
+        .modal-content { background-color: #fff; padding: 20px; border: 1px solid #000; width: 100%; max-width: 400px; display: flex; flex-direction: column; max-height: 80vh; position: relative; }
+        .svg-save-btn { position: absolute; top: 20px; left: 20px; flex-grow: 0; z-index: 10; }
+        .modal-content h3 { margin-top: 0; color: #000; text-align: center; }
+        .modal-body { overflow-y: auto; }
 
-    #json-view-modal-overlay .modal-content textarea { width: 100%; height: 40vh; resize: none; font-family: monospace; font-size: 12px; margin-bottom: 10px; border-radius: 0; }
-    #graph-modal-overlay .modal-content { max-width: 90vw; height: 80vh; }
-    #graph-container { width: 100%; flex-grow: 1; min-height: 0; }
-    #graph-container svg { width: 100%; height: 100%; }
-    #graph-title { margin-top: 45px; }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+        .modal-btn { background-color: #000; color: #fff; }
+        .hidden-input { display: none; }
 
-    #settings-btn { flex-grow: 0; padding: 0 12px; }
-    .settings-group { margin-bottom: 20px; }
-    .settings-group label { display: block; font-size: 14px; margin-bottom: 8px; }
-    .settings-input { width: 100%; padding: 10px; border: 1px solid #000; border-radius: 0; font-size: 14px; box-sizing: border-box; }
-</style>
+        #json-view-modal-overlay .modal-content textarea { width: 100%; height: 40vh; resize: none; font-family: monospace; font-size: 12px; margin-bottom: 10px; border-radius: 0; }
+        #graph-modal-overlay .modal-content { max-width: 90vw; height: 80vh; }
+        #graph-container { width: 100%; flex-grow: 1; min-height: 0; }
+        #graph-container svg { width: 100%; height: 100%; }
+        #graph-title { margin-top: 45px; }
+        
+        #settings-btn { flex-grow: 0; padding: 0 12px; }
+        .settings-group { margin-bottom: 20px; }
+        .settings-group label { display: block; font-size: 14px; margin-bottom: 8px; }
+        .settings-input { width: 100%; padding: 10px; border: 1px solid #000; border-radius: 0; font-size: 14px; box-sizing: border-box; }
+        .checkbox-group { display: flex; align-items: center; gap: 10px; }
+        .checkbox-group input { width: auto; }
+        .checkbox-group label { margin-bottom: 0; font-size: 12px; font-weight: normal; }
+    </style>
 </head>
 <body>
-<div id="app-wrapper">
-<div id="top-header">
-<div class="top-input-row">
-<input type="text" id="object-name" placeholder="Object name...">
-<button id="settings-btn" class="btn icon-button" title="Settings">
-<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-<circle cx="12" cy="12" r="3"></circle>
-<path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-</svg>
-</button>
-</div>
-</div>
-
-<div id="viewer-container">
-        <canvas id="viewer-canvas"></canvas>
-        <div id="info-box"></div>
-    </div>
-
-    <div id="bottom-ui-container">
-        <div class="icon-controls">
-            <div id="upload-json-btn" class="icon-button" title="Upload JSON"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z"/></svg><div class="label">Upload</div></div>
-            <div id="copy-json-btn" class="icon-button" title="Read & Copy JSON"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H6z"/><path d="M2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1H2z"/></svg><div class="label">Read & Copy</div></div>
-            <div id="explode-view-btn" class="icon-button" title="Explode View"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M5.828 10.172a.5.5 0 0 0-.707 0l-4.096 4.096V11.5a.5.5 0 0 0-1 0v3.975a.5.5 0 0 0 .5.5H4.5a.5.5 0 0 0 0-1H1.732l4.096-4.096a.5.5 0 0 0 0-.707zm4.344-4.344a.5.5 0 0 0 .707 0l4.096-4.096V4.5a.5.5 0 1 0 1 0V.525a.5.5 0 0 0-.5-.5H11.5a.5.5 0 0 0 0 1h2.768l-4.096 4.096a.5.5 0 0 0 0 .707z"/></svg><div class="label">Explode</div></div>
-            <div id="reset-view-btn" class="icon-button" title="Reset View" style="display:none;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M.172 15.828a.5.5 0 0 0 .707 0l4.096-4.096V14.5a.5.5 0 1 0 1 0v-3.975a.5.5 0 0 0-.5-.5H1.5a.5.5 0 0 0 0 1h2.768L.172 15.121a.5.5 0 0 0 0 .707zM15.828.172a.5.5 0 0 0-.707 0l-4.096 4.096V1.5a.5.5 0 1 0-1 0v3.975a.5.5 0 0 0 .5.5H14.5a.5.5 0 0 0 0-1h-2.768L15.828.879a.5.5 0 0 0 0-.707z"/></svg><div class="label">Restore</div></div>
-            <div id="view-graph-btn" class="icon-button" title="View connection graph"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-share" viewBox="0 0 16 16"><path d="M13.5 1a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.499 2.499 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5zm-8.5 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm11 5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/></svg><div class="label">Graph</div></div>
-            <div id="download-drawings-btn" class="icon-button" title="Download Drawings">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="2" y="2" width="14" height="14" rx="2"></rect>
-                  <line x1="9" y1="6" x2="9" y2="12"></line>
-                  <line x1="6" y1="9" x2="12" y2="9"></line>
-                </svg>
-                <div class="label">Drawings</div>
+    <div id="app-wrapper">
+        <div id="top-header">
+            <div class="top-input-row">
+                <input type="text" id="object-name" placeholder="Enter object name...">
+                <button id="settings-btn" class="btn icon-button" title="Settings">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                    </svg>
+                </button>
             </div>
-            <div id="download-json-btn" class="icon-button" title="Download JSON"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/></svg><div class="label">Download</div></div>
         </div>
 
-        <div class="action-buttons">
-            <button id="add-files-btn" class="btn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M4.5 3a2.5 2.5 0 0 1 5 0v9a1.5 1.5 0 0 1-3 0V5a.5.5 0 0 1 1 0v7a.5.5 0 0 0 1 0V3a1.5 1.5 0 1 0-3 0v9a2.5 2.5 0 0 0 5 0V5a.5.5 0 0 1 1 0v7a3.5 3.5 0 1 1-7 0V3z"/></svg>Add Photos</button>
-            <button id="catalog-damages-btn" class="btn">📍 Catalog Damages</button>
+        <div id="viewer-container">
+            <canvas id="viewer-canvas"></canvas>
+            <div id="info-box"></div>
         </div>
 
-        <div class="instructions-group">
-            <label for="user-prompt">Describe Damages (optional, use with photos for better results)...</label>
-            <textarea id="user-prompt" placeholder="e.g., 'Severe crack on front left leg.' or 'The paint is peeling on the seat.'"></textarea>
-        </div>
+        <div id="bottom-ui-container">
+            <div class="icon-controls">
+                <div id="upload-json-btn" class="icon-button" title="Upload Assembly JSON"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z"/></svg><div class="label">Upload</div></div>
+                <div id="copy-json-btn" class="icon-button" title="Read & Copy Assembly JSON"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H6z"/><path d="M2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1H2z"/></svg><div class="label">Read & Copy</div></div>
+                <div id="explode-view-btn" class="icon-button" title="Explode View"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M5.828 10.172a.5.5 0 0 0-.707 0l-4.096 4.096V11.5a.5.5 0 0 0-1 0v3.975a.5.5 0 0 0 .5.5H4.5a.5.5 0 0 0 0-1H1.732l4.096-4.096a.5.5 0 0 0 0-.707zm4.344-4.344a.5.5 0 0 0 .707 0l4.096-4.096V4.5a.5.5 0 1 0 1 0V.525a.5.5 0 0 0-.5-.5H11.5a.5.5 0 0 0 0 1h2.768l-4.096 4.096a.5.5 0 0 0 0 .707z"/></svg><div class="label">Explode</div></div>
+                <div id="reset-view-btn" class="icon-button" title="Reset View" style="display:none;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M.172 15.828a.5.5 0 0 0 .707 0l4.096-4.096V14.5a.5.5 0 1 0 1 0v-3.975a.5.5 0 0 0-.5-.5H1.5a.5.5 0 0 0 0 1h2.768L.172 15.121a.5.5 0 0 0 0 .707zM15.828.172a.5.5 0 0 0-.707 0l-4.096 4.096V1.5a.5.5 0 1 0-1 0v3.975a.5.5 0 0 0 .5.5H14.5a.5.5 0 0 0 0-1h-2.768L15.828.879a.5.5 0 0 0 0-.707z"/></svg><div class="label">Restore</div></div>
+                <div id="view-graph-btn" class="icon-button" title="View connection graph"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-share" viewBox="0 0 16 16"><path d="M13.5 1a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.499 2.499 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5zm-8.5 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm11 5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/></svg><div class="label">Graph</div></div>
+                <div id="download-json-btn" class="icon-button" title="Download Assembly JSON"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/></svg><div class="label">Download</div></div>
+            </div>
 
-        <div class="MIA-group">
-            <div id="MIA-output"></div>
-        </div>
-    </div>
-</div>
+            <div class="action-buttons">
+                <button id="add-files-btn" class="btn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M4.5 3a2.5 2.5 0 0 1 5 0v9a1.5 1.5 0 0 1-3 0V5a.5.5 0 0 1 1 0v7a.5.5 0 0 0 1 0V3a1.5 1.5 0 1 0-3 0v9a2.5 2.5 0 0 0 5 0V5a.5.5 0 0 1 1 0v7a3.5 3.5 0 1 1-7 0V3z"/></svg>Add Files</button>
+                <button id="generate-assembly-btn" class="btn">🧱 Generate Assembly</button>
+            </div>
 
-<!-- Modals -->
-<div id="data-choice-modal-overlay" class="modal-overlay"><div class="modal-content"><h3 id="data-choice-title">Select Data</h3><div class="action-buttons"><button id="choice-btn-assembly" class="btn modal-btn">📦 Assembly</button><button id="choice-btn-damages" class="btn modal-btn">📍 Damages</button></div><div class="modal-actions" style="margin-top:20px"><button class="btn modal-btn close-modal-btn">Cancel</button></div></div></div>
-<div id="json-view-modal-overlay" class="modal-overlay"><div class="modal-content"><h3 id="json-view-title">Current JSON</h3><textarea id="json-view-textarea" readonly></textarea><div class="modal-actions"><button id="copy-json-from-modal-btn" class="btn modal-btn">Copy</button><button class="btn modal-btn close-modal-btn">Close</button></div></div></div>
-<div id="graph-modal-overlay" class="modal-overlay"><div class="modal-content"><button id="save-graph-svg-btn" class="btn modal-btn svg-save-btn">Save as SVG</button><h3 id="graph-title">Graph</h3><div id="graph-container"></div><div class="modal-actions"><button class="btn modal-btn close-modal-btn">Close</button></div></div></div>
-<div id="settings-modal-overlay" class="modal-overlay">
-    <div class="modal-content">
-        <h3>Settings</h3>
-        <div class="settings-group">
-            <label for="model-select">Select AI Model</label>
-            <select id="model-select" class="settings-input">
-                <option value="gemini-2.5-flash-lite">Fast</option>
-                <option value="gemini-2.5-flash" selected>Balanced</option>
-                <option value="gemini-2.5-pro">Accurate</option>
-            </select>
-        </div>
-        <div class="settings-group">
-            <label for="temperature-slider">Creativity (Temperature): <span id="temperature-value">0.4</span></label>
-            <input type="range" id="temperature-slider" class="settings-input" min="0" max="1" step="0.1" value="0.4">
-        </div>
-        <div class="settings-group">
-            <label for="sphere-scale-slider">Damage Marker Scale: <span id="sphere-scale-value">1.00</span></label>
-            <input type="range" id="sphere-scale-slider" class="settings-input" min="0.5" max="5" step="0.1" value="1.0">
-        </div>
-        <div class="modal-actions">
-            <button id="save-settings-btn" class="btn modal-btn">Save</button>
-            <button class="btn modal-btn close-modal-btn">Cancel</button>
+            <div class="instructions-group">
+                <label for="user-prompt">Describe Geometry (optional, use with photos for better results)...</label>
+                <textarea id="user-prompt" placeholder="e.g., 'Add a Box on top' or 'Move backrest 1 cm in direction of x-axis'"></textarea>
+            </div>
+
+            <div class="hans-group">
+                <div id="hans-output"></div>
+            </div>
         </div>
     </div>
-</div>
 
-<!-- Hidden Inputs -->
-<input type="file" id="assembly-upload-input" class="hidden-input" accept=".json, .txt">
-<input type="file" id="damages-upload-input" class="hidden-input" accept=".json, .txt">
-<input type="file" id="add-files-input" class="hidden-input" multiple accept="image/*,application/pdf">
-
-<!-- Libraries -->
-<script src="https://unpkg.com/d3@7.8.5/dist/d3.min.js"></script>
-<script src="https://unpkg.com/d3-graphviz@5.1.0/build/d3-graphviz.js"></script>
-<script type="importmap">{"imports": {"three": "https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"}}</script>
-
-<script type="module">
-    import * as THREE from 'three';
-    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-
-    // --- CONSTANTS & GLOBALS ---
-    const MIA_PREFIX = "M.I.A.🔎: ";
-    const MAX_FILE_SIZE = 3 * 1024 * 1024;
-    const MAX_FILES = 10;
-    const ANIMATION_DURATION = 800; // ms
-    const SPHERE_BASE_RADIUS = 0.015;
-    let scene, camera, renderer, controls, axesScene, axesCamera, infoBox, raycaster, mouse;
-    let typingInterval, timerInterval;
-    let currentModelJson = null;
-    let currentDamageJson = null;
-    let uploadedFiles = [];
-    let mouseDownPos = null;
-    const objectGroup = new THREE.Group();
-    const damageSpheres = [];
-    const partMeshesMap = new Map();
-    let activeAnimations = [];
-    let temperature = 0.4;
-    let geminiModel = 'gemini-2.5-flash';
-    let sphereScale = 1.0;
-
-    // --- DOM ELEMENTS ---
-    const viewerContainer = document.getElementById('viewer-container');
-    const viewerCanvas = document.getElementById('viewer-canvas');
-    const MIAOutputEl = document.getElementById('MIA-output');
-    const userPromptInput = document.getElementById('user-prompt');
-    const objectNameInput = document.getElementById('object-name');
-    const explodeBtn = document.getElementById('explode-view-btn');
-    const resetBtn = document.getElementById('reset-view-btn');
-    const settingsBtn = document.getElementById('settings-btn');
-    const settingsModal = document.getElementById('settings-modal-overlay');
-    const modelSelect = document.getElementById('model-select');
-    const temperatureSlider = document.getElementById('temperature-slider');
-    const temperatureValue = document.getElementById('temperature-value');
-    const sphereScaleSlider = document.getElementById('sphere-scale-slider');
-    const sphereScaleValue = document.getElementById('sphere-scale-value');
-    const saveSettingsBtn = document.getElementById('save-settings-btn');
+    <!-- Modals -->
+    <div id="data-choice-modal-overlay" class="modal-overlay"><div class="modal-content"><h3 id="data-choice-title">Select Data</h3><div class="action-buttons"><button id="choice-btn-assembly" class="btn modal-btn">📦 Assembly</button></div><div class="modal-actions" style="margin-top:20px"><button class="btn modal-btn close-modal-btn">Cancel</button></div></div></div>
+    <div id="json-view-modal-overlay" class="modal-overlay"><div class="modal-content"><h3 id="json-view-title">Current JSON</h3><textarea id="json-view-textarea" readonly></textarea><div class="modal-actions"><button id="copy-json-from-modal-btn" class="btn modal-btn">Copy</button><button class="btn modal-btn close-modal-btn">Close</button></div></div></div>
+    <div id="graph-modal-overlay" class="modal-overlay"><div class="modal-content"><button id="save-graph-svg-btn" class="btn modal-btn svg-save-btn">Save as SVG</button><h3 id="graph-title">Graph</h3><div id="graph-container"></div><div class="modal-actions"><button class="btn modal-btn close-modal-btn">Close</button></div></div></div>
+    <div id="settings-modal-overlay" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Settings</h3>
+            <div class="settings-group">
+                <label for="model-select">Select AI Model</label>
+                <select id="model-select" class="settings-input">
+                    <option value="gemini-2.5-flash-lite">Fast</option>
+                    <option value="gemini-2.5-flash">Balanced</option>
+                    <option value="gemini-2.5-pro" selected>Accurate</option>
+                </select>
+            </div>
+            <div class="settings-group">
+                <label for="temperature-slider">Creativity (Temperature): <span id="temperature-value">0.5</span></label>
+                <input type="range" id="temperature-slider" class="settings-input" min="0" max="1" step="0.1" value="0.5">
+            </div>
+            <div class="settings-group checkbox-group">
+                <input type="checkbox" id="allow-rotations-checkbox" class="settings-input">
+                <label for="allow-rotations-checkbox">Model with Rotations (Experimental)</label>
+            </div>
+            <div class="modal-actions">
+                <button id="save-settings-btn" class="btn modal-btn">Save</button>
+                <button class="btn modal-btn close-modal-btn">Cancel</button>
+            </div>
+        </div>
+    </div>
     
-    // --- MATERIALS ---
-    const intactPartMaterial = new THREE.MeshStandardMaterial({ color: 0x666666, transparent: true, opacity: 0.4 });
-    const defectivePartMaterial = new THREE.MeshStandardMaterial({ color: 0xff4444, transparent: true, opacity: 0.5 });
-    const missingPartMaterial = new THREE.MeshStandardMaterial({ color: 0, transparent: true, opacity: 0, visible: false }); // Missing parts are invisible
-    const selectionPartMaterial = new THREE.MeshStandardMaterial({ color: 0x0000ff, transparent: true, opacity: 0.9 });
-    const outlineMaterial = new THREE.LineBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.8 });
-    const defaultDotMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-    const selectedDotMaterial = new THREE.MeshBasicMaterial({ color: 0x6f0000 });
+    <!-- Hidden Inputs -->
+    <input type="file" id="assembly-upload-input" class="hidden-input" accept=".json, .txt">
+    <input type="file" id="add-files-input" class="hidden-input" multiple accept="image/*,application/pdf">
 
-    // --- CORE 3D & UI FUNCTIONS ---
-    function init() {
-        scene = new THREE.Scene();
-        scene.background = new THREE.Color(0xffffff);
-        scene.add(objectGroup);
+    <!-- Libraries -->
+    <script src="https://unpkg.com/d3@7.8.5/dist/d3.min.js"></script>
+    <script src="https://unpkg.com/d3-graphviz@5.1.0/build/d3-graphviz.js"></script>
+    <script type="importmap">{"imports": {"three": "https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"}}</script>
 
-        camera = new THREE.PerspectiveCamera(50, viewerContainer.clientWidth / viewerContainer.clientHeight, 0.01, 1000);
-        camera.position.set(0.8, 1.0, 1.2);
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-        renderer = new THREE.WebGLRenderer({ canvas: viewerCanvas, antialias: true, alpha: true });
-        renderer.autoClear = false;
-        renderer.setPixelRatio(window.devicePixelRatio);
-        renderer.setSize(viewerContainer.clientWidth, viewerContainer.clientHeight);
+        // --- CONSTANTS & GLOBALS ---
+        const HANS_PREFIX = "H.A.N.S.🌟: ";
+        const MAX_FILE_SIZE = 3 * 1024 * 1024;
+        const MAX_FILES = 10;
+        const ANIMATION_DURATION = 800; // ms
+        let scene, camera, renderer, controls, axesScene, axesCamera, infoBox, raycaster, mouse;
+        let typingInterval, timerInterval;
+        let currentModelJson = null;
+        let uploadedFiles = [];
+        let selectedPartId = null;
+        let mouseDownPos = null;
+        const objectGroup = new THREE.Group();
+        const partMeshesMap = new Map();
+        let activeAnimations = [];
+        let temperature = 0.5;
+        let geminiModel = 'gemini-2.5-pro';
+        let allowRotations = false;
 
-        controls = new OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true;
-        controls.target.set(0, 0, 0);
+        // --- DOM ELEMENTS ---
+        const viewerContainer = document.getElementById('viewer-container');
+        const viewerCanvas = document.getElementById('viewer-canvas');
+        const hansOutputEl = document.getElementById('hans-output');
+        const userPromptInput = document.getElementById('user-prompt');
+        const objectNameInput = document.getElementById('object-name');
+        const explodeBtn = document.getElementById('explode-view-btn');
+        const resetBtn = document.getElementById('reset-view-btn');
+        const settingsBtn = document.getElementById('settings-btn');
+        const settingsModal = document.getElementById('settings-modal-overlay');
+        const modelSelect = document.getElementById('model-select');
+        const temperatureSlider = document.getElementById('temperature-slider');
+        const temperatureValue = document.getElementById('temperature-value');
+        const saveSettingsBtn = document.getElementById('save-settings-btn');
+        const allowRotationsCheckbox = document.getElementById('allow-rotations-checkbox');
 
-        scene.add(new THREE.AmbientLight(0xffffff, 0.8), new THREE.DirectionalLight(0xffffff, 0.7, 3));
-        
-        axesScene = new THREE.Scene();
-        const gizmoSize = 2.5;
-        axesCamera = new THREE.OrthographicCamera(-gizmoSize, gizmoSize, gizmoSize, -gizmoSize, -10, 10);
-        const axes = new THREE.AxesHelper(1.5);
-        axesScene.add(axes);
-        
-        infoBox = document.getElementById('info-box');
-        raycaster = new THREE.Raycaster();
-        mouse = new THREE.Vector2();
-        mouseDownPos = new THREE.Vector2();
+        // --- MATERIALS ---
+        const defaultPartMaterial = new THREE.MeshStandardMaterial({ color: 0x666666, transparent: true, opacity: 0.4 });
+        const selectionPartMaterial = new THREE.MeshStandardMaterial({ color: 0x0000ff, transparent: true, opacity: 0.9 });
+        const outlineMaterial = new THREE.LineBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.8 });
 
-        setupEventListeners();
-        loadDefaults();
-        animate();
-    }
+        // --- CORE 3D & UI FUNCTIONS ---
+        function init() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xffffff);
+            scene.add(objectGroup);
 
-    function loadDefaults() {
-        const defaultModel = {"objectName": "","parts": [{"id": "cube","status": "defective","origin": { "x": 0, "y": 0, "z": 0 },"dimensions": { "width": 0.5, "depth": 0.5, "height": 0.5 },"connections": []}]};
-        const defaultDamage = [{"id": "damage_01","type": "Scratch","description": "A default scratch.","part_id": "cube","coordinates": { "x": 0.0, "y": 0.25, "z": 0.0 }}];
-        createModel(defaultModel);
-        createDamages(defaultDamage);
-        objectNameInput.value = "";
-        updateMIA("Hello! I am M.A.G.D.A. the Mapping Agent for General Damages. Upload an assembly and damage file, or add photos to begin.");
-    }
+            camera = new THREE.PerspectiveCamera(50, viewerContainer.clientWidth / viewerContainer.clientHeight, 0.01, 1000);
+            camera.position.set(0.8, 1.0, 1.2);
 
-    function animate() {
-        requestAnimationFrame(animate);
+            renderer = new THREE.WebGLRenderer({ canvas: viewerCanvas, antialias: true, alpha: true });
+            renderer.autoClear = false;
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(viewerContainer.clientWidth, viewerContainer.clientHeight);
 
-        if (activeAnimations.length > 0) {
-            const now = performance.now();
-            activeAnimations.forEach(anim => {
-                const progress = Math.min((now - anim.startTime) / ANIMATION_DURATION, 1);
-                const easedProgress = 1 - Math.pow(1 - progress, 3);
-                anim.mesh.position.lerpVectors(anim.start, anim.end, easedProgress);
-            });
-            activeAnimations = activeAnimations.filter(anim => now - anim.startTime < ANIMATION_DURATION);
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.target.set(0, 0, 0);
+
+            scene.add(new THREE.AmbientLight(0xffffff, 0.8), new THREE.DirectionalLight(0xffffff, 0.7, 3));
+            
+            axesScene = new THREE.Scene();
+            const gizmoSize = 2.5;
+            axesCamera = new THREE.OrthographicCamera(-gizmoSize, gizmoSize, gizmoSize, -gizmoSize, -10, 10);
+            const axes = new THREE.AxesHelper(1.5);
+            axesScene.add(axes);
+            
+            infoBox = document.getElementById('info-box');
+            raycaster = new THREE.Raycaster();
+            mouse = new THREE.Vector2();
+            mouseDownPos = new THREE.Vector2();
+
+            setupEventListeners();
+            loadDefaults();
+            animate();
         }
 
-        const time = Date.now() * 0.008;
-        const scale = sphereScale * (1 + Math.sin(time) * 0.1);
-        damageSpheres.forEach(sphere => sphere.scale.set(scale, scale, scale));
-        
-        controls.update();
-        renderer.clear();
-        renderer.render(scene, camera);
-        renderer.clearDepth();
-        const gizmoSize = 80;
-        renderer.setViewport(10, 10, gizmoSize, gizmoSize);
-        axesCamera.quaternion.copy(camera.quaternion);
-        renderer.render(axesScene, axesCamera);
-        renderer.setViewport(0, 0, renderer.domElement.clientWidth, renderer.domElement.clientHeight);
-    }
+        function loadDefaults() {
+            const defaultModel = { "objectName": "Default Cube", "parts": [{ "id": "cube", "origin": {"x": 0, "y": 0.25, "z": 0}, "dimensions": {"width": 0.5, "depth": 0.5, "height": 0.5}, "connections": [] }] };
+            createModel(defaultModel);
+            objectNameInput.value = ""; 
+            updateHANS("Hello! I am H.A.N.S. -  the Heuristic Agent for Narrating Structures. Add files or describe an object, or load an assembly to begin.");
+        }
 
-    function onWindowResize() {
-        const w = viewerContainer.clientWidth, h = viewerContainer.clientHeight;
-        camera.aspect = w / h;
-        camera.updateProjectionMatrix();
-        renderer.setSize(w, h);
-    }
-    
-    function clearAll() {
-        clearModel();
-        clearDamages();
-    }
+        function animate() {
+            requestAnimationFrame(animate);
 
-    function clearModel() {
-        activeAnimations = [];
-        while (objectGroup.children.length > 0) objectGroup.remove(objectGroup.children[0]);
-        partMeshesMap.clear();
-        currentModelJson = null;
-        objectNameInput.value = "";
-    }
-
-    function clearDamages() {
-         damageSpheres.forEach(s => scene.remove(s));
-         damageSpheres.length = 0;
-         currentDamageJson = null;
-    }
-
-    function resetMaterials() {
-        partMeshesMap.forEach((mesh) => {
-            const part = mesh.parent.userData.part;
-            switch (part.status) {
-                case 'missing': 
-                    mesh.material = missingPartMaterial;
-                    mesh.parent.children[1].visible = false;
-                    break;
-                case 'defective': 
-                    mesh.material = defectivePartMaterial; 
-                    mesh.parent.children[1].visible = true;
-                    break;
-                default: 
-                    mesh.material = intactPartMaterial;
-                    mesh.parent.children[1].visible = true;
+            // Handle active animations for explode/reset
+            if (activeAnimations.length > 0) {
+                const now = performance.now();
+                activeAnimations.forEach(anim => {
+                    const elapsedTime = now - anim.startTime;
+                    let progress = Math.min(elapsedTime / ANIMATION_DURATION, 1);
+                    // Ease-out cubic function for smooth stop
+                    const easedProgress = 1 - Math.pow(1 - progress, 3);
+                    anim.mesh.position.lerpVectors(anim.start, anim.end, easedProgress);
+                });
+                activeAnimations = activeAnimations.filter(anim => now - anim.startTime < ANIMATION_DURATION);
             }
-        });
-        damageSpheres.forEach(sphere => { sphere.material = defaultDotMaterial; });
-    }
 
-    function createModel(jsonData) {
-        clearModel();
-        if (!jsonData || !jsonData.parts || !Array.isArray(jsonData.parts)) {
-            updateMIA("Error: Could not parse assembly file. Is it valid JSON?");
-            return;
+            controls.update();
+            renderer.clear();
+            renderer.render(scene, camera);
+            renderer.clearDepth();
+            const gizmoSize = 80;
+            renderer.setViewport(10, 10, gizmoSize, gizmoSize);
+            axesCamera.quaternion.copy(camera.quaternion);
+            renderer.render(axesScene, axesCamera);
+            renderer.setViewport(0, 0, renderer.domElement.clientWidth, renderer.domElement.clientHeight);
         }
-        currentModelJson = jsonData;
-        objectNameInput.value = jsonData.objectName || "Untitled";
-        
-        jsonData.parts.forEach(part => {
-            const geo = new THREE.BoxGeometry(part.dimensions.width, part.dimensions.height, part.dimensions.depth);
-            const pos = new THREE.Vector3(part.origin.x, part.origin.y, part.origin.z);
 
-            const partGroup = new THREE.Group();
-            const mesh = new THREE.Mesh(geo, intactPartMaterial);
-            const line = new THREE.LineSegments(new THREE.EdgesGeometry(geo), outlineMaterial);
+        function onWindowResize() {
+            const w = viewerContainer.clientWidth, h = viewerContainer.clientHeight;
+            camera.aspect = w / h;
+            camera.updateProjectionMatrix();
+            renderer.setSize(w, h);
+        }
+
+        function clearModel() {
+            activeAnimations = [];
+            while (objectGroup.children.length > 0) objectGroup.remove(objectGroup.children[0]);
+            partMeshesMap.clear();
+            currentModelJson = null;
+            objectNameInput.value = "";
+        }
+
+        function resetMaterials() {
+            partMeshesMap.forEach(mesh => { mesh.material = defaultPartMaterial; });
+        }
+
+        function createModel(jsonData) {
+            clearModel();
+            if (!jsonData || !jsonData.parts || !Array.isArray(jsonData.parts)) {
+                updateHANS("Error: Could not parse assembly file. Is it valid JSON?");
+                return;
+            }
+            currentModelJson = jsonData;
+            objectNameInput.value = jsonData.objectName || "Untitled";
             
-            partGroup.add(mesh);
-            partGroup.add(line);
-            partGroup.userData.originalPosition = pos.clone();
-            partGroup.position.copy(pos);
-            
-            if (part.rotation) {
-                 partGroup.rotation.set(
+            const bounds = new THREE.Box3();
+            jsonData.parts.forEach(part => {
+                const geo = new THREE.BoxGeometry(part.dimensions.width, part.dimensions.height, part.dimensions.depth);
+                const pos = new THREE.Vector3(part.origin.x, part.origin.y, part.origin.z);
+
+                const partGroup = new THREE.Group();
+                const mesh = new THREE.Mesh(geo, defaultPartMaterial);
+                const line = new THREE.LineSegments(new THREE.EdgesGeometry(geo), outlineMaterial);
+                
+                partGroup.add(mesh);
+                partGroup.add(line);
+                partGroup.userData.originalPosition = pos.clone();
+                
+                partGroup.position.copy(pos);
+                
+                // --- ROBUSTNESS FIX ---
+                // Normalize the rotation data to prevent crashes and ensure data integrity.
+                if (!part.rotation || typeof part.rotation !== 'object') {
+                    part.rotation = { x: 0, y: 0, z: 0 }; // Ensure a rotation object always exists in our data
+                }
+
+                // Now we can safely apply the rotation
+                partGroup.rotation.set(
                     part.rotation.x || 0,
                     part.rotation.y || 0,
                     part.rotation.z || 0,
                     'YXZ'
                 );
-            }
-            
-            partGroup.userData.part = part;
-            objectGroup.add(partGroup);
-            partMeshesMap.set(part.id, mesh);
-        });
-
-        const bounds = new THREE.Box3().setFromObject(objectGroup);
-        const center = new THREE.Vector3();
-        bounds.getCenter(center);
-        controls.target.copy(center);
-
-        resetBtn.style.display = 'none';
-        explodeBtn.style.display = 'inline-block';
-        resetMaterials();
-        updateMIA(`Assembly "${jsonData.objectName}" loaded. Upload damage file or add photos to catalog damages.`);
-    }
-
-    function createDamages(jsonData) {
-        clearDamages();
-        if(!currentModelJson) { updateMIA("Error: Please load an assembly file first."); return; }
-        if (!jsonData || !Array.isArray(jsonData)) return;
-
-        currentDamageJson = jsonData;
-        const dotGeometry = new THREE.SphereGeometry(SPHERE_BASE_RADIUS, 16, 16);
-
-        jsonData.forEach(damage => {
-            if (!damage.coordinates || !damage.part_id) return;
-
-            const partData = currentModelJson.parts.find(p => p.id === damage.part_id);
-            if (!partData) {
-                console.warn(`Could not find part with id "${damage.part_id}" for damage "${damage.id}".`);
-                return;
-            }
-
-            const origin = new THREE.Vector3(partData.origin.x, partData.origin.y, partData.origin.z);
-            const naiveCoord = new THREE.Vector3(damage.coordinates.x, damage.coordinates.y, damage.coordinates.z);
-            const localOffset = new THREE.Vector3().subVectors(naiveCoord, origin);
-
-            const euler = new THREE.Euler(
-                partData.rotation?.x || 0,
-                partData.rotation?.y || 0,
-                partData.rotation?.z || 0,
-                'YXZ'
-            );
-            const quaternion = new THREE.Quaternion().setFromEuler(euler);
-
-            const partMatrix = new THREE.Matrix4();
-            partMatrix.compose(origin, quaternion, new THREE.Vector3(1, 1, 1));
-
-            const finalPosition = localOffset.clone().applyMatrix4(partMatrix);
-            
-            const sphere = new THREE.Mesh(dotGeometry, defaultDotMaterial.clone());
-            sphere.position.copy(finalPosition);
-            sphere.userData.damage = damage;
-            damageSpheres.push(sphere);
-            scene.add(sphere);
-        });
-        resetMaterials();
-    }
-
-    function updateMIA(message, isTyping = false) {
-        if (typingInterval) clearInterval(typingInterval);
-        if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
-
-        if (isTyping) {
-            let seconds = 0;
-            const updateTimer = () => { MIAOutputEl.innerHTML = `${MIA_PREFIX}${message} (${seconds}s)`; };
-            updateTimer();
-            timerInterval = setInterval(() => { seconds++; updateTimer(); }, 1000);
-        } else {
-            MIAOutputEl.innerHTML = `${MIA_PREFIX}<span id="mia-text"></span><span class="cursor"></span>`;
-            const textEl = document.getElementById('mia-text');
-            const cursorEl = MIAOutputEl.querySelector('.cursor');
-            if (!textEl || !cursorEl) return;
-            let i = 0;
-            typingInterval = setInterval(() => {
-                if (i < message.length) {
-                    textEl.textContent += message.charAt(i++);
-                } else {
-                    clearInterval(typingInterval);
-                    if (cursorEl) cursorEl.style.display = 'none';
-                }
-            }, 20);
-        }
-    }
-    
-    function handleFileUpload(event, type) {
-        const file = event.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = e => {
-            try {
-                const data = JSON.parse(e.target.result);
-                if (type === 'assembly') {
-                    clearAll();
-                    createModel(data);
-                } else {
-                    createDamages(data);
-                    updateMIA("Damage data loaded. You can now catalog further damages.");
-                }
-            } catch (err) {
-                updateMIA(`Error parsing ${type} file: ${err.message}`);
-            }
-        };
-        reader.readAsText(file);
-        event.target.value = '';
-    }
-
-    function viewJson(type) {
-        const dataMap = { assembly: currentModelJson, damages: currentDamageJson };
-        if (!dataMap[type]) { updateMIA(`No ${type} data loaded.`); return; }
-        document.getElementById('json-view-title').textContent = `Current ${type} JSON`;
-        document.getElementById('json-view-textarea').value = JSON.stringify(dataMap[type], null, 2);
-        document.getElementById('json-view-modal-overlay').style.display = 'flex';
-    }
-
-    function downloadJson(type) {
-        const dataMap = { assembly: currentModelJson, damages: currentDamageJson };
-        if (!dataMap[type]) { updateMIA(`No ${type} data loaded.`); return; }
-        const name = (objectNameInput.value || 'object').replace(/\s+/g, '_');
-        const blob = new Blob([JSON.stringify(dataMap[type], null, 2)], {type: 'application/json'});
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `${name}_${type}.json`;
-        a.click();
-        URL.revokeObjectURL(a.href);
-    }
-
-    function viewGraph() {
-        if (!currentModelJson) { updateMIA("Load an assembly to see its graph."); return; }
-        let dot = `graph G {\n  graph [rankdir="LR" splines=true ranksep=2.5 nodesep=0.5];\n  node [shape=box, style="filled", fillcolor="#f0f0f0", fontname="Helvetica,Arial,sans-serif"];\n  edge [arrowhead=none];\n\n`;
-        const addedEdges = new Set();
-        currentModelJson.parts.forEach(part => {
-            let fillColor = '#dddddd';
-            if (part.status === 'defective') fillColor = '#ffc0c0';
-            if (part.status === 'missing') fillColor = '#ffee9c';
-            const label = part.name || part.id;
-            dot += `  "${part.id}" [label="${label}\\n(${part.status})", fillcolor="${fillColor}"];\n`;
-            if (part.status !== 'missing') {
-                part.connections?.forEach(connectedId => {
-                    const connectedPart = currentModelJson.parts.find(p => p.id === connectedId);
-                    if (connectedPart && connectedPart.status !== 'missing') {
-                        const edgeKey = [part.id, connectedId].sort().join('--');
-                        if (!addedEdges.has(edgeKey)) {
-                            dot += `  "${part.id}" -- "${connectedId}";\n`;
-                            addedEdges.add(edgeKey);
-                        }
-                    }
-                });
-            }
-        });
-        dot += '}';
-        document.getElementById('graph-title').textContent = "Assembly Connection Graph";
-        d3.select("#graph-container").graphviz({useWorker: false}).engine('dot').renderDot(dot);
-        document.getElementById('graph-modal-overlay').style.display = 'flex';
-    }
-    
-    function onObjectClick(event) {
-        const rect = renderer.domElement.getBoundingClientRect();
-        mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-        mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-        raycaster.setFromCamera(mouse, camera);
-
-        const sphereIntersects = raycaster.intersectObjects(damageSpheres);
-        const partIntersects = raycaster.intersectObjects(Array.from(partMeshesMap.values()));
-        
-        resetMaterials();
-        infoBox.style.display = 'none';
-        
-        if (sphereIntersects.length > 0) {
-            const clickedSphere = sphereIntersects[0].object;
-            const damageInfo = clickedSphere.userData.damage;
-            clickedSphere.material = selectedDotMaterial;
-            infoBox.style.color = '#ff0000';
-            infoBox.innerHTML = `<b>${damageInfo.type} (${damageInfo.id}):</b><br>Part: ${damageInfo.part_id}<br>${damageInfo.description}`;
-            infoBox.style.display = 'block';
-
-        } else if (partIntersects.length > 0) {
-            const clickedMesh = partIntersects[0].object;
-            const partData = clickedMesh.parent.userData.part;
-            clickedMesh.material = selectionPartMaterial;
-            if (partData) {
-                const d = partData.dimensions;
-                infoBox.style.color = '#0000ff';
-                const statusLine = partData.status ? `<br><b>Status:</b> ${partData.status}`: '';
-                infoBox.innerHTML = `<b>Part:</b> ${partData.id.replace(/_/g, ' ')}${statusLine}<br><b>Size:</b> ${(d.width*100).toFixed(1)} x ${(d.depth*100).toFixed(1)} x ${(d.height*100).toFixed(1)} cm`;
-                infoBox.style.display = 'block';
-            }
-        }
-    }
-    
-    // --- SVG DRAWING FUNCTIONS ---
-
-    function generateAssemblySVG(assemblyJson, damageJson) {
-        const { objectName, parts } = assemblyJson;
-        if (!parts || parts.length === 0) return '';
-
-        const allWorldVertices = new Map();
-        const globalBBox = new THREE.Box3();
-
-        parts.forEach(part => {
-            const centerPos = new THREE.Vector3(part.origin.x, part.origin.y, part.origin.z);
-            const w = part.dimensions.width, h = part.dimensions.height, d = part.dimensions.depth;
-            const localVertices = [
-                new THREE.Vector3(-w/2,-h/2,d/2), new THREE.Vector3(w/2,-h/2,d/2), new THREE.Vector3(w/2,h/2,d/2), new THREE.Vector3(-w/2,h/2,d/2),
-                new THREE.Vector3(-w/2,-h/2,-d/2), new THREE.Vector3(w/2,-h/2,-d/2), new THREE.Vector3(w/2,h/2,-d/2), new THREE.Vector3(-w/2,h/2,-d/2)
-            ];
-
-            const euler = new THREE.Euler(part.rotation?.x || 0, part.rotation?.y || 0, part.rotation?.z || 0, 'YXZ');
-            const quaternion = new THREE.Quaternion().setFromEuler(euler);
-            const partMatrix = new THREE.Matrix4().compose(centerPos, quaternion, new THREE.Vector3(1, 1, 1));
-
-            const worldVertices = localVertices.map(v => v.clone().applyMatrix4(partMatrix));
-            allWorldVertices.set(part.id, worldVertices);
-            worldVertices.forEach(v => globalBBox.expandByPoint(v));
-        });
-
-        const globalSize = globalBBox.getSize(new THREE.Vector3());
-        const scale = 200;
-        const padding = 60;
-        const viewWidth = Math.max(globalSize.x, globalSize.z) * scale;
-        const viewHeight = Math.max(globalSize.y, globalSize.z) * scale;
-        const svgWidth = (viewWidth * 4) + (padding * 5);
-        const svgHeight = (viewHeight * 3) + (padding * 4);
-
-        const views = {
-            'TOP':    { x: viewWidth + padding*2, y: padding,                  p: v => ({ x: v.x, y: v.z }),  dir: new THREE.Vector3(0, 1, 0) },
-            'LEFT':   { x: padding,                 y: viewHeight + padding*2,   p: v => ({ x: -v.z, y: -v.y }), dir: new THREE.Vector3(-1, 0, 0) },
-            'FRONT':  { x: viewWidth + padding*2, y: viewHeight + padding*2,   p: v => ({ x: v.x, y: -v.y }), dir: new THREE.Vector3(0, 0, 1) },
-            'RIGHT':  { x: viewWidth*2 + padding*3, y: viewHeight + padding*2,   p: v => ({ x: v.z,y: -v.y }), dir: new THREE.Vector3(1, 0, 0) },
-            'BACK':   { x: viewWidth*3 + padding*4, y: viewHeight + padding*2,   p: v => ({ x: -v.x,y: -v.y }), dir: new THREE.Vector3(0, 0, -1) },
-            'BOTTOM': { x: viewWidth + padding*2, y: viewHeight*2 + padding*3, p: v => ({ x: v.x, y: -v.z }), dir: new THREE.Vector3(0, -1, 0) },
-        };
-        
-        const faces = [[0,1,2,3],[5,4,7,6],[1,5,6,2],[4,0,3,7],[3,2,6,7],[4,5,1,0]];
-        const edges = [[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
-        let svgElements = '';
-
-        for (const [name, view] of Object.entries(views)) {
-            const projectedPoints = [];
-            allWorldVertices.forEach(verts => verts.forEach(v => projectedPoints.push(view.p(v))));
-            const pBounds=projectedPoints.reduce((a,p)=>({minX:Math.min(a.minX,p.x),minY:Math.min(a.minY,p.y),maxX:Math.max(a.maxX,p.x),maxY:Math.max(a.maxY,p.y)}),{minX:Infinity,minY:Infinity,maxX:-Infinity,maxY:-Infinity});
-            const centerX = (pBounds.minX + pBounds.maxX)/2, centerY = (pBounds.minY + pBounds.maxY)/2;
-            
-            const groupTransform = `translate(${view.x}, ${view.y})`;
-            const contentTransform = `translate(${viewWidth/2}, ${viewHeight/2}) scale(${scale}) translate(${-centerX}, ${-centerY})`;
-            
-            let hiddenLinesHTML = '', visibleLinesHTML = '';
-            parts.forEach(part => {
-                let partHidden = '', partVisible = '';
-                const worldVertices = allWorldVertices.get(part.id);
-                if (!worldVertices) return;
-                const visibleEdges = new Set();
-                if (part.status !== 'missing') {
-                    faces.forEach(faceIndices => {
-                        const v0=worldVertices[faceIndices[0]], v1=worldVertices[faceIndices[1]], v2=worldVertices[faceIndices[2]];
-                        const faceNormal=new THREE.Vector3().crossVectors(new THREE.Vector3().subVectors(v1,v0),new THREE.Vector3().subVectors(v2,v0)).normalize();
-                        if (faceNormal.dot(view.dir) > 0) {
-                           for (let i=0; i<faceIndices.length; i++) visibleEdges.add([faceIndices[i], faceIndices[(i+1)%faceIndices.length]].sort().join('-'));
-                        }
-                    });
-                }
-                edges.forEach(edgeIndices => {
-                    const edgeKey = [...edgeIndices].sort().join('-');
-                    const p1 = view.p(worldVertices[edgeIndices[0]]), p2 = view.p(worldVertices[edgeIndices[1]]);
-                    const line = `<line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" />`;
-                    if (visibleEdges.has(edgeKey)) partVisible += line; else partHidden += line;
-                });
-                const statusClass = `part-${part.status || 'intact'}`;
-                hiddenLinesHTML += `<g class="${statusClass}">${partHidden}</g>`;
-                visibleLinesHTML += `<g class="${statusClass}">${partVisible}</g>`;
-            });
-            
-            let damageMarkers = '';
-            (damageJson || []).forEach(damage => {
-                const damagePos3D = new THREE.Vector3(damage.coordinates.x, damage.coordinates.y, damage.coordinates.z);
-                const p = view.p(damagePos3D);
-                damageMarkers += `<circle cx="${p.x}" cy="${p.y}" r="${2/scale}" class="damage-marker" />`;
-            });
-
-            svgElements += `<g transform="${groupTransform}"><text x="${viewWidth/2}" y="${viewHeight+20}" text-anchor="middle" font-size="14" font-family="sans-serif">${name}</text><g transform="${contentTransform}"><g class="hidden-lines">${hiddenLinesHTML}</g><g class="visible-lines">${visibleLinesHTML}</g>${damageMarkers}</g></g>`;
-        }
-
-        let scaleBarHTML = '';
-        const worldCenterY = globalBBox.getCenter(new THREE.Vector3()).y;
-        const middleRowYCenter = (viewHeight + padding * 2) + viewHeight / 2;
-        const scaleBarX = views['RIGHT'].x - padding / 2;
-        const tickWidth = padding * 0.4;
-        const minY = globalBBox.min.y;
-        const maxY = globalBBox.max.y;
-        let currentTickWorldY = Math.ceil(maxY / 0.1) * 0.1;
-
-        while (currentTickWorldY >= minY) {
-            const y_pixel = middleRowYCenter - (currentTickWorldY - worldCenterY) * scale;
-            scaleBarHTML += `<line x1="${scaleBarX - tickWidth / 2}" y1="${y_pixel}" x2="${scaleBarX + tickWidth / 2}" y2="${y_pixel}" />`;
-            currentTickWorldY -= 0.1;
-        }
-        svgElements += `<g class="scale-bar">${scaleBarHTML}</g>`;
-        
-        const style = `<style>line{fill:none;stroke-linecap:round;}.visible-lines .part-intact line{stroke:#000;stroke-width:${1/scale};}.visible-lines .part-defective line{stroke:#D00;stroke-width:${1.2/scale};}.hidden-lines .part-intact line{stroke:#888;stroke-width:${0.5/scale};stroke-dasharray:${2.5/scale};}.hidden-lines .part-defective line{stroke:#F88;stroke-width:${0.6/scale};stroke-dasharray:${2.5/scale};}.part-missing line{stroke:#F90;stroke-width:${0.8/scale};stroke-dasharray:${2.5/scale};}.damage-marker{fill:#D00;stroke:none;}.scale-bar line{stroke:#000;stroke-width:0.5;}.label{font-size:16px;font-family:sans-serif;}</style>`;
-
-        return `<svg width="${svgWidth}" height="${svgHeight}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${svgWidth} ${svgHeight}">${style}<rect x="0" y="0" width="${svgWidth}" height="${svgHeight}" fill="#fff" /><text x="${padding}" y="35" class="label" font-weight="bold">Assembly: ${objectName}</text>${svgElements}</svg>`;
-    }
-
-    function downloadAssemblyDrawing() {
-        if (!currentModelJson || !currentModelJson.parts) {
-            updateMIA("Please load an assembly file first.");
-            return;
-        }
-        updateMIA("Generating assembly drawing...", true);
-        setTimeout(() => {
-            const svgData = generateAssemblySVG(currentModelJson, currentDamageJson);
-            if (!svgData) { updateMIA("Failed to generate drawing. No parts found."); return; }
-            const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            const objName = (objectNameInput.value || 'assembly').replace(/\s+/g, '_');
-            a.download = `${objName}_drawing.svg`;
-            a.click();
-            URL.revokeObjectURL(url);
-            updateMIA("Assembly drawing downloaded successfully.");
-        }, 50);
-    }
-
-    function animateParts(isExploding) {
-        if (objectGroup.children.length === 0) return;
-        activeAnimations = [];
-        
-        const bounds = new THREE.Box3().setFromObject(objectGroup);
-        const center = new THREE.Vector3();
-        bounds.getCenter(center);
-        const size = bounds.getSize(new THREE.Vector3());
-        const explodeFactor = Math.max(size.x, size.y, size.z, size.length()) * 0.1;
-
-        objectGroup.children.forEach(partGroup => {
-            if (partGroup.userData.originalPosition) {
-                const startPosition = partGroup.position.clone();
-                let targetPosition;
-
-                if (isExploding) {
-                    const direction = partGroup.userData.originalPosition.clone().sub(center).normalize();
-                    targetPosition = partGroup.userData.originalPosition.clone().add(direction.multiplyScalar(explodeFactor));
-                } else {
-                    targetPosition = partGroup.userData.originalPosition.clone();
-                }
-
-                activeAnimations.push({ mesh: partGroup, start: startPosition, end: targetPosition, startTime: performance.now() });
-            }
-        });
-    }
-    
-    function setupEventListeners() {
-        window.addEventListener('resize', onWindowResize);
-
-        viewerCanvas.addEventListener('mousedown', (e) => { mouseDownPos.set(e.clientX, e.clientY); });
-        viewerCanvas.addEventListener('mouseup', (e) => {
-            if (mouseDownPos.distanceTo(new THREE.Vector2(e.clientX, e.clientY)) < 5) onObjectClick(e);
-        });
-
-        document.getElementById('catalog-damages-btn').addEventListener('click', async () => {
-            if (!currentModelJson) { updateMIA("Please upload an assembly JSON first."); return; }
-            const promptText = userPromptInput.value.trim();
-            if (uploadedFiles.length === 0 && !promptText) { updateMIA("Add damage photos or describe the damage."); return; }
-            
-            updateMIA("AI is analyzing the assembly status...", true);
-            
-            try {
-                const payload = { prompt: promptText, modelJson: currentModelJson, damageJson: currentDamageJson || [], files: uploadedFiles, geminiModel: geminiModel, temperature: temperature };
-                const response = await fetch('/api/catalog-damages', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload),
-                });
-                if (timerInterval) clearInterval(timerInterval);
-                if (!response.ok) throw new Error((await response.json()).message || `Server error: ${response.status}`);
                 
-                const result = await response.json();
-                if (!result.candidates?.[0]?.content?.parts?.[0]?.text) throw new Error("Invalid API response structure.");
-                const fullResponse = JSON.parse(result.candidates[0].content.parts[0].text.replace(/```json\n|```/g, '').trim());
-                if (!fullResponse.updatedModel || !fullResponse.updatedDamages) throw new Error("API response missing required data.");
-
-                createModel(fullResponse.updatedModel);
-                createDamages(fullResponse.updatedDamages);
-                updateMIA("Analysis complete. Model and damages have been updated.", false);
-                uploadedFiles = [];
-                userPromptInput.value = '';
-
-            } catch (error) {
-                console.error("Damage Cataloging Error:", error);
-                updateMIA(`Sorry, an error occurred: ${error.message}`, false);
-            }
-        });
-
-        document.getElementById('add-files-btn').addEventListener('click', () => document.getElementById('add-files-input').click());
-        document.getElementById('add-files-input').addEventListener('change', async (event) => {
-            const files = event.target.files;
-            if (!files.length) return;
-            if (files.length > MAX_FILES) { updateMIA(`Please select a maximum of ${MAX_FILES} files.`); return; }
-            updateMIA(`Reading ${files.length} file(s)...`);
-            const filePromises = Array.from(files).map(file => {
-                 if (file.size > MAX_FILE_SIZE) {
-                    updateMIA(`Error: File "${file.name}" is too large (limit is 3 MB).`);
-                    return null;
-                }
-                return new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onload = () => resolve({ mimeType: file.type, data: reader.result.split(',')[1] });
-                    reader.onerror = reject;
-                    reader.readAsDataURL(file);
-                });
-            }).filter(p => p !== null);
-
-            try {
-                uploadedFiles = await Promise.all(filePromises);
-                updateMIA(`${uploadedFiles.length} file(s) are ready. Click 'Catalog Damages' to analyze.`);
-            } catch (error) {
-                updateMIA("Error reading files. Please try again.");
-            }
-            event.target.value = '';
-        });
-
-        explodeBtn.addEventListener('click', () => { animateParts(true); explodeBtn.style.display = 'none'; resetBtn.style.display = 'inline-block'; });
-        resetBtn.addEventListener('click', () => { animateParts(false); resetBtn.style.display = 'none'; explodeBtn.style.display = 'inline-block'; });
-
-        let currentAction = '';
-        const openChoiceModal = (action) => {
-            currentAction = action;
-            document.getElementById('data-choice-title').textContent = `What to ${action}?`;
-            document.getElementById('data-choice-modal-overlay').style.display = 'flex';
-        };
-        const choiceActions = {
-            upload: (type) => document.getElementById(`${type}-upload-input`).click(),
-            copy: (type) => viewJson(type),
-            download: (type) => downloadJson(type),
-        };
-
-        document.getElementById('upload-json-btn').addEventListener('click', () => openChoiceModal('upload'));
-        document.getElementById('copy-json-btn').addEventListener('click', () => openChoiceModal('copy'));
-        document.getElementById('download-json-btn').addEventListener('click', () => openChoiceModal('download'));
-        document.getElementById('view-graph-btn').addEventListener('click', viewGraph);
-        document.getElementById('download-drawings-btn').addEventListener('click', downloadAssemblyDrawing);
-        document.getElementById('assembly-upload-input').addEventListener('change', (e) => handleFileUpload(e, 'assembly'));
-        document.getElementById('damages-upload-input').addEventListener('change', (e) => handleFileUpload(e, 'damages'));
-        
-        document.getElementById('choice-btn-assembly').addEventListener('click', () => { choiceActions[currentAction]?.('assembly'); document.getElementById('data-choice-modal-overlay').style.display = 'none'; });
-        document.getElementById('choice-btn-damages').addEventListener('click', () => { choiceActions[currentAction]?.('damages'); document.getElementById('data-choice-modal-overlay').style.display = 'none'; });
-
-        document.querySelectorAll('.close-modal-btn').forEach(btn => btn.addEventListener('click', e => e.target.closest('.modal-overlay').style.display = 'none'));
-        
-        document.getElementById('copy-json-from-modal-btn').addEventListener('click', () => {
-            navigator.clipboard.writeText(document.getElementById('json-view-textarea').value).then(() => {
-                updateMIA("JSON copied to clipboard.");
-                document.getElementById('json-view-modal-overlay').style.display = 'none';
+                partGroup.userData.part = part;
+                objectGroup.add(partGroup);
+                partMeshesMap.set(part.id, mesh);
             });
-        });
 
-        document.getElementById('save-graph-svg-btn').addEventListener('click', () => {
-            const svgEl = document.querySelector('#graph-container svg');
-            if (!svgEl) { updateMIA("Could not find the graph SVG to save."); return; }
-            svgEl.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-            const svgData = new XMLSerializer().serializeToString(svgEl);
-            const blob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
+            bounds.setFromObject(objectGroup);
+            const center = new THREE.Vector3();
+            bounds.getCenter(center);
+            controls.target.copy(center);
+
+            resetBtn.style.display = 'none';
+            explodeBtn.style.display = 'inline-block';
+
+            updateHANS(`Assembly "${objectNameInput.value}" loaded with ${jsonData.parts.length} parts. You can now modify it.`);
+        }
+
+        function updateHANS(message, isTyping = false) {
+            if (typingInterval) clearInterval(typingInterval);
+            if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+
+            if (isTyping) {
+                let seconds = 0;
+                const updateTimer = () => {
+                    hansOutputEl.innerHTML = `${HANS_PREFIX}${message} (${seconds}s)`;
+                };
+                updateTimer();
+                timerInterval = setInterval(() => {
+                    seconds++;
+                    updateTimer();
+                }, 1000);
+            } else {
+                hansOutputEl.innerHTML = `${HANS_PREFIX}<span id="hans-text"></span><span class="cursor"></span>`;
+                const textEl = document.getElementById('hans-text');
+                const cursorEl = hansOutputEl.querySelector('.cursor');
+                if (!textEl || !cursorEl) return;
+                let i = 0;
+                typingInterval = setInterval(() => {
+                    if (i < message.length) {
+                        textEl.textContent += message.charAt(i++);
+                    } else {
+                        clearInterval(typingInterval);
+                        if (cursorEl) cursorEl.style.display = 'none';
+                    }
+                }, 20);
+            }
+        }
+        
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = e => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    createModel(data);
+                } catch (err) {
+                    updateHANS(`Error parsing assembly file: ${err.message}`);
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        function viewJson() {
+            if (!currentModelJson) { updateHANS(`No assembly data loaded.`); return; }
+            document.getElementById('json-view-title').textContent = `Current Assembly JSON`;
+            document.getElementById('json-view-textarea').value = JSON.stringify(currentModelJson, null, 2);
+            document.getElementById('json-view-modal-overlay').style.display = 'flex';
+        }
+
+        function downloadJson() {
+            if (!currentModelJson) { updateHANS(`No assembly data loaded.`); return; }
+            const name = (objectNameInput.value || 'object').replace(/\s+/g, '_');
+            const blob = new Blob([JSON.stringify(currentModelJson, null, 2)], {type: 'application/json'});
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
-            const name = (objectNameInput.value || 'object').replace(/\s+/g, '_');
-            a.download = `${name}_graph.svg`;
+            a.download = `${name}_assembly.json`;
             a.click();
             URL.revokeObjectURL(a.href);
-            updateMIA("Graph saved as SVG.");
-        });
+        }
+
+        function viewGraph() {
+            if (!currentModelJson || !currentModelJson.parts) { updateHANS("Generate or load an assembly to see its graph."); return; }
+            let dot = `graph G {\n  graph [rankdir="LR" splines=true ranksep=2.5 nodesep=0.5];\n  node [shape=box, style="filled", fillcolor="#f0f0f0", fontname="Helvetica,Arial,sans-serif"];\n  edge [arrowhead=none];\n\n`;
+            const addedEdges = new Set();
+            
+            currentModelJson.parts.forEach(part => {
+                const isSelected = part.id === selectedPartId;
+                const nodeStyle = isSelected ? ' [style="filled,bold", fillcolor="#0000ff", fontcolor="#ffffff"]' : '';
+                dot += `  "${part.id}"${nodeStyle};\n`;
+                
+                part.connections?.forEach(connectedId => {
+                    const edgeKey = [part.id, connectedId].sort().join('--');
+                    if (!addedEdges.has(edgeKey)) {
+                        dot += `  "${part.id}" -- "${connectedId}";\n`;
+                        addedEdges.add(edgeKey);
+                    }
+                });
+            });
+            dot += '}';
+            document.getElementById('graph-title').textContent = "Assembly Connection Graph";
+            d3.select("#graph-container").graphviz({useWorker: false}).engine('dot').renderDot(dot);
+            document.getElementById('graph-modal-overlay').style.display = 'flex';
+        }
+
+        function onObjectClick(event) {
+            const rect = renderer.domElement.getBoundingClientRect();
+            mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+            raycaster.setFromCamera(mouse, camera);
+
+            const partIntersects = raycaster.intersectObjects(Array.from(partMeshesMap.values()));
+            
+            resetMaterials();
+            infoBox.style.display = 'none';
+            selectedPartId = null;
+
+            if (partIntersects.length > 0) {
+                const clickedMesh = partIntersects[0].object;
+                const partData = clickedMesh.parent.userData.part;
+                
+                clickedMesh.material = selectionPartMaterial;
+
+                if (partData) {
+                    selectedPartId = partData.id;
+                    const d = partData.dimensions;
+                    infoBox.style.color = '#0000ff';
+                    const matLine = partData.material ? `<br><b>Material:</b> ${partData.material}` : '';
+                    infoBox.innerHTML = `<b>Part:</b> ${partData.id.replace(/_/g, ' ')}<br><b>Size:</b> ${(d.width*100).toFixed(1)} x ${(d.depth*100).toFixed(1)} x ${(d.height*100).toFixed(1)} cm${matLine}`;
+                    infoBox.style.display = 'block';
+                }
+            }
+        }
+
+        function animateParts(isExploding) {
+            if (objectGroup.children.length === 0) return;
+            activeAnimations = [];
+            
+            const bounds = new THREE.Box3().setFromObject(objectGroup);
+            const center = new THREE.Vector3();
+            bounds.getCenter(center);
+            const size = bounds.getSize(new THREE.Vector3());
+            const explodeFactor = Math.max(size.x, size.y, size.z, size.length()) * 0.1;
+
+            objectGroup.children.forEach(partGroup => {
+                if (partGroup.userData.originalPosition) {
+                    const startPosition = partGroup.position.clone();
+                    let targetPosition;
+
+                    if (isExploding) {
+                        const direction = partGroup.userData.originalPosition.clone().sub(center).normalize();
+                        targetPosition = partGroup.userData.originalPosition.clone().add(direction.multiplyScalar(explodeFactor));
+                    } else {
+                        targetPosition = partGroup.userData.originalPosition.clone();
+                    }
+
+                    activeAnimations.push({
+                        mesh: partGroup,
+                        start: startPosition,
+                        end: targetPosition,
+                        startTime: performance.now()
+                    });
+                }
+            });
+        }
         
-        settingsBtn.addEventListener('click', () => {
-            modelSelect.value = geminiModel;
-            temperatureSlider.value = temperature;
-            temperatureValue.textContent = temperature;
-            sphereScaleSlider.value = sphereScale;
-            sphereScaleValue.textContent = sphereScale.toFixed(2);
-            settingsModal.style.display = 'flex';
-        });
+        function setupEventListeners() {
+            window.addEventListener('resize', onWindowResize);
 
-        temperatureSlider.addEventListener('input', () => { temperatureValue.textContent = temperatureSlider.value; });
-        sphereScaleSlider.addEventListener('input', () => { sphereScaleValue.textContent = parseFloat(sphereScaleSlider.value).toFixed(2); });
+            viewerCanvas.addEventListener('mousedown', (event) => {
+                mouseDownPos.set(event.clientX, event.clientY);
+            });
 
-        saveSettingsBtn.addEventListener('click', () => {
-            geminiModel = modelSelect.value;
-            temperature = parseFloat(temperatureSlider.value);
-            sphereScale = parseFloat(sphereScaleSlider.value);
-            settingsModal.style.display = 'none';
-            updateMIA(`Settings updated. Model: ${modelSelect.options[modelSelect.selectedIndex].text}, Temp: ${temperature}.`);
-        });
-    }
-    
-    init();
-</script>
+            viewerCanvas.addEventListener('mouseup', (event) => {
+                const currentMousePos = new THREE.Vector2(event.clientX, event.clientY);
+                if (mouseDownPos.distanceTo(currentMousePos) < 5) {
+                    onObjectClick(event);
+                }
+            });
+
+            document.getElementById('generate-assembly-btn').addEventListener('click', async () => {
+                const promptText = userPromptInput.value;
+                if (!promptText.trim()) { updateHANS("Please enter an instruction for the assembly."); return; }
+
+                updateHANS("Generating Assembly... this may take a moment.", true);
+                
+                try {
+                    const isModification = uploadedFiles.length === 0;
+                    const payload = {
+                        prompt: promptText,
+                        objectName: objectNameInput.value.trim() || 'Untitled Object',
+                        modelJson: isModification ? currentModelJson : null,
+                        files: isModification ? [] : uploadedFiles,
+                        temperature: temperature,
+                        geminiModel: geminiModel,
+                        allowRotations: allowRotations
+                    };
+
+                    const response = await fetch('/api/generate-assembly_new', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload),
+                    });
+                    
+                    if (timerInterval) clearInterval(timerInterval);
+
+                    if (!response.ok) {
+                        let errorMsg = `Server responded with status: ${response.status}`;
+                        const contentType = response.headers.get("content-type");
+                        if (contentType && contentType.indexOf("application/json") !== -1) {
+                            const errorResult = await response.json();
+                            errorMsg = errorResult.message || JSON.stringify(errorResult);
+                        } else {
+                            errorMsg = await response.text();
+                        }
+                        throw new Error(errorMsg);
+                    }
+
+                    const result = await response.json();
+                    if (!result.candidates?.[0]?.content?.parts?.[0]?.text) {
+                         if(result.candidates?.[0]?.finishReason === "SAFETY") {
+                            throw new Error("Generation failed due to safety policies. Please modify your prompt.");
+                         }
+                         throw new Error("Invalid API response structure.");
+                    }
+                    const newPlan = JSON.parse(result.candidates[0].content.parts[0].text.replace(/```json\n|```/g, '').trim());
+                    createModel(newPlan);
+                    uploadedFiles = [];
+                    userPromptInput.value = '';
+
+                } catch (error) {
+                    console.error("Generation Error:", error);
+                    updateHANS(`Sorry, an error occurred: ${error.message}`, false);
+                }
+            });
+
+            document.getElementById('add-files-btn').addEventListener('click', () => document.getElementById('add-files-input').click());
+            document.getElementById('add-files-input').addEventListener('change', async (event) => {
+                const files = event.target.files;
+                if (!files.length) return;
+                if (files.length > MAX_FILES) { updateHANS(`Please select a maximum of ${MAX_FILES} files.`); return; }
+                
+                updateHANS(`Reading ${files.length} file(s)...`);
+                const filePromises = Array.from(files).map(file => {
+                     if (file.size > MAX_FILE_SIZE) {
+                        updateHANS(`Error: File "${file.name}" is too large (limit is 3 MB).`);
+                        return null;
+                    }
+                    return new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onload = () => resolve({ mimeType: file.type, data: reader.result.split(',')[1] });
+                        reader.onerror = reject;
+                        reader.readAsDataURL(file);
+                    });
+                }).filter(p => p !== null);
+
+                try {
+                    uploadedFiles = await Promise.all(filePromises);
+                    updateHANS(`${uploadedFiles.length} file(s) are ready. Provide a prompt and click 'Generate Assembly'.`);
+                } catch (error) {
+                    updateHANS("Error reading files. Please try again.");
+                }
+                event.target.value = '';
+            });
+
+            explodeBtn.addEventListener('click', () => {
+                animateParts(true);
+                explodeBtn.style.display = 'none';
+                resetBtn.style.display = 'inline-block';
+            });
+            resetBtn.addEventListener('click', () => {
+                animateParts(false);
+                resetBtn.style.display = 'none';
+                explodeBtn.style.display = 'inline-block';
+            });
+            
+            let currentAction = '';
+            const openChoiceModal = (action) => {
+                currentAction = action;
+                document.getElementById('data-choice-title').textContent = `What to ${action}?`;
+                document.getElementById('choice-btn-assembly').style.display = 'block';
+                document.getElementById('data-choice-modal-overlay').style.display = 'flex';
+            };
+            const choiceActions = {
+                upload: () => document.getElementById(`assembly-upload-input`).click(),
+                copy: () => viewJson(),
+                download: () => downloadJson(),
+            };
+
+            document.getElementById('upload-json-btn').addEventListener('click', () => openChoiceModal('upload'));
+            document.getElementById('copy-json-btn').addEventListener('click', () => openChoiceModal('copy'));
+            document.getElementById('download-json-btn').addEventListener('click', () => openChoiceModal('download'));
+            document.getElementById('view-graph-btn').addEventListener('click', viewGraph);
+            document.getElementById('assembly-upload-input').addEventListener('change', handleFileUpload);
+            
+            document.getElementById('choice-btn-assembly').addEventListener('click', () => { 
+                choiceActions[currentAction]?.(); 
+                document.getElementById('data-choice-modal-overlay').style.display = 'none'; 
+            });
+
+            document.querySelectorAll('.close-modal-btn').forEach(btn => btn.addEventListener('click', e => e.target.closest('.modal-overlay').style.display = 'none'));
+            
+            document.getElementById('copy-json-from-modal-btn').addEventListener('click', () => {
+                navigator.clipboard.writeText(document.getElementById('json-view-textarea').value).then(() => {
+                    updateHANS("JSON copied to clipboard.");
+                    document.getElementById('json-view-modal-overlay').style.display = 'none';
+                });
+            });
+
+            document.getElementById('save-graph-svg-btn').addEventListener('click', () => {
+                const svgEl = document.querySelector('#graph-container svg');
+                if (!svgEl) {
+                    updateHANS("Could not find the graph SVG to save.");
+                    return;
+                }
+                
+                svgEl.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+                const svgData = new XMLSerializer().serializeToString(svgEl);
+                const blob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
+
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                const name = (objectNameInput.value || 'object').replace(/\s+/g, '_');
+                a.download = `${name}_graph.svg`;
+                
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(a.href);
+                
+                updateHANS("Graph saved as SVG.");
+            });
+            
+            settingsBtn.addEventListener('click', () => {
+                modelSelect.value = geminiModel;
+                temperatureSlider.value = temperature;
+                temperatureValue.textContent = temperature;
+                allowRotationsCheckbox.checked = allowRotations;
+                settingsModal.style.display = 'flex';
+            });
+
+            temperatureSlider.addEventListener('input', () => {
+                temperatureValue.textContent = temperatureSlider.value;
+            });
+
+            saveSettingsBtn.addEventListener('click', () => {
+                geminiModel = modelSelect.value;
+                temperature = parseFloat(temperatureSlider.value);
+                allowRotations = allowRotationsCheckbox.checked;
+                settingsModal.style.display = 'none';
+                const rotationStatus = allowRotations ? 'Enabled' : 'Disabled';
+                updateHANS(`Settings updated. Model: ${modelSelect.options[modelSelect.selectedIndex].text}, Temp: ${temperature}, Rotations: ${rotationStatus}.`);
+            });
+        }
+
+        init();
+    </script>
 </body>
 </html>
