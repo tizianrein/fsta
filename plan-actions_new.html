@@ -618,14 +618,16 @@
                 let rulerMarks = '';
                 if (['TOP', 'FRONT', 'BOTTOM'].includes(name)) {
                     const relevantDimension = (name === 'FRONT') ? globalSize.y : globalSize.z;
-                    const numMarks = Math.floor(relevantDimension / 0.1);
+                    // FIX 1: Add a small epsilon to prevent floating-point errors from missing the last mark.
+                    const numMarks = Math.floor((relevantDimension + 1e-9) / 0.1);
                     if (numMarks > 0) {
-                        const rulerX = pBounds.maxX + (20 / scale); // Position next to content's right edge
+                        const rulerX = pBounds.maxX + (20 / scale);
                         const tickLength = 15 / scale;
-                        const yStep = 0.1; // Step in world units
+                        const yStep = 0.1;
                         for (let i = 1; i <= numMarks; i++) {
-                            const yPos = pBounds.maxY - (i * yStep); // Position from content's bottom edge
-                            rulerMarks += `<line x1="${rulerX}" y1="${yPos}" x2="${rulerX + tickLength}" y2="${yPos}" />`;
+                            const yPos = pBounds.maxY - (i * yStep);
+                            // FIX 2: Add an inline stroke-width style to make the line half as thin as the main lines.
+                            rulerMarks += `<line x1="${rulerX}" y1="${yPos}" x2="${rulerX + tickLength}" y2="${yPos}" stroke-width="${0.5 / scale}" />`;
                         }
                     }
                 }
