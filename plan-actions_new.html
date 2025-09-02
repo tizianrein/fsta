@@ -230,7 +230,7 @@
             const defaultDamage = [{ "id": "damage_01", "type": "Scratch", "description": "A default scratch.", "part_id": "cube", "coordinates": { "x": 0.0, "y": 0.5, "z": 0.0 } }];
             const defaultPlan = { "steps": [{ "step_number": 1, "title": "Fill Scratch", "description": "Apply wood filler to the scratch.", "tools_required": ["Wood filler"], "affected_parts": ["cube"], "affected_damages": ["damage_01"] }] };
             createModel(defaultModel);
-            document.getElementById('object-name').value = "Default Cube"; 
+            document.getElementById('object-name').value = ""; 
             createDamages(defaultDamage);
             currentPlanJson = defaultPlan;
             updateROLF("Hello! I am R.O.L.F. - the Repair Option Layout Finder. Load your data to begin.");
@@ -556,7 +556,7 @@
             const globalSize = globalBBox.getSize(new THREE.Vector3()), scale = 200, padding = 60;
             const viewWidth = Math.max(globalSize.x, globalSize.z) * scale, viewHeight = Math.max(globalSize.y, globalSize.z) * scale;
             const svgWidth = (viewWidth * 4) + (padding * 5), svgHeight = (viewHeight * 3) + (padding * 4);
-            const views = { 'TOP':{x:viewWidth+padding*2,y:padding,p:v=>({x:v.x,y:-v.z}),dir:new THREE.Vector3(0,-1,0)},'LEFT':{x:padding,y:viewHeight+padding*2,p:v=>({x:v.z,y:-v.y}),dir:new THREE.Vector3(1,0,0)},'FRONT':{x:viewWidth+padding*2,y:viewHeight+padding*2,p:v=>({x:v.x,y:-v.y}),dir:new THREE.Vector3(0,0,-1)},'RIGHT':{x:viewWidth*2+padding*3,y:viewHeight+padding*2,p:v=>({x:-v.z,y:-v.y}),dir:new THREE.Vector3(-1,0,0)},'BACK':{x:viewWidth*3+padding*4,y:viewHeight+padding*2,p:v=>({x:-v.x,y:-v.y}),dir:new THREE.Vector3(0,0,1)},'BOTTOM':{x:viewWidth+padding*2,y:viewHeight*2+padding*3,p:v=>({x:v.x,y:v.z}),dir:new THREE.Vector3(0,1,0)} };
+            const views = { 'TOP':{x:viewWidth+padding*2,y:padding,p:v=>({x:-v.x,y:-v.z}),dir:new THREE.Vector3(0,-1,0)},'LEFT':{x:padding,y:viewHeight+padding*2,p:v=>({x:v.z,y:-v.y}),dir:new THREE.Vector3(1,0,0)},'FRONT':{x:viewWidth+padding*2,y:viewHeight+padding*2,p:v=>({x:-v.x,y:-v.y}),dir:new THREE.Vector3(0,0,-1)},'RIGHT':{x:viewWidth*2+padding*3,y:viewHeight+padding*2,p:v=>({x:-v.z,y:-v.y}),dir:new THREE.Vector3(-1,0,0)},'BACK':{x:viewWidth*3+padding*4,y:viewHeight+padding*2,p:v=>({x:v.x,y:-v.y}),dir:new THREE.Vector3(0,0,1)},'BOTTOM':{x:viewWidth+padding*2,y:viewHeight*2+padding*3,p:v=>({x:-v.x,y:v.z}),dir:new THREE.Vector3(0,1,0)} };
             const faces = [[0,1,2,3],[5,4,7,6],[1,5,6,2],[4,0,3,7],[3,2,6,7],[4,5,1,0]], edges = [[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
             let svgElements = '';
             for (const [name, view] of Object.entries(views)) {
