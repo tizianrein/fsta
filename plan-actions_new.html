@@ -584,16 +584,19 @@
                     });
                 });
                 let damageMarkers = (damageJson||[]).map(d => `<circle cx="${view.p(new THREE.Vector3(d.coordinates.x,d.coordinates.y,d.coordinates.z)).x}" cy="${view.p(new THREE.Vector3(d.coordinates.x,d.coordinates.y,d.coordinates.z)).y}" r="${2/scale}" class="damage-marker" />`).join('');
-                                let rulerMarks = '';
+                let rulerMarks = '';
                 if (['TOP', 'FRONT', 'BOTTOM'].includes(name)) {
                     const relevantDimension = (name === 'FRONT') ? globalSize.y : globalSize.z;
                     const numMarks = Math.floor(relevantDimension / 0.1);
                     if (numMarks > 0) {
-                        const yStep = (0.1 / relevantDimension) * viewHeight;
-                        const rulerX = viewWidth + 20;
+                        const contentPixelHeight = relevantDimension * scale;
+                        const contentTopEdge = (viewHeight - contentPixelHeight) / 2;
+                        const contentBottomEdge = contentTopEdge + contentPixelHeight;
+                        const yStep = 0.1 * scale;
+                        const rulerX = viewWidth + 20; 
                         const tickLength = 15;
                         for (let i = 1; i <= numMarks; i++) {
-                            const yPos = viewHeight - (i * yStep);
+                            const yPos = contentBottomEdge - (i * yStep);
                             rulerMarks += `<line x1="${rulerX}" y1="${yPos}" x2="${rulerX + tickLength}" y2="${yPos}" stroke="black" stroke-width="0.5" />`;
                         }
                     }
