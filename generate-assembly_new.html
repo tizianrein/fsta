@@ -342,53 +342,43 @@
             updateHANS(`Assembly "${objectNameInput.value}" loaded with ${jsonData.parts.length} parts. You can now modify it.`);
         }
 
-        // --- SVG DRAWING FUNCTIONS ---
-
-        // Creates a 6 view orthographic SVG of the current assembly
-        function generateAssemblySVG(assemblyJson) {
+        function generateAssemblySVG(assemblyJson, damageJson) {
             const { objectName, parts } = assemblyJson || {};
             if (!parts || parts.length === 0) return '';
 
-            // Collect world space vertices for each part
+            // 1. Collect world space vertices for each part
             const allWorldVertices = new Map();
             const globalBBox = new THREE.Box3();
-
             parts.forEach(part => {
-                const center = new THREE.Vector3(part.origin.x, part.origin.y, part.origin.z);
+                const centerPos = new THREE.Vector3(part.origin.x, part.origin.y, part.origin.z);
                 const w = part.dimensions.width, h = part.dimensions.height, d = part.dimensions.depth;
-                const local = [
-                new THREE.Vector3(-w/2,-h/2, d/2), new THREE.Vector3( w/2,-h/2, d/2),
-                new THREE.Vector3( w/2, h/2, d/2), new THREE.Vector3(-w/2, h/2, d/2),
-                new THREE.Vector3(-w/2,-h/2,-d/2), new THREE.Vector3( w/2,-h/2,-d/2),
-                new THREE.Vector3( w/2, h/2,-d/2), new THREE.Vector3(-w/2, h/2,-d/2)
-                ];
-
+                const localVertices = [ new THREE.Vector3(-w/2,-h/2,d/2), new THREE.Vector3(w/2,-h/2,d/2), new THREE.Vector3(w/2,h/2,d/2), new THREE.Vector3(-w/2,h/2,d/2), new THREE.Vector3(-w/2,-h/2,-d/2), new THREE.Vector3(w/2,-h/2,-d/2), new THREE.Vector3(w/2,h/2,-d/2), new THREE.Vector3(-w/2,h/2,-d/2) ];
                 const euler = new THREE.Euler(part.rotation?.x || 0, part.rotation?.y || 0, part.rotation?.z || 0, 'YXZ');
-                const q = new THREE.Quaternion().setFromEuler(euler);
-                const m = new THREE.Matrix4().compose(center, q, new THREE.Vector3(1,1,1));
-
-                const world = local.map(v => v.clone().applyMatrix4(m));
-                allWorldVertices.set(part.id, world);
-                world.forEach(v => globalBBox.expandByPoint(v));
+                const quaternion = new THREE.Quaternion().setFromEuler(euler);
+                const partMatrix = new THREE.Matrix4().compose(centerPos, quaternion, new THREE.Vector3(1, 1, 1));
+                const worldVertices = localVertices.map(v => v.clone().applyMatrix4(partMatrix));
+                // --- THIS LINE IS NOW CORRECTED ---
+                allWorldVertices.set(part.id, worldVertices);
+                worldVertices.forEach(v => globalBBox.expandByPoint(v));
             });
 
-            // Layout
+            // 2. Layout Setup
+            const globalSize = globalBBox.getSize(new THREE.Vector3());
             const scale = 200;
-            const pad = 60;
-            const size = globalBBox.getSize(new THREE.Vector3());
-            const viewW = Math.max(size.x, size.z) * scale;
-            const viewH = Math.max(size.y, size.z) * scale;
-            const svgW = (viewW * 4) + (pad * 5);
-            const svgH = (viewH * 3) + (pad * 4);
+            const padding = 60;
+            const viewWidth = Math.max(globalSize.x, globalSize.z) * scale;
+            const viewHeight = Math.max(globalSize.y, globalSize.z) * scale;
+            const svgWidth = (viewWidth * 4) + (padding * 5);
+            const svgHeight = (viewHeight * 3) + (padding * 4);
 
-            // Views
+            // 3. Views object with ALL corrections
             const views = {
-                TOP:    { x: viewW + pad*2,     y: pad,                 p: v => ({ x: v.x,  y: v.z  }), dir: new THREE.Vector3( 0, 1, 0) },
-                LEFT:   { x: pad,               y: viewH + pad*2,       p: v => ({ x: -v.z, y: -v.y }), dir: new THREE.Vector3(-1, 0, 0) },
-                FRONT:  { x: viewW + pad*2,     y: viewH + pad*2,       p: v => ({ x: v.x,  y: -v.y }), dir: new THREE.Vector3( 0, 0, 1) },
-                RIGHT:  { x: viewW*2 + pad*3,   y: viewH + pad*2,       p: v => ({ x: v.z,  y: -v.y }), dir: new THREE.Vector3( 1, 0, 0) },
-                BACK:   { x: viewW*3 + pad*4,   y: viewH + pad*2,       p: v => ({ x: -v.x, y: -v.y }), dir: new THREE.Vector3( 0, 0,-1) },
-                BOTTOM: { x: viewW + pad*2,     y: viewH*2 + pad*3,     p: v => ({ x: v.x,  y: -v.z }), dir: new THREE.Vector3( 0,-1, 0) },
+                'TOP':    {x:viewWidth+padding*2, y:padding,               p:v=>({x:-v.x,y:-v.z}), dir:new THREE.Vector3(0,-1,0)},
+                'LEFT':   {x:padding,             y:viewHeight+padding*2,  p:v=>({x:v.z, y:-v.y}), dir:new THREE.Vector3(1,0,0)},
+                'FRONT':  {x:viewWidth+padding*2, y:viewHeight+padding*2,  p:v=>({x:-v.x,y:-v.y}), dir:new THREE.Vector3(0,0,-1)},
+                'RIGHT':  {x:viewWidth*2+padding*3,y:viewHeight+padding*2, p:v=>({x:-v.z,y:-v.y}), dir:new THREE.Vector3(-1,0,0)},
+                'BACK':   {x:viewWidth*3+padding*4,y:viewHeight+padding*2, p:v=>({x:v.x, y:-v.y}), dir:new THREE.Vector3(0,0,1)},
+                'BOTTOM': {x:viewWidth+padding*2, y:viewHeight*2+padding*3,p:v=>({x:-v.x,y:v.z}),  dir:new THREE.Vector3(0,1,0)}
             };
 
             const faces = [[0,1,2,3],[5,4,7,6],[1,5,6,2],[4,0,3,7],[3,2,6,7],[4,5,1,0]];
@@ -396,91 +386,89 @@
             let svgGroups = '';
 
             for (const [name, view] of Object.entries(views)) {
-                const projected = [];
-                allWorldVertices.forEach(verts => verts.forEach(v => projected.push(view.p(v))));
-                const bounds = projected.reduce((a,p)=>({
-                minX: Math.min(a.minX,p.x), minY: Math.min(a.minY,p.y),
-                maxX: Math.max(a.maxX,p.x), maxY: Math.max(a.maxY,p.y)
-                }), {minX:Infinity, minY:Infinity, maxX:-Infinity, maxY:-Infinity});
+                const pBounds = Array.from(allWorldVertices.values()).flat().map(v => view.p(v)).reduce((a,p)=>({minX:Math.min(a.minX,p.x),minY:Math.min(a.minY,p.y),maxX:Math.max(a.maxX,p.x),maxY:Math.max(a.maxY,p.y)}),{minX:Infinity,minY:Infinity,maxX:-Infinity,maxY:-Infinity});
+                const centerX = (pBounds.minX + pBounds.maxX)/2;
+                const centerY = (pBounds.minY + pBounds.maxY)/2;
+                const groupTransform = `translate(${view.x}, ${view.y})`;
+                const contentTransform = `translate(${viewWidth/2}, ${viewHeight/2}) scale(${scale}) translate(${-centerX}, ${-centerY})`;
 
-                const cx = (bounds.minX + bounds.maxX)/2;
-                const cy = (bounds.minY + bounds.maxY)/2;
-
-                const groupT = `translate(${view.x}, ${view.y})`;
-                const contentT = `translate(${viewW/2}, ${viewH/2}) scale(${scale}) translate(${-cx}, ${-cy})`;
-
-                let hidden = '', visible = '';
+                let hiddenLinesHTML='', visibleLinesHTML='';
                 parts.forEach(part => {
-                const verts = allWorldVertices.get(part.id);
-                if (!verts) return;
+                    const worldVertices = allWorldVertices.get(part.id); if (!worldVertices) return;
+                    const visibleEdges = new Set();
+                    faces.forEach(faceIndices => {
+                        const v0=worldVertices[faceIndices[0]], v1=worldVertices[faceIndices[1]], v2=worldVertices[faceIndices[2]];
+                        const n = new THREE.Vector3().crossVectors(new THREE.Vector3().subVectors(v1,v0),new THREE.Vector3().subVectors(v2,v0)).normalize();
+                        if (n.dot(view.dir) > 0) faceIndices.forEach((v, i) => visibleEdges.add([v, faceIndices[(i+1)%faceIndices.length]].sort().join('-')));
+                    });
+                    edges.forEach(edgeIndices => {
+                        const p1 = view.p(worldVertices[edgeIndices[0]]), p2 = view.p(worldVertices[edgeIndices[1]]);
+                        const line = `<line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" />`;
+                        if (visibleEdges.has(edgeIndices.sort().join('-'))) visibleLinesHTML+=line; else hiddenLinesHTML+=line;
+                    });
+                });
+                
+                let damageMarkers = (damageJson||[]).map(d => `<circle cx="${view.p(new THREE.Vector3(d.coordinates.x,d.coordinates.y,d.coordinates.z)).x}" cy="${view.p(new THREE.Vector3(d.coordinates.x,d.coordinates.y,d.coordinates.z)).y}" r="${2/scale}" class="damage-marker" />`).join('');
 
-                const visibleEdges = new Set();
-                faces.forEach(f => {
-                    const v0=verts[f[0]], v1=verts[f[1]], v2=verts[f[2]];
-                    const n = new THREE.Vector3().crossVectors(
-                    new THREE.Vector3().subVectors(v1,v0),
-                    new THREE.Vector3().subVectors(v2,v0)
-                    ).normalize();
-                    if (n.dot(view.dir) > 0) {
-                    for (let i=0;i<f.length;i++) {
-                        visibleEdges.add([f[i], f[(i+1)%f.length]].sort().join('-'));
-                    }
-                    }
-                });
+                let rulerMarks = '';
+                if (['TOP', 'FRONT', 'BOTTOM'].includes(name)) {
+                    const relevantDimension = (name === 'FRONT') ? globalSize.y : globalSize.z;
+                    const numMarks = Math.floor((relevantDimension + 1e-9) / 0.1);
 
-                edges.forEach(e => {
-                    const key = [...e].sort().join('-');
-                    const p1 = view.p(verts[e[0]]), p2 = view.p(verts[e[1]]);
-                    const line = `<line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" />`;
-                    if (visibleEdges.has(key)) visible += line; else hidden += line;
-                });
-                });
+                    if (numMarks > 0) {
+                        const rulerX = pBounds.maxX + (20 / scale);
+                        const tickLength = 15 / scale;
+                        const yStep = 0.1;
+                        for (let i = 1; i <= numMarks; i++) {
+                            const yPos = pBounds.maxY - (i * yStep);
+                            rulerMarks += `<line x1="${rulerX}" y1="${yPos}" x2="${rulerX + tickLength}" y2="${yPos}" stroke="black" stroke-width="${0.5 / scale}" />`;
+                        }
+                    }
+                }
 
                 svgGroups += `
-                <g transform="${groupT}">
-                    <text x="${viewW/2}" y="${viewH+20}" text-anchor="middle" font-size="14" font-family="sans-serif">${name}</text>
-                    <g transform="${contentT}">
-                    <g class="hidden-lines">${hidden}</g>
-                    <g class="visible-lines">${visible}</g>
+                <g transform="${groupTransform}">
+                    <text x="${viewWidth/2}" y="${viewHeight+20}" text-anchor="middle" font-size="14" font-family="sans-serif">${name}</text>
+                    <g transform="${contentTransform}">
+                        <g class="hidden-lines">${hiddenLinesHTML}</g>
+                        <g class="visible-lines">${visibleLinesHTML}</g>
+                        ${damageMarkers}
+                        ${rulerMarks}
                     </g>
                 </g>`;
             }
 
-            const style = `
-                <style>
+            const style = `<style>
                 line{fill:none;stroke-linecap:round;}
                 .visible-lines line{stroke:#000;stroke-width:${1/scale};}
                 .hidden-lines line{stroke:#888;stroke-width:${0.5/scale};stroke-dasharray:${2.5/scale};}
+                .damage-marker{fill:#D00;stroke:none;}
                 .label{font-size:16px;font-family:sans-serif;}
                 </style>`;
 
-            return `<svg width="${svgW}" height="${svgH}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${svgW} ${svgH}">
+            return `<svg width="${svgWidth}" height="${svgHeight}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${svgWidth} ${svgHeight}">
                 ${style}
-                <rect x="0" y="0" width="${svgW}" height="${svgH}" fill="#fff"/>
-                <text x="${pad}" y="35" class="label" font-weight="bold">Assembly: ${objectName || 'Untitled'}</text>
+                <rect x="0" y="0" width="${svgWidth}" height="${svgHeight}" fill="#fff"/>
+                <text x="${padding}" y="35" class="label" font-weight="bold">Assembly: ${objectName || 'Untitled'}</text>
                 ${svgGroups}
             </svg>`;
-            }
+        }
 
-            // Triggers the SVG download for the current assembly
-            function downloadAssemblyDrawing() {
-            if (!currentModelJson || !currentModelJson.parts) {
-                updateHANS("Please load an assembly first.");
-                return;
-            }
-            updateHANS("Generating assembly drawing...", true);
+        function downloadAssemblyDrawing() {
+            if (!currentModelJson) { updateROLF("Please load an assembly first."); return; }
+            updateROLF("Generating drawing...", true);
             setTimeout(() => {
-                const svg = generateAssemblySVG(currentModelJson);
-                if (!svg) { updateHANS("Failed to generate drawing."); return; }
-                const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
+                // Pass both assembly and damage JSON to the drawing function
+                const svgData = generateAssemblySVG(currentModelJson, currentDamageJson);
+                if (!svgData) { updateROLF("Failed to generate drawing."); return; }
+                const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
-                const name = (objectNameInput.value || 'assembly').replace(/\s+/g, '_');
                 a.href = url;
-                a.download = `${name}_drawing.svg`;
+                a.download = `${(document.getElementById('object-name').value||'assembly').replace(/\s+/g,'_')}_drawing.svg`;
                 a.click();
                 URL.revokeObjectURL(url);
-                updateHANS("Assembly drawing downloaded.");
+                updateROLF("Assembly drawing downloaded.");
             }, 50);
         }
 

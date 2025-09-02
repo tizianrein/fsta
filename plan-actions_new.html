@@ -549,7 +549,7 @@
             const { objectName, parts } = assemblyJson || {};
             if (!parts || parts.length === 0) return '';
 
-            // 1. Collect world space vertices for each part (from your working code)
+            // 1. Collect world space vertices for each part
             const allWorldVertices = new Map();
             const globalBBox = new THREE.Box3();
             parts.forEach(part => {
@@ -560,11 +560,12 @@
                 const quaternion = new THREE.Quaternion().setFromEuler(euler);
                 const partMatrix = new THREE.Matrix4().compose(centerPos, quaternion, new THREE.Vector3(1, 1, 1));
                 const worldVertices = localVertices.map(v => v.clone().applyMatrix4(partMatrix));
+                // --- THIS LINE IS NOW CORRECTED ---
                 allWorldVertices.set(part.id, worldVertices);
                 worldVertices.forEach(v => globalBBox.expandByPoint(v));
             });
 
-            // 2. Layout Setup (from your working code)
+            // 2. Layout Setup
             const globalSize = globalBBox.getSize(new THREE.Vector3());
             const scale = 200;
             const padding = 60;
@@ -573,7 +574,7 @@
             const svgWidth = (viewWidth * 4) + (padding * 5);
             const svgHeight = (viewHeight * 3) + (padding * 4);
 
-            // 3. Views object with ALL corrections applied (mirrored, swapped etc.)
+            // 3. Views object with ALL corrections
             const views = {
                 'TOP':    {x:viewWidth+padding*2, y:padding,               p:v=>({x:-v.x,y:-v.z}), dir:new THREE.Vector3(0,-1,0)},
                 'LEFT':   {x:padding,             y:viewHeight+padding*2,  p:v=>({x:v.z, y:-v.y}), dir:new THREE.Vector3(1,0,0)},
@@ -588,7 +589,6 @@
             let svgGroups = '';
 
             for (const [name, view] of Object.entries(views)) {
-                // Robust centering logic from your working code
                 const pBounds = Array.from(allWorldVertices.values()).flat().map(v => view.p(v)).reduce((a,p)=>({minX:Math.min(a.minX,p.x),minY:Math.min(a.minY,p.y),maxX:Math.max(a.maxX,p.x),maxY:Math.max(a.maxY,p.y)}),{minX:Infinity,minY:Infinity,maxX:-Infinity,maxY:-Infinity});
                 const centerX = (pBounds.minX + pBounds.maxX)/2;
                 const centerY = (pBounds.minY + pBounds.maxY)/2;
@@ -611,23 +611,20 @@
                     });
                 });
                 
-                // Add damage markers (merged from previous version)
                 let damageMarkers = (damageJson||[]).map(d => `<circle cx="${view.p(new THREE.Vector3(d.coordinates.x,d.coordinates.y,d.coordinates.z)).x}" cy="${view.p(new THREE.Vector3(d.coordinates.x,d.coordinates.y,d.coordinates.z)).y}" r="${2/scale}" class="damage-marker" />`).join('');
 
-                // Add ruler marks - THIS IS THE FINAL, CORRECTED LOGIC
                 let rulerMarks = '';
                 if (['TOP', 'FRONT', 'BOTTOM'].includes(name)) {
                     const relevantDimension = (name === 'FRONT') ? globalSize.y : globalSize.z;
-                    // FIX 1: Add a small epsilon to prevent floating-point errors from missing the last mark.
                     const numMarks = Math.floor((relevantDimension + 1e-9) / 0.1);
+
                     if (numMarks > 0) {
                         const rulerX = pBounds.maxX + (20 / scale);
                         const tickLength = 15 / scale;
                         const yStep = 0.1;
                         for (let i = 1; i <= numMarks; i++) {
                             const yPos = pBounds.maxY - (i * yStep);
-                            // FIX 2: Add an inline stroke-width style to make the line half as thin as the main lines.
-                            rulerMarks += `<line x1="${rulerX}" y1="${yPos}" x2="${rulerX + tickLength}" y2="${yPos}" stroke-width="${0.5 / scale}" />`;
+                            rulerMarks += `<line x1="${rulerX}" y1="${yPos}" x2="${rulerX + tickLength}" y2="${yPos}" stroke="black" stroke-width="${0.5 / scale}" />`;
                         }
                     }
                 }
@@ -637,8 +634,9 @@
                     <text x="${viewWidth/2}" y="${viewHeight+20}" text-anchor="middle" font-size="14" font-family="sans-serif">${name}</text>
                     <g transform="${contentTransform}">
                         <g class="hidden-lines">${hiddenLinesHTML}</g>
-                        <g class="visible-lines">${visibleLinesHTML}${rulerMarks}</g>
+                        <g class="visible-lines">${visibleLinesHTML}</g>
                         ${damageMarkers}
+                        ${rulerMarks}
                     </g>
                 </g>`;
             }
