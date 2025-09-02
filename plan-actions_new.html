@@ -190,8 +190,10 @@
         // --- MATERIALS ---
         const intactPartMaterial = new THREE.MeshStandardMaterial({ color: 0x666666, transparent: true, opacity: 0.3, side: THREE.DoubleSide });
         const defectivePartMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000, transparent: true, opacity: 0.3, side: THREE.DoubleSide });
+        const missingPartMaterial = new THREE.MeshStandardMaterial({ color: 0xffff00, transparent: true, opacity: 0.3, side: THREE.DoubleSide });
         const selectionPartMaterial = new THREE.MeshStandardMaterial({ color: 0x0000ff, transparent: true, opacity: 0.7, side: THREE.DoubleSide });
-        const interventionPartMaterial = new THREE.MeshStandardMaterial({ color: 0xdd3388, transparent: true, opacity: 0.5, side: THREE.DoubleSide });
+        const newMaterial = new THREE.MeshStandardMaterial({ color: 0xdd3388, transparent: true, opacity: 0.5, side: THREE.DoubleSide }); // Pink for new parts
+        const discardedMaterial = new THREE.MeshStandardMaterial({ color: 0xff8000, transparent: true, opacity: 0.5, side: THREE.DoubleSide }); // Orange for discarded
         const outlineMaterial = new THREE.LineBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.8});
         const defaultDotMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
         const selectedDotMaterial = new THREE.MeshBasicMaterial({ color: 0x6f0000 });
@@ -272,7 +274,7 @@
             displayCurrentStep();
         }
 
-        function createModel(jsonData, interventionPartIds = new Set()) {
+        function createModel(jsonData) {
             while (objectGroup.children.length > 0) objectGroup.remove(objectGroup.children[0]);
             partMeshesMap.clear();
             currentModelJson = jsonData;
@@ -282,9 +284,22 @@
                 const geo = new THREE.BoxGeometry(part.dimensions.width, part.dimensions.height, part.dimensions.depth);
                 const pos = new THREE.Vector3(part.origin.x, part.origin.y, part.origin.z);
                 const partGroup = new THREE.Group();
-                const material = interventionPartIds.has(part.id) ? interventionPartMaterial : intactPartMaterial;
+                let material;
+                switch (part.status) {
+                    case 'new':
+                        material = newMaterial;
+                        break;
+                    case 'discarded':
+                        material = discardedMaterial;
+                        break;
+                    case 'missing':
+                        material = missingPartMaterial;
+                        break;
+                    default: // Covers 'intact', 'defective', etc. for base state
+                        material = intactPartMaterial;
+                        break;
+                }
                 const mesh = new THREE.Mesh(geo, material);
-                mesh.userData.isInterventionPart = interventionPartIds.has(part.id);
                 const line = new THREE.LineSegments(new THREE.EdgesGeometry(geo), outlineMaterial);
                 partGroup.add(mesh, line);
                 partGroup.userData.originalPosition = pos.clone();
@@ -323,9 +338,23 @@
         }
         
         function highlightElements(partsToHighlight, damagesToHighlight) {
-            // Replace this entire block
             partMeshesMap.forEach((mesh) => {
-                mesh.material = mesh.userData.isInterventionPart ? interventionPartMaterial : intactPartMaterial;
+                const part = mesh.parent.userData.part;
+                if (!part) return;
+                switch (part.status) {
+                    case 'new':
+                        mesh.material = newMaterial;
+                        break;
+                    case 'discarded':
+                        mesh.material = discardedMaterial;
+                        break;
+                    case 'missing':
+                        mesh.material = missingPartMaterial;
+                        break;
+                    default:
+                        mesh.material = intactPartMaterial;
+                        break;
+                }
             });
             damageSpheres.forEach(sphere => { sphere.material = defaultDotMaterial; });
 
@@ -610,12 +639,18 @@
                     const result = await response.json();
                     if (!result.candidates?.[0]?.content?.parts?.[0]?.text) throw new Error("Invalid API response structure for intervention.");
                     const newModelJson = JSON.parse(result.candidates[0].content.parts[0].text.replace(/```json\n|```/g, '').trim());
-                    const oldPartIds = new Set(currentModelJson.parts.map(p => p.id));
-                    const interventionPartIds = new Set(newModelJson.parts.map(p => p.id).filter(id => !oldPartIds.has(id)));
-                    createModel(newModelJson, interventionPartIds);
+                    
+                    // Update ROLF message based on status changes
+                    const newParts = newModelJson.parts.filter(p => p.status === 'new').length;
+                    const discardedParts = newModelJson.parts.filter(p => p.status === 'discarded').length;
+                    let rolfMsg = "Intervention applied.";
+                    if (newParts > 0) rolfMsg += ` ${newParts} new part(s) added.`;
+                    if (discardedParts > 0) rolfMsg += ` ${discardedParts} part(s) marked for discard.`;
+
+                    createModel(newModelJson); // Simplified call
                     createDamages(currentDamageJson);
                     displayCurrentStep();
-                    updateROLF(`Intervention applied. ${interventionPartIds.size} new part(s) added.`, false);
+                    updateROLF(rolfMsg, false);
                     userPromptInput.value = '';
                 } catch (error) { updateROLF(`Intervention failed: ${error.message}`, false); }
             });
