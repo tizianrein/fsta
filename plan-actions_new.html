@@ -295,7 +295,10 @@
                     case 'missing':
                         material = missingPartMaterial;
                         break;
-                    default: // Covers 'intact', 'defective', etc. for base state
+                    case 'defective':
+                        material = defectivePartMaterial;
+                        break;
+                    default:
                         material = intactPartMaterial;
                         break;
                 }
@@ -351,7 +354,10 @@
                     case 'missing':
                         mesh.material = missingPartMaterial;
                         break;
-                    default:
+                    case 'defective': // <-- ADD THIS CASE
+                        mesh.material = defectivePartMaterial;
+                        break;
+                    default: // <-- SIMPLIFY THIS CASE (now just for 'intact' etc.)
                         mesh.material = intactPartMaterial;
                         break;
                 }
