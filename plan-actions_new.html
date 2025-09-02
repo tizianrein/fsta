@@ -284,6 +284,7 @@
                 const partGroup = new THREE.Group();
                 const material = interventionPartIds.has(part.id) ? interventionPartMaterial : intactPartMaterial;
                 const mesh = new THREE.Mesh(geo, material);
+                mesh.userData.isInterventionPart = interventionPartIds.has(part.id);
                 const line = new THREE.LineSegments(new THREE.EdgesGeometry(geo), outlineMaterial);
                 partGroup.add(mesh, line);
                 partGroup.userData.originalPosition = pos.clone();
@@ -322,10 +323,9 @@
         }
         
         function highlightElements(partsToHighlight, damagesToHighlight) {
+            // Replace this entire block
             partMeshesMap.forEach((mesh) => {
-                 if (mesh.material !== interventionPartMaterial) {
-                    mesh.material = intactPartMaterial;
-                }
+                mesh.material = mesh.userData.isInterventionPart ? interventionPartMaterial : intactPartMaterial;
             });
             damageSpheres.forEach(sphere => { sphere.material = defaultDotMaterial; });
 
