@@ -15,7 +15,6 @@
         #viewer-canvas { display: block; width: 100%; height: 100%; }
         #info-box { position: absolute; top: 10px; left: 0px; padding: 0px; background-color: transparent; border: none; font-family: monospace; font-size: 12px; line-height: 1.4; z-index: 101; display: none; pointer-events: none; max-width: 250px; }
         #step-display-container { display: none; position: absolute; top: 10px; right: 0px; z-index: 100; display: flex; flex-direction: column; align-items: flex-end; }
-        /* MODIFIED: step-counter style removed as it's no longer used */
         .step-nav-arrow { cursor: pointer; display: block; width: 30px; height: 30px; border: 1px solid #d00; color: #d00; background-color: #fff; text-align: center; line-height: 28px; font-size: 20px; margin-top: 5px; user-select: none; }
         .step-nav-arrow.disabled { cursor: not-allowed; color: #ccc; border-color: #ccc; }
         #step-info-panel { display: none; position: absolute; bottom: 10px; left: 0px; right: 0px; background-color: rgba(221, 51, 51, 0.85); color: #fff; padding: 15px; border: 1px solid #d00; cursor: pointer; z-index: 100; }
@@ -56,7 +55,20 @@
         .settings-group label { display: block; font-size: 14px; margin-bottom: 8px; }
         .settings-input { width: 100%; padding: 10px; border: 1px solid #000; border-radius: 0; font-size: 14px; box-sizing: border-box; }
         #step-nav-choices { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; margin-bottom: 5px; }
-        .step-choice-btn { cursor: pointer; border: 1px solid #d00; color: #d00; background-color: #fff; padding: 5px 10px; font-size: 12px; user-select: none; text-align: right; min-width: 120px; }
+        /* MODIFIED: Updated button styles for better size and appearance */
+        .step-choice-btn {
+            cursor: pointer;
+            border: 1px solid #d00;
+            color: #d00;
+            background-color: #fff;
+            padding: 0 10px; /* Adjusted padding */
+            font-size: 14px;  /* Increased font size */
+            user-select: none;
+            text-align: right;
+            min-width: 120px;
+            height: 30px;     /* Set height to match back arrow */
+            line-height: 28px; /* Vertically center text */
+        }
         .step-choice-btn:hover { background-color: #d00; color: #fff; }
     </style>
 </head>
@@ -73,7 +85,6 @@
         <div id="viewer-container">
             <canvas id="viewer-canvas"></canvas>
             <div id="info-box"></div>
-            <!-- MODIFIED: step-counter div has been completely removed -->
             <div id="step-display-container">
                 <div id="step-nav-choices"></div>
                 <div id="step-nav-prev" class="step-nav-arrow">←</div>
@@ -175,7 +186,6 @@
         const userPromptInput = document.getElementById('user-prompt');
         const stepDisplayContainer = document.getElementById('step-display-container');
         const stepInfoPanel = document.getElementById('step-info-panel');
-        // MODIFIED: stepCounterEl variable removed
         const stepNavPrevBtn = document.getElementById('step-nav-prev');
         const explodeBtn = document.getElementById('explode-view-btn');
         const resetBtn = document.getElementById('reset-view-btn');
@@ -370,7 +380,8 @@
             displayCurrentStep();
         }
 
-        // MODIFIED: Complete rewrite of displayCurrentStep with corrected logic
+        // The logic here is already correct and handles your back button question perfectly.
+        // The CSS change is what makes the UI match your request.
         function displayCurrentStep() {
             if (!currentPlanJson || !currentStepId || !planMap.has(currentStepId)) {
                 stepDisplayContainer.style.display = 'none';
@@ -385,17 +396,14 @@
             document.getElementById('step-info-title').textContent = step.title;
             
             const choicesContainer = document.getElementById('step-nav-choices');
-            choicesContainer.innerHTML = ''; // Clear previous choices
+            choicesContainer.innerHTML = '';
             
             const currentlyCompletedAndHistory = new Set([...stepHistory, currentStepId]);
 
-            // 1. Prioritize steps that are direct successors of the CURRENT step.
             let availableChoices = currentPlanJson.steps.filter(s =>
                 !currentlyCompletedAndHistory.has(s.step_id) && s.prerequisites.includes(currentStepId)
             );
 
-            // 2. If no direct successors, find ANY other available step in the whole graph.
-            //    This handles converging paths and picking up leftover parallel tasks.
             if (availableChoices.length === 0) {
                 availableChoices = currentPlanJson.steps.filter(s =>
                     !currentlyCompletedAndHistory.has(s.step_id) &&
@@ -413,7 +421,6 @@
             } else {
                 availableChoices.forEach(choice => {
                     const btn = document.createElement('div');
-                    // MODIFIED: Button text format updated
                     btn.textContent = `${choice.title} →`;
                     btn.className = 'step-choice-btn';
                     btn.onclick = () => {
