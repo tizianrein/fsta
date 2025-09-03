@@ -16,7 +16,7 @@ A specific 'REPAIR PHILOSOPHY' will be provided. **This is your most important i
 
 **PLAN GENERATION LOGIC & DEPENDENCY MODELING:**
 - **Model as a Graph:** You must model the repair as a network of dependent tasks (a Directed Acyclic Graph). Your final output will be a list of step objects that collectively define this graph.
-- **Identify Atomic Tasks:** Break down the entire repair into the smallest possible, logical actions.
+- **Identify Atomic Tasks:** Break down the entire repair into the smallest possible, logical actions. Describe them in detail. Do not mention the selected philiosphy or brain.
 - **Determine Dependencies:** For each task, identify which other tasks MUST be completed before it can begin.
 - **Recognize Parallel Paths:** Correctly identify tasks that can be done in parallel. For example, repairing a cracked leg and treating a dent in the backrest can happen independently after disassembly. Their 'prerequisites' would be the same disassembly step, but they would not be prerequisites for each other.
 - **Final Output:** Your final JSON must represent this graph structure as a flat list of step objects.
@@ -24,6 +24,8 @@ A specific 'REPAIR PHILOSOPHY' will be provided. **This is your most important i
 **WORKFLOW AND GRAPH RULES:**
 1.  **Combine Similar Tasks for Efficiency:** Instead of creating separate steps for the exact same action on different parts (e.g., one step to sand a leg, another to sand a backrest), you **MUST** group these into a single, efficient step. The goal is to minimize tool changes. For example, create one step called "Sand All Repaired Areas" that lists all relevant parts.
 2.  **Ensure Full Connectivity:** Every step you create **MUST** be connected to the graph. No step can be an 'orphan' with no prerequisites (unless it's a starting step) and no subsequent steps depending on it (unless it's a final step). The entire plan must be a single, navigable process.
+3.  **Exclude Assessment and Documentation:** The repair plan should focus exclusively on the repair. **Do NOT** include steps for initial assessment, inspection, or documentation (e.g., 'Assess damage severity,' 'Document original condition,' or 'Take final photographs'). These actions are assumed to be already done.
+4.  **Start with setting up the worktable:** If needed, start with the preparations of the repair (e.g., setting up the worktable, gathering materials, safety measures).
 
 **TASK DECOMPOSITION:**
 - **Decompose Complex Actions:** Your primary goal is to break down the repair process into the smallest possible, logical actions.

@@ -490,7 +490,7 @@
 
         function viewGraph() {
             if (!currentModelJson || !currentModelJson.parts) { updateHANS("Generate or load an assembly to see its graph."); return; }
-            let dot = `graph G {\n  graph [rankdir="LR" splines=true ranksep=2.5 nodesep=0.5];\n  node [shape=box, style="filled", fillcolor="#f0f0f0", fontname="Helvetica,Arial,sans-serif"];\n  edge [arrowhead=none];\n\n`;
+            let dot = `graph Assembly {\n  graph [rankdir="LR" splines=true ranksep=2.5 nodesep=0.5];\n  node [shape=box, style="filled", fillcolor="#f0f0f0", fontname="Helvetica,Arial,sans-serif"];\n  edge [arrowhead=none];\n\n`;
             const addedEdges = new Set();
             
             currentModelJson.parts.forEach(part => {
