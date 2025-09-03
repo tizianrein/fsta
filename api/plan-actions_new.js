@@ -6,36 +6,33 @@ const SYSTEM_PROMPT = `
 You are an expert AI assistant specializing in creating repair plans for 3D objects.
 Your primary task is to generate a step-by-step repair plan based on a 3D model's assembly data, a list of damages, and user instructions.
 
+**PRIMARY DIRECTIVE:**
+A specific 'REPAIR PHILOSOPHY' will be provided. **This is your most important instruction.** You must let this philosophy dictate the *type*, *quality*, and *nature* of the steps you generate, overriding any conflicting general instructions. For example, a "quick and dirty" philosophy should produce a very different plan than a "museum quality" one.
+
 **CRITICAL OUTPUT REQUIREMENTS:**
 1.  Your entire output **MUST BE a single, raw JSON object**.
 2.  Do NOT use any markdown formatting like \`\`\`json. Your response must start with \`{\` and end with \`}\`.
 3.  Do NOT include any explanatory text, greetings, or apologies before or after the JSON content.
 
 **PLAN GENERATION LOGIC & DEPENDENCY MODELING:**
-- **Model as a Graph:** You must model the repair as a network of dependent tasks (a Directed Acyclic Graph). Your final output will be a list of step objects that collectively define this graph.
-- **Identify Atomic Tasks:** Break down the entire repair into the smallest possible, logical actions.
+- **Model as a Graph:** Model the repair as a network of dependent tasks.
+- **Identify Atomic Tasks:** Break down the repair into logical actions appropriate to the given REPAIR PHILOSOPHY.
 - **Determine Dependencies:** For each task, identify which other tasks MUST be completed before it can begin.
-- **Recognize Parallel Paths:** Correctly identify tasks that can be done in parallel. For example, repairing a cracked leg and treating a dent in the backrest can happen independently after disassembly. Their 'prerequisites' would be the same disassembly step, but they would not be prerequisites for each other.
-- **Final Output:** Your final JSON must represent this graph structure as a flat list of step objects.
-
-**TASK DECOMPOSITION:**
-- **Decompose Complex Actions:** Your primary goal is to break down the repair process into the smallest possible, logical actions.
-- **More Steps are Better:** Always favor creating more, simpler steps over fewer, complicated ones. For example, instead of one step for "Remove the back panel," create separate steps for "Unscrew the four corner screws," "Gently pry open the left seam," and "Lift the panel away."
-- **Sequential and Logical:** The overall flow defined by the prerequisites must be logical and safe.
+- **Final Output:** Your final JSON must represent this graph as a flat list of step objects.
 
 **JSON OUTPUT SCHEMA:**
 The root object must contain a single key: "steps". Each step object MUST have the following structure:
 - "step_id" (string): A unique, descriptive, machine-readable ID in snake_case (e.g., "sand_surface", "apply_first_coat").
 - "title" (string): A short, action-focused title with a MAXIMUM of four words.
-- "description" (string): A precise, rich, and highly detailed explanation of the action.
+- "description" (string): A precise, rich, and detailed explanation of the action.
 - "tools_required" (array of strings): Tools or materials for this specific step.
 - "affected_parts" (array of strings): Part 'id's from modelJson directly manipulated in this step.
 - "affected_damages" (array of strings): Damage 'id's from damageJson addressed in this step.
-- "prerequisites" (array of strings): An array of 'step_id's for all steps that MUST be completed before this step can begin. The first step(s) in the plan will have an empty prerequisites array \`[]\`. This structure defines the dependency graph.
+- "prerequisites" (array of strings): An array of 'step_id's for all steps that MUST be completed before this step can begin.
 `;
 
 const BRAIN_PROMPTS = {
-    "janitors-cookbook": "REPAIR PHILOSOPHY: Expedience and durability. Fix failures quickly, cheaply, and robustly using pragmatic techniques like clamping or welding. Abandon weak elements. The result is resilient and repeatable, like industrial maintenance.",
+    "janitors-cookbook": "REPAIR PHILOSOPHY: Expedience and durability. Fix failures quickly, cheaply, and robustly using pragmatic techniques, skipping everything that deals with aesthetics and historical importance. The quick repair is the goal. Abandon and remove weak elements if the general object or structure remains functional in a way. The result is resilient and repeatable, industrial-like maintenance.",
     "long-term-thinker": "REPAIR PHILOSOPHY: Temporal model of shearing layers. Repair is a systemic intervention in time, preparing for future failures. Design for reversibility, modularity, and access to preserve long-term adaptability.",
     "readymade-brain": "REPAIR PHILOSOPHY: Repair as an act of selection and re-contextualization. Use a commonplace industrial object already in circulation as the solution. The value is in the wit, irony, and clever re-appropriation of the chosen 'readymade'.",
     "anarchitect": "REPAIR PHILOSOPHY: Repair through subtraction, not addition. Cut away or destabilize material to expose hidden structures and create new perceptions. Transform the object into a state of critical tension, revealing fragility and voids, even at the cost of functionality.",
@@ -60,14 +57,25 @@ export default async function handler(req, res) {
       return res.status(500).json({ message: "API key is not configured on the server." });
     }
 
+    // --- Start of New Logic: Ensure a brain is always used ---
+    let effectiveBrainId = brainId;
+
+    // If no valid brain is provided by the user, select one at random.
+    if (!brainId || !BRAIN_PROMPTS[brainId]) {
+        const availableBrainIds = Object.keys(BRAIN_PROMPTS);
+        const randomIndex = Math.floor(Math.random() * availableBrainIds.length);
+        effectiveBrainId = availableBrainIds[randomIndex];
+        // This log is helpful for debugging to see when a random brain was chosen.
+        console.log(`No/invalid brain provided, randomly selected: ${effectiveBrainId}`);
+    }
+    // --- End of New Logic ---
+
     const geminiParts = [
       { text: SYSTEM_PROMPT }
     ];
 
-    // Add brain-specific instructions if a valid brainId is provided
-    if (brainId && BRAIN_PROMPTS[brainId]) {
-        geminiParts.push({ text: BRAIN_PROMPTS[brainId] });
-    }
+    // Add brain-specific instructions using the now-guaranteed effectiveBrainId
+    geminiParts.push({ text: BRAIN_PROMPTS[effectiveBrainId] });
 
     geminiParts.push(
       { text: `Base 3D Model: ${JSON.stringify(modelJson, null, 2)}` },
@@ -98,7 +106,14 @@ export default async function handler(req, res) {
     }
 
     const googleData = await googleResponse.json();
-    res.status(200).json(googleData);
+    
+    const planJsonText = googleData.candidates[0].content.parts[0].text;
+    let finalPlanObject = JSON.parse(planJsonText);
+
+    // Add the effective brain ID to the object. This will now always be present.
+    finalPlanObject.brain_used = effectiveBrainId;
+
+    res.status(200).json(finalPlanObject);
 
   } catch (error) {
     console.error('Error in /api/plan-actions handler:', error);
