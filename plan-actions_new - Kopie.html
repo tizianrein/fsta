@@ -55,10 +55,6 @@
         .settings-group { margin-bottom: 20px; }
         .settings-group label { display: block; font-size: 14px; margin-bottom: 8px; }
         .settings-input { width: 100%; padding: 10px; border: 1px solid #000; border-radius: 0; font-size: 14px; box-sizing: border-box; }
-        /* MODIFIED: New styles for choice buttons */
-        #step-nav-choices { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; margin-bottom: 5px; }
-        .step-choice-btn { cursor: pointer; border: 1px solid #d00; color: #d00; background-color: #fff; padding: 5px 10px; font-size: 12px; user-select: none; text-align: right; min-width: 120px; }
-        .step-choice-btn:hover { background-color: #d00; color: #fff; }
     </style>
 </head>
 <body>
@@ -67,17 +63,18 @@
             <div class="top-input-row">
                 <input type="text" id="object-name" placeholder="Enter object name... (optional)" readonly>
                 <button id="settings-btn" class="btn icon-button" title="Settings">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                    </svg>
                 </button>
             </div>
         </div>
         <div id="viewer-container">
             <canvas id="viewer-canvas"></canvas>
             <div id="info-box"></div>
-            <!-- MODIFIED: Navigation container updated for choices -->
             <div id="step-display-container">
                 <div id="step-counter"></div>
-                <div id="step-nav-choices"></div>
+                <div id="step-nav-next" class="step-nav-arrow">→</div>
                 <div id="step-nav-prev" class="step-nav-arrow">←</div>
             </div>
             <div id="step-info-panel">
@@ -162,10 +159,7 @@
         let scene, camera, renderer, controls, axesScene, axesCamera, infoBox, raycaster, mouse;
         let typingInterval, timerInterval;
         let currentModelJson, currentDamageJson, currentPlanJson, selectedBrainId;
-        // MODIFIED: State management updated for graph-based plans
-        let currentStepId = null;
-        let stepHistory = [];
-        let planMap = new Map();
+        let currentStepIndex = 0;
         let activeAnimations = [];
         let temperature = 0.4, geminiModel = 'gemini-2.5-pro', sphereScale = 1.0;
         const objectGroup = new THREE.Group();
@@ -179,6 +173,7 @@
         const stepDisplayContainer = document.getElementById('step-display-container');
         const stepInfoPanel = document.getElementById('step-info-panel');
         const stepCounterEl = document.getElementById('step-counter');
+        const stepNavNextBtn = document.getElementById('step-nav-next');
         const stepNavPrevBtn = document.getElementById('step-nav-prev');
         const explodeBtn = document.getElementById('explode-view-btn');
         const resetBtn = document.getElementById('reset-view-btn');
@@ -230,16 +225,16 @@
             animate();
         }
 
-        // MODIFIED: loadDefaults now uses the graph format
         function loadDefaults() {
             const defaultModel = { "objectName": "", "parts": [{ "id": "cube", "status": "defective", "origin": {"x": 0, "y": 0.25, "z": 0}, "dimensions": {"width": 0.5, "depth": 0.5, "height": 0.5}, "connections": [] }] };
             const defaultDamage = [{ "id": "damage_01", "type": "Scratch", "description": "A default scratch.", "part_id": "cube", "coordinates": { "x": 0.0, "y": 0.5, "z": 0.0 } }];
-            const defaultPlan = { "steps": [{ "step_id": "fill_scratch", "title": "Fill Scratch", "description": "Apply wood filler to the scratch.", "tools_required": ["Wood filler"], "affected_parts": ["cube"], "affected_damages": ["damage_01"], "prerequisites": [] }] };
+            const defaultPlan = { "steps": [{ "step_number": 1, "title": "Fill Scratch", "description": "Apply wood filler to the scratch.", "tools_required": ["Wood filler"], "affected_parts": ["cube"], "affected_damages": ["damage_01"] }] };
             createModel(defaultModel);
             document.getElementById('object-name').value = ""; 
             createDamages(defaultDamage);
-            processNewPlan(defaultPlan);
+            currentPlanJson = defaultPlan;
             updateROLF("Hello! I am R.O.L.F. - the Repair Option Layout Finder. Load your data to begin.");
+            displayCurrentStep();
         }
 
         function animate() {
@@ -266,7 +261,6 @@
             renderer.setViewport(0, 0, renderer.domElement.clientWidth, renderer.domElement.clientHeight);
         }
 
-        // MODIFIED: clearAll now resets graph-related state
         function clearAll() {
             while (objectGroup.children.length > 0) objectGroup.remove(objectGroup.children[0]);
             partMeshesMap.clear();
@@ -276,9 +270,7 @@
             damageSpheres.length = 0;
             currentDamageJson = null;
             currentPlanJson = null;
-            currentStepId = null;
-            stepHistory = [];
-            planMap.clear();
+            currentStepIndex = 0;
             displayCurrentStep();
         }
 
@@ -294,11 +286,21 @@
                 const partGroup = new THREE.Group();
                 let material;
                 switch (part.status) {
-                    case 'new': material = newMaterial; break;
-                    case 'discarded': material = discardedMaterial; break;
-                    case 'missing': material = missingPartMaterial; break;
-                    case 'defective': material = defectivePartMaterial; break;
-                    default: material = intactPartMaterial; break;
+                    case 'new':
+                        material = newMaterial;
+                        break;
+                    case 'discarded':
+                        material = discardedMaterial;
+                        break;
+                    case 'missing':
+                        material = missingPartMaterial;
+                        break;
+                    case 'defective':
+                        material = defectivePartMaterial;
+                        break;
+                    default:
+                        material = intactPartMaterial;
+                        break;
                 }
                 const mesh = new THREE.Mesh(geo, material);
                 const line = new THREE.LineSegments(new THREE.EdgesGeometry(geo), outlineMaterial);
@@ -343,42 +345,43 @@
                 const part = mesh.parent.userData.part;
                 if (!part) return;
                 switch (part.status) {
-                    case 'new': mesh.material = newMaterial; break;
-                    case 'discarded': mesh.material = discardedMaterial; break;
-                    case 'missing': mesh.material = missingPartMaterial; break;
-                    case 'defective': mesh.material = (currentPlanJson && currentPlanJson.steps && currentPlanJson.steps.length > 0) ? intactPartMaterial : defectivePartMaterial; break;
-                    default: mesh.material = intactPartMaterial; break;
+                    case 'new':
+                        mesh.material = newMaterial;
+                        break;
+                    case 'discarded':
+                        mesh.material = discardedMaterial;
+                        break;
+                    case 'missing':
+                        mesh.material = missingPartMaterial;
+                        break;
+                    case 'defective':
+                        if (currentPlanJson && currentPlanJson.steps && currentPlanJson.steps.length > 0) {
+                            mesh.material = intactPartMaterial; 
+                        } else {
+                            mesh.material = defectivePartMaterial;
+                        }
+                        break;
+                    default:
+                        mesh.material = intactPartMaterial;
+                        break;
                 }
             });
+
             damageSpheres.forEach(sphere => { sphere.material = defaultDotMaterial; });
+
             damagesToHighlight.forEach(damageId => {
                 const sphere = damageSpheres.find(s => s.userData.damage.id === damageId);
                 if (sphere) sphere.material = selectedDotMaterial;
             });
+            
             partsToHighlight.forEach(partId => {
                 const mesh = partMeshesMap.get(partId);
                 if (mesh) mesh.material = defectivePartMaterial; 
             });
         }
         
-        // NEW: Function to process a new plan and set the initial state
-        function processNewPlan(newPlan) {
-            currentPlanJson = newPlan;
-            planMap.clear();
-            stepHistory = [];
-            if (currentPlanJson && currentPlanJson.steps) {
-                currentPlanJson.steps.forEach(step => planMap.set(step.step_id, step));
-                const startStep = currentPlanJson.steps.find(step => !step.prerequisites || step.prerequisites.length === 0);
-                currentStepId = startStep ? startStep.step_id : null;
-            } else {
-                currentStepId = null;
-            }
-            displayCurrentStep();
-        }
-
-        // REWRITTEN: The core logic for non-sequential navigation
         function displayCurrentStep() {
-            if (!currentPlanJson || !currentStepId || !planMap.has(currentStepId)) {
+            if (!currentPlanJson || !currentPlanJson.steps || currentPlanJson.steps.length === 0) {
                 stepDisplayContainer.style.display = 'none';
                 stepInfoPanel.style.display = 'none';
                 highlightElements([], []);
@@ -386,53 +389,19 @@
             }
             stepDisplayContainer.style.display = 'flex';
             stepInfoPanel.style.display = 'block';
-            
-            const step = planMap.get(currentStepId);
-            const completedSteps = new Set(stepHistory); // Steps in history are completed
-
-            stepCounterEl.textContent = `Completed: ${completedSteps.size} / ${planMap.size}`;
+            const step = currentPlanJson.steps[currentStepIndex];
+            if (!step) return;
+            stepCounterEl.textContent = `Step: ${step.step_number} / ${currentPlanJson.steps.length}`;
             document.getElementById('step-info-title').textContent = step.title;
-            
-            const choicesContainer = document.getElementById('step-nav-choices');
-            choicesContainer.innerHTML = ''; // Clear previous choices
-            
-            // The currently viewed step is NOT yet complete. A step is completed when you move FROM it.
-            const currentlyCompletedAndHistory = new Set([...stepHistory, currentStepId]);
-
-            // Find all steps whose prerequisites are fully met by the set of completed steps
-            const nextAvailableSteps = currentPlanJson.steps.filter(nextStep =>
-                !currentlyCompletedAndHistory.has(nextStep.step_id) &&
-                nextStep.prerequisites.every(prereqId => currentlyCompletedAndHistory.has(prereqId))
-            );
-
-            if (nextAvailableSteps.length === 0 && currentlyCompletedAndHistory.size < planMap.size) {
-                 const info = document.createElement('div');
-                 info.textContent = (stepHistory.length > 0) ? "Go back for other tasks" : "Plan Complete!";
-                 info.className = 'step-choice-btn';
-                 info.style.cursor = 'default'; info.style.color = '#888'; info.style.borderColor = '#888';
-                 choicesContainer.appendChild(info);
-            } else {
-                nextAvailableSteps.forEach(choice => {
-                    const btn = document.createElement('div');
-                    btn.textContent = `Next: ${choice.title}`;
-                    btn.className = 'step-choice-btn';
-                    btn.onclick = () => {
-                        stepHistory.push(currentStepId);
-                        currentStepId = choice.step_id;
-                        displayCurrentStep();
-                    };
-                    choicesContainer.appendChild(btn);
-                });
-            }
-
-            stepNavPrevBtn.classList.toggle('disabled', stepHistory.length === 0);
+            stepNavPrevBtn.classList.toggle('disabled', currentStepIndex === 0);
+            stepNavNextBtn.classList.toggle('disabled', currentStepIndex === currentPlanJson.steps.length - 1);
             highlightElements(step.affected_parts || [], step.affected_damages || []);
         }
 
-        // MODIFIED: showStepDetailModal uses currentStepId and planMap
         function showStepDetailModal() {
-            if (!currentPlanJson || !currentStepId || !planMap.has(currentStepId)) return;
-            const step = planMap.get(currentStepId);
+            if (!currentPlanJson || !currentPlanJson.steps) return;
+            const step = currentPlanJson.steps[currentStepIndex];
+            if (!step) return;
             const body = document.getElementById('step-detail-modal-body');
             body.innerHTML = `
                 <p>${step.description}</p>
@@ -474,7 +443,6 @@
             }
         }
         
-        // MODIFIED: handleFileUpload uses processNewPlan
         function handleFileUpload(event, type) { 
             const file = event.target.files[0]; if (!file) return; 
             const reader = new FileReader(); 
@@ -483,7 +451,7 @@
                     const data = JSON.parse(e.target.result); 
                     if (type === 'assembly') { clearAll(); createModel(data); updateROLF("Assembly loaded. Upload damages."); } 
                     else if (type === 'damages') { createDamages(data); updateROLF("Damages loaded. Plan a repair."); } 
-                    else if (type === 'plan') { processNewPlan(data); updateROLF(`Plan loaded.`); } 
+                    else if (type === 'plan') { currentPlanJson = data; currentStepIndex = 0; displayCurrentStep(); updateROLF(`Plan loaded.`); } 
                 } catch (err) { updateROLF(`Error parsing ${type} file.`); } 
             }; 
             reader.readAsText(file); event.target.value = ''; 
@@ -507,47 +475,32 @@
             a.click(); URL.revokeObjectURL(a.href); 
         }
 
-        // REWRITTEN: viewGraph now correctly renders a dependency graph
         function viewGraph() {
             if (!currentPlanJson || !currentPlanJson.steps || currentPlanJson.steps.length === 0) {
                 updateROLF("Generate or load a repair plan to see its graph.");
                 return;
             }
+            const objectId = (currentModelJson?.objectName || 'object').replace(/\s+/g, '_');
             const steps = currentPlanJson.steps;
+            const currentStepNumber = steps[currentStepIndex]?.step_number;
             const removeKeywords = ['remove', 'unscrew', 'detach', 'disassemble', 'pry', 'take off', 'unclip', 'sand', 'cut', 'unfasten', 'separate', 'take out', 'disconnect'];
             const addKeywords = ['add', 'apply', 'install', 'attach', 'secure', 'clamp', 'glue', 'insert', 'place', 'reassemble', 'fill', 'coat'];
             let dot = `digraph RepairPlan {\n  rankdir=LR;\n  node [fontname="Helvetica,Arial,sans-serif", fixedsize=true, width=1.6, height=1.2];\n  edge [fontname="Helvetica,Arial,sans-serif"];\n\n`;
-            
-            // Define nodes
             steps.forEach(step => {
                 const label = step.title.replace(/\s+/g, '\\n');
+                const nodeId = `${objectId}-S${step.step_number}`;
                 const titleLower = step.title.toLowerCase();
                 let attributes = [], styleProperties = [];
                 let shape = 'circle';
                 if (removeKeywords.some(kw => titleLower.includes(kw))) { shape = 'doublecircle'; styleProperties.push('dashed'); } 
                 else if (addKeywords.some(kw => titleLower.includes(kw))) { shape = 'doublecircle'; }
                 attributes.push(`shape=${shape}`);
-                
-                if (step.step_id === currentStepId) { 
-                    styleProperties.push('filled'); attributes.push('fillcolor="#dd3333"', 'fontcolor=white'); 
-                } else if (!step.prerequisites || step.prerequisites.length === 0 || steps.every(s => !s.prerequisites.includes(step.step_id))) {
-                    // Start or end nodes
-                    styleProperties.push('filled'); attributes.push('fillcolor=black', 'fontcolor=white');
-                }
-                
+                if (step.step_number === currentStepNumber) { styleProperties.push('filled'); attributes.push('fillcolor="#dd3333"', 'fontcolor=white'); } 
+                else if (step.step_number === 1 || step.step_number === steps.length) { styleProperties.push('filled'); attributes.push('fillcolor=black', 'fontcolor=white'); }
                 if (styleProperties.length > 0) attributes.push(`style="${styleProperties.join(',')}"`);
-                dot += `  "${step.step_id}" [label="${label}", ${attributes.join(', ')}];\n`;
+                dot += `  "${nodeId}" [label="${label}", ${attributes.join(', ')}];\n`;
             });
-            
-            // Define edges from prerequisites
-            steps.forEach(step => {
-                if (step.prerequisites && step.prerequisites.length > 0) {
-                    step.prerequisites.forEach(prereqId => {
-                        dot += `  "${prereqId}" -> "${step.step_id}";\n`;
-                    });
-                }
-            });
-
+            for (let i = 0; i < steps.length - 1; i++) { dot += `  "${objectId}-S${steps[i].step_number}" -> "${objectId}-S${steps[i+1].step_number}";\n`; }
             dot += '}';
             document.getElementById('graph-title').textContent = "Repair Plan Graph";
             d3.select("#graph-container").graphviz({ useWorker: false }).engine('dot').renderDot(dot);
@@ -598,10 +551,11 @@
             }); 
         }
 
-        // Drawing generation code (unchanged)
         function generateAssemblySVG(assemblyJson, damageJson) {
             const { objectName, parts } = assemblyJson || {};
             if (!parts || parts.length === 0) return '';
+
+            // 1. Collect world space vertices for each part
             const allWorldVertices = new Map();
             const globalBBox = new THREE.Box3();
             parts.forEach(part => {
@@ -612,13 +566,21 @@
                 const quaternion = new THREE.Quaternion().setFromEuler(euler);
                 const partMatrix = new THREE.Matrix4().compose(centerPos, quaternion, new THREE.Vector3(1, 1, 1));
                 const worldVertices = localVertices.map(v => v.clone().applyMatrix4(partMatrix));
+                // --- THIS LINE IS NOW CORRECTED ---
                 allWorldVertices.set(part.id, worldVertices);
                 worldVertices.forEach(v => globalBBox.expandByPoint(v));
             });
+
+            // 2. Layout Setup
             const globalSize = globalBBox.getSize(new THREE.Vector3());
-            const scale = 200, padding = 60;
-            const viewWidth = Math.max(globalSize.x, globalSize.z) * scale, viewHeight = Math.max(globalSize.y, globalSize.z) * scale;
-            const svgWidth = (viewWidth * 4) + (padding * 5), svgHeight = (viewHeight * 3) + (padding * 4);
+            const scale = 200;
+            const padding = 60;
+            const viewWidth = Math.max(globalSize.x, globalSize.z) * scale;
+            const viewHeight = Math.max(globalSize.y, globalSize.z) * scale;
+            const svgWidth = (viewWidth * 4) + (padding * 5);
+            const svgHeight = (viewHeight * 3) + (padding * 4);
+
+            // 3. Views object with ALL corrections
             const views = {
                 'TOP':    {x:viewWidth+padding*2, y:padding,               p:v=>({x:-v.x,y:-v.z}), dir:new THREE.Vector3(0,-1,0)},
                 'LEFT':   {x:padding,             y:viewHeight+padding*2,  p:v=>({x:v.z, y:-v.y}), dir:new THREE.Vector3(1,0,0)},
@@ -627,12 +589,18 @@
                 'BACK':   {x:viewWidth*3+padding*4,y:viewHeight+padding*2, p:v=>({x:v.x, y:-v.y}), dir:new THREE.Vector3(0,0,1)},
                 'BOTTOM': {x:viewWidth+padding*2, y:viewHeight*2+padding*3,p:v=>({x:-v.x,y:v.z}),  dir:new THREE.Vector3(0,1,0)}
             };
-            const faces = [[0,1,2,3],[5,4,7,6],[1,5,6,2],[4,0,3,7],[3,2,6,7],[4,5,1,0]], edges = [[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
+
+            const faces = [[0,1,2,3],[5,4,7,6],[1,5,6,2],[4,0,3,7],[3,2,6,7],[4,5,1,0]];
+            const edges = [[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
             let svgGroups = '';
+
             for (const [name, view] of Object.entries(views)) {
                 const pBounds = Array.from(allWorldVertices.values()).flat().map(v => view.p(v)).reduce((a,p)=>({minX:Math.min(a.minX,p.x),minY:Math.min(a.minY,p.y),maxX:Math.max(a.maxX,p.x),maxY:Math.max(a.maxY,p.y)}),{minX:Infinity,minY:Infinity,maxX:-Infinity,maxY:-Infinity});
-                const centerX = (pBounds.minX + pBounds.maxX)/2, centerY = (pBounds.minY + pBounds.maxY)/2;
-                const groupTransform = `translate(${view.x}, ${view.y})`, contentTransform = `translate(${viewWidth/2}, ${viewHeight/2}) scale(${scale}) translate(${-centerX}, ${-centerY})`;
+                const centerX = (pBounds.minX + pBounds.maxX)/2;
+                const centerY = (pBounds.minY + pBounds.maxY)/2;
+                const groupTransform = `translate(${view.x}, ${view.y})`;
+                const contentTransform = `translate(${viewWidth/2}, ${viewHeight/2}) scale(${scale}) translate(${-centerX}, ${-centerY})`;
+
                 let hiddenLinesHTML='', visibleLinesHTML='';
                 parts.forEach(part => {
                     const worldVertices = allWorldVertices.get(part.id); if (!worldVertices) return;
@@ -648,24 +616,58 @@
                         if (visibleEdges.has(edgeIndices.sort().join('-'))) visibleLinesHTML+=line; else hiddenLinesHTML+=line;
                     });
                 });
+                
                 let damageMarkers = (damageJson||[]).map(d => `<circle cx="${view.p(new THREE.Vector3(d.coordinates.x,d.coordinates.y,d.coordinates.z)).x}" cy="${view.p(new THREE.Vector3(d.coordinates.x,d.coordinates.y,d.coordinates.z)).y}" r="${2/scale}" class="damage-marker" />`).join('');
+
                 let rulerMarks = '';
                 if (['TOP', 'FRONT', 'BOTTOM'].includes(name)) {
-                    const relevantDimension = (name === 'FRONT') ? globalSize.y : globalSize.z, numMarks = Math.floor((relevantDimension + 1e-9) / 0.1);
+                    const relevantDimension = (name === 'FRONT') ? globalSize.y : globalSize.z;
+                    const numMarks = Math.floor((relevantDimension + 1e-9) / 0.1);
+
                     if (numMarks > 0) {
-                        const rulerX = pBounds.maxX + (20 / scale), tickLength = 15 / scale, yStep = 0.1;
-                        for (let i = 1; i <= numMarks; i++) rulerMarks += `<line x1="${rulerX}" y1="${pBounds.maxY - (i * yStep)}" x2="${rulerX + tickLength}" y2="${pBounds.maxY - (i * yStep)}" stroke="black" stroke-width="${0.5 / scale}" />`;
+                        const rulerX = pBounds.maxX + (20 / scale);
+                        const tickLength = 15 / scale;
+                        const yStep = 0.1;
+                        for (let i = 1; i <= numMarks; i++) {
+                            const yPos = pBounds.maxY - (i * yStep);
+                            rulerMarks += `<line x1="${rulerX}" y1="${yPos}" x2="${rulerX + tickLength}" y2="${yPos}" stroke="black" stroke-width="${0.5 / scale}" />`;
+                        }
                     }
                 }
-                svgGroups += `<g transform="${groupTransform}"><text x="${viewWidth/2}" y="${viewHeight+20}" text-anchor="middle" font-size="14" font-family="sans-serif">${name}</text><g transform="${contentTransform}"><g class="hidden-lines">${hiddenLinesHTML}</g><g class="visible-lines">${visibleLinesHTML}</g>${damageMarkers}${rulerMarks}</g></g>`;
+
+                svgGroups += `
+                <g transform="${groupTransform}">
+                    <text x="${viewWidth/2}" y="${viewHeight+20}" text-anchor="middle" font-size="14" font-family="sans-serif">${name}</text>
+                    <g transform="${contentTransform}">
+                        <g class="hidden-lines">${hiddenLinesHTML}</g>
+                        <g class="visible-lines">${visibleLinesHTML}</g>
+                        ${damageMarkers}
+                        ${rulerMarks}
+                    </g>
+                </g>`;
             }
-            const style = `<style>.visible-lines line{stroke:#000;stroke-width:${1/scale};}.hidden-lines line{stroke:#888;stroke-width:${0.5/scale};stroke-dasharray:${2.5/scale};}.damage-marker{fill:#D00;stroke:none;}.label{font-size:16px;font-family:sans-serif;}</style>`;
-            return `<svg width="${svgWidth}" height="${svgHeight}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${svgWidth} ${svgHeight}">${style}<rect x="0" y="0" width="${svgWidth}" height="${svgHeight}" fill="#fff"/><text x="${padding}" y="35" class="label" font-weight="bold">Assembly: ${objectName || 'Untitled'}</text>${svgGroups}</svg>`;
+
+            const style = `<style>
+                line{fill:none;stroke-linecap:round;}
+                .visible-lines line{stroke:#000;stroke-width:${1/scale};}
+                .hidden-lines line{stroke:#888;stroke-width:${0.5/scale};stroke-dasharray:${2.5/scale};}
+                .damage-marker{fill:#D00;stroke:none;}
+                .label{font-size:16px;font-family:sans-serif;}
+                </style>`;
+
+            return `<svg width="${svgWidth}" height="${svgHeight}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${svgWidth} ${svgHeight}">
+                ${style}
+                <rect x="0" y="0" width="${svgWidth}" height="${svgHeight}" fill="#fff"/>
+                <text x="${padding}" y="35" class="label" font-weight="bold">Assembly: ${objectName || 'Untitled'}</text>
+                ${svgGroups}
+            </svg>`;
         }
+
         function downloadAssemblyDrawing() {
             if (!currentModelJson) { updateROLF("Please load an assembly first."); return; }
             updateROLF("Generating drawing...", true);
             setTimeout(() => {
+                // Pass both assembly and damage JSON to the drawing function
                 const svgData = generateAssemblySVG(currentModelJson, currentDamageJson);
                 if (!svgData) { updateROLF("Failed to generate drawing."); return; }
                 const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
@@ -682,10 +684,9 @@
         function setupEventListeners() {
             window.addEventListener('resize', () => { const w = viewerContainer.clientWidth, h = viewerContainer.clientHeight; camera.aspect = w / h; camera.updateProjectionMatrix(); renderer.setSize(w, h); });
             document.getElementById('viewer-canvas').addEventListener('click', onObjectClick);
-            // MODIFIED: API call handler uses processNewPlan
             document.getElementById('generate-plan-btn').addEventListener('click', async () => {
                 if (!currentModelJson || !currentDamageJson) { updateROLF("Error: Please upload both assembly and damage files first."); return; }
-                const previousStepId = currentStepId;
+                const previousStepNumber = currentPlanJson?.steps[currentStepIndex]?.step_number ?? -1;
                 updateROLF("Generating your repair plan...", true);
                 try {
                     const response = await fetch('/api/plan-actions_new', {
@@ -697,11 +698,12 @@
                     const result = await response.json();
                     if (!result.candidates?.[0]?.content?.parts?.[0]?.text) throw new Error("Invalid API response structure.");
                     const newPlan = JSON.parse(result.candidates[0].content.parts[0].text.replace(/```json\n|```/g, '').trim());
-                    processNewPlan(newPlan); // Process the new graph plan
-                    // Attempt to restore the view to a similar step if it still exists
-                    if (previousStepId && planMap.has(previousStepId)) { currentStepId = previousStepId; displayCurrentStep(); }
+                    currentPlanJson = newPlan;
+                    const newIndex = newPlan.steps.findIndex(step => step.step_number === previousStepNumber);
+                    currentStepIndex = newIndex !== -1 ? newIndex : 0;
                     updateROLF(`Plan generated with ${newPlan.steps.length} steps.`, false);
                     userPromptInput.value = '';
+                    displayCurrentStep();
                 } catch (error) { updateROLF(`Sorry, an error occurred: ${error.message}`, false); }
             });
             document.getElementById('create-intervention-btn').addEventListener('click', async () => {
@@ -719,12 +721,15 @@
                     const result = await response.json();
                     if (!result.candidates?.[0]?.content?.parts?.[0]?.text) throw new Error("Invalid API response structure for intervention.");
                     const newModelJson = JSON.parse(result.candidates[0].content.parts[0].text.replace(/```json\n|```/g, '').trim());
+                    
+                    // Update ROLF message based on status changes
                     const newParts = newModelJson.parts.filter(p => p.status === 'new').length;
                     const discardedParts = newModelJson.parts.filter(p => p.status === 'discarded').length;
                     let rolfMsg = "Intervention applied.";
                     if (newParts > 0) rolfMsg += ` ${newParts} new part(s) added.`;
                     if (discardedParts > 0) rolfMsg += ` ${discardedParts} part(s) marked for discard.`;
-                    createModel(newModelJson);
+
+                    createModel(newModelJson); // Simplified call
                     createDamages(currentDamageJson);
                     displayCurrentStep();
                     updateROLF(rolfMsg, false);
@@ -754,13 +759,8 @@
             document.querySelectorAll('.close-modal-btn').forEach(btn => btn.addEventListener('click', e => e.target.closest('.modal-overlay').style.display = 'none'));
             document.getElementById('copy-json-from-modal-btn').addEventListener('click', () => { navigator.clipboard.writeText(document.getElementById('json-view-textarea').value).then(() => { updateROLF("JSON copied."); document.getElementById('json-view-modal-overlay').style.display = 'none'; }); });
             document.getElementById('save-graph-svg-btn').addEventListener('click', () => { const svgEl = document.querySelector('#graph-container svg'); if (!svgEl) return; svgEl.setAttribute("xmlns", "http://www.w3.org/2000/svg"); const blob = new Blob([new XMLSerializer().serializeToString(svgEl)], { type: "image/svg+xml;charset=utf-8" }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `${(document.getElementById('object-name').value||'object').replace(/\s+/g,'_')}_graph.svg`; a.click(); URL.revokeObjectURL(a.href); updateROLF("Graph saved as SVG."); });
-            // MODIFIED: Previous button uses history stack
-            stepNavPrevBtn.addEventListener('click', () => {
-                if (stepHistory.length > 0) {
-                    currentStepId = stepHistory.pop();
-                    displayCurrentStep();
-                }
-            });
+            stepNavNextBtn.addEventListener('click', () => { if (currentPlanJson?.steps && currentStepIndex < currentPlanJson.steps.length - 1) { currentStepIndex++; displayCurrentStep(); } });
+            stepNavPrevBtn.addEventListener('click', () => { if (currentStepIndex > 0) { currentStepIndex--; displayCurrentStep(); } });
             stepInfoPanel.addEventListener('click', showStepDetailModal);
         }
         

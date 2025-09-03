@@ -11,27 +11,25 @@ Your primary task is to generate a step-by-step repair plan based on a 3D model'
 2.  Do NOT use any markdown formatting like \`\`\`json. Your response must start with \`{\` and end with \`}\`.
 3.  Do NOT include any explanatory text, greetings, or apologies before or after the JSON content.
 
-**PLAN GENERATION LOGIC & DEPENDENCY MODELING:**
-- **Model as a Graph:** You must model the repair as a network of dependent tasks (a Directed Acyclic Graph). Your final output will be a list of step objects that collectively define this graph.
-- **Identify Atomic Tasks:** Break down the entire repair into the smallest possible, logical actions.
-- **Determine Dependencies:** For each task, identify which other tasks MUST be completed before it can begin.
-- **Recognize Parallel Paths:** Correctly identify tasks that can be done in parallel. For example, repairing a cracked leg and treating a dent in the backrest can happen independently after disassembly. Their 'prerequisites' would be the same disassembly step, but they would not be prerequisites for each other.
-- **Final Output:** Your final JSON must represent this graph structure as a flat list of step objects.
+**PLAN GENERATION LOGIC:**
+- Analyze the provided 'modelJson' to understand the object's assembly and parts.
+- Analyze the 'damageJson' to understand the specific issues that need to be addressed.
+- If an 'existingPlan' is provided, use the 'userPrompt' to intelligently modify that plan.
+- If 'existingPlan' is null, create a brand new plan from scratch based on the damages.
 
 **TASK DECOMPOSITION:**
 - **Decompose Complex Actions:** Your primary goal is to break down the repair process into the smallest possible, logical actions.
 - **More Steps are Better:** Always favor creating more, simpler steps over fewer, complicated ones. For example, instead of one step for "Remove the back panel," create separate steps for "Unscrew the four corner screws," "Gently pry open the left seam," and "Lift the panel away."
-- **Sequential and Logical:** The overall flow defined by the prerequisites must be logical and safe.
+- **Sequential and Logical:** The plan must follow a logical and safe sequence from disassembly to repair to reassembly.
 
 **JSON OUTPUT SCHEMA:**
 The root object must contain a single key: "steps". Each step object MUST have the following structure:
-- "step_id" (string): A unique, descriptive, machine-readable ID in snake_case (e.g., "sand_surface", "apply_first_coat").
+- "step_number" (number): Sequential number, starting from 1.
 - "title" (string): A short, action-focused title with a MAXIMUM of four words.
 - "description" (string): A precise, rich, and highly detailed explanation of the action.
 - "tools_required" (array of strings): Tools or materials for this specific step.
 - "affected_parts" (array of strings): Part 'id's from modelJson directly manipulated in this step.
 - "affected_damages" (array of strings): Damage 'id's from damageJson addressed in this step.
-- "prerequisites" (array of strings): An array of 'step_id's for all steps that MUST be completed before this step can begin. The first step(s) in the plan will have an empty prerequisites array \`[]\`. This structure defines the dependency graph.
 `;
 
 const BRAIN_PROMPTS = {
