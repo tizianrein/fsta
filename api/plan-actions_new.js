@@ -35,10 +35,16 @@ The root object must contain a single key: "steps". Each step object MUST have t
 `;
 
 const BRAIN_PROMPTS = {
-    "maintenance-maximalist": "REPAIR PHILOSOPHY: Over-engineer the solution for maximum durability and longevity. Suggest reinforcing weak areas, even if they aren't currently damaged. Favor modern, high-strength materials and techniques.",
-    "gentle-repairer": "REPAIR PHILOSOPHY: Use the least invasive techniques possible. Prioritize preservation and reversibility. Avoid replacing original parts unless absolutely necessary. Use materials that are compatible with the original.",
-    "purist": "REPAIR PHILOSOPHY: Restore the object to its exact original state using period-correct materials and techniques. The repair should be invisible. Authenticity is the highest priority.",
-    "critical-conservator": "REPAIR PHILOSOPHY: Stabilize the object and prevent further decay. Clearly distinguish new materials from old ('legibility of the intervention'). The history of the object, including its damages, has value and should not be completely erased."
+    "janitors-cookbook": "REPAIR PHILOSOPHY: Expedience and durability. Fix failures quickly, cheaply, and robustly using pragmatic techniques like clamping or welding. Abandon weak elements. The result is resilient and repeatable, like industrial maintenance.",
+    "long-term-thinker": "REPAIR PHILOSOPHY: Temporal model of shearing layers. Repair is a systemic intervention in time, preparing for future failures. Design for reversibility, modularity, and access to preserve long-term adaptability.",
+    "readymade-brain": "REPAIR PHILOSOPHY: Repair as an act of selection and re-contextualization. Use a commonplace industrial object already in circulation as the solution. The value is in the wit, irony, and clever re-appropriation of the chosen 'readymade'.",
+    "anarchitect": "REPAIR PHILOSOPHY: Repair through subtraction, not addition. Cut away or destabilize material to expose hidden structures and create new perceptions. Transform the object into a state of critical tension, revealing fragility and voids, even at the cost of functionality.",
+    "purist": "REPAIR PHILOSOPHY: The passage of time is sacred. Interventions are limited to stabilization—no replacement or beautification. Every repair must be scrupulously honest, distinct from the original, and legible. Scars are celebrated as evidence of authenticity.",
+    "gentle-craftsman": "REPAIR PHILOSOPHY: Conservative repair (SPAB philosophy). Use modest, careful acts to patch and mend. Retain as much original material as possible with traditional skills and sympathetic materials. The goal is continuous maintenance ('stave off decay by daily care') to preserve continuity and patina.",
+    "jeweler-of-joints": "REPAIR PHILOSOPHY: Elevate repair to an art form. The joint between old and new is not hidden but celebrated as a crafted, ornamental detail. The fix is a jewel-like connection that emphasizes contrast, precision, and eloquence, creating an exquisite hinge between times.",
+    "urbanist": "REPAIR PHILOSOPHY: Expand repair to include social and urban consequences. Judge an intervention by how it fosters human-scale vitality, safety, and community interaction. Prioritize civic action and the ecosystem around the object over merely restoring function.",
+    "preservation-scientist": "REPAIR PHILOSOPHY: Ground decisions in scientific evidence and predictive modeling. Repair is a technical process of risk assessment, material analysis, and system optimization. Solutions are chosen for demonstrable performance and durability based on precise, measured data.",
+    "stylistic-idealist": "REPAIR PHILOSOPHY: Repair as completion, not conservation. Realize a perfected stylistic whole, rather than preserving decay. Reconstruct, supplement, or invent missing parts to create an idealized state that may have never existed. Authenticity lies in stylistic unity, not original fabric."
 };
 
 export default async function handler(req, res) {

@@ -167,7 +167,18 @@
         // --- CONSTANTS & GLOBALS ---
         const ROLF_PREFIX = "R.O.L.F.🔥: ";
         const ANIMATION_DURATION = 800;
-        const brains = [ { id: "gentle-repairer", name: "The Gentle Repairer", emoji: "🩹" }, { id: "maintenance-maximalist", name: "The Maintenance Maximalist", emoji: "🔩" }, { id: "critical-conservator", name: "The Critical Conservator", emoji: "🧐" }, { id: "purist", name: "The Purist", emoji: "🏛️" } ];
+        const brains = [
+            { id: "janitors-cookbook", name: "The Janitor's Cookbook", emoji: "🧹" },
+            { id: "long-term-thinker", name: "The Long-Term Thinker", emoji: "⏳" },
+            { id: "readymade-brain", name: "The Readymade Brain", emoji: "🚲" },
+            { id: "anarchitect", name: "The Anarchitect", emoji: "🔪" },
+            { id: "purist", name: "The Purist", emoji: "🕸️" },
+            { id: "gentle-craftsman", name: "The Gentle Craftsman", emoji: "🛠️" },
+            { id: "jeweler-of-joints", name: "The Jeweler of Joints", emoji: "✨" },
+            { id: "urbanist", name: "The Urbanist", emoji: "🏙️" },
+            { id: "preservation-scientist", name: "The Preservation Scientist", emoji: "🔬" },
+            { id: "stylistic-idealist", name: "The Stylistic Idealist", emoji: "🏰" }
+        ];
         let scene, camera, renderer, controls, axesScene, axesCamera, infoBox, raycaster, mouse;
         let typingInterval, timerInterval;
         let currentModelJson, currentDamageJson, currentPlanJson, selectedBrainId;
@@ -561,8 +572,8 @@
                 return;
             }
             const steps = currentPlanJson.steps;
-            const removeKeywords = ['remove', 'unscrew', 'detach', 'disassemble', 'pry', 'take off', 'unclip', 'sand', 'cut', 'unfasten', 'separate', 'take out', 'disconnect'];
-            const addKeywords = ['add', 'apply', 'install', 'attach', 'secure', 'clamp', 'glue', 'insert', 'place', 'reassemble', 'fill', 'coat'];
+            const removeKeywords = ['remove', 'unscrew', 'detach', 'disassemble', 'pry', 'take off', 'unclip', 'sand', 'cut', 'unfasten', 'separate', 'take out', 'disconnect','clean'];
+            const addKeywords = ['add', 'apply', 'install', 'attach', 'secure', 'glue', 'insert', 'place', 'reassemble', 'fill', 'coat'];
             let dot = `digraph RepairPlan {\n  rankdir=LR;\n  node [fontname="Helvetica,Arial,sans-serif", fixedsize=true, width=1.6, height=1.2];\n  edge [fontname="Helvetica,Arial,sans-serif"];\n\n`;
             steps.forEach(step => {
                 const label = step.title.replace(/\s+/g, '\\n');
@@ -573,7 +584,7 @@
                 else if (addKeywords.some(kw => titleLower.includes(kw))) { shape = 'doublecircle'; }
                 attributes.push(`shape=${shape}`);
                 if (step.step_id === currentStepId) { styleProperties.push('filled'); attributes.push('fillcolor="#dd3333"', 'fontcolor=white'); } 
-                else if (!step.prerequisites || step.prerequisites.length === 0 || steps.every(s => !s.prerequisites.includes(step.step_id))) { styleProperties.push('filled'); attributes.push('fillcolor=black', 'fontcolor=white'); }
+                // else if (!step.prerequisites || step.prerequisites.length === 0 || steps.every(s => !s.prerequisites.includes(step.step_id))) { styleProperties.push('filled'); attributes.push('fillcolor=black', 'fontcolor=white'); }
                 if (styleProperties.length > 0) attributes.push(`style="${styleProperties.join(',')}"`);
                 dot += `  "${step.step_id}" [label="${label}", ${attributes.join(', ')}];\n`;
             });
@@ -695,6 +706,7 @@
             const style = `<style>.visible-lines line{stroke:#000;stroke-width:${1/scale};}.hidden-lines line{stroke:#888;stroke-width:${0.5/scale};stroke-dasharray:${2.5/scale};}.damage-marker{fill:#D00;stroke:none;}.label{font-size:16px;font-family:sans-serif;}</style>`;
             return `<svg width="${svgWidth}" height="${svgHeight}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${svgWidth} ${svgHeight}">${style}<rect x="0" y="0" width="${svgWidth}" height="${svgHeight}" fill="#fff"/><text x="${padding}" y="35" class="label" font-weight="bold">Assembly: ${objectName || 'Untitled'}</text>${svgGroups}</svg>`;
         }
+
         function downloadAssemblyDrawing() {
             if (!currentModelJson) { updateROLF("Please load an assembly first."); return; }
             updateROLF("Generating drawing...", true);

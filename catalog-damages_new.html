@@ -199,7 +199,7 @@
         const defectivePartMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000, transparent: true, opacity: 0.3, side: THREE.DoubleSide });
         const missingPartMaterial = new THREE.MeshStandardMaterial({ color: 0xffff00, transparent: true, opacity: 0.3, side: THREE.DoubleSide });
         const selectionPartMaterial = new THREE.MeshStandardMaterial({ color: 0x0000ff, transparent: true, opacity: 0.7, side: THREE.DoubleSide });
-        const outlineMaterial = new THREE.LineBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.8 });
+        const outlineMaterial = new THREE.LineBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.8});
         const defaultDotMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
         const selectedDotMaterial = new THREE.MeshBasicMaterial({ color: 0x6f0000 });
 
@@ -546,8 +546,6 @@
         function generateAssemblySVG(assemblyJson, damageJson) {
             const { objectName, parts } = assemblyJson || {};
             if (!parts || parts.length === 0) return '';
-
-            // 1. Collect world space vertices for each part
             const allWorldVertices = new Map();
             const globalBBox = new THREE.Box3();
             parts.forEach(part => {
@@ -558,21 +556,13 @@
                 const quaternion = new THREE.Quaternion().setFromEuler(euler);
                 const partMatrix = new THREE.Matrix4().compose(centerPos, quaternion, new THREE.Vector3(1, 1, 1));
                 const worldVertices = localVertices.map(v => v.clone().applyMatrix4(partMatrix));
-                // --- THIS LINE IS NOW CORRECTED ---
                 allWorldVertices.set(part.id, worldVertices);
                 worldVertices.forEach(v => globalBBox.expandByPoint(v));
             });
-
-            // 2. Layout Setup
             const globalSize = globalBBox.getSize(new THREE.Vector3());
-            const scale = 200;
-            const padding = 60;
-            const viewWidth = Math.max(globalSize.x, globalSize.z) * scale;
-            const viewHeight = Math.max(globalSize.y, globalSize.z) * scale;
-            const svgWidth = (viewWidth * 4) + (padding * 5);
-            const svgHeight = (viewHeight * 3) + (padding * 4);
-
-            // 3. Views object with ALL corrections
+            const scale = 200, padding = 60;
+            const viewWidth = Math.max(globalSize.x, globalSize.z) * scale, viewHeight = Math.max(globalSize.y, globalSize.z) * scale;
+            const svgWidth = (viewWidth * 4) + (padding * 5), svgHeight = (viewHeight * 3) + (padding * 4);
             const views = {
                 'TOP':    {x:viewWidth+padding*2, y:padding,               p:v=>({x:-v.x,y:-v.z}), dir:new THREE.Vector3(0,-1,0)},
                 'LEFT':   {x:padding,             y:viewHeight+padding*2,  p:v=>({x:v.z, y:-v.y}), dir:new THREE.Vector3(1,0,0)},
@@ -581,18 +571,12 @@
                 'BACK':   {x:viewWidth*3+padding*4,y:viewHeight+padding*2, p:v=>({x:v.x, y:-v.y}), dir:new THREE.Vector3(0,0,1)},
                 'BOTTOM': {x:viewWidth+padding*2, y:viewHeight*2+padding*3,p:v=>({x:-v.x,y:v.z}),  dir:new THREE.Vector3(0,1,0)}
             };
-
-            const faces = [[0,1,2,3],[5,4,7,6],[1,5,6,2],[4,0,3,7],[3,2,6,7],[4,5,1,0]];
-            const edges = [[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
+            const faces = [[0,1,2,3],[5,4,7,6],[1,5,6,2],[4,0,3,7],[3,2,6,7],[4,5,1,0]], edges = [[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
             let svgGroups = '';
-
             for (const [name, view] of Object.entries(views)) {
                 const pBounds = Array.from(allWorldVertices.values()).flat().map(v => view.p(v)).reduce((a,p)=>({minX:Math.min(a.minX,p.x),minY:Math.min(a.minY,p.y),maxX:Math.max(a.maxX,p.x),maxY:Math.max(a.maxY,p.y)}),{minX:Infinity,minY:Infinity,maxX:-Infinity,maxY:-Infinity});
-                const centerX = (pBounds.minX + pBounds.maxX)/2;
-                const centerY = (pBounds.minY + pBounds.maxY)/2;
-                const groupTransform = `translate(${view.x}, ${view.y})`;
-                const contentTransform = `translate(${viewWidth/2}, ${viewHeight/2}) scale(${scale}) translate(${-centerX}, ${-centerY})`;
-
+                const centerX = (pBounds.minX + pBounds.maxX)/2, centerY = (pBounds.minY + pBounds.maxY)/2;
+                const groupTransform = `translate(${view.x}, ${view.y})`, contentTransform = `translate(${viewWidth/2}, ${viewHeight/2}) scale(${scale}) translate(${-centerX}, ${-centerY})`;
                 let hiddenLinesHTML='', visibleLinesHTML='';
                 parts.forEach(part => {
                     const worldVertices = allWorldVertices.get(part.id); if (!worldVertices) return;
@@ -608,58 +592,25 @@
                         if (visibleEdges.has(edgeIndices.sort().join('-'))) visibleLinesHTML+=line; else hiddenLinesHTML+=line;
                     });
                 });
-                
                 let damageMarkers = (damageJson||[]).map(d => `<circle cx="${view.p(new THREE.Vector3(d.coordinates.x,d.coordinates.y,d.coordinates.z)).x}" cy="${view.p(new THREE.Vector3(d.coordinates.x,d.coordinates.y,d.coordinates.z)).y}" r="${2/scale}" class="damage-marker" />`).join('');
-
                 let rulerMarks = '';
                 if (['TOP', 'FRONT', 'BOTTOM'].includes(name)) {
-                    const relevantDimension = (name === 'FRONT') ? globalSize.y : globalSize.z;
-                    const numMarks = Math.floor((relevantDimension + 1e-9) / 0.1);
-
+                    const relevantDimension = (name === 'FRONT') ? globalSize.y : globalSize.z, numMarks = Math.floor((relevantDimension + 1e-9) / 0.1);
                     if (numMarks > 0) {
-                        const rulerX = pBounds.maxX + (20 / scale);
-                        const tickLength = 15 / scale;
-                        const yStep = 0.1;
-                        for (let i = 1; i <= numMarks; i++) {
-                            const yPos = pBounds.maxY - (i * yStep);
-                            rulerMarks += `<line x1="${rulerX}" y1="${yPos}" x2="${rulerX + tickLength}" y2="${yPos}" stroke="black" stroke-width="${0.5 / scale}" />`;
-                        }
+                        const rulerX = pBounds.maxX + (20 / scale), tickLength = 15 / scale, yStep = 0.1;
+                        for (let i = 1; i <= numMarks; i++) rulerMarks += `<line x1="${rulerX}" y1="${pBounds.maxY - (i * yStep)}" x2="${rulerX + tickLength}" y2="${pBounds.maxY - (i * yStep)}" stroke="black" stroke-width="${0.5 / scale}" />`;
                     }
                 }
-
-                svgGroups += `
-                <g transform="${groupTransform}">
-                    <text x="${viewWidth/2}" y="${viewHeight+20}" text-anchor="middle" font-size="14" font-family="sans-serif">${name}</text>
-                    <g transform="${contentTransform}">
-                        <g class="hidden-lines">${hiddenLinesHTML}</g>
-                        <g class="visible-lines">${visibleLinesHTML}</g>
-                        ${damageMarkers}
-                        ${rulerMarks}
-                    </g>
-                </g>`;
+                svgGroups += `<g transform="${groupTransform}"><text x="${viewWidth/2}" y="${viewHeight+20}" text-anchor="middle" font-size="14" font-family="sans-serif">${name}</text><g transform="${contentTransform}"><g class="hidden-lines">${hiddenLinesHTML}</g><g class="visible-lines">${visibleLinesHTML}</g>${damageMarkers}${rulerMarks}</g></g>`;
             }
-
-            const style = `<style>
-                line{fill:none;stroke-linecap:round;}
-                .visible-lines line{stroke:#000;stroke-width:${1/scale};}
-                .hidden-lines line{stroke:#888;stroke-width:${0.5/scale};stroke-dasharray:${2.5/scale};}
-                .damage-marker{fill:#D00;stroke:none;}
-                .label{font-size:16px;font-family:sans-serif;}
-                </style>`;
-
-            return `<svg width="${svgWidth}" height="${svgHeight}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${svgWidth} ${svgHeight}">
-                ${style}
-                <rect x="0" y="0" width="${svgWidth}" height="${svgHeight}" fill="#fff"/>
-                <text x="${padding}" y="35" class="label" font-weight="bold">Assembly: ${objectName || 'Untitled'}</text>
-                ${svgGroups}
-            </svg>`;
+            const style = `<style>.visible-lines line{stroke:#000;stroke-width:${1/scale};}.hidden-lines line{stroke:#888;stroke-width:${0.5/scale};stroke-dasharray:${2.5/scale};}.damage-marker{fill:#D00;stroke:none;}.label{font-size:16px;font-family:sans-serif;}</style>`;
+            return `<svg width="${svgWidth}" height="${svgHeight}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${svgWidth} ${svgHeight}">${style}<rect x="0" y="0" width="${svgWidth}" height="${svgHeight}" fill="#fff"/><text x="${padding}" y="35" class="label" font-weight="bold">Assembly: ${objectName || 'Untitled'}</text>${svgGroups}</svg>`;
         }
-
+        
         function downloadAssemblyDrawing() {
             if (!currentModelJson) { updateROLF("Please load an assembly first."); return; }
             updateROLF("Generating drawing...", true);
             setTimeout(() => {
-                // Pass both assembly and damage JSON to the drawing function
                 const svgData = generateAssemblySVG(currentModelJson, currentDamageJson);
                 if (!svgData) { updateROLF("Failed to generate drawing."); return; }
                 const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
