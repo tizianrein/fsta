@@ -15,7 +15,7 @@
         #viewer-canvas { display: block; width: 100%; height: 100%; }
         #info-box { position: absolute; top: 10px; left: 0px; padding: 0px; background-color: transparent; border: none; font-family: monospace; font-size: 12px; line-height: 1.4; z-index: 101; display: none; pointer-events: none; max-width: 250px; }
         #step-display-container { display: none; position: absolute; top: 10px; right: 0px; z-index: 100; display: flex; flex-direction: column; align-items: flex-end; }
-        #step-counter { font-family: monospace; font-size: 12px; color: #d00; margin-bottom: 5px; }
+        /* MODIFIED: step-counter style removed as it's no longer used */
         .step-nav-arrow { cursor: pointer; display: block; width: 30px; height: 30px; border: 1px solid #d00; color: #d00; background-color: #fff; text-align: center; line-height: 28px; font-size: 20px; margin-top: 5px; user-select: none; }
         .step-nav-arrow.disabled { cursor: not-allowed; color: #ccc; border-color: #ccc; }
         #step-info-panel { display: none; position: absolute; bottom: 10px; left: 0px; right: 0px; background-color: rgba(221, 51, 51, 0.85); color: #fff; padding: 15px; border: 1px solid #d00; cursor: pointer; z-index: 100; }
@@ -55,7 +55,6 @@
         .settings-group { margin-bottom: 20px; }
         .settings-group label { display: block; font-size: 14px; margin-bottom: 8px; }
         .settings-input { width: 100%; padding: 10px; border: 1px solid #000; border-radius: 0; font-size: 14px; box-sizing: border-box; }
-        /* MODIFIED: New styles for choice buttons */
         #step-nav-choices { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; margin-bottom: 5px; }
         .step-choice-btn { cursor: pointer; border: 1px solid #d00; color: #d00; background-color: #fff; padding: 5px 10px; font-size: 12px; user-select: none; text-align: right; min-width: 120px; }
         .step-choice-btn:hover { background-color: #d00; color: #fff; }
@@ -74,9 +73,8 @@
         <div id="viewer-container">
             <canvas id="viewer-canvas"></canvas>
             <div id="info-box"></div>
-            <!-- MODIFIED: Navigation container updated for choices -->
+            <!-- MODIFIED: step-counter div has been completely removed -->
             <div id="step-display-container">
-                <div id="step-counter"></div>
                 <div id="step-nav-choices"></div>
                 <div id="step-nav-prev" class="step-nav-arrow">←</div>
             </div>
@@ -162,7 +160,6 @@
         let scene, camera, renderer, controls, axesScene, axesCamera, infoBox, raycaster, mouse;
         let typingInterval, timerInterval;
         let currentModelJson, currentDamageJson, currentPlanJson, selectedBrainId;
-        // MODIFIED: State management updated for graph-based plans
         let currentStepId = null;
         let stepHistory = [];
         let planMap = new Map();
@@ -178,7 +175,7 @@
         const userPromptInput = document.getElementById('user-prompt');
         const stepDisplayContainer = document.getElementById('step-display-container');
         const stepInfoPanel = document.getElementById('step-info-panel');
-        const stepCounterEl = document.getElementById('step-counter');
+        // MODIFIED: stepCounterEl variable removed
         const stepNavPrevBtn = document.getElementById('step-nav-prev');
         const explodeBtn = document.getElementById('explode-view-btn');
         const resetBtn = document.getElementById('reset-view-btn');
@@ -230,7 +227,6 @@
             animate();
         }
 
-        // MODIFIED: loadDefaults now uses the graph format
         function loadDefaults() {
             const defaultModel = { "objectName": "", "parts": [{ "id": "cube", "status": "defective", "origin": {"x": 0, "y": 0.25, "z": 0}, "dimensions": {"width": 0.5, "depth": 0.5, "height": 0.5}, "connections": [] }] };
             const defaultDamage = [{ "id": "damage_01", "type": "Scratch", "description": "A default scratch.", "part_id": "cube", "coordinates": { "x": 0.0, "y": 0.5, "z": 0.0 } }];
@@ -266,7 +262,6 @@
             renderer.setViewport(0, 0, renderer.domElement.clientWidth, renderer.domElement.clientHeight);
         }
 
-        // MODIFIED: clearAll now resets graph-related state
         function clearAll() {
             while (objectGroup.children.length > 0) objectGroup.remove(objectGroup.children[0]);
             partMeshesMap.clear();
@@ -361,7 +356,6 @@
             });
         }
         
-        // NEW: Function to process a new plan and set the initial state
         function processNewPlan(newPlan) {
             currentPlanJson = newPlan;
             planMap.clear();
@@ -376,7 +370,7 @@
             displayCurrentStep();
         }
 
-        // REWRITTEN: The core logic for non-sequential navigation
+        // MODIFIED: Complete rewrite of displayCurrentStep with corrected logic
         function displayCurrentStep() {
             if (!currentPlanJson || !currentStepId || !planMap.has(currentStepId)) {
                 stepDisplayContainer.style.display = 'none';
@@ -388,33 +382,39 @@
             stepInfoPanel.style.display = 'block';
             
             const step = planMap.get(currentStepId);
-            const completedSteps = new Set(stepHistory); // Steps in history are completed
-
-            stepCounterEl.textContent = `Completed: ${completedSteps.size} / ${planMap.size}`;
             document.getElementById('step-info-title').textContent = step.title;
             
             const choicesContainer = document.getElementById('step-nav-choices');
             choicesContainer.innerHTML = ''; // Clear previous choices
             
-            // The currently viewed step is NOT yet complete. A step is completed when you move FROM it.
             const currentlyCompletedAndHistory = new Set([...stepHistory, currentStepId]);
 
-            // Find all steps whose prerequisites are fully met by the set of completed steps
-            const nextAvailableSteps = currentPlanJson.steps.filter(nextStep =>
-                !currentlyCompletedAndHistory.has(nextStep.step_id) &&
-                nextStep.prerequisites.every(prereqId => currentlyCompletedAndHistory.has(prereqId))
+            // 1. Prioritize steps that are direct successors of the CURRENT step.
+            let availableChoices = currentPlanJson.steps.filter(s =>
+                !currentlyCompletedAndHistory.has(s.step_id) && s.prerequisites.includes(currentStepId)
             );
 
-            if (nextAvailableSteps.length === 0 && currentlyCompletedAndHistory.size < planMap.size) {
+            // 2. If no direct successors, find ANY other available step in the whole graph.
+            //    This handles converging paths and picking up leftover parallel tasks.
+            if (availableChoices.length === 0) {
+                availableChoices = currentPlanJson.steps.filter(s =>
+                    !currentlyCompletedAndHistory.has(s.step_id) &&
+                    s.prerequisites.every(prereqId => currentlyCompletedAndHistory.has(prereqId))
+                );
+            }
+
+            if (availableChoices.length === 0) {
+                 const isPlanFinished = currentlyCompletedAndHistory.size === planMap.size;
                  const info = document.createElement('div');
-                 info.textContent = (stepHistory.length > 0) ? "Go back for other tasks" : "Plan Complete!";
+                 info.textContent = isPlanFinished ? "Plan Complete!" : "Go back for other tasks";
                  info.className = 'step-choice-btn';
                  info.style.cursor = 'default'; info.style.color = '#888'; info.style.borderColor = '#888';
                  choicesContainer.appendChild(info);
             } else {
-                nextAvailableSteps.forEach(choice => {
+                availableChoices.forEach(choice => {
                     const btn = document.createElement('div');
-                    btn.textContent = `Next: ${choice.title}`;
+                    // MODIFIED: Button text format updated
+                    btn.textContent = `${choice.title} →`;
                     btn.className = 'step-choice-btn';
                     btn.onclick = () => {
                         stepHistory.push(currentStepId);
@@ -429,7 +429,6 @@
             highlightElements(step.affected_parts || [], step.affected_damages || []);
         }
 
-        // MODIFIED: showStepDetailModal uses currentStepId and planMap
         function showStepDetailModal() {
             if (!currentPlanJson || !currentStepId || !planMap.has(currentStepId)) return;
             const step = planMap.get(currentStepId);
@@ -474,7 +473,6 @@
             }
         }
         
-        // MODIFIED: handleFileUpload uses processNewPlan
         function handleFileUpload(event, type) { 
             const file = event.target.files[0]; if (!file) return; 
             const reader = new FileReader(); 
@@ -507,7 +505,6 @@
             a.click(); URL.revokeObjectURL(a.href); 
         }
 
-        // REWRITTEN: viewGraph now correctly renders a dependency graph
         function viewGraph() {
             if (!currentPlanJson || !currentPlanJson.steps || currentPlanJson.steps.length === 0) {
                 updateROLF("Generate or load a repair plan to see its graph.");
@@ -517,8 +514,6 @@
             const removeKeywords = ['remove', 'unscrew', 'detach', 'disassemble', 'pry', 'take off', 'unclip', 'sand', 'cut', 'unfasten', 'separate', 'take out', 'disconnect'];
             const addKeywords = ['add', 'apply', 'install', 'attach', 'secure', 'clamp', 'glue', 'insert', 'place', 'reassemble', 'fill', 'coat'];
             let dot = `digraph RepairPlan {\n  rankdir=LR;\n  node [fontname="Helvetica,Arial,sans-serif", fixedsize=true, width=1.6, height=1.2];\n  edge [fontname="Helvetica,Arial,sans-serif"];\n\n`;
-            
-            // Define nodes
             steps.forEach(step => {
                 const label = step.title.replace(/\s+/g, '\\n');
                 const titleLower = step.title.toLowerCase();
@@ -527,27 +522,16 @@
                 if (removeKeywords.some(kw => titleLower.includes(kw))) { shape = 'doublecircle'; styleProperties.push('dashed'); } 
                 else if (addKeywords.some(kw => titleLower.includes(kw))) { shape = 'doublecircle'; }
                 attributes.push(`shape=${shape}`);
-                
-                if (step.step_id === currentStepId) { 
-                    styleProperties.push('filled'); attributes.push('fillcolor="#dd3333"', 'fontcolor=white'); 
-                } else if (!step.prerequisites || step.prerequisites.length === 0 || steps.every(s => !s.prerequisites.includes(step.step_id))) {
-                    // Start or end nodes
-                    styleProperties.push('filled'); attributes.push('fillcolor=black', 'fontcolor=white');
-                }
-                
+                if (step.step_id === currentStepId) { styleProperties.push('filled'); attributes.push('fillcolor="#dd3333"', 'fontcolor=white'); } 
+                else if (!step.prerequisites || step.prerequisites.length === 0 || steps.every(s => !s.prerequisites.includes(step.step_id))) { styleProperties.push('filled'); attributes.push('fillcolor=black', 'fontcolor=white'); }
                 if (styleProperties.length > 0) attributes.push(`style="${styleProperties.join(',')}"`);
                 dot += `  "${step.step_id}" [label="${label}", ${attributes.join(', ')}];\n`;
             });
-            
-            // Define edges from prerequisites
             steps.forEach(step => {
                 if (step.prerequisites && step.prerequisites.length > 0) {
-                    step.prerequisites.forEach(prereqId => {
-                        dot += `  "${prereqId}" -> "${step.step_id}";\n`;
-                    });
+                    step.prerequisites.forEach(prereqId => { dot += `  "${prereqId}" -> "${step.step_id}";\n`; });
                 }
             });
-
             dot += '}';
             document.getElementById('graph-title').textContent = "Repair Plan Graph";
             d3.select("#graph-container").graphviz({ useWorker: false }).engine('dot').renderDot(dot);
@@ -598,7 +582,6 @@
             }); 
         }
 
-        // Drawing generation code (unchanged)
         function generateAssemblySVG(assemblyJson, damageJson) {
             const { objectName, parts } = assemblyJson || {};
             if (!parts || parts.length === 0) return '';
@@ -682,7 +665,6 @@
         function setupEventListeners() {
             window.addEventListener('resize', () => { const w = viewerContainer.clientWidth, h = viewerContainer.clientHeight; camera.aspect = w / h; camera.updateProjectionMatrix(); renderer.setSize(w, h); });
             document.getElementById('viewer-canvas').addEventListener('click', onObjectClick);
-            // MODIFIED: API call handler uses processNewPlan
             document.getElementById('generate-plan-btn').addEventListener('click', async () => {
                 if (!currentModelJson || !currentDamageJson) { updateROLF("Error: Please upload both assembly and damage files first."); return; }
                 const previousStepId = currentStepId;
@@ -697,8 +679,7 @@
                     const result = await response.json();
                     if (!result.candidates?.[0]?.content?.parts?.[0]?.text) throw new Error("Invalid API response structure.");
                     const newPlan = JSON.parse(result.candidates[0].content.parts[0].text.replace(/```json\n|```/g, '').trim());
-                    processNewPlan(newPlan); // Process the new graph plan
-                    // Attempt to restore the view to a similar step if it still exists
+                    processNewPlan(newPlan);
                     if (previousStepId && planMap.has(previousStepId)) { currentStepId = previousStepId; displayCurrentStep(); }
                     updateROLF(`Plan generated with ${newPlan.steps.length} steps.`, false);
                     userPromptInput.value = '';
@@ -754,7 +735,6 @@
             document.querySelectorAll('.close-modal-btn').forEach(btn => btn.addEventListener('click', e => e.target.closest('.modal-overlay').style.display = 'none'));
             document.getElementById('copy-json-from-modal-btn').addEventListener('click', () => { navigator.clipboard.writeText(document.getElementById('json-view-textarea').value).then(() => { updateROLF("JSON copied."); document.getElementById('json-view-modal-overlay').style.display = 'none'; }); });
             document.getElementById('save-graph-svg-btn').addEventListener('click', () => { const svgEl = document.querySelector('#graph-container svg'); if (!svgEl) return; svgEl.setAttribute("xmlns", "http://www.w3.org/2000/svg"); const blob = new Blob([new XMLSerializer().serializeToString(svgEl)], { type: "image/svg+xml;charset=utf-8" }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `${(document.getElementById('object-name').value||'object').replace(/\s+/g,'_')}_graph.svg`; a.click(); URL.revokeObjectURL(a.href); updateROLF("Graph saved as SVG."); });
-            // MODIFIED: Previous button uses history stack
             stepNavPrevBtn.addEventListener('click', () => {
                 if (stepHistory.length > 0) {
                     currentStepId = stepHistory.pop();
