@@ -355,23 +355,29 @@
                     case 'missing':
                         mesh.material = missingPartMaterial;
                         break;
-                    case 'defective': // <-- ADD THIS CASE
-                        mesh.material = defectivePartMaterial;
+                    case 'defective':
+                        if (currentPlanJson && currentPlanJson.steps && currentPlanJson.steps.length > 0) {
+                            mesh.material = intactPartMaterial; 
+                        } else {
+                            mesh.material = defectivePartMaterial;
+                        }
                         break;
-                    default: // <-- SIMPLIFY THIS CASE (now just for 'intact' etc.)
+                    default:
                         mesh.material = intactPartMaterial;
                         break;
                 }
             });
+
             damageSpheres.forEach(sphere => { sphere.material = defaultDotMaterial; });
 
             damagesToHighlight.forEach(damageId => {
                 const sphere = damageSpheres.find(s => s.userData.damage.id === damageId);
                 if (sphere) sphere.material = selectedDotMaterial;
             });
+            
             partsToHighlight.forEach(partId => {
                 const mesh = partMeshesMap.get(partId);
-                if (mesh) mesh.material = affectedPartMaterial;
+                if (mesh) mesh.material = defectivePartMaterial; 
             });
         }
         
