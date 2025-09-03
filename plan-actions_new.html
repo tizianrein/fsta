@@ -192,6 +192,7 @@
         const defectivePartMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000, transparent: true, opacity: 0.3, side: THREE.DoubleSide });
         const missingPartMaterial = new THREE.MeshStandardMaterial({ color: 0xffff00, transparent: true, opacity: 0.3, side: THREE.DoubleSide });
         const selectionPartMaterial = new THREE.MeshStandardMaterial({ color: 0x0000ff, transparent: true, opacity: 0.7, side: THREE.DoubleSide });
+        const affectedPartMaterial = new THREE.MeshStandardMaterial({ color: 0x0088ff, transparent: true, opacity: 0.75, side: THREE.DoubleSide }); // A nice bright blue for step-affected parts
         const newMaterial = new THREE.MeshStandardMaterial({ color: 0xdd3388, transparent: true, opacity: 0.3, side: THREE.DoubleSide }); // Pink for new parts
         const discardedMaterial = new THREE.MeshStandardMaterial({ color: 0xff8000, transparent: true, opacity: 0.5, side: THREE.DoubleSide }); // Orange for discarded
         const outlineMaterial = new THREE.LineBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.8});
@@ -295,9 +296,9 @@
                     case 'missing':
                         material = missingPartMaterial;
                         break;
-                    // case 'defective':
-                    //     material = defectivePartMaterial;
-                    //     break;
+                    case 'defective':
+                        material = defectivePartMaterial;
+                        break;
                     default:
                         material = intactPartMaterial;
                         break;
@@ -370,7 +371,7 @@
             });
             partsToHighlight.forEach(partId => {
                 const mesh = partMeshesMap.get(partId);
-                if (mesh) mesh.material = defectivePartMaterial;
+                if (mesh) mesh.material = affectedPartMaterial;
             });
         }
         
