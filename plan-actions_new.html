@@ -562,8 +562,17 @@
             const blob = new Blob([JSON.stringify(dataMap[type], null, 2)], {type: 'application/json'}); 
             const a = document.createElement('a'); 
             a.href = URL.createObjectURL(blob); 
-            a.download = `${(document.getElementById('object-name').value||'object').replace(/\s+/g,'_')}_${type}.json`; 
-            a.click(); URL.revokeObjectURL(a.href); 
+            let fileName = `${(document.getElementById('object-name').value||'object').replace(/\s+/g,'_')}_${type}`;
+            if (type === 'plan' && selectedBrainId) {
+                const selectedBrain = brains.find(b => b.id === selectedBrainId);
+                if (selectedBrain) {
+                    const brainNameForFile = selectedBrain.name.replace(/\s+/g, '-');
+                    fileName += `_${brainNameForFile}`;
+                }
+            }
+            a.download = `${fileName}.json`;
+            a.click(); 
+            URL.revokeObjectURL(a.href); 
         }
 
         function viewGraph() {
