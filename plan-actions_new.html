@@ -55,21 +55,38 @@
         .settings-group label { display: block; font-size: 14px; margin-bottom: 8px; }
         .settings-input { width: 100%; padding: 10px; border: 1px solid #000; border-radius: 0; font-size: 14px; box-sizing: border-box; }
         #step-nav-choices { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; margin-bottom: 5px; }
-        /* MODIFIED: Updated button styles for better size and appearance */
         .step-choice-btn {
             cursor: pointer;
             border: 1px solid #d00;
             color: #d00;
             background-color: #fff;
-            padding: 0 10px; /* Adjusted padding */
-            font-size: 14px;  /* Increased font size */
+            padding: 0 10px;
+            font-size: 14px;
             user-select: none;
             text-align: right;
             min-width: 120px;
-            height: 30px;     /* Set height to match back arrow */
-            line-height: 28px; /* Vertically center text */
+            height: 30px;
+            line-height: 28px;
         }
         .step-choice-btn:hover { background-color: #d00; color: #fff; }
+        /* MODIFICATION START: Styles for the new graph slider */
+        #graph-controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            z-index: 10;
+        }
+        #graph-controls input[type="range"] {
+            width: 100px;
+        }
+        /* MODIFICATION END */
     </style>
 </head>
 <body>
@@ -121,7 +138,20 @@
     <!-- Modals -->
     <div id="data-choice-modal-overlay" class="modal-overlay"><div class="modal-content"><h3 id="data-choice-title">Select Data</h3><div class="action-buttons"><button id="choice-btn-assembly" class="btn modal-btn">📦 Assembly</button><button id="choice-btn-damages" class="btn modal-btn">📍 Damages</button><button id="choice-btn-plan" class="btn modal-btn">📋 Repair-Plan</button></div><div class="modal-actions" style="margin-top:20px"><button class="btn modal-btn close-modal-btn">Cancel</button></div></div></div>
     <div id="json-view-modal-overlay" class="modal-overlay"><div class="modal-content"><h3 id="json-view-title">Current JSON</h3><textarea id="json-view-textarea" readonly></textarea><div class="modal-actions"><button id="copy-json-from-modal-btn" class="btn modal-btn">Copy</button><button class="btn modal-btn close-modal-btn">Close</button></div></div></div>
-    <div id="graph-modal-overlay" class="modal-overlay"><div class="modal-content"><button id="save-graph-svg-btn" class="btn modal-btn svg-save-btn">Save as SVG</button><h3 id="graph-title">Graph</h3><div id="graph-container"></div><div class="modal-actions"><button class="btn modal-btn close-modal-btn">Close</button></div></div></div>
+    <div id="graph-modal-overlay" class="modal-overlay">
+        <div class="modal-content">
+            <button id="save-graph-svg-btn" class="btn modal-btn svg-save-btn">Save as SVG</button>
+            <!-- MODIFICATION START: Added slider controls -->
+            <div id="graph-controls">
+                <label for="nodes-per-row-slider">Nodes/Row: <span id="nodes-per-row-value">1</span></label>
+                <input type="range" id="nodes-per-row-slider" min="1" max="10" value="1">
+            </div>
+            <!-- MODIFICATION END -->
+            <h3 id="graph-title">Graph</h3>
+            <div id="graph-container"></div>
+            <div class="modal-actions"><button class="btn modal-btn close-modal-btn">Close</button></div>
+        </div>
+    </div>
     <div id="step-detail-modal-overlay" class="modal-overlay"><div class="modal-content"><h3>Step Details</h3><div class="modal-body" id="step-detail-modal-body"></div><div class="modal-actions"><button class="btn modal-btn close-modal-btn">Close</button></div></div></div>
     <div id="settings-modal-overlay" class="modal-overlay">
         <div class="modal-content">
@@ -410,21 +440,18 @@
 
             const currentlyCompletedAndHistory = new Set([...stepHistory, currentStepId]);
 
-            // --- FIX 1: Find FORWARD steps using only direct dependency ---
             const availableChoices = currentPlanJson.steps.filter(s =>
                 !currentlyCompletedAndHistory.has(s.step_id) && 
                 s.prerequisites && s.prerequisites.includes(currentStepId)
             );
 
-            // --- Find BACKWARD steps ---
             const prerequisites = step.prerequisites || [];
 
-            // --- FIX 2: Render FORWARD CHOICES FIRST ---
             if (availableChoices.length > 0) {
                 availableChoices.forEach(choice => {
                     const btn = document.createElement('div');
                     btn.textContent = `${choice.title} →`;
-                    btn.className = 'step-choice-btn'; // Use existing red-bordered style for forward actions
+                    btn.className = 'step-choice-btn';
                     btn.onclick = () => {
                         stepHistory.push(currentStepId);
                         currentStepId = choice.step_id;
@@ -433,51 +460,39 @@
                     choicesContainer.appendChild(btn);
                 });
             } else {
-                // If there are no forward options, this is the end of a branch or the whole plan.
                 const isTerminalNode = !currentPlanJson.steps.some(s => s.prerequisites && s.prerequisites.includes(currentStepId));
                 if (isTerminalNode) {
                     const info = document.createElement('div');
-                    // 1. Use innerHTML to add the checkmark emoji before the text
                     info.innerHTML = "✔ No further Steps";
                     info.className = 'step-choice-btn';
                     info.style.cursor = 'default'; 
                     info.style.color = '#1a73e8';
                     info.style.borderColor = '#1a73e8';
                     info.style.backgroundColor = '#e8f0fe';
-                    // 2. Center the text to fix the alignment gap
                     info.style.textAlign = 'center';
                     choicesContainer.appendChild(info);
                 }
             }
             
-            // --- FIX 2: Render BACKWARD CHOICES SECOND, ensuring they appear underneath ---
             prerequisites.forEach(prereqId => {
                 const prereqStep = planMap.get(prereqId);
                 if (prereqStep) {
                     const btn = document.createElement('div');
                     btn.textContent = `← ${prereqStep.title}`; 
                     btn.className = 'step-choice-btn';
-                    // Style back buttons to be less prominent
                     btn.style.borderColor = '#ccc'; 
                     btn.style.color = '#333';
                     btn.style.backgroundColor = '#fff';
 
-                    // Make hover state consistent but for grey
                     btn.onmouseover = () => { btn.style.backgroundColor = '#f0f0f0'; };
                     btn.onmouseout = () => { btn.style.backgroundColor = '#fff'; };
 
                     btn.onclick = () => {
-                        // The prerequisite becomes the new current step.
                         const newCurrentStepId = prereqId;
-
-                        // Find the last time this prerequisite was in our path.
                         const historyIndex = stepHistory.lastIndexOf(newCurrentStepId);
-
                         if (historyIndex > -1) {
-                            // Rewind history to the point just before that prerequisite was completed.
                             stepHistory.length = historyIndex;
                         }
-                        
                         currentStepId = newCurrentStepId;
                         displayCurrentStep();
                     };
@@ -485,7 +500,6 @@
                 }
             });
 
-            // We no longer need the original single back button.
             stepNavPrevBtn.style.display = 'none'; 
             highlightElements(step.affected_parts || [], step.affected_damages || []);
         }
@@ -575,38 +589,104 @@
             URL.revokeObjectURL(a.href); 
         }
 
-        function viewGraph() {
+        // --- MODIFICATION START: Refactored graph rendering logic ---
+
+        /**
+         * Renders the graph visualization inside the modal based on the current plan.
+         * @param {number} nodesPerRow - The number of nodes to group into a single horizontal rank.
+         */
+        function renderGraph(nodesPerRow = 1) {
             if (!currentPlanJson || !currentPlanJson.steps || currentPlanJson.steps.length === 0) {
-                updateROLF("Generate or load a repair plan to see its graph.");
-                return;
+                return; // Should not happen if called from openGraphView
             }
             const steps = currentPlanJson.steps;
-            const removeKeywords = ['remove', 'unscrew', 'detach', 'disassemble', 'pry', 'take off', 'unclip', 'sand', 'cut', 'unfasten', 'separate', 'take out', 'disconnect','clean'];
+            const removeKeywords = ['remove', 'unscrew', 'detach', 'disassemble', 'pry', 'take off', 'unclip', 'sand', 'cut', 'unfasten', 'separate', 'take out', 'disconnect', 'clean'];
             const addKeywords = ['add', 'apply', 'install', 'attach', 'secure', 'glue', 'insert', 'place', 'reassemble', 'fill', 'coat'];
-            let dot = `digraph RepairPlan {\n  rankdir=LR;\n  node [fontname="Helvetica,Arial,sans-serif", fixedsize=true, width=1.6, height=1.2];\n  edge [fontname="Helvetica,Arial,sans-serif"];\n\n`;
+            
+            let dot = `digraph RepairPlan {\n  rankdir=LR;\n  node [fontname="Helvetica,Arial,sans-serif", fixedsize=true, width=1.6, height=1.6];\n  edge [fontname="Helvetica,Arial,sans-serif"];\n\n`;
+
+            // 1. Define all the nodes first
             steps.forEach(step => {
                 const label = step.title.replace(/\s+/g, '\\n');
                 const titleLower = step.title.toLowerCase();
                 let attributes = [], styleProperties = [];
                 let shape = 'circle';
-                if (removeKeywords.some(kw => titleLower.includes(kw))) { shape = 'doublecircle'; styleProperties.push('dashed'); } 
-                else if (addKeywords.some(kw => titleLower.includes(kw))) { shape = 'doublecircle'; }
+                
+                if (removeKeywords.some(kw => titleLower.includes(kw))) { 
+                    shape = 'doublecircle'; 
+                    styleProperties.push('dashed'); 
+                } else if (addKeywords.some(kw => titleLower.includes(kw))) { 
+                    shape = 'doublecircle'; 
+                }
+                
                 attributes.push(`shape=${shape}`);
-                if (step.step_id === currentStepId) { styleProperties.push('filled'); attributes.push('fillcolor="#dd3333"', 'fontcolor=white'); } 
-                // else if (!step.prerequisites || step.prerequisites.length === 0 || steps.every(s => !s.prerequisites.includes(step.step_id))) { styleProperties.push('filled'); attributes.push('fillcolor=black', 'fontcolor=white'); }
-                if (styleProperties.length > 0) attributes.push(`style="${styleProperties.join(',')}"`);
+                
+                if (step.step_id === currentStepId) { 
+                    styleProperties.push('filled'); 
+                    attributes.push('fillcolor="#dd3333"', 'fontcolor=white'); 
+                }
+                
+                if (styleProperties.length > 0) {
+                    attributes.push(`style="${styleProperties.join(',')}"`);
+                }
+                
                 dot += `  "${step.step_id}" [label="${label}", ${attributes.join(', ')}];\n`;
             });
+
+            // 2. Group nodes into ranks to create rows for a denser layout
+            for (let i = 0; i < steps.length; i += nodesPerRow) {
+                const chunk = steps.slice(i, i + nodesPerRow);
+                const nodeIds = chunk.map(step => `"${step.step_id}"`).join('; ');
+                dot += `  { rank=same; ${nodeIds} };\n`;
+            }
+
+            // 3. Define all the edges
             steps.forEach(step => {
                 if (step.prerequisites && step.prerequisites.length > 0) {
-                    step.prerequisites.forEach(prereqId => { dot += `  "${prereqId}" -> "${step.step_id}";\n`; });
+                    step.prerequisites.forEach(prereqId => { 
+                        dot += `  "${prereqId}" -> "${step.step_id}";\n`; 
+                    });
                 }
             });
+            
             dot += '}';
-            document.getElementById('graph-title').textContent = "Repair Plan Graph";
+            
             d3.select("#graph-container").graphviz({ useWorker: false }).engine('dot').renderDot(dot);
-            document.getElementById('graph-modal-overlay').style.display = 'flex';
         }
+
+        /**
+         * Opens the graph view modal and initializes the slider controls.
+         */
+        function openGraphView() {
+            if (!currentPlanJson || !currentPlanJson.steps || currentPlanJson.steps.length === 0) {
+                updateROLF("Generate or load a repair plan to see its graph.");
+                return;
+            }
+
+            const slider = document.getElementById('nodes-per-row-slider');
+            const valueDisplay = document.getElementById('nodes-per-row-value');
+
+            const initialNodesPerRow = parseInt(slider.value, 10);
+            valueDisplay.textContent = initialNodesPerRow;
+
+            document.getElementById('graph-title').textContent = "Repair Plan Graph";
+            document.getElementById('graph-modal-overlay').style.display = 'flex';
+
+            // A short timeout can prevent layout issues by rendering after the modal is visible
+            setTimeout(() => renderGraph(initialNodesPerRow), 10);
+
+            // This handler is defined inside to be specific to this modal session
+            const handleSliderChange = () => {
+                const newNodesPerRow = parseInt(slider.value, 10);
+                valueDisplay.textContent = newNodesPerRow;
+                renderGraph(newNodesPerRow);
+            };
+            
+            // Remove any previous listener to avoid duplicates, then add the new one.
+            slider.removeEventListener('input', handleSliderChange);
+            slider.addEventListener('input', handleSliderChange);
+        }
+        // --- MODIFICATION END ---
 
         function onObjectClick(event) {
             const rect = renderer.domElement.getBoundingClientRect();
@@ -795,7 +875,7 @@
             document.getElementById('upload-json-btn').addEventListener('click', () => openChoiceModal('upload'));
             document.getElementById('copy-json-btn').addEventListener('click', () => openChoiceModal('copy'));
             document.getElementById('download-json-btn').addEventListener('click', () => openChoiceModal('download'));
-            document.getElementById('view-plan-graph-btn').addEventListener('click', viewGraph);
+            document.getElementById('view-plan-graph-btn').addEventListener('click', openGraphView); // MODIFIED
             document.getElementById('download-drawings-btn').addEventListener('click', downloadAssemblyDrawing);
             document.getElementById('assembly-upload-input').addEventListener('change', (e) => handleFileUpload(e, 'assembly'));
             document.getElementById('damages-upload-input').addEventListener('change', (e) => handleFileUpload(e, 'damages'));
