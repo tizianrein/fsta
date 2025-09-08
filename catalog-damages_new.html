@@ -481,33 +481,57 @@
         }
 
         function viewGraph() {
-            if (!currentModelJson) { updateMIA("Load an assembly to see its graph."); return; }
-            let dot = `graph G {\n  graph [rankdir="LR" splines=true ranksep=2.5 nodesep=0.5];\n  node [shape=box, style="filled", fillcolor="#f0f0f0", fontname="Helvetica,Arial,sans-serif"];\n  edge [arrowhead=none];\n\n`;
+            if (!currentModelJson) { 
+                updateMIA("Load an assembly to see its graph."); 
+                return; 
+            }
+
+            let dot = `
+            graph G {
+            layout="sfdp";
+            overlap="prism";
+            sep="+10";
+            splines=curved;
+            concentrate=true;
+            node [shape=box, style="filled", fillcolor="#f0f0f0", fontname="Helvetica,Arial,sans-serif", fontsize=10];
+            edge [arrowhead=none, color="#000000"];
+            `;
+
             const addedEdges = new Set();
+
             currentModelJson.parts.forEach(part => {
                 let fillColor = '#dddddd';
                 if (part.status === 'defective') fillColor = '#ffc0c0';
                 if (part.status === 'missing') fillColor = '#ffee9c';
+
                 const label = part.name || part.id;
-                dot += `  "${part.id}" [label="${label}\\n(${part.status})", fillcolor="${fillColor}"];\n`;
+                dot += `"${part.id}" [label="${label}\\n(${part.status})", fillcolor="${fillColor}"];\n`;
+
                 if (part.status !== 'missing') {
                     part.connections?.forEach(connectedId => {
                         const connectedPart = currentModelJson.parts.find(p => p.id === connectedId);
                         if (connectedPart && connectedPart.status !== 'missing') {
                             const edgeKey = [part.id, connectedId].sort().join('--');
                             if (!addedEdges.has(edgeKey)) {
-                                dot += `  "${part.id}" -- "${connectedId}";\n`;
+                                dot += `"${part.id}" -- "${connectedId}";\n`;
                                 addedEdges.add(edgeKey);
                             }
                         }
                     });
                 }
             });
+
             dot += '}';
+
             document.getElementById('graph-title').textContent = "Assembly Connection Graph";
-            d3.select("#graph-container").graphviz({useWorker: false}).engine('dot').renderDot(dot);
+            d3.select("#graph-container")
+            .graphviz({useWorker: false})
+            .engine('sfdp')   // switched from 'dot'
+            .renderDot(dot);
+
             document.getElementById('graph-modal-overlay').style.display = 'flex';
         }
+
         
         function onObjectClick(event) {
             const rect = renderer.domElement.getBoundingClientRect();
