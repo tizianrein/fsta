@@ -47,8 +47,7 @@ export default async function handler(req, res) {
     };
 
     // 5. --- Calling the Gemini API ---
-    // THE FIX IS HERE: Changed "gemini-1.5-pro-latest" to the correct name "gemini-1.5-pro"
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${apiKey}`;
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
 
     const geminiResponse = await fetch(geminiUrl, {
       method: "POST",
