@@ -31,13 +31,14 @@ export default async function handler(req, res) {
       },
     ];
 
-    // --- THE FIX: Simplify the generationConfig ---
-    // We remove the responseMimeType to make the request more robust and avoid potential conflicts.
+    // --- THE FIX: Explicitly set the responseMimeType to text/plain ---
+    // This ensures the API knows to return a plain text response, fixing the internal error.
     const geminiPayload = {
       contents: [{ parts: geminiParts }],
       generationConfig: {
-        temperature: 0.6,
-        maxOutputTokens: 400,
+        "temperature": 0.6,
+        "maxOutputTokens": 400,
+        "responseMimeType": "text/plain"
       },
     };
 
