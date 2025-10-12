@@ -44,7 +44,7 @@ export default async function handler(req, res) {
       { text: `User's Question: "${question}"` }
     ];
     
-    const googleApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    const googleApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${apiKey}`;
 
     const googleResponse = await fetch(googleApiUrl, {
       method: 'POST',
