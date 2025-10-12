@@ -51,7 +51,21 @@
         #graph-container { width: 100%; flex-grow: 1; min-height: 0; }
         #graph-container svg { width: 100%; height: 100%; }
         #graph-title { margin-top: 45px; }
-        #step-counter { font-family: monospace; font-size: 12px; color: #d00; margin-bottom: 5px; text-align: right; }
+        #step-nav-choices { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; margin-bottom: 5px; }
+        .step-choice-btn {
+            cursor: pointer;
+            border: 1px solid #d00;
+            color: #d00;
+            background-color: #fff;
+            padding: 0 10px;
+            font-size: 14px;
+            user-select: none;
+            text-align: right;
+            min-width: 120px;
+            height: 30px;
+            line-height: 28px;
+        }
+        .step-choice-btn:hover { background-color: #d00; color: #fff; }
     </style>
 </head>
 <body>
@@ -67,8 +81,7 @@
             <div id="info-box"></div>
             
             <div id="step-display-container">
-                <div id="step-counter"></div>
-                <div id="step-nav-next" class="step-nav-arrow">→</div>
+                <div id="step-nav-choices"></div>
                 <div id="step-nav-prev" class="step-nav-arrow">←</div>
             </div>
             <div id="step-info-panel">
@@ -129,7 +142,9 @@
         let scene, camera, renderer, controls, axesScene, axesCamera, infoBox, raycaster, mouse;
         let typingInterval;
         let currentModelJson, currentDamageJson, currentHistoryJson;
-        let currentStepIndex = 0;
+        let currentStepId = null;
+        let stepHistory = [];
+        let planMap = new Map();
         let stepStartTime = null;
         let activeAnimations = [];
 
@@ -142,8 +157,6 @@
         const userPromptInput = document.getElementById('user-prompt');
         const stepDisplayContainer = document.getElementById('step-display-container');
         const stepInfoPanel = document.getElementById('step-info-panel');
-        const stepCounterEl = document.getElementById('step-counter');
-        const stepNavNextBtn = document.getElementById('step-nav-next');
         const stepNavPrevBtn = document.getElementById('step-nav-prev');
         const startBtn = document.getElementById('start-btn');
         const doneBtn = document.getElementById('done-btn');
@@ -215,7 +228,7 @@
         function loadDefaults() {
             const defaultModel = { "objectName": "", "parts": [{ "id": "cube", "status": "defective", "origin": {"x": 0, "y": 0.25, "z": 0}, "dimensions": {"width": 0.5, "depth": 0.5, "height": 0.5}, "connections": [] }] };
             const defaultDamage = [{ "id": "damage_01", "type": "Scratch", "description": "A default scratch on the top surface.", "part_id": "cube", "coordinates": { "x": 0.0, "y": 0.5, "z": 0.0 } }];
-            const defaultPlan = { "steps": [{ "step_number": 1, "title": "Fill Scratch", "description": "Apply wood filler to the scratch.", "tools_required": ["Wood filler"], "affected_parts": ["cube"], "affected_damages": ["damage_01"] }] };
+            const defaultPlan = { "steps": [{ "step_id": "fill_scratch", "step_number": 1, "title": "Fill Scratch", "description": "Apply wood filler to the scratch.", "tools_required": ["Wood filler"], "affected_parts": ["cube"], "affected_damages": ["damage_01"], "prerequisites": [] }] };
             createModel(defaultModel);
             createDamages(defaultDamage);
             initializeHistory(defaultPlan);
@@ -224,12 +237,21 @@
         }
         
         function initializeHistory(planJson) {
-            currentHistoryJson = JSON.parse(JSON.stringify(planJson)); 
-            currentHistoryJson.steps.forEach(step => {
-                step.completed = false;
-                step.time_minutes = 0;
-                step.comments = step.comments || "";
-            });
+            currentHistoryJson = JSON.parse(JSON.stringify(planJson));
+            planMap.clear();
+            stepHistory = [];
+            if (currentHistoryJson && currentHistoryJson.steps) {
+                currentHistoryJson.steps.forEach(step => {
+                    if (step.completed === undefined) step.completed = false;
+                    if (step.time_minutes === undefined) step.time_minutes = 0;
+                    if (step.comments === undefined) step.comments = "";
+                    planMap.set(step.step_id, step);
+                });
+                const startStep = currentHistoryJson.steps.find(step => !step.prerequisites || step.prerequisites.length === 0);
+                currentStepId = startStep ? startStep.step_id : null;
+            } else {
+                currentStepId = null;
+            }
         }
 
         function animate() {
@@ -261,36 +283,104 @@
         }
 
         function saveCurrentComment() {
-            if (!currentHistoryJson || !currentHistoryJson.steps[currentStepIndex]) return;
-            const step = currentHistoryJson.steps[currentStepIndex];
-            step.comments = userPromptInput.value.trim();
+            if (!currentHistoryJson || !planMap.has(currentStepId)) return;
+            const step = planMap.get(currentStepId);
+            if (step) {
+                step.comments = userPromptInput.value.trim();
+            }
         }
 
         function displayCurrentStep() {
-            if (!currentHistoryJson || !currentHistoryJson.steps || currentHistoryJson.steps.length === 0) {
+            if (!currentHistoryJson || !currentStepId || !planMap.has(currentStepId)) {
                 stepDisplayContainer.style.display = 'none';
                 stepInfoPanel.style.display = 'none';
+                highlightElements([], []);
                 return;
             }
-
+            
             stepDisplayContainer.style.display = 'flex';
             stepInfoPanel.style.display = 'block';
-            const step = currentHistoryJson.steps[currentStepIndex];
-            if (!step) return;
-
-            stepInfoPanel.classList.toggle('completed', step.completed);
-            stepCounterEl.textContent = `Step ${step.step_number} of ${currentHistoryJson.steps.length}`;
+            
+            const step = planMap.get(currentStepId);
             document.getElementById('step-info-title').textContent = step.title + (step.completed ? ' (Done)' : '');
+            stepInfoPanel.classList.toggle('completed', step.completed);
             userPromptInput.value = step.comments || '';
-            stepNavPrevBtn.classList.toggle('disabled', currentStepIndex === 0);
-            stepNavNextBtn.classList.toggle('disabled', currentStepIndex === currentHistoryJson.steps.length - 1);
+            
+            const choicesContainer = document.getElementById('step-nav-choices');
+            choicesContainer.innerHTML = '';
+
+            const currentlyCompletedAndHistory = new Set([...stepHistory, currentStepId]);
+
+            const availableChoices = currentHistoryJson.steps.filter(s =>
+                !currentlyCompletedAndHistory.has(s.step_id) && 
+                s.prerequisites && s.prerequisites.includes(currentStepId)
+            );
+
+            const prerequisites = step.prerequisites || [];
+
+            if (availableChoices.length > 0) {
+                availableChoices.forEach(choice => {
+                    const btn = document.createElement('div');
+                    btn.textContent = `${choice.title} →`;
+                    btn.className = 'step-choice-btn';
+                    btn.onclick = () => {
+                        saveCurrentComment();
+                        stepHistory.push(currentStepId);
+                        currentStepId = choice.step_id;
+                        displayCurrentStep();
+                    };
+                    choicesContainer.appendChild(btn);
+                });
+            } else {
+                const isTerminalNode = !currentHistoryJson.steps.some(s => s.prerequisites && s.prerequisites.includes(currentStepId));
+                if (isTerminalNode) {
+                    const info = document.createElement('div');
+                    info.innerHTML = "✔ No further Steps";
+                    info.className = 'step-choice-btn';
+                    info.style.cursor = 'default'; 
+                    info.style.color = '#198754';
+                    info.style.borderColor = '#198754';
+                    info.style.backgroundColor = '#e8f5e9';
+                    info.style.textAlign = 'center';
+                    choicesContainer.appendChild(info);
+                }
+            }
+            
+            prerequisites.forEach(prereqId => {
+                const prereqStep = planMap.get(prereqId);
+                if (prereqStep) {
+                    const btn = document.createElement('div');
+                    btn.textContent = `← ${prereqStep.title}`; 
+                    btn.className = 'step-choice-btn';
+                    btn.style.borderColor = '#ccc'; 
+                    btn.style.color = '#333';
+                    btn.style.backgroundColor = '#fff';
+
+                    btn.onmouseover = () => { btn.style.backgroundColor = '#f0f0f0'; };
+                    btn.onmouseout = () => { btn.style.backgroundColor = '#fff'; };
+
+                    btn.onclick = () => {
+                        saveCurrentComment();
+                        const newCurrentStepId = prereqId;
+                        const historyIndex = stepHistory.lastIndexOf(newCurrentStepId);
+                        if (historyIndex > -1) {
+                            stepHistory.length = historyIndex;
+                        }
+                        currentStepId = newCurrentStepId;
+                        displayCurrentStep();
+                    };
+                    choicesContainer.appendChild(btn);
+                }
+            });
+            
+            stepNavPrevBtn.classList.toggle('disabled', stepHistory.length === 0);
             highlightElements(step.affected_parts || [], step.affected_damages || []);
             updateButtonStates();
         }
 
         function updateButtonStates() {
-            if (!currentHistoryJson) return;
-            const step = currentHistoryJson.steps[currentStepIndex];
+            if (!currentHistoryJson || !planMap.has(currentStepId)) return;
+            const step = planMap.get(currentStepId);
             startBtn.classList.toggle('disabled', step.completed || !!stepStartTime);
             doneBtn.classList.toggle('disabled', step.completed || !stepStartTime);
         }
@@ -380,7 +470,7 @@
                         damageSpheres.length = 0;
                         currentDamageJson = null;
                         currentHistoryJson = null;
-                        currentStepIndex = 0;
+                        currentStepId = null;
                         createModel(data);
                         displayCurrentStep();
                         updateHELGA("Assembly loaded. Please upload damages and a plan.");
@@ -389,7 +479,6 @@
                         updateHELGA("Damages loaded. Please upload a plan.");
                     } else if (type === 'plan') {
                         initializeHistory(data);
-                        currentStepIndex = 0;
                         displayCurrentStep();
                         updateHELGA(`Plan loaded with ${data.steps.length} steps. You can now start the repair.`);
                     }
@@ -454,7 +543,7 @@
             const sphereIntersects = raycaster.intersectObjects(damageSpheres);
             const partIntersects = raycaster.intersectObjects(Array.from(partMeshesMap.values()));
             
-            const step = currentHistoryJson?.steps?.[currentStepIndex];
+            const step = planMap.get(currentStepId);
             if (step) {
                 highlightElements(step.affected_parts || [], step.affected_damages || []);
             }
@@ -489,19 +578,16 @@
             }
 
             const steps = currentHistoryJson.steps;
-            // Get the unique ID of the current step to highlight it.
-            const currentStep = steps[currentStepIndex];
-            const currentStepId = currentStep?.step_id || `S${currentStep?.step_number}`;
+            const currentStep = planMap.get(currentStepId);
+            const currentStepIdForGraph = currentStep?.step_id || `S${currentStep?.step_number}`;
             
-            // Keywords for styling nodes based on their action type.
             const removeKeywords = ['remove', 'unscrew', 'detach', 'disassemble', 'pry', 'take off', 'unclip', 'sand', 'cut', 'unfasten', 'separate', 'take out', 'disconnect', 'clean'];
             const addKeywords = ['add', 'apply', 'install', 'attach', 'secure', 'glue', 'insert', 'place', 'reassemble', 'fill', 'coat'];
             
             let dot = `digraph RepairPlan {\n  rankdir=LR;\n  node [fontname="Helvetica,Arial,sans-serif", fixedsize=true, width=1.6, height=1.6];\n  edge [fontname="Helvetica,Arial,sans-serif"];\n\n`;
 
-            // 1. Define all nodes first using their unique step_id.
             steps.forEach(step => {
-                const nodeId = step.step_id || `S${step.step_number}`; // Fallback for older plan formats
+                const nodeId = step.step_id || `S${step.step_number}`;
                 const label = step.title.replace(/\s+/g, '\\n');
                 const titleLower = step.title.toLowerCase();
                 
@@ -520,7 +606,7 @@
                 if (step.completed) {
                     styleProperties.push('filled');
                     attributes.push('fillcolor="#198754"', 'fontcolor=white');
-                } else if (nodeId === currentStepId) { 
+                } else if (nodeId === currentStepIdForGraph) { 
                     styleProperties.push('filled');
                     attributes.push('fillcolor="#dd3333"', 'fontcolor=white'); 
                 }
@@ -532,17 +618,14 @@
                 dot += `  "${nodeId}" [label="${label}", ${attributes.join(', ')}];\n`;
             });
 
-            // 2. Define all edges based on the "prerequisites" array.
             steps.forEach(step => {
                 const toNodeId = step.step_id || `S${step.step_number}`;
                 if (step.prerequisites && step.prerequisites.length > 0) {
                     step.prerequisites.forEach(prereqId => { 
                         dot += `  "${prereqId}" -> "${toNodeId}";\n`; 
                     });
-                // Fallback for simple linear plans without prerequisites
                 } else if (step.step_number > 1) {
                     const fromNodeId = `S${step.step_number - 1}`;
-                    // Check if the previous node exists to avoid errors
                     if (steps.some(s => `S${s.step_number}` === fromNodeId)) {
                         dot += `  "${fromNodeId}" -> "${toNodeId}";\n`;
                     }
@@ -661,13 +744,13 @@
             doneBtn.addEventListener('click', () => {
                 if (doneBtn.classList.contains('disabled') || !stepStartTime) return;
                 const durationMinutes = (new Date() - stepStartTime) / 60000;
-                const step = currentHistoryJson.steps[currentStepIndex];
+                const step = planMap.get(currentStepId);
                 step.completed = true;
                 step.time_minutes = parseFloat(durationMinutes.toFixed(2));
                 saveCurrentComment();
                 stepStartTime = null;
                 displayCurrentStep();
-                updateHELGA(`Step ${step.step_number} completed! Time taken:`, false, durationMinutes);
+                updateHELGA(`Step ${step.step_number || ''} completed! Time taken:`, false, durationMinutes);
             });
 
             document.getElementById("ask-question-btn").addEventListener("click", async () => {
@@ -676,12 +759,12 @@
                     updateHELGA("Please write your question first.");
                     return;
                 }
-                if (!currentHistoryJson) {
+                if (!currentHistoryJson || !planMap.has(currentStepId)) {
                     updateHELGA("Please load a repair plan first.");
                     return;
                 }
 
-                const currentStep = currentHistoryJson.steps[currentStepIndex];
+                const currentStep = planMap.get(currentStepId);
                 updateHELGA("Thinking...", true);
 
                 try {
@@ -691,20 +774,15 @@
                         body: JSON.stringify({ question, stepContext: currentStep })
                     });
 
-                    // Attempt to parse the JSON body of the response, regardless of status code.
                     const responseData = await response.json();
 
-                    // If the response status is NOT OK (e.g., 400, 403, 500), throw an error.
-                    // This uses the detailed 'error' field from our new backend code.
                     if (!response.ok) {
                         throw new Error(responseData.error || responseData.message || `Server returned an unknown error with status ${response.status}`);
                     }
 
-                    // If we get here, the request was successful.
                     updateHELGA(responseData.answer || "Sorry, I could not generate an answer.");
 
                 } catch (error) {
-                    // This will now display the DETAILED error message from the server.
                     console.error("Ask H.E.L.G.A. failed:", error);
                     updateHELGA("Error: " + error.message);
                 }
@@ -730,7 +808,7 @@
 
             function handleChoice(type) {
                 const actions = {
-                    upload: () => document.getElementById(`${type}-upload-input`).click(),
+                    upload: () => document.getElementById(`${type === 'history' ? 'plan' : type}-upload-input`).click(),
                     copy: () => viewJson(type),
                     download: () => downloadJson(type)
                 };
@@ -746,23 +824,18 @@
             });
             document.getElementById('save-graph-svg-btn').addEventListener('click', () => { const svgEl = document.querySelector('#graph-container svg'); if (!svgEl) return; svgEl.setAttribute("xmlns", "http://www.w3.org/2000/svg"); const blob = new Blob([new XMLSerializer().serializeToString(svgEl)], { type: "image/svg+xml;charset=utf-8" }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `${(document.getElementById('object-name').value||'object').replace(/\s+/g,'_')}_graph.svg`; a.click(); URL.revokeObjectURL(a.href); updateHELGA("Graph saved as SVG."); });
 
-
-            stepNavNextBtn.addEventListener('click', () => navigateSteps(1));
-            stepNavPrevBtn.addEventListener('click', () => navigateSteps(-1));
-
-            function navigateSteps(direction) {
-                saveCurrentComment();
-                const newIndex = currentStepIndex + direction;
-                if (newIndex >= 0 && newIndex < currentHistoryJson.steps.length) {
-                    currentStepIndex = newIndex;
+            stepNavPrevBtn.addEventListener('click', () => {
+                if (stepHistory.length > 0) {
+                    saveCurrentComment();
+                    currentStepId = stepHistory.pop();
                     displayCurrentStep();
                 }
-            }
+            });
             
             stepInfoPanel.addEventListener('click', () => {
-                if (!currentHistoryJson || !currentHistoryJson.steps[currentStepIndex]) return;
+                if (!currentHistoryJson || !planMap.has(currentStepId)) return;
                 
-                const step = currentHistoryJson.steps[currentStepIndex];
+                const step = planMap.get(currentStepId);
                 const modal = document.getElementById('step-detail-modal-overlay');
                 const body = document.getElementById('step-detail-modal-body');
                 modal.querySelector('h3').textContent = step.title;
