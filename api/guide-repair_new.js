@@ -79,7 +79,22 @@ export default async function handler(req, res) {
 
     // OK branch
     const googleData = await googleResponse.json();
-    return res.status(200).json(googleData);
+
+    // --- START OF MODIFIED SECTION ---
+
+    // Extract the relevant text from the Gemini API response.
+    const helgaText = googleData?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
+    if (!helgaText) {
+      // If the response structure is unexpected or empty, send an error.
+      console.error('Unexpected Gemini API response structure:', googleData);
+      return res.status(500).json({ message: 'Failed to extract a valid response from the AI.' });
+    }
+
+    // Send a clean, simple JSON object to the front-end.
+    return res.status(200).json({ answer: helgaText });
+
+    // --- END OF MODIFIED SECTION ---
 
   } catch (error) {
     console.error('Error in /api/ask-helga handler:', error);
