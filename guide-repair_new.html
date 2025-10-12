@@ -671,33 +671,43 @@
             });
 
             document.getElementById("ask-question-btn").addEventListener("click", async () => {
-            const question = userPromptInput.value.trim();
-            if (!question) return updateHELGA("Please write your question first.");
-            if (!currentHistoryJson) return updateHELGA("Please load a repair plan first.");
+                const question = userPromptInput.value.trim();
+                if (!question) {
+                    updateHELGA("Please write your question first.");
+                    return;
+                }
+                if (!currentHistoryJson) {
+                    updateHELGA("Please load a repair plan first.");
+                    return;
+                }
 
-            const currentStep = currentHistoryJson.steps[currentStepIndex];
-            updateHELGA("Thinking...", true);
+                const currentStep = currentHistoryJson.steps[currentStepIndex];
+                updateHELGA("Thinking...", true);
 
-            try {
-                const res = await fetch("/api/guide-repair_new", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ question, stepContext: currentStep })
-                });
+                try {
+                    const response = await fetch("/api/guide-repair_new", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ question, stepContext: currentStep })
+                    });
 
-                const data = await res.json();
-                if (!res.ok) throw new Error(data.message || `Error ${res.status}`);
+                    // Attempt to parse the JSON body of the response, regardless of status code.
+                    const responseData = await response.json();
 
-                updateHELGA(data.answer || "No answer received.");
-            } catch (err) {
-                updateHELGA("Error: " + err.message);
-            }
-            });
+                    // If the response status is NOT OK (e.g., 400, 403, 500), throw an error.
+                    // This uses the detailed 'error' field from our new backend code.
+                    if (!response.ok) {
+                        throw new Error(responseData.error || responseData.message || `Server returned an unknown error with status ${response.status}`);
+                    }
 
-            document.getElementById('comment-btn').addEventListener('click', () => {
-                 if (!currentHistoryJson) { updateHELGA("Please load a plan first."); return; }
-                 saveCurrentComment();
-                 updateHELGA("Your comment has been saved to the history file for this step.");
+                    // If we get here, the request was successful.
+                    updateHELGA(responseData.answer || "Sorry, I could not generate an answer.");
+
+                } catch (error) {
+                    // This will now display the DETAILED error message from the server.
+                    console.error("Ask H.E.L.G.A. failed:", error);
+                    updateHELGA("Error: " + error.message);
+                }
             });
             
             let currentAction = '';
