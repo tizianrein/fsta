@@ -1,0 +1,340 @@
+{
+  "steps": [
+    {
+      "step_id": "prepare_workspace",
+      "title": "Prepare Work Area",
+      "description": "Set up a clean, well-lit, and ventilated work area. Lay down protective coverings on the floor and workbench to prevent damage from dust, glue, and varnish. Organize all required tools and materials for easy access.",
+      "rationale": "A systematic setup is the foundation of a strategic repair. It ensures safety, efficiency, and prevents collateral damage, reflecting a forward-looking approach to the entire intervention process.",
+      "tools_required": [
+        "workbench",
+        "protective sheeting",
+        "ventilator",
+        "task lighting"
+      ],
+      "affected_parts": [],
+      "affected_damages": [],
+      "prerequisites": []
+    },
+    {
+      "step_id": "remove_old_gliders",
+      "title": "Remove Old Gliders",
+      "description": "Carefully pry off the existing plastic gliders from the bottom of all four legs. Use a flat-head screwdriver or a pry tool, taking care not to damage the wood at the end of the legs.",
+      "rationale": "This initial step removes a component identified for upgrade. It clears the way for a more resilient and replaceable solution, aligning with the philosophy of enhancing modularity.",
+      "tools_required": [
+        "pry tool",
+        "flat-head screwdriver"
+      ],
+      "affected_parts": [
+        "front_left_glider",
+        "front_right_glider",
+        "back_left_glider",
+        "back_right_glider"
+      ],
+      "affected_damages": [],
+      "prerequisites": [
+        "prepare_workspace"
+      ]
+    },
+    {
+      "step_id": "disassemble_damaged_joint",
+      "title": "Disassemble Damaged Joint",
+      "description": "Carefully separate the front_right_leg from the front_apron and right_side_apron. Since these are glued dowel joints, apply localized heat with a heat gun to soften the adhesive, then gently use a rubber mallet and wooden block to tap the joint apart. Work slowly to avoid causing new damage.",
+      "rationale": "Disassembly is essential for upgrading the joint from a permanent, glued connection to a modular, mechanical one. This intervention makes future repairs significantly easier, embodying the principle of designing for the next failure.",
+      "tools_required": [
+        "heat gun",
+        "rubber mallet",
+        "wood block",
+        "joint separator tool"
+      ],
+      "affected_parts": [
+        "front_right_leg",
+        "front_apron",
+        "right_side_apron"
+      ],
+      "affected_damages": [
+        "damage_01"
+      ],
+      "prerequisites": [
+        "prepare_workspace"
+      ]
+    },
+    {
+      "step_id": "clean_and_prepare_crack",
+      "title": "Prepare Leg Crack",
+      "description": "Use a dental pick and compressed air to thoroughly clean any dust, debris, or old glue from inside the hairline crack on the front_right_leg. This ensures maximum adhesion for the repair.",
+      "rationale": "Meticulous preparation of the damaged area is critical for the structural integrity of the repair. This ensures the intervention is robust and extends the life of the component before its next potential failure.",
+      "tools_required": [
+        "dental pick",
+        "compressed air"
+      ],
+      "affected_parts": [
+        "front_right_leg"
+      ],
+      "affected_damages": [
+        "damage_01"
+      ],
+      "prerequisites": [
+        "disassemble_damaged_joint"
+      ]
+    },
+    {
+      "step_id": "inject_epoxy_into_crack",
+      "title": "Inject Epoxy into Crack",
+      "description": "Mix a high-strength, slow-curing wood epoxy. Use a syringe to carefully inject the epoxy deep into the cleaned crack, ensuring full penetration to rebond the wood fibers.",
+      "rationale": "Using a high-strength epoxy doesn't just fix the crack; it reinforces the area against future stress, increasing the component's overall resilience.",
+      "tools_required": [
+        "wood epoxy",
+        "syringe",
+        "mixing container",
+        "stirring stick"
+      ],
+      "affected_parts": [
+        "front_right_leg"
+      ],
+      "affected_damages": [
+        "damage_01"
+      ],
+      "prerequisites": [
+        "clean_and_prepare_crack"
+      ]
+    },
+    {
+      "step_id": "clamp_and_cure_leg",
+      "title": "Clamp and Cure Leg",
+      "description": "Use clamps with protective wood blocks to apply firm, even pressure across the repaired crack on the front_right_leg. Wipe away any excess epoxy squeeze-out. Allow the epoxy to cure for the manufacturer's recommended time.",
+      "rationale": "Proper clamping ensures a strong, seamless bond, restoring the structural integrity of the leg. This step transforms a point of failure into a point of strength.",
+      "tools_required": [
+        "bar clamps",
+        "wood blocks"
+      ],
+      "affected_parts": [
+        "front_right_leg"
+      ],
+      "affected_damages": [
+        "damage_01"
+      ],
+      "prerequisites": [
+        "inject_epoxy_into_crack"
+      ]
+    },
+    {
+      "step_id": "fabricate_new_gliders",
+      "title": "Fabricate New Gliders",
+      "description": "Using a piece of oak, cut and shape four new gliders to match the footprint of the chair legs. Drill a countersunk pilot hole in the center of each glider for the attachment screw. Sand them smooth.",
+      "rationale": "Fabricating new gliders from a durable material like oak and designing them for screw-on attachment is a direct upgrade. It replaces a disposable component with a robust, easily replaceable one, perfectly aligning with the philosophy of modularity and future maintenance.",
+      "tools_required": [
+        "oak wood stock",
+        "saw",
+        "drill press",
+        "countersink bit",
+        "sandpaper"
+      ],
+      "affected_parts": [
+        "front_left_leg",
+        "front_right_leg",
+        "back_left_leg",
+        "back_right_leg"
+      ],
+      "affected_damages": [],
+      "prerequisites": [
+        "remove_old_gliders"
+      ]
+    },
+    {
+      "step_id": "address_minor_damages",
+      "title": "Address Minor Damages",
+      "description": "Address the minor surface damages on various parts. Use a steam iron and a damp cloth to swell the wood fibers and reduce the dent on the backrest. Hand-sand the scuff marks on the front_left_leg.",
+      "rationale": "Addressing these minor issues in parallel improves efficiency. The chosen methods are minimally invasive, preserving the original material while preparing it for a new, more resilient finish.",
+      "tools_required": [
+        "steam iron",
+        "cloth",
+        "sandpaper"
+      ],
+      "affected_parts": [
+        "backrest",
+        "front_left_leg"
+      ],
+      "affected_damages": [
+        "damage_05",
+        "damage_06"
+      ],
+      "prerequisites": [
+        "prepare_workspace"
+      ]
+    },
+    {
+      "step_id": "sand_seat_surface",
+      "title": "Sand Seat Surface",
+      "description": "Using an orbital sander with progressively finer grits of sandpaper (e.g., 120, 180, 220), sand the entire top surface of the seat. This will remove the old finish, scuff marks, stains, and scratches, creating a uniform surface for the new coating.",
+      "rationale": "Sanding removes all superficial signs of past failures (scratches, stains) and prepares the surface for a new, more durable protective layer, enhancing its resilience to future wear.",
+      "tools_required": [
+        "orbital sander",
+        "sandpaper (multiple grits)"
+      ],
+      "affected_parts": [
+        "seat"
+      ],
+      "affected_damages": [
+        "damage_02",
+        "damage_03",
+        "damage_04"
+      ],
+      "prerequisites": [
+        "prepare_workspace"
+      ]
+    },
+    {
+      "step_id": "upgrade_leg_joint",
+      "title": "Upgrade Leg Joint Fasteners",
+      "description": "Drill out the old dowel holes on the front_right_leg and its corresponding aprons to the correct diameter for threaded inserts. Install M6 stainless steel threaded inserts into the holes using an Allen key, ensuring they are flush with the surface.",
+      "rationale": "This is a core philosophical upgrade. Replacing the permanent glue-and-dowel joint with threaded inserts and bolts transforms it into a strong, reversible mechanical connection. This makes future disassembly for maintenance or repair trivial, embodying the principle of designing for adaptability.",
+      "tools_required": [
+        "power drill",
+        "drill bits",
+        "M6 threaded inserts (stainless steel)",
+        "Allen key"
+      ],
+      "affected_parts": [
+        "front_right_leg",
+        "front_apron",
+        "right_side_apron"
+      ],
+      "affected_damages": [],
+      "prerequisites": [
+        "clamp_and_cure_leg"
+      ]
+    },
+    {
+      "step_id": "final_sanding_and_prep",
+      "title": "Final Sanding and Prep",
+      "description": "Perform a final light sanding with 220-grit sandpaper on all repaired and refinished parts (seat, front_right_leg, front_left_leg, backrest). Wipe down all sanded surfaces with a tack cloth to remove all dust particles in preparation for finishing.",
+      "rationale": "This unified preparation step ensures that all repaired and original surfaces will accept the new finish uniformly, creating a cohesive and durable protective layer across the entire object.",
+      "tools_required": [
+        "sandpaper (220-grit)",
+        "tack cloth"
+      ],
+      "affected_parts": [
+        "seat",
+        "front_right_leg",
+        "front_left_leg",
+        "backrest"
+      ],
+      "affected_damages": [],
+      "prerequisites": [
+        "clamp_and_cure_leg",
+        "address_minor_damages",
+        "sand_seat_surface"
+      ]
+    },
+    {
+      "step_id": "apply_first_varnish_coat",
+      "title": "Apply First Varnish Coat",
+      "description": "Apply a thin, even first coat of a high-durability, transparent polyurethane varnish to the prepared seat surface. Use a high-quality brush, following the direction of the wood grain.",
+      "rationale": "The application of a modern, durable varnish is a strategic upgrade to the chair's most-used surface. This new layer is designed to be more resilient to wear than the original, anticipating and mitigating future damage.",
+      "tools_required": [
+        "polyurethane varnish",
+        "natural bristle brush"
+      ],
+      "affected_parts": [
+        "seat"
+      ],
+      "affected_damages": [],
+      "prerequisites": [
+        "final_sanding_and_prep"
+      ]
+    },
+    {
+      "step_id": "intermediate_sanding",
+      "title": "Perform Intermediate Sanding",
+      "description": "Once the first coat of varnish is fully cured, lightly sand the surface with 320-grit sandpaper. This de-nibs the surface and creates a better mechanical bond for the final coat. Wipe clean with a tack cloth.",
+      "rationale": "This step is crucial for achieving a professional-grade, resilient finish. It ensures the final protective layer is as strong and smooth as possible, maximizing its functional lifespan.",
+      "tools_required": [
+        "sandpaper (320-grit)",
+        "tack cloth"
+      ],
+      "affected_parts": [
+        "seat"
+      ],
+      "affected_damages": [],
+      "prerequisites": [
+        "apply_first_varnish_coat"
+      ]
+    },
+    {
+      "step_id": "apply_final_varnish_coat",
+      "title": "Apply Final Varnish Coat",
+      "description": "Apply a final, slightly thicker coat of the polyurethane varnish to the seat. Ensure even coverage and allow it to cure completely in a dust-free environment as per the manufacturer's instructions.",
+      "rationale": "The final coat completes the upgraded protective system for the seat, providing a robust barrier against future scratches, stains, and wear.",
+      "tools_required": [
+        "polyurethane varnish",
+        "natural bristle brush"
+      ],
+      "affected_parts": [
+        "seat"
+      ],
+      "affected_damages": [],
+      "prerequisites": [
+        "intermediate_sanding"
+      ]
+    },
+    {
+      "step_id": "reassemble_chair_frame",
+      "title": "Reassemble Chair Frame",
+      "description": "Reattach the repaired front_right_leg to the aprons using M6 stainless steel bolts that correspond to the newly installed threaded inserts. Tighten securely but do not overtighten.",
+      "rationale": "Reassembly with mechanical fasteners completes the strategic upgrade of the joint. The chair is now not only repaired but also reconfigured for easy future maintenance, demonstrating the value of a modular system.",
+      "tools_required": [
+        "M6 stainless steel bolts",
+        "Allen key"
+      ],
+      "affected_parts": [
+        "front_right_leg",
+        "front_apron",
+        "right_side_apron"
+      ],
+      "affected_damages": [],
+      "prerequisites": [
+        "upgrade_leg_joint",
+        "apply_final_varnish_coat"
+      ]
+    },
+    {
+      "step_id": "install_new_gliders",
+      "title": "Install New Oak Gliders",
+      "description": "Drill small pilot holes in the center of the bottom of each leg. Attach the newly fabricated oak gliders to all four legs using stainless steel screws. Ensure they are seated firmly and level.",
+      "rationale": "Installing the screw-on gliders finalizes their upgrade from a weak point to a strong, user-serviceable component. This enhances the object's long-term functionality and adaptability.",
+      "tools_required": [
+        "power drill",
+        "drill bit (pilot)",
+        "stainless steel screws",
+        "screwdriver"
+      ],
+      "affected_parts": [
+        "front_left_leg",
+        "front_right_leg",
+        "back_left_leg",
+        "back_right_leg"
+      ],
+      "affected_damages": [],
+      "prerequisites": [
+        "fabricate_new_gliders",
+        "reassemble_chair_frame"
+      ]
+    },
+    {
+      "step_id": "place_protective_cushion",
+      "title": "Place Protective Cushion",
+      "description": "Place the new felt cushion onto the newly refinished seat surface. Ensure it is centered and sits flat.",
+      "rationale": "Adding a felt cushion is a forward-looking intervention. It acts as a sacrificial layer, protecting the newly restored seat surface from future scratches and wear, thus extending the interval until the next maintenance cycle is needed.",
+      "tools_required": [
+        "felt cushion"
+      ],
+      "affected_parts": [
+        "seat"
+      ],
+      "affected_damages": [],
+      "prerequisites": [
+        "reassemble_chair_frame"
+      ]
+    }
+  ]
+}

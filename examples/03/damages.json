@@ -1,0 +1,57 @@
+[
+  {
+    "id": "damage_01",
+    "type": "Breakage",
+    "description": "Severe splintering and breakage of the wood on the left side of the back apron, near its connection point with the back left leg.",
+    "part_id": "back_apron",
+    "coordinates": {
+      "x": -0.2,
+      "y": 0.404,
+      "z": 0.2315
+    }
+  },
+  {
+    "id": "damage_02",
+    "type": "Breakage",
+    "description": "Splintering and minor breakage of the wood on the right side of the back apron, near its connection point with the back right leg.",
+    "part_id": "back_apron",
+    "coordinates": {
+      "x": 0.2,
+      "y": 0.404,
+      "z": 0.2315
+    }
+  },
+  {
+    "id": "damage_03",
+    "type": "Breakage",
+    "description": "Severe splintering and breakage at the top of the leg, exposing the internal joint structure, consistent with a connection point for an apron or seat.",
+    "part_id": "front_left_leg",
+    "coordinates": {
+      "x": -0.235,
+      "y": 0.437,
+      "z": -0.2225
+    }
+  },
+  {
+    "id": "damage_04",
+    "type": "Crack",
+    "description": "Crack at the top of the front right leg, consistent with its connection point for an apron or seat.",
+    "part_id": "front_right_leg",
+    "coordinates": {
+      "x": 0.235,
+      "y": 0.437,
+      "z": -0.2225
+    }
+  },
+  {
+    "id": "damage_05",
+    "type": "Chip",
+    "description": "Large piece of wood chipped from the seat in the middle of the chair.",
+    "part_id": "seat",
+    "coordinates": {
+      "x": 0,
+      "y": 0.437,
+      "z": 0
+    }
+  }
+]

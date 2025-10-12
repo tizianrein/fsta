@@ -1,0 +1,436 @@
+{
+  "steps": [
+    {
+      "step_id": "prepare_community_workspace",
+      "title": "Prepare Workshop Space",
+      "description": "Set up a designated public area for the repair. Lay down drop cloths to protect the floor, arrange workbenches at an accessible height, and organize all tools and materials into clear, labeled stations to ensure a safe and welcoming environment for all participants.",
+      "rationale": "This initial step establishes a safe, organized, and inclusive space, which is fundamental to fostering public participation and transforming the repair from a technical task into a community event.",
+      "tools_required": [
+        "Workbenches",
+        "Drop cloths",
+        "Tool trays",
+        "Material labels"
+      ],
+      "affected_parts": [],
+      "affected_damages": [],
+      "prerequisites": []
+    },
+    {
+      "step_id": "conduct_safety_briefing",
+      "title": "Conduct Safety Briefing",
+      "description": "Gather all participants to conduct a mandatory safety briefing. Demonstrate the correct use of each tool, explain the properties of the materials (e.g., glue curing times, ventilation), and establish clear safety protocols for the workspace. Ensure everyone has appropriate personal protective equipment.",
+      "rationale": "Prioritizing collective safety is a core tenet of this repair philosophy. A thorough briefing ensures that the act of community engagement is safe and empowering for participants of all skill levels.",
+      "tools_required": [
+        "Safety glasses",
+        "Gloves",
+        "First-aid kit"
+      ],
+      "affected_parts": [],
+      "affected_damages": [],
+      "prerequisites": [
+        "prepare_community_workspace"
+      ]
+    },
+    {
+      "step_id": "clean_chair_and_remove_gum",
+      "title": "Clean Chair and Gum",
+      "description": "Give the entire chair a thorough cleaning with a biodegradable cleaner. Use a plastic scraper and a freezing agent (like a can of compressed air held upside down) to carefully remove the chewing gum from the underside of the seat before disassembly.",
+      "rationale": "Cleaning the object is a simple, accessible first action that allows everyone to participate. Removing contaminants now ensures a clean disassembly process and prepares all parts for their individual repair stations.",
+      "tools_required": [
+        "Biodegradable cleaner",
+        "Soft cloths",
+        "Plastic scraper",
+        "Freezing agent"
+      ],
+      "affected_parts": [
+        "front_left_leg",
+        "front_right_leg",
+        "back_left_leg",
+        "back_right_leg",
+        "seat",
+        "backrest",
+        "front_apron",
+        "back_apron",
+        "left_side_apron",
+        "right_side_apron"
+      ],
+      "affected_damages": [
+        "damage_10"
+      ],
+      "prerequisites": [
+        "conduct_safety_briefing"
+      ]
+    },
+    {
+      "step_id": "label_all_parts_for_reassembly",
+      "title": "Label All Parts",
+      "description": "Using masking tape and a marker, carefully label each part and connecting joint of the chair (e.g., 'Front Left Leg to Front Apron'). This will create a clear map for reassembly later.",
+      "rationale": "This systematic labeling is crucial for empowering a group to successfully reassemble the chair. It turns a potentially complex puzzle into a clear, collaborative task, ensuring the project's success and fostering a sense of shared accomplishment.",
+      "tools_required": [
+        "Masking tape",
+        "Permanent marker"
+      ],
+      "affected_parts": [
+        "front_left_leg",
+        "front_right_leg",
+        "back_left_leg",
+        "back_right_leg",
+        "seat",
+        "backrest",
+        "front_apron",
+        "back_apron",
+        "left_side_apron",
+        "right_side_apron"
+      ],
+      "affected_damages": [],
+      "prerequisites": [
+        "clean_chair_and_remove_gum"
+      ]
+    },
+    {
+      "step_id": "disassemble_chair_components",
+      "title": "Disassemble Chair Components",
+      "description": "Carefully disassemble the chair into its individual components. Use a rubber mallet and a protective block of wood to gently tap the glued dowel joints apart. Work slowly and methodically, following the reverse order of assembly.",
+      "rationale": "Deconstructing the chair is a transformative act that creates multiple, smaller tasks, maximizing opportunities for public participation. It allows different groups or individuals to take ownership of repairing a specific part.",
+      "tools_required": [
+        "Rubber mallet",
+        "Scrap wood block"
+      ],
+      "affected_parts": [
+        "front_left_leg",
+        "front_right_leg",
+        "back_left_leg",
+        "back_right_leg",
+        "seat",
+        "backrest",
+        "front_apron",
+        "back_apron",
+        "left_side_apron",
+        "right_side_apron"
+      ],
+      "affected_damages": [],
+      "prerequisites": [
+        "label_all_parts_for_reassembly"
+      ]
+    },
+    {
+      "step_id": "remove_old_gliders_from_legs",
+      "title": "Remove Old Gliders",
+      "description": "With the legs separated from the frame, use a pry bar or flat-head screwdriver to remove all four plastic gliders from the bottom of the legs. This can be done at a dedicated 'Leg Repair' station.",
+      "rationale": "This first step in the leg repair path prepares them for a consistent and sustainable upgrade. This act of renewal over simple replacement supports the goal of enhancing the object's long-term public utility.",
+      "tools_required": [
+        "Pry bar",
+        "Flat-head screwdriver"
+      ],
+      "affected_parts": [
+        "front_left_glider",
+        "front_right_glider",
+        "back_left_glider",
+        "back_right_glider"
+      ],
+      "affected_damages": [
+        "damage_09"
+      ],
+      "prerequisites": [
+        "disassemble_chair_components"
+      ]
+    },
+    {
+      "step_id": "clean_and_fill_backrest_damage",
+      "title": "Fill Backrest Damage",
+      "description": "At the 'Backrest Repair' station, clean debris from the chip and cut marks. Mix a two-part, non-toxic, colored epoxy putty and press it firmly into the damaged areas, slightly overfilling them. The color should be intentionally distinct from the wood.",
+      "rationale": "Instead of hiding the repair, we celebrate it using a technique inspired by Kintsugi. This visible, colorful fill honors the chair's history of damage and repair, making its story a part of its renewed value and fostering cultural continuity.",
+      "tools_required": [
+        "Dental pick",
+        "Stiff-bristle brush",
+        "Colored eco-epoxy putty",
+        "Putty knife"
+      ],
+      "affected_parts": [
+        "backrest"
+      ],
+      "affected_damages": [
+        "damage_01",
+        "damage_02"
+      ],
+      "prerequisites": [
+        "disassemble_chair_components"
+      ]
+    },
+    {
+      "step_id": "sand_seat_scratches",
+      "title": "Sand Seat Scratches",
+      "description": "At the 'Seat Repair' station, use a sanding block and medium-grit sandpaper to carefully sand the top surface of the seat, focusing on the area with the scratch until it is no longer visible.",
+      "rationale": "This focused task allows a participant to directly address a specific flaw, providing a tangible sense of contribution and restoring the primary functional surface of the chair for future public use.",
+      "tools_required": [
+        "Sanding block",
+        "Medium-grit sandpaper (120)"
+      ],
+      "affected_parts": [
+        "seat"
+      ],
+      "affected_damages": [
+        "damage_04"
+      ],
+      "prerequisites": [
+        "disassemble_chair_components"
+      ]
+    },
+    {
+      "step_id": "fabricate_story_plaque",
+      "title": "Fabricate Story Plaque",
+      "description": "At a separate 'Creative' station, participants can design and create a plaque on recycled material that tells the story of the repair. Use a wood-burning tool or non-toxic markers to include the date and a symbol for the community.",
+      "rationale": "The plaque transforms the chair from a mere object into a catalyst for civic memory. This parallel activity allows for artistic expression and explicitly documents the act of community engagement, ensuring the story of its revitalization is passed on.",
+      "tools_required": [
+        "Recycled plastic or wood piece",
+        "Wood-burning tool",
+        "Non-toxic markers"
+      ],
+      "affected_parts": [],
+      "affected_damages": [],
+      "prerequisites": [
+        "conduct_safety_briefing"
+      ]
+    },
+    {
+      "step_id": "mask_and_paint_leg_bases",
+      "title": "Mask and Paint Legs",
+      "description": "Clean the scuff marks from the four legs. Apply painter's tape in a straight line 10cm from the bottom of each leg. Using brushes, apply two coats of durable, non-toxic, water-based paint to the masked-off lower sections.",
+      "rationale": "This collaborative painting activity transforms functional scuff mark repair into a collective act of beautification. It's an accessible task for all skill levels that gives the chair a new, unified identity born from community effort.",
+      "tools_required": [
+        "Painter's tape",
+        "Measuring tape",
+        "Non-toxic water-based paint",
+        "Brushes"
+      ],
+      "affected_parts": [
+        "front_left_leg",
+        "front_right_leg",
+        "back_left_leg",
+        "back_right_leg"
+      ],
+      "affected_damages": [
+        "damage_05",
+        "damage_06",
+        "damage_07",
+        "damage_08"
+      ],
+      "prerequisites": [
+        "remove_old_gliders_from_legs"
+      ]
+    },
+    {
+      "step_id": "sand_backrest_filler_flush",
+      "title": "Sand Backrest Filler",
+      "description": "Once the epoxy putty has fully cured, use a sanding block with medium-grit sandpaper to carefully sand the filled areas on the backrest. Sand until the filler is perfectly flush and smooth with the surrounding wood surface.",
+      "rationale": "This step ensures the celebrated repair is also functional and pleasant to the touch. It integrates the new material smoothly into the old, symbolizing a harmonious blend of history and renewal.",
+      "tools_required": [
+        "Sanding block",
+        "Medium-grit sandpaper (120)",
+        "Fine-grit sandpaper (220)"
+      ],
+      "affected_parts": [
+        "backrest"
+      ],
+      "affected_damages": [
+        "damage_01",
+        "damage_02"
+      ],
+      "prerequisites": [
+        "clean_and_fill_backrest_damage"
+      ]
+    },
+    {
+      "step_id": "unmask_painted_legs",
+      "title": "Unmask Painted Legs",
+      "description": "After the final coat of paint is dry, carefully peel away the painter's tape from all four legs at a 45-degree angle to reveal a clean, sharp line.",
+      "rationale": "This step is a satisfying reveal that builds a sense of accomplishment among participants. It finalizes the visual transformation of the legs, turning signs of wear into a deliberate and joyful design element.",
+      "tools_required": [
+        "Utility knife (for scoring edge if needed)"
+      ],
+      "affected_parts": [
+        "front_left_leg",
+        "front_right_leg",
+        "back_left_leg",
+        "back_right_leg"
+      ],
+      "affected_damages": [],
+      "prerequisites": [
+        "mask_and_paint_leg_bases"
+      ]
+    },
+    {
+      "step_id": "sand_and_prepare_all_wood_parts",
+      "title": "Sand All Wood Parts",
+      "description": "Gather all repaired wooden parts (seat, backrest, aprons, and the unpainted sections of the legs). Perform a light, final sanding on all of them with fine-grit sandpaper to remove the backrest stain and create a uniform surface for the new finish.",
+      "rationale": "This collective sanding effort is a convergence point, unifying the individual repairs. It's a tactile way for the community to connect with all parts of the chair and prepare them for a new protective finish that ensures its continued public service.",
+      "tools_required": [
+        "Fine-grit sandpaper (220)",
+        "Tack cloth"
+      ],
+      "affected_parts": [
+        "seat",
+        "backrest",
+        "front_apron",
+        "back_apron",
+        "left_side_apron",
+        "right_side_apron",
+        "front_left_leg",
+        "front_right_leg",
+        "back_left_leg",
+        "back_right_leg"
+      ],
+      "affected_damages": [
+        "damage_03"
+      ],
+      "prerequisites": [
+        "unmask_painted_legs",
+        "sand_backrest_filler_flush",
+        "sand_seat_scratches"
+      ]
+    },
+    {
+      "step_id": "apply_oil_finish_to_parts",
+      "title": "Apply Oil Finish",
+      "description": "Wipe all sanded parts with a tack cloth to remove dust. Then, using clean rags, apply a generous coat of a natural, non-toxic oil finish (e.g., tung oil) to all unpainted wood surfaces. Allow it to penetrate, then wipe off the excess.",
+      "rationale": "Applying a natural, sustainable finish protects the wood without harsh chemicals, reinforcing the project's ecological commitment. Treating the parts before assembly ensures complete coverage and durability for continued community use.",
+      "tools_required": [
+        "Natural oil finish (tung or linseed)",
+        "Lint-free rags",
+        "Tack cloth"
+      ],
+      "affected_parts": [
+        "seat",
+        "backrest",
+        "front_apron",
+        "back_apron",
+        "left_side_apron",
+        "right_side_apron",
+        "front_left_leg",
+        "front_right_leg",
+        "back_left_leg",
+        "back_right_leg"
+      ],
+      "affected_damages": [],
+      "prerequisites": [
+        "sand_and_prepare_all_wood_parts"
+      ]
+    },
+    {
+      "step_id": "clean_old_glue_from_joints",
+      "title": "Clean Joints for Reassembly",
+      "description": "Once the oil finish is dry, use chisels, sandpaper, and dowel-hole cleaning tools to carefully remove any old, brittle glue from all dowels and mortise holes. A clean surface is essential for a strong new glue bond.",
+      "rationale": "This meticulous preparation for reassembly is a critical step that emphasizes quality and longevity. It teaches participants that a successful, durable outcome depends on careful preparation, reinforcing the value of thorough, mindful work.",
+      "tools_required": [
+        "Wood chisel",
+        "Sandpaper",
+        "Dowel-hole cleaning brush"
+      ],
+      "affected_parts": [
+        "front_left_leg",
+        "front_right_leg",
+        "back_left_leg",
+        "back_right_leg",
+        "backrest",
+        "front_apron",
+        "back_apron",
+        "left_side_apron",
+        "right_side_apron"
+      ],
+      "affected_damages": [],
+      "prerequisites": [
+        "apply_oil_finish_to_parts"
+      ]
+    },
+    {
+      "step_id": "dry_fit_chair_assembly",
+      "title": "Dry-Fit Chair Assembly",
+      "description": "Without using any glue, reassemble the entire chair according to the labels created earlier. This dry fit ensures all parts align correctly after their individual repairs and that the team is ready for the final gluing.",
+      "rationale": "The dry fit is a rehearsal for the final assembly, building confidence and teamwork. It allows the group to troubleshoot any issues together in a low-stakes environment, ensuring the final, glued assembly is smooth and successful.",
+      "tools_required": [
+        "Rubber mallet"
+      ],
+      "affected_parts": [
+        "front_left_leg",
+        "front_right_leg",
+        "back_left_leg",
+        "back_right_leg",
+        "seat",
+        "backrest",
+        "front_apron",
+        "back_apron",
+        "left_side_apron",
+        "right_side_apron"
+      ],
+      "affected_damages": [],
+      "prerequisites": [
+        "clean_old_glue_from_joints"
+      ]
+    },
+    {
+      "step_id": "glue_and_clamp_chair",
+      "title": "Glue and Clamp Chair",
+      "description": "Working as a team, apply a non-toxic wood glue to the joints and reassemble the chair. Use bar clamps to hold the frame together securely while the glue cures. Wipe away any excess glue 'squeeze-out' with a damp cloth.",
+      "rationale": "This step is the culmination of the group's effort, bringing all the individually repaired parts back into a unified whole. It is a powerful, collaborative moment that physically reconstructs the object and symbolically strengthens community bonds.",
+      "tools_required": [
+        "Non-toxic wood glue",
+        "Bar clamps",
+        "Damp cloth"
+      ],
+      "affected_parts": [
+        "front_left_leg",
+        "front_right_leg",
+        "back_left_leg",
+        "back_right_leg",
+        "seat",
+        "backrest",
+        "front_apron",
+        "back_apron",
+        "left_side_apron",
+        "right_side_apron"
+      ],
+      "affected_damages": [],
+      "prerequisites": [
+        "dry_fit_chair_assembly"
+      ]
+    },
+    {
+      "step_id": "install_new_gliders",
+      "title": "Install New Gliders",
+      "description": "After the glue has fully cured and the clamps are removed, turn the chair upside down. Install new, durable gliders made from recycled plastic or leather onto the bottom of all four legs using a rubber mallet.",
+      "rationale": "Installing upgraded, sustainable gliders enhances the chair's functionality and safety for public use. This choice prioritizes long-term performance and ecological responsibility over strict material authenticity.",
+      "tools_required": [
+        "Recycled material gliders",
+        "Rubber mallet"
+      ],
+      "affected_parts": [
+        "front_left_leg",
+        "front_right_leg",
+        "back_left_leg",
+        "back_right_leg"
+      ],
+      "affected_damages": [],
+      "prerequisites": [
+        "glue_and_clamp_chair"
+      ]
+    },
+    {
+      "step_id": "attach_story_plaque",
+      "title": "Attach Story Plaque",
+      "description": "Secure the community-made story plaque to the underside of the seat using two small, rust-resistant screws. Position it where it can be discovered but won't interfere with use or stacking.",
+      "rationale": "This final act completes the chair's transformation into a symbol of civic action. The plaque ensures that the story of the collective repair endures, fostering a deeper connection between the community and its shared public objects.",
+      "tools_required": [
+        "Screwdriver",
+        "Rust-resistant screws"
+      ],
+      "affected_parts": [
+        "seat"
+      ],
+      "affected_damages": [],
+      "prerequisites": [
+        "glue_and_clamp_chair",
+        "fabricate_story_plaque"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+[
+  {
+    "id": "damage_01",
+    "type": "Chipping",
+    "description": "Big wood chipping on the top surface of the back right leg.",
+    "part_id": "back_right_leg",
+    "coordinates": {
+      "x": 0.235,
+      "y": 0.76,
+      "z": 0.2225
+    }
+  },
+  {
+    "id": "damage_02",
+    "type": "Breakout",
+    "description": "Severe breakout of wood on the front left leg.",
+    "part_id": "front_left_leg",
+    "coordinates": {
+      "x": -0.235,
+      "y": 0.434,
+      "z": -0.2225
+    }
+  },
+  {
+    "id": "damage_03",
+    "type": "Crack",
+    "description": "A big crack  on the top surface of the front right leg.",
+    "part_id": "front_right_leg",
+    "coordinates": {
+      "x": 0.235,
+      "y": 0.434,
+      "z": -0.2225
+    }
+  },
+  {
+    "id": "damage_04",
+    "type": "Rough Surface",
+    "description": "Rough surface texture on the top of the seat.",
+    "part_id": "seat",
+    "coordinates": {
+      "x": 0,
+      "y": 0.44,
+      "z": 0
+    }
+  },
+  {
+    "id": "damage_05",
+    "type": "Scratches",
+    "description": "Scratches in the middle of the left side of the back left leg.",
+    "part_id": "back_left_leg",
+    "coordinates": {
+      "x": -0.25,
+      "y": 0.56,
+      "z": 0.2225
+    }
+  }
+]

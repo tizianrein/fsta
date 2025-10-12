@@ -1,0 +1,286 @@
+{
+  "steps": [
+    {
+      "step_id": "establish_conservation_environment",
+      "title": "Establish Controlled Environment",
+      "description": "Set up a dedicated, clean, and stable work area. Cover the work surface with a non-abrasive, chemically inert material like Mylar or Tyvek. Carefully lay out all chair components, ensuring they are supported and will not be subjected to stress.",
+      "rationale": "A controlled environment is paramount to prevent contamination or further damage to the object. This aligns with the scientific approach by ensuring no external variables compromise the conservation treatments.",
+      "tools_required": [
+        "Stable Worktable",
+        "Mylar or Tyvek Sheeting",
+        "Padded Blocks/Supports"
+      ],
+      "affected_parts": [
+        "front_left_leg",
+        "front_right_leg",
+        "back_left_leg",
+        "back_right_leg",
+        "front_apron",
+        "back_apron",
+        "left_side_apron",
+        "right_side_apron",
+        "seat",
+        "backrest"
+      ],
+      "affected_damages": [],
+      "prerequisites": []
+    },
+    {
+      "step_id": "gentle_surface_cleaning",
+      "title": "Clean Original Surfaces",
+      "description": "Perform a gentle surface cleaning on all components to remove loose dust and grime. Use a soft, natural-bristle brush and a low-suction vacuum with a filtered nozzle. For adhered grime, use a conservation-grade aqueous cleaning solution after testing on an inconspicuous area to ensure it does not harm the original finish.",
+      "rationale": "This step stabilizes the object by removing potentially acidic or abrasive surface contaminants. The minimal, tested approach ensures the original patina and finish—key parts of the object's history—are preserved, not stripped. This addresses surface scuffs by cleaning, not removing them.",
+      "tools_required": [
+        "Soft Natural-Bristle Brush",
+        "Low-Suction Vacuum with Micro-attachments",
+        "Distilled Water",
+        "Conservation-grade Non-ionic Detergent",
+        "Cotton Swabs"
+      ],
+      "affected_parts": [
+        "front_left_leg",
+        "front_right_leg",
+        "back_left_leg",
+        "back_right_leg",
+        "front_apron",
+        "back_apron",
+        "left_side_apron",
+        "right_side_apron",
+        "seat",
+        "backrest"
+      ],
+      "affected_damages": [
+        "damage_02"
+      ],
+      "prerequisites": [
+        "establish_conservation_environment"
+      ]
+    },
+    {
+      "step_id": "prepare_joint_surfaces",
+      "title": "Prepare Joint Surfaces",
+      "description": "Carefully remove failed adhesive and loose splinters from all joint surfaces, including the broken areas on the front legs and back apron connection points. Use mechanical tools like bamboo skewers and dental picks. Avoid altering the original wood geometry. The goal is to prepare the surface for a new, stable bond without removing sound, original material.",
+      "rationale": "This intervention is minimal and necessary for structural stabilization. Removing only the failed adhesive ensures the new, reversible adhesive can bond effectively to the original wood, preserving the integrity of the joint's original fit.",
+      "tools_required": [
+        "Dental Picks",
+        "Bamboo Skewers",
+        "Scalpel",
+        "Magnifying Lamp"
+      ],
+      "affected_parts": [
+        "front_left_leg",
+        "front_right_leg",
+        "back_apron"
+      ],
+      "affected_damages": [
+        "damage_01",
+        "damage_03",
+        "damage_04"
+      ],
+      "prerequisites": [
+        "establish_conservation_environment"
+      ]
+    },
+    {
+      "step_id": "consolidate_apron_fragments",
+      "title": "Consolidate Apron Fragments",
+      "description": "Apply a low-concentration solution of a reversible consolidant, such as Paraloid B-72 in acetone, to the friable and shattered edges of the back apron fragments. Apply with a fine brush or syringe, allowing the consolidant to wick into the damaged wood fibers. This will strengthen the fragments before reassembly.",
+      "rationale": "This is a critical stabilization step. Consolidating the weak, shattered wood prevents the loss of original material during handling and reassembly, adhering to the principle of preserving the object's material integrity.",
+      "tools_required": [
+        "Paraloid B-72",
+        "Acetone",
+        "Fine Sable Brush or Syringe",
+        "Fume Extractor",
+        "Glass Beakers"
+      ],
+      "affected_parts": [
+        "back_apron"
+      ],
+      "affected_damages": [
+        "damage_01"
+      ],
+      "prerequisites": [
+        "gentle_surface_cleaning",
+        "prepare_joint_surfaces"
+      ]
+    },
+    {
+      "step_id": "reassemble_apron_fragments",
+      "title": "Reassemble Apron Fragments",
+      "description": "Meticulously reassemble the shattered pieces of the back apron using a stable, reversible conservation adhesive, such as high-strength fish glue or a more concentrated Paraloid B-72 solution. Use clamps with padded jaws and sandbags to hold the pieces together as the adhesive sets, ensuring correct alignment.",
+      "rationale": "This intervention reconstructs the component from its original parts, which is paramount to preserving authenticity. The use of a reversible adhesive ensures that this repair can be undone by future conservators without damaging the original material.",
+      "tools_required": [
+        "Fish Glue or Paraloid B-72 Adhesive",
+        "Small Clamps with Padded Jaws",
+        "Tweezers",
+        "Magnifying Lamp"
+      ],
+      "affected_parts": [
+        "back_apron"
+      ],
+      "affected_damages": [
+        "damage_01"
+      ],
+      "prerequisites": [
+        "consolidate_apron_fragments"
+      ]
+    },
+    {
+      "step_id": "stabilize_leg_breaks",
+      "title": "Stabilize Leg Breaks",
+      "description": "Re-adhere the broken connection points on the front left and front right legs. Apply a reversible, gap-filling conservation adhesive like traditional hot hide glue. Clamp the joints carefully with padded clamps to ensure a tight fit without crushing the wood fibers. Remove any excess adhesive with a warm, damp cloth before it fully cures.",
+      "rationale": "This step stabilizes the primary structure using a historically appropriate and fully reversible adhesive. The goal is to restore structural integrity with minimal intervention, avoiding replacement or the use of modern, irreversible polymers.",
+      "tools_required": [
+        "Hot Hide Glue",
+        "Glue Pot",
+        "Small Brush",
+        "Padded Clamps"
+      ],
+      "affected_parts": [
+        "front_left_leg",
+        "front_right_leg"
+      ],
+      "affected_damages": [
+        "damage_03",
+        "damage_04"
+      ],
+      "prerequisites": [
+        "prepare_joint_surfaces"
+      ]
+    },
+    {
+      "step_id": "dry_fit_structure",
+      "title": "Dry-Fit Chair Structure",
+      "description": "Once all individual component repairs have cured, perform a complete dry-fit of the chair's main structure. Assemble all legs and aprons without adhesive to check the fit and alignment of the repaired joints. Use band clamps or string to temporarily hold the structure together. Make micro-adjustments if necessary.",
+      "rationale": "A dry-fit is a non-interventive verification step. It ensures that the structural reassembly will be successful and stress-free, preventing the introduction of new tensions into the object's frame, which aligns with the principle of stabilization.",
+      "tools_required": [
+        "Band Clamps or Cord",
+        "Padded Blocks",
+        "Carpenter's Square"
+      ],
+      "affected_parts": [
+        "front_left_leg",
+        "front_right_leg",
+        "back_left_leg",
+        "back_right_leg",
+        "front_apron",
+        "back_apron",
+        "left_side_apron",
+        "right_side_apron"
+      ],
+      "affected_damages": [],
+      "prerequisites": [
+        "reassemble_apron_fragments",
+        "stabilize_leg_breaks"
+      ]
+    },
+    {
+      "step_id": "reassemble_main_frame",
+      "title": "Reassemble Main Frame",
+      "description": "Reassemble the chair's structural frame using hot hide glue. Work methodically, gluing the side assemblies (legs and side aprons) first, then joining them with the front and repaired back aprons. Use appropriate bar or band clamps with padded cauls to apply even pressure. Check for squareness and remove all excess glue.",
+      "rationale": "The reassembly uses a reversible, conservation-grade adhesive that is compatible with the original materials. This ensures the structural stability of the object while maintaining the option for future retreatability, a core tenet of modern conservation.",
+      "tools_required": [
+        "Hot Hide Glue",
+        "Glue Pot",
+        "Bar Clamps",
+        "Band Clamps",
+        "Padded Cauls",
+        "Warm Water and Cloths"
+      ],
+      "affected_parts": [
+        "front_left_leg",
+        "front_right_leg",
+        "back_left_leg",
+        "back_right_leg",
+        "front_apron",
+        "back_apron",
+        "left_side_apron",
+        "right_side_apron"
+      ],
+      "affected_damages": [],
+      "prerequisites": [
+        "dry_fit_structure"
+      ]
+    },
+    {
+      "step_id": "attach_seat_and_backrest",
+      "title": "Attach Seat and Backrest",
+      "description": "After the main frame has fully cured, attach the seat and backrest using the same hot hide glue. Apply glue to the relevant connection points on the frame and legs. Use weights on the seat and clamps on the backrest, protected by padded cauls, to ensure a secure bond while the adhesive cures.",
+      "rationale": "Completing the assembly with the same reversible adhesive ensures material consistency throughout the repair. This final structural step stabilizes the entire object, making it a cohesive whole once more.",
+      "tools_required": [
+        "Hot Hide Glue",
+        "Glue Pot",
+        "Clamps",
+        "Padded Cauls",
+        "Weights"
+      ],
+      "affected_parts": [
+        "seat",
+        "backrest",
+        "front_left_leg",
+        "front_right_leg",
+        "back_left_leg",
+        "back_right_leg",
+        "front_apron",
+        "back_apron",
+        "left_side_apron",
+        "right_side_apron"
+      ],
+      "affected_damages": [],
+      "prerequisites": [
+        "reassemble_main_frame"
+      ]
+    },
+    {
+      "step_id": "apply_protective_wax",
+      "title": "Apply Protective Wax",
+      "description": "Apply a thin, even layer of microcrystalline conservation wax to all surfaces of the chair. Use a lint-free cloth to apply the wax, let it haze over, and then buff gently with a clean, soft cloth. This will provide a protective barrier and even out the sheen without altering the original finish.",
+      "rationale": "This is a minimal, reversible final treatment. Instead of applying an irreversible new finish, a conservation wax protects the preserved original finish from moisture and pollutants while remaining easily removable, thus preserving the object's authentic surface narrative.",
+      "tools_required": [
+        "Microcrystalline Wax",
+        "Lint-free Cotton Cloths",
+        "Soft Buffing Brush"
+      ],
+      "affected_parts": [
+        "front_left_leg",
+        "front_right_leg",
+        "back_left_leg",
+        "back_right_leg",
+        "front_apron",
+        "back_apron",
+        "left_side_apron",
+        "right_side_apron",
+        "seat",
+        "backrest"
+      ],
+      "affected_damages": [],
+      "prerequisites": [
+        "attach_seat_and_backrest",
+        "gentle_surface_cleaning"
+      ]
+    },
+    {
+      "step_id": "final_curing",
+      "title": "Final Curing Period",
+      "description": "Allow the fully assembled and treated chair to cure in the controlled environment for a minimum of one week. This allows the hide glue to achieve maximum strength and the wax coating to fully harden. Monitor for any signs of joint movement or stress.",
+      "rationale": "A final curing period is essential for the long-term stability of the conservation treatments. It ensures all materials have fully set before the object is handled or returned to a display or storage environment, completing the stabilization process.",
+      "tools_required": [],
+      "affected_parts": [
+        "front_left_leg",
+        "front_right_leg",
+        "back_left_leg",
+        "back_right_leg",
+        "front_apron",
+        "back_apron",
+        "left_side_apron",
+        "right_side_apron",
+        "seat",
+        "backrest"
+      ],
+      "affected_damages": [],
+      "prerequisites": [
+        "apply_protective_wax"
+      ]
+    }
+  ]
+}

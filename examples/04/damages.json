@@ -1,0 +1,86 @@
+[
+  {
+    "id": "damage_01",
+    "part_id": "front_right_leg",
+    "type": "Crack",
+    "description": "A small hairline crack is visible on the top surface of the front right leg, near the front.",
+    "coordinates": {
+      "x": 0.235,
+      "y": 0.434,
+      "z": -0.235
+    },
+    "severity": "moderate",
+    "confidence": 0.9,
+    "evidence": "Visible in close-up photograph of the front-right leg/seat joint."
+  },
+  {
+    "id": "damage_02",
+    "part_id": "seat",
+    "type": "Scuff Mark",
+    "description": "Noticeable scuffing and discoloration along the front edge of the seat.",
+    "coordinates": {
+      "x": -0.1,
+      "y": 0.438,
+      "z": -0.245
+    },
+    "severity": "minor",
+    "confidence": 0.95,
+    "evidence": "Clearly visible in the close-up image of the seat's front corner."
+  },
+  {
+    "id": "damage_03",
+    "part_id": "seat",
+    "type": "Stain",
+    "description": "A cluster of small, dark stains or impressions on the top surface of the seat.",
+    "coordinates": {
+      "x": 0,
+      "y": 0.44,
+      "z": 0.15
+    },
+    "severity": "minor",
+    "confidence": 0.85,
+    "evidence": "Visible in a top-down close-up of the seat surface."
+  },
+  {
+    "id": "damage_04",
+    "part_id": "seat",
+    "type": "Scratch",
+    "description": "A long, light-colored scratch on the seat's top surface toward the left side.",
+    "coordinates": {
+      "x": -0.15,
+      "y": 0.44,
+      "z": 0.05
+    },
+    "severity": "minor",
+    "confidence": 0.9,
+    "evidence": "Visible in a photograph showing the left side of the seat."
+  },
+  {
+    "id": "damage_05",
+    "part_id": "backrest",
+    "type": "Dent",
+    "description": "A small circular dent on the front face of the backrest near the top right corner.",
+    "coordinates": {
+      "x": 0.18,
+      "y": 0.75,
+      "z": 0.2
+    },
+    "severity": "minor",
+    "confidence": 0.8,
+    "evidence": "Visible in a close-up photograph of the backrest and back-right leg joint."
+  },
+  {
+    "id": "damage_06",
+    "part_id": "front_left_leg",
+    "type": "Scuff Mark",
+    "description": "Multiple horizontal scuff marks are visible on the front face of the front left leg.",
+    "coordinates": {
+      "x": -0.235,
+      "y": 0.2,
+      "z": -0.245
+    },
+    "severity": "minor",
+    "confidence": 0.8,
+    "evidence": "Visible in a close-up photograph of a leg, identified as the front left."
+  }
+]

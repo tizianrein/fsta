@@ -1,0 +1,574 @@
+{
+  "steps": [
+    {
+      "step_id": "setup_work_area",
+      "title": "Setup Work Area",
+      "description": "Clear and protect the work surface. Gather all necessary tools and materials for the repair process. Ensure good lighting and ventilation for precision work.",
+      "tools_required": [
+        "Workbench",
+        "Drop cloths",
+        "Safety glasses",
+        "Gloves"
+      ],
+      "affected_parts": [],
+      "affected_damages": [],
+      "prerequisites": []
+    },
+    {
+      "step_id": "remove_gliders",
+      "title": "Remove Gliders",
+      "description": "Carefully remove the gliders from the bottom of each leg to prevent damage during repair and finishing processes. Store them safely to be reinstalled later.",
+      "tools_required": [
+        "Pliers",
+        "Screwdriver (if applicable)",
+        "Protective padding"
+      ],
+      "affected_parts": [
+        "front_left_glider",
+        "front_right_glider",
+        "back_left_glider",
+        "back_right_glider"
+      ],
+      "affected_damages": [],
+      "prerequisites": [
+        "setup_work_area"
+      ]
+    },
+    {
+      "step_id": "mark_scarf_joint_cut_fl_leg",
+      "title": "Mark Scarf Joint",
+      "description": "Precisely mark the scarf joint cut on the front_left_leg to remove the damaged area (damage_02). Ensure the angle is shallow and consistent for maximum gluing surface and strength, respecting original material and minimizing loss.",
+      "tools_required": [
+        "Pencil",
+        "Marking knife",
+        "Ruler",
+        "Angle gauge"
+      ],
+      "affected_parts": [
+        "front_left_leg"
+      ],
+      "affected_damages": [
+        "damage_02"
+      ],
+      "prerequisites": [
+        "remove_gliders"
+      ]
+    },
+    {
+      "step_id": "cut_damaged_leg_scarf_fl_leg",
+      "title": "Cut Damaged Leg",
+      "description": "Carefully cut the front_left_leg along the marked scarf joint line using a fine-toothed hand saw. Ensure a clean, straight, and consistent angled cut to provide a strong bonding surface for the new piece, retaining as much original material as possible.",
+      "tools_required": [
+        "Fine-toothed hand saw",
+        "Chisel",
+        "Bench vise"
+      ],
+      "affected_parts": [
+        "front_left_leg"
+      ],
+      "affected_damages": [
+        "damage_02"
+      ],
+      "prerequisites": [
+        "mark_scarf_joint_cut_fl_leg"
+      ]
+    },
+    {
+      "step_id": "prepare_scarf_insert_blank_fl_leg",
+      "title": "Prepare Scarf Blank",
+      "description": "Select a new piece of wood that closely matches the original front_left_leg in species, grain, and color. Cut a blank slightly oversized to allow for precise shaping of the scarf joint, adhering to traditional methods.",
+      "tools_required": [
+        "Hand saw",
+        "Marking gauge",
+        "Matching wood stock"
+      ],
+      "affected_parts": [
+        "front_left_leg"
+      ],
+      "affected_damages": [
+        "damage_02"
+      ],
+      "prerequisites": [
+        "cut_damaged_leg_scarf_fl_leg"
+      ]
+    },
+    {
+      "step_id": "cut_scarf_insert_angle_fl_leg",
+      "title": "Cut Scarf Insert",
+      "description": "Precisely cut the new wood blank with an angle matching the scarf joint on the front_left_leg. Test fit frequently to ensure a perfect, gap-free mating surface, reflecting careful craftsmanship.",
+      "tools_required": [
+        "Fine-toothed hand saw",
+        "Chisel",
+        "Marking knife",
+        "Sanding block"
+      ],
+      "affected_parts": [
+        "front_left_leg"
+      ],
+      "affected_damages": [
+        "damage_02"
+      ],
+      "prerequisites": [
+        "prepare_scarf_insert_blank_fl_leg"
+      ]
+    },
+    {
+      "step_id": "glue_scarf_joint_fl_leg",
+      "title": "Glue Scarf Joint",
+      "description": "Apply a traditional hide glue or a sympathetic wood glue to both mating surfaces of the scarf joint on the front_left_leg. Carefully align and join the new piece, clamping securely with even pressure along the entire joint. Allow ample time for the glue to cure completely.",
+      "tools_required": [
+        "Wood glue (hide glue recommended)",
+        "Clamps",
+        "Cauls"
+      ],
+      "affected_parts": [
+        "front_left_leg"
+      ],
+      "affected_damages": [
+        "damage_02"
+      ],
+      "prerequisites": [
+        "cut_scarf_insert_angle_fl_leg"
+      ]
+    },
+    {
+      "step_id": "shape_scarf_joint_fl_leg",
+      "title": "Shape Scarf Joint",
+      "description": "Once the glue is fully cured, carefully trim any excess material from the new scarf joint piece on the front_left_leg using a sharp chisel or block plane. Blend the new wood seamlessly into the original leg, maintaining the leg's original profile and preserving the patina.",
+      "tools_required": [
+        "Chisel",
+        "Block plane",
+        "Cabinet scraper"
+      ],
+      "affected_parts": [
+        "front_left_leg"
+      ],
+      "affected_damages": [
+        "damage_02"
+      ],
+      "prerequisites": [
+        "glue_scarf_joint_fl_leg"
+      ]
+    },
+    {
+      "step_id": "prepare_dovetail_housing",
+      "title": "Mark Dovetail Housing",
+      "description": "Carefully mark out a shallow, precise dovetail housing around the crack on the front right leg (damage_03). The housing should be just large enough to encompass the damage, minimizing removal of original material and allowing for a strong, sympathetic patch.",
+      "tools_required": [
+        "Pencil",
+        "Marking knife",
+        "Ruler",
+        "Dovetail gauge"
+      ],
+      "affected_parts": [
+        "front_right_leg"
+      ],
+      "affected_damages": [
+        "damage_03"
+      ],
+      "prerequisites": [
+        "remove_gliders"
+      ]
+    },
+    {
+      "step_id": "cut_dovetail_housing",
+      "title": "Cut Dovetail Housing",
+      "description": "Using fine chisels and a mallet, carefully cut the marked dovetail housing into the front right leg. Ensure clean, precise cuts and a flat bottom to the housing for optimal fit and adhesion of the patch. Work slowly to retain as much original material as possible.",
+      "tools_required": [
+        "Fine chisels",
+        "Mallet",
+        "Router plane (optional for flattening)"
+      ],
+      "affected_parts": [
+        "front_right_leg"
+      ],
+      "affected_damages": [
+        "damage_03"
+      ],
+      "prerequisites": [
+        "prepare_dovetail_housing"
+      ]
+    },
+    {
+      "step_id": "create_dovetail_patch",
+      "title": "Create Dovetail Patch",
+      "description": "Select a piece of wood that closely matches the original front right leg in species, grain, and color. Carefully cut and shape a dovetail patch that precisely fits the prepared housing, ensuring a snug, gap-free fit, a hallmark of traditional repair.",
+      "tools_required": [
+        "Matching wood stock",
+        "Hand saw",
+        "Chisels",
+        "Marking knife",
+        "Dovetail gauge"
+      ],
+      "affected_parts": [
+        "front_right_leg"
+      ],
+      "affected_damages": [
+        "damage_03"
+      ],
+      "prerequisites": [
+        "cut_dovetail_housing"
+      ]
+    },
+    {
+      "step_id": "fit_dovetail_patch",
+      "title": "Test Fit Patch",
+      "description": "Repeatedly test fit the crafted dovetail patch into the housing on the front right leg, making minor adjustments with a chisel or sandpaper until a perfect, tight fit is achieved. The patch should sit flush with the surrounding original surface without force, demonstrating careful work.",
+      "tools_required": [
+        "Chisels",
+        "Fine-grit sandpaper"
+      ],
+      "affected_parts": [
+        "front_right_leg"
+      ],
+      "affected_damages": [
+        "damage_03"
+      ],
+      "prerequisites": [
+        "create_dovetail_patch"
+      ]
+    },
+    {
+      "step_id": "glue_dovetail_patch",
+      "title": "Glue Dovetail Patch",
+      "description": "Apply a traditional hide glue or a sympathetic wood glue sparingly to the mating surfaces of the dovetail housing and patch on the front right leg. Gently tap the patch into place using a mallet, ensuring it is fully seated and flush. Clamp securely with cauls to distribute pressure evenly, allowing for a strong, lasting mend.",
+      "tools_required": [
+        "Wood glue (hide glue recommended)",
+        "Mallet",
+        "Clamps",
+        "Cauls"
+      ],
+      "affected_parts": [
+        "front_right_leg"
+      ],
+      "affected_damages": [
+        "damage_03"
+      ],
+      "prerequisites": [
+        "fit_dovetail_patch"
+      ]
+    },
+    {
+      "step_id": "trim_dovetail_patch",
+      "title": "Trim Dovetail Patch",
+      "description": "Once the glue is fully cured, carefully trim any excess material from the new dovetail patch using a sharp chisel or block plane. Blend the patch seamlessly into the original leg, maintaining the leg's original profile and preserving the patina through modest intervention.",
+      "tools_required": [
+        "Chisel",
+        "Block plane",
+        "Cabinet scraper"
+      ],
+      "affected_parts": [
+        "front_right_leg"
+      ],
+      "affected_damages": [
+        "damage_03"
+      ],
+      "prerequisites": [
+        "glue_dovetail_patch"
+      ]
+    },
+    {
+      "step_id": "mark_dutchman_housing_br_leg",
+      "title": "Mark Dutchman Housing",
+      "description": "Carefully mark out a shallow, precise housing around the chipping on the back right leg (damage_01). The housing should be just large enough to encompass the damage, minimizing removal of original material and allowing for a strong, sympathetic patch, consistent with traditional repair methods.",
+      "tools_required": [
+        "Pencil",
+        "Marking knife",
+        "Ruler"
+      ],
+      "affected_parts": [
+        "back_right_leg"
+      ],
+      "affected_damages": [
+        "damage_01"
+      ],
+      "prerequisites": [
+        "remove_gliders"
+      ]
+    },
+    {
+      "step_id": "cut_dutchman_housing_br_leg",
+      "title": "Cut Dutchman Housing",
+      "description": "Using fine chisels and a mallet, carefully cut the marked housing into the back right leg. Ensure clean, precise cuts and a flat bottom to the housing for optimal fit and adhesion of the patch. Work slowly to retain as much original material as possible, embodying conservative repair.",
+      "tools_required": [
+        "Fine chisels",
+        "Mallet",
+        "Router plane (optional for flattening)"
+      ],
+      "affected_parts": [
+        "back_right_leg"
+      ],
+      "affected_damages": [
+        "damage_01"
+      ],
+      "prerequisites": [
+        "mark_dutchman_housing_br_leg"
+      ]
+    },
+    {
+      "step_id": "create_dutchman_patch_br_leg",
+      "title": "Create Dutchman Patch",
+      "description": "Select a piece of wood that closely matches the original back right leg in species, grain, and color. Carefully cut and shape a patch that precisely fits the prepared housing, ensuring a snug, gap-free fit, a hallmark of traditional repair and sympathetic material use.",
+      "tools_required": [
+        "Matching wood stock",
+        "Hand saw",
+        "Chisels",
+        "Marking knife"
+      ],
+      "affected_parts": [
+        "back_right_leg"
+      ],
+      "affected_damages": [
+        "damage_01"
+      ],
+      "prerequisites": [
+        "cut_dutchman_housing_br_leg"
+      ]
+    },
+    {
+      "step_id": "fit_dutchman_patch_br_leg",
+      "title": "Test Fit Patch",
+      "description": "Repeatedly test fit the crafted patch into the housing on the back right leg, making minor adjustments with a chisel or sandpaper until a perfect, tight fit is achieved. The patch should sit flush with the surrounding original surface without force, demonstrating careful craftsmanship and minimal intervention.",
+      "tools_required": [
+        "Chisels",
+        "Fine-grit sandpaper"
+      ],
+      "affected_parts": [
+        "back_right_leg"
+      ],
+      "affected_damages": [
+        "damage_01"
+      ],
+      "prerequisites": [
+        "create_dutchman_patch_br_leg"
+      ]
+    },
+    {
+      "step_id": "glue_dutchman_patch_br_leg",
+      "title": "Glue Dutchman Patch",
+      "description": "Apply a traditional hide glue or a sympathetic wood glue sparingly to the mating surfaces of the housing and patch on the back right leg. Gently tap the patch into place using a mallet, ensuring it is fully seated and flush. Clamp securely with cauls to distribute pressure evenly, allowing for a strong, lasting mend that preserves continuity.",
+      "tools_required": [
+        "Wood glue (hide glue recommended)",
+        "Mallet",
+        "Clamps",
+        "Cauls"
+      ],
+      "affected_parts": [
+        "back_right_leg"
+      ],
+      "affected_damages": [
+        "damage_01"
+      ],
+      "prerequisites": [
+        "fit_dutchman_patch_br_leg"
+      ]
+    },
+    {
+      "step_id": "trim_dutchman_patch_br_leg",
+      "title": "Trim Dutchman Patch",
+      "description": "Once the glue is fully cured, carefully trim any excess material from the new patch using a sharp chisel or block plane. Blend the patch seamlessly into the original leg, maintaining the leg's original profile and preserving the patina through modest intervention.",
+      "tools_required": [
+        "Chisel",
+        "Block plane",
+        "Cabinet scraper"
+      ],
+      "affected_parts": [
+        "back_right_leg"
+      ],
+      "affected_damages": [
+        "damage_01"
+      ],
+      "prerequisites": [
+        "glue_dutchman_patch_br_leg"
+      ]
+    },
+    {
+      "step_id": "scrape_excess_material",
+      "title": "Scrape Excess Material",
+      "description": "Carefully scrape away any dried excess glue from the scarf joint and dovetail patch, and excess material from the newly inserted Dutchman patch. Use a sharp scraper or chisel, being mindful not to scratch the surrounding original wood, preserving the patina and original surface.",
+      "tools_required": [
+        "Cabinet scraper",
+        "Sharp chisel"
+      ],
+      "affected_parts": [
+        "front_left_leg",
+        "front_right_leg",
+        "back_right_leg"
+      ],
+      "affected_damages": [
+        "damage_02",
+        "damage_03",
+        "damage_01"
+      ],
+      "prerequisites": [
+        "shape_scarf_joint_fl_leg",
+        "trim_dovetail_patch",
+        "trim_dutchman_patch_br_leg"
+      ]
+    },
+    {
+      "step_id": "initial_sanding_repaired_areas",
+      "title": "Initial Sanding Repaired",
+      "description": "Using medium-grit sandpaper (e.g., 120-150 grit), carefully sand all areas that received a patch, scarf joint, or Dutchman insert (front left leg, front right leg, back right leg) to blend them smoothly with the original surface, respecting the surrounding material and avoiding aggressive removal.",
+      "tools_required": [
+        "Medium-grit sandpaper",
+        "Sanding block"
+      ],
+      "affected_parts": [
+        "front_left_leg",
+        "front_right_leg",
+        "back_right_leg"
+      ],
+      "affected_damages": [
+        "damage_02",
+        "damage_03",
+        "damage_01"
+      ],
+      "prerequisites": [
+        "scrape_excess_material"
+      ]
+    },
+    {
+      "step_id": "fine_sanding_repairs",
+      "title": "Fine Sand Repairs",
+      "description": "Using fine-grit sandpaper (e.g., 220-320 grit), perform a final, thorough sanding of all repaired areas (front left leg, front right leg, back right leg) to prepare for finishing, ensuring a sympathetic blend with the original patina and a smooth transition.",
+      "tools_required": [
+        "Fine-grit sandpaper",
+        "Sanding block"
+      ],
+      "affected_parts": [
+        "front_left_leg",
+        "front_right_leg",
+        "back_right_leg"
+      ],
+      "affected_damages": [
+        "damage_02",
+        "damage_03",
+        "damage_01"
+      ],
+      "prerequisites": [
+        "initial_sanding_repaired_areas"
+      ]
+    },
+    {
+      "step_id": "clean_sanding_dust",
+      "title": "Clean Sanding Dust",
+      "description": "Thoroughly clean all repaired surfaces of the chair to remove all sanding dust. Use a tack cloth or compressed air followed by a clean, lint-free cloth to ensure a pristine surface for finishing, promoting good adhesion and a clear finish.",
+      "tools_required": [
+        "Tack cloth",
+        "Compressed air",
+        "Lint-free cloths"
+      ],
+      "affected_parts": [
+        "front_left_leg",
+        "front_right_leg",
+        "back_right_leg"
+      ],
+      "affected_damages": [],
+      "prerequisites": [
+        "fine_sanding_repairs"
+      ]
+    },
+    {
+      "step_id": "apply_first_finish_coat",
+      "title": "Apply First Finish",
+      "description": "Apply a thin, even coat of a sympathetic finish (e.g., shellac, oil finish, or appropriate varnish) to all repaired areas, blending it carefully with the existing patina of the original wood. Allow to dry according to product instructions, aiming for continuity.",
+      "tools_required": [
+        "Brush",
+        "Lint-free applicator",
+        "Chosen finish"
+      ],
+      "affected_parts": [
+        "front_left_leg",
+        "front_right_leg",
+        "back_right_leg"
+      ],
+      "affected_damages": [
+        "damage_02",
+        "damage_03",
+        "damage_01"
+      ],
+      "prerequisites": [
+        "clean_sanding_dust"
+      ]
+    },
+    {
+      "step_id": "light_sanding_first_coat",
+      "title": "Light Sand First",
+      "description": "If the first coat of finish has raised the grain or is not perfectly smooth on the repaired areas, lightly sand it with very fine-grit sandpaper (e.g., 400-600 grit) or fine steel wool. Clean thoroughly before the next coat to ensure a smooth, continuous finish that respects the original patina.",
+      "tools_required": [
+        "Very fine-grit sandpaper",
+        "Fine steel wool",
+        "Tack cloth"
+      ],
+      "affected_parts": [
+        "front_left_leg",
+        "front_right_leg",
+        "back_right_leg"
+      ],
+      "affected_damages": [
+        "damage_02",
+        "damage_03",
+        "damage_01"
+      ],
+      "prerequisites": [
+        "apply_first_finish_coat"
+      ]
+    },
+    {
+      "step_id": "apply_final_finish_coat",
+      "title": "Apply Final Finish",
+      "description": "Apply a second, final coat of the chosen sympathetic finish to all repaired areas, ensuring an even and consistent sheen that blends seamlessly with the original patina. Allow to cure completely, completing the modest and careful mend.",
+      "tools_required": [
+        "Brush",
+        "Lint-free applicator",
+        "Chosen finish"
+      ],
+      "affected_parts": [
+        "front_left_leg",
+        "front_right_leg",
+        "back_right_leg"
+      ],
+      "affected_damages": [
+        "damage_02",
+        "damage_03",
+        "damage_01"
+      ],
+      "prerequisites": [
+        "light_sanding_first_coat"
+      ]
+    },
+    {
+      "step_id": "reinstall_gliders",
+      "title": "Reinstall Gliders",
+      "description": "Carefully reattach the gliders to the bottom of each leg, ensuring they are secure and properly aligned.",
+      "tools_required": [
+        "Pliers",
+        "Screwdriver (if applicable)"
+      ],
+      "affected_parts": [
+        "front_left_glider",
+        "front_right_glider",
+        "back_left_glider",
+        "back_right_glider"
+      ],
+      "affected_damages": [],
+      "prerequisites": [
+        "apply_final_finish_coat"
+      ]
+    },
+    {
+      "step_id": "final_cleanup",
+      "title": "Final Cleanup",
+      "description": "Clean the work area thoroughly, properly store all tools and materials, and dispose of waste responsibly, leaving the workspace tidy and organized.",
+      "tools_required": [
+        "Cleaning supplies"
+      ],
+      "affected_parts": [],
+      "affected_damages": [],
+      "prerequisites": [
+        "reinstall_gliders"
+      ]
+    }
+  ]
+}

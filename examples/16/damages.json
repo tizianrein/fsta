@@ -1,0 +1,68 @@
+[
+  {
+    "id": "damage_01",
+    "type": "Crack",
+    "description": "Severe Crack on the top of the back right leg at the joint.",
+    "part_id": "back_right_leg",
+    "coordinates": {
+      "x": 0.235,
+      "y": 0.755,
+      "z": 0.2225
+    }
+  },
+  {
+    "id": "damage_02",
+    "type": "Scuff Mark",
+    "description": "Heavy scuff marks and wear along the back legs.",
+    "part_id": "back_left_leg",
+    "coordinates": {
+      "x": -0.235,
+      "y": 0.38,
+      "z": 0.2225
+    }
+  },
+  {
+    "id": "damage_03",
+    "type": "Scuff Mark",
+    "description": "Heavy scuff marks and wear along the back legs.",
+    "part_id": "back_right_leg",
+    "coordinates": {
+      "x": 0.235,
+      "y": 0.38,
+      "z": 0.2225
+    }
+  },
+  {
+    "id": "damage_04",
+    "type": "Scratch",
+    "description": "Faint scratch mark visible on the seat surface.",
+    "part_id": "seat",
+    "coordinates": {
+      "x": 0,
+      "y": 0.44,
+      "z": 0
+    }
+  },
+  {
+    "id": "damage_05",
+    "type": "Scratch",
+    "description": "Long, horizontal deeo scratch on the front face of the backrest.",
+    "part_id": "backrest",
+    "coordinates": {
+      "x": 0,
+      "y": 0.7,
+      "z": 0.2
+    }
+  },
+  {
+    "id": "damage_06",
+    "type": "Chip",
+    "description": "Minor chipping and wear on the top edge of the right side apron.",
+    "part_id": "right_side_apron",
+    "coordinates": {
+      "x": 0.2065,
+      "y": 0.434,
+      "z": 0
+    }
+  }
+]

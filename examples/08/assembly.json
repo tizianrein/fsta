@@ -1,0 +1,273 @@
+{
+  "objectName": "santo_08",
+  "parts": [
+    {
+      "id": "front_left_leg",
+      "origin": {
+        "x": -0.235,
+        "y": 0.221,
+        "z": -0.2225
+      },
+      "dimensions": {
+        "width": 0.03,
+        "height": 0.426,
+        "depth": 0.045
+      },
+      "connections": [
+        "front_apron",
+        "left_side_apron",
+        "seat",
+        "front_left_glider"
+      ],
+      "status": "defective"
+    },
+    {
+      "id": "front_right_leg",
+      "origin": {
+        "x": 0.235,
+        "y": 0.221,
+        "z": -0.2225
+      },
+      "dimensions": {
+        "width": 0.03,
+        "height": 0.426,
+        "depth": 0.045
+      },
+      "connections": [
+        "front_apron",
+        "right_side_apron",
+        "seat",
+        "front_right_glider"
+      ],
+      "status": "intact"
+    },
+    {
+      "id": "back_left_leg",
+      "origin": {
+        "x": -0.235,
+        "y": 0.384,
+        "z": 0.2225
+      },
+      "dimensions": {
+        "width": 0.03,
+        "height": 0.752,
+        "depth": 0.045
+      },
+      "connections": [
+        "back_apron",
+        "left_side_apron",
+        "seat",
+        "backrest",
+        "back_left_glider"
+      ],
+      "status": "intact"
+    },
+    {
+      "id": "back_right_leg",
+      "origin": {
+        "x": 0.235,
+        "y": 0.384,
+        "z": 0.2225
+      },
+      "dimensions": {
+        "width": 0.03,
+        "height": 0.752,
+        "depth": 0.045
+      },
+      "connections": [
+        "back_apron",
+        "right_side_apron",
+        "seat",
+        "backrest",
+        "back_right_glider"
+      ],
+      "status": "intact"
+    },
+    {
+      "id": "front_apron",
+      "origin": {
+        "x": 0,
+        "y": 0.404,
+        "z": -0.2315
+      },
+      "dimensions": {
+        "width": 0.44,
+        "height": 0.06,
+        "depth": 0.027
+      },
+      "connections": [
+        "front_left_leg",
+        "front_right_leg",
+        "seat"
+      ],
+      "status": "intact"
+    },
+    {
+      "id": "back_apron",
+      "origin": {
+        "x": 0,
+        "y": 0.404,
+        "z": 0.2315
+      },
+      "dimensions": {
+        "width": 0.44,
+        "height": 0.06,
+        "depth": 0.027
+      },
+      "connections": [
+        "back_left_leg",
+        "back_right_leg",
+        "seat"
+      ],
+      "status": "intact"
+    },
+    {
+      "id": "left_side_apron",
+      "origin": {
+        "x": -0.2065,
+        "y": 0.404,
+        "z": 0
+      },
+      "dimensions": {
+        "width": 0.027,
+        "height": 0.06,
+        "depth": 0.436
+      },
+      "connections": [
+        "front_left_leg",
+        "back_left_leg",
+        "seat"
+      ],
+      "status": "intact"
+    },
+    {
+      "id": "right_side_apron",
+      "origin": {
+        "x": 0.2065,
+        "y": 0.404,
+        "z": 0
+      },
+      "dimensions": {
+        "width": 0.027,
+        "height": 0.06,
+        "depth": 0.436
+      },
+      "connections": [
+        "front_right_leg",
+        "back_right_leg",
+        "seat"
+      ],
+      "status": "intact"
+    },
+    {
+      "id": "seat",
+      "origin": {
+        "x": 0,
+        "y": 0.437,
+        "z": 0
+      },
+      "dimensions": {
+        "width": 0.44,
+        "height": 0.006,
+        "depth": 0.49
+      },
+      "connections": [
+        "front_left_leg",
+        "front_right_leg",
+        "back_left_leg",
+        "back_right_leg",
+        "front_apron",
+        "back_apron",
+        "left_side_apron",
+        "right_side_apron"
+      ],
+      "status": "defective"
+    },
+    {
+      "id": "backrest",
+      "origin": {
+        "x": 0,
+        "y": 0.705,
+        "z": 0.225
+      },
+      "dimensions": {
+        "width": 0.44,
+        "height": 0.11,
+        "depth": 0.05
+      },
+      "connections": [
+        "back_left_leg",
+        "back_right_leg"
+      ],
+      "status": "intact"
+    },
+    {
+      "id": "front_left_glider",
+      "origin": {
+        "x": -0.235,
+        "y": 0.004,
+        "z": -0.2225
+      },
+      "dimensions": {
+        "width": 0.025,
+        "height": 0.008,
+        "depth": 0.04
+      },
+      "connections": [
+        "front_left_leg"
+      ],
+      "status": "intact"
+    },
+    {
+      "id": "front_right_glider",
+      "origin": {
+        "x": 0.235,
+        "y": 0.004,
+        "z": -0.2225
+      },
+      "dimensions": {
+        "width": 0.025,
+        "height": 0.008,
+        "depth": 0.04
+      },
+      "connections": [
+        "front_right_leg"
+      ],
+      "status": "intact"
+    },
+    {
+      "id": "back_left_glider",
+      "origin": {
+        "x": -0.235,
+        "y": 0.004,
+        "z": 0.2225
+      },
+      "dimensions": {
+        "width": 0.025,
+        "height": 0.008,
+        "depth": 0.04
+      },
+      "connections": [
+        "back_left_leg"
+      ],
+      "status": "intact"
+    },
+    {
+      "id": "back_right_glider",
+      "origin": {
+        "x": 0.235,
+        "y": 0.004,
+        "z": 0.2225
+      },
+      "dimensions": {
+        "width": 0.025,
+        "height": 0.008,
+        "depth": 0.04
+      },
+      "connections": [
+        "back_right_leg"
+      ],
+      "status": "intact"
+    }
+  ]
+}

@@ -1,0 +1,303 @@
+{
+  "steps": [
+    {
+      "step_id": "setup_workspace",
+      "title": "Prepare Work Area",
+      "description": "Establish a clean, well-lit, and organized workspace. Place the intact chair on a stable, protected surface. Arrange all necessary tools and materials for easy access to perform the in-situ repairs.",
+      "rationale": "A meticulous setup is the foundation for precision craftsmanship. This initial step ensures that the artistic intervention can be performed with the focus and care required to create a jewel-like repair on the assembled object.",
+      "tools_required": [
+        "Protective mat",
+        "Tool organizer",
+        "Task lighting",
+        "Stable work stand"
+      ],
+      "affected_parts": [],
+      "affected_damages": [],
+      "prerequisites": []
+    },
+    {
+      "step_id": "stabilize_leg_crack",
+      "title": "Stabilize Leg Crack",
+      "description": "Carefully clean the crack on the front_left_leg of any debris. Using a fine-tipped applicator, inject a low-viscosity, clear epoxy deep into the crack to structurally bond the wood fibers. Tightly clamp the area and remove any excess epoxy before it cures.",
+      "rationale": "Before the ornamental cap is added, the underlying damage must be structurally sound. This step ensures the integrity of the original part, providing a stable foundation for the celebratory repair that will cover it.",
+      "tools_required": [
+        "Low-viscosity clear epoxy",
+        "Syringe applicator",
+        "Small clamps",
+        "Isopropyl alcohol",
+        "Clean cloths"
+      ],
+      "affected_parts": [
+        "front_left_leg"
+      ],
+      "affected_damages": [
+        "damage_01"
+      ],
+      "prerequisites": [
+        "setup_workspace"
+      ]
+    },
+    {
+      "step_id": "fabricate_abs_bracket",
+      "title": "Fabricate ABS Bracket",
+      "description": "Using a well-calibrated FDM 3D printer, fabricate the custom-designed bracket from high-quality black ABS filament. The design must be updated to include appropriately sized holes to accommodate threaded brass inserts for superior stability and finish.",
+      "rationale": "Black ABS provides a strong, modern contrast to the wood, creating a powerful dialogue between materials. The choice of a robust, engineered plastic celebrates the repair as a distinct, high-quality addition, while planning for brass inserts elevates the craftsmanship.",
+      "tools_required": [
+        "FDM 3D printer",
+        "Black ABS filament",
+        "CAD software (for design)"
+      ],
+      "affected_parts": [
+        "front_left_leg"
+      ],
+      "affected_damages": [
+        "damage_01"
+      ],
+      "prerequisites": [
+        "setup_workspace"
+      ]
+    },
+    {
+      "step_id": "mask_around_scuffs",
+      "title": "Mask Seat Area",
+      "description": "Carefully apply high-quality painter's tape to the seat, masking off the areas immediately surrounding the scuff marks. This protects the undamaged wood during the inlay process, ensuring clean, sharp lines for the repair.",
+      "rationale": "Precision requires protecting the original surfaces. This step isolates the work area, allowing the transformation of the scuffs into a deliberate decorative feature without compromising the integrity of the surrounding material.",
+      "tools_required": [
+        "Painter's tape",
+        "Craft knife"
+      ],
+      "affected_parts": [
+        "seat"
+      ],
+      "affected_damages": [
+        "damage_02"
+      ],
+      "prerequisites": [
+        "setup_workspace"
+      ]
+    },
+    {
+      "step_id": "hand_prepare_leg_surface",
+      "title": "Hand-Shape Leg Surface",
+      "description": "After the stabilizing epoxy has fully cured, use hand files and sanding blocks to carefully smooth and level the top surface of the front_left_leg. The goal is to create a perfectly flat and clean platform for the ornamental bracket to sit flush upon.",
+      "rationale": "Meticulous hand-shaping of the surface ensures a perfect interface between the original wood and the new bracket. This act of manual preparation honors the craft and creates the flawless foundation needed for a jewel-like connection.",
+      "tools_required": [
+        "Fine-toothed file",
+        "Sanding block",
+        "Sandpaper (various grits)"
+      ],
+      "affected_parts": [
+        "front_left_leg"
+      ],
+      "affected_damages": [
+        "damage_01"
+      ],
+      "prerequisites": [
+        "stabilize_leg_crack"
+      ]
+    },
+    {
+      "step_id": "hand_carve_seat_inlay",
+      "title": "Hand-Carve Seat Inlay",
+      "description": "With the chair intact, use fine hand gouges and carving knives to carefully excavate the scuffed areas on the seat. Transform the amorphous scuffs into a precise, geometric channel with a consistent depth, preparing it for the decorative inlay.",
+      "rationale": "In line with the philosophy of celebrating intervention, this step turns a superficial flaw into an opportunity for ornamentation. The act of hand-carving elevates the repair from a cover-up to a deliberate, sculpted feature.",
+      "tools_required": [
+        "Wood carving knives",
+        "Fine gouges",
+        "Marking gauge"
+      ],
+      "affected_parts": [
+        "seat"
+      ],
+      "affected_damages": [
+        "damage_02"
+      ],
+      "prerequisites": [
+        "mask_around_scuffs"
+      ]
+    },
+    {
+      "step_id": "finish_abs_bracket",
+      "title": "Finish ABS Bracket",
+      "description": "Post-process the printed ABS bracket. Carefully sand the part with progressively finer grits of sandpaper (from 220 to 2000) to remove layer lines. Polish the sanded part with a specialized compound to achieve a flawless, jewel-like surface finish.",
+      "rationale": "Supreme craftsmanship demands an impeccable finish. This step transforms the raw FDM print into a beautiful object in its own right, with a surface worthy of being the focal point of the jewel-like repair.",
+      "tools_required": [
+        "Sandpaper (various grits)",
+        "Polishing compound",
+        "Microfiber cloths"
+      ],
+      "affected_parts": [
+        "front_left_leg"
+      ],
+      "affected_damages": [
+        "damage_01"
+      ],
+      "prerequisites": [
+        "fabricate_abs_bracket"
+      ]
+    },
+    {
+      "step_id": "cast_resin_inlay",
+      "title": "Cast Decorative Inlay",
+      "description": "Mix a high-quality casting resin with a contrasting pigment (e.g., pearlescent white or gold). Carefully pour the resin into the hand-carved channels on the seat, slightly overfilling to account for shrinkage. Use a torch to remove any surface bubbles.",
+      "rationale": "The inlay introduces a new, beautiful material that transforms the scar into a striking feature. This act of filling the void with a contrasting element is a direct expression of creating an eloquent dialogue between materials.",
+      "tools_required": [
+        "Epoxy casting resin",
+        "Pigment powder",
+        "Mixing cups",
+        "Stir sticks",
+        "Propane torch"
+      ],
+      "affected_parts": [
+        "seat"
+      ],
+      "affected_damages": [
+        "damage_02"
+      ],
+      "prerequisites": [
+        "hand_carve_seat_inlay"
+      ]
+    },
+    {
+      "step_id": "install_brass_inserts",
+      "title": "Install Brass Inserts",
+      "description": "Using a soldering iron with a suitable tip, heat each threaded brass insert and gently press it into its designated hole in the finished ABS bracket. Ensure each insert is seated perfectly flush and perpendicular to the surface for a clean mechanical fit.",
+      "rationale": "Using threaded brass inserts elevates the mechanical connection to a higher standard of craftsmanship. This detail ensures a durable, precise, and reusable fastening point, reflecting the philosophy of supreme precision even in unseen components.",
+      "tools_required": [
+        "Soldering iron",
+        "Threaded brass inserts",
+        "Tweezers"
+      ],
+      "affected_parts": [
+        "front_left_leg"
+      ],
+      "affected_damages": [
+        "damage_01"
+      ],
+      "prerequisites": [
+        "finish_abs_bracket"
+      ]
+    },
+    {
+      "step_id": "cure_resin_inlay",
+      "title": "Cure Resin Inlay",
+      "description": "Allow the cast resin in the seat to cure completely according to the manufacturer's instructions, typically for 24-72 hours. Ensure the environment is dust-free and maintains a stable temperature.",
+      "rationale": "Patience and proper curing are essential for achieving the full strength and clarity of the new material. This ensures the jewel-like inlay is durable and ready for the final, precise finishing.",
+      "tools_required": [
+        "Dust cover"
+      ],
+      "affected_parts": [
+        "seat"
+      ],
+      "affected_damages": [
+        "damage_02"
+      ],
+      "prerequisites": [
+        "cast_resin_inlay"
+      ]
+    },
+    {
+      "step_id": "position_and_mark_bracket",
+      "title": "Position and Mark Bracket",
+      "description": "Place the finished ornamental bracket with its installed inserts onto the prepared top surface of the front_left_leg. Ensure perfect alignment and orientation. Use a sharp marking tool to precisely mark the center of each screw hole.",
+      "rationale": "Precision in placement is critical to the aesthetic success of the repair. This step ensures the jewel-like bracket will be perfectly centered and aligned, appearing as a deliberate and masterfully executed addition.",
+      "tools_required": [
+        "Awl or center punch",
+        "Small ruler"
+      ],
+      "affected_parts": [
+        "front_left_leg"
+      ],
+      "affected_damages": [],
+      "prerequisites": [
+        "hand_prepare_leg_surface",
+        "install_brass_inserts"
+      ]
+    },
+    {
+      "step_id": "drill_pilot_holes",
+      "title": "Drill Leg Pilot Holes",
+      "description": "Using a drill bit slightly smaller than the screw diameter, carefully drill pilot holes into the leg at the marked locations. Use a depth stop to ensure you do not drill deeper than necessary. This prevents the wood from splitting.",
+      "rationale": "This preparatory step is an act of precision that ensures the final attachment is clean and does not damage the original wood. It respects the material while preparing it for its new, ornamental hardware.",
+      "tools_required": [
+        "Hand drill or power drill",
+        "Drill bits",
+        "Drill depth stop"
+      ],
+      "affected_parts": [
+        "front_left_leg"
+      ],
+      "affected_damages": [],
+      "prerequisites": [
+        "position_and_mark_bracket"
+      ]
+    },
+    {
+      "step_id": "secure_with_brass_screws",
+      "title": "Secure with Brass Screws",
+      "description": "Position the bracket over the pilot holes. Fasten it securely using polished brass machine screws, threading them into the pre-installed brass inserts. Tighten screws carefully and evenly to ensure the bracket sits perfectly flush without stressing the ABS.",
+      "rationale": "The polished brass screws are not merely functional; they are a key part of the ornament. Their warm metallic tone against the black ABS and wood creates a striking, jewel-like connection, celebrating the method of attachment itself.",
+      "tools_required": [
+        "Polished brass screws",
+        "Precision screwdriver set"
+      ],
+      "affected_parts": [
+        "front_left_leg"
+      ],
+      "affected_damages": [
+        "damage_01"
+      ],
+      "prerequisites": [
+        "drill_pilot_holes"
+      ]
+    },
+    {
+      "step_id": "finish_seat_inlay",
+      "title": "Finish Seat Inlay",
+      "description": "Once the resin is fully cured, carefully sand the inlay flush with the wooden surface of the seat using a sanding block. Start with a medium grit and progress to very fine grits. Remove the masking tape and polish the entire seat surface to a uniform, high-gloss sheen.",
+      "rationale": "The final finishing creates a seamless transition between the original wood and the new inlay. The result is a smooth, tactile surface where the repair is felt as a perfect integration, not an interruption, embodying the artful expression of the joint.",
+      "tools_required": [
+        "Sanding block",
+        "Sandpaper (various grits)",
+        "Polishing compound",
+        "Microfiber cloths"
+      ],
+      "affected_parts": [
+        "seat"
+      ],
+      "affected_damages": [
+        "damage_02"
+      ],
+      "prerequisites": [
+        "cure_resin_inlay"
+      ]
+    },
+    {
+      "step_id": "final_polish",
+      "title": "Final Polish and Detail",
+      "description": "Perform a final cleaning and polishing of the entire chair. Use a high-quality furniture wax or polish to bring out the luster of both the original wood and the new repair materials, ensuring a harmonious and unified finish.",
+      "rationale": "The final polish unifies the entire object, presenting the original form and the celebrated repairs as a cohesive work of art. This step ensures the finished piece is not just repaired, but reborn with a new, enriched history.",
+      "tools_required": [
+        "Microfiber cloths",
+        "Furniture wax/polish"
+      ],
+      "affected_parts": [
+        "front_left_leg",
+        "front_right_leg",
+        "back_left_leg",
+        "back_right_leg",
+        "front_apron",
+        "back_apron",
+        "left_side_apron",
+        "right_side_apron",
+        "seat",
+        "backrest"
+      ],
+      "affected_damages": [],
+      "prerequisites": [
+        "secure_with_brass_screws",
+        "finish_seat_inlay"
+      ]
+    }
+  ]
+}

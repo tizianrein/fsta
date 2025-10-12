@@ -1,0 +1,156 @@
+{
+  "steps": [
+    {
+      "step_id": "prepare_workspace_for_cut",
+      "title": "Secure Chair for Dissection",
+      "description": "Secure the entire, fully assembled chair onto a large, stable table saw sled or jig. Use multiple clamps to ensure the object is completely rigid and cannot shift during the cutting operation. This setup is critical for a single, clean, and deliberate pass.",
+      "rationale": "The philosophy demands a precise, controlled act of subtraction. Securing the object as a single, monolithic entity ensures the cut is a deliberate dissection that transforms the whole, rather than a chaotic accident. Stability is paramount to executing this singular, transformative vision.",
+      "tools_required": [
+        "Table saw",
+        "Custom sled/jig",
+        "Heavy-duty clamps",
+        "Safety glasses",
+        "Hearing protection"
+      ],
+      "affected_parts": [
+        "front_left_leg",
+        "front_right_leg",
+        "back_left_leg",
+        "back_right_leg",
+        "seat",
+        "backrest",
+        "front_apron",
+        "back_apron",
+        "left_side_apron",
+        "right_side_apron"
+      ],
+      "affected_damages": [],
+      "prerequisites": []
+    },
+    {
+      "step_id": "mark_dissection_plane",
+      "title": "Mark The Dissection Plane",
+      "description": "Using a laser line or a large straightedge, scribe a single, continuous cut line across the entire chair assembly. The plane of this cut should be strategically chosen to intersect the crack on the front right leg (damage_02), the glue residue (damage_05), the crack on the front left leg (damage_03), the scuffs on the seat (damage_01), and the back left leg with the poorly repaired glider (damage_04).",
+      "rationale": "Marking a single, unified plane across the glued-up object prefigures the radical transformation. This line is not a guide for repair but a sentence of dissection, chosen to expose multiple points of failure and internal structure simultaneously in one brutal, efficient act.",
+      "tools_required": [
+        "Laser line",
+        "Straightedge",
+        "Marking knife"
+      ],
+      "affected_parts": [
+        "front_right_leg",
+        "front_left_leg",
+        "seat",
+        "back_left_leg",
+        "back_left_glider"
+      ],
+      "affected_damages": [
+        "damage_01",
+        "damage_02",
+        "damage_03",
+        "damage_04",
+        "damage_05"
+      ],
+      "prerequisites": [
+        "prepare_workspace_for_cut"
+      ]
+    },
+    {
+      "step_id": "execute_table_saw_dissection",
+      "title": "Execute Planar Dissection",
+      "description": "Set the table saw blade to a height sufficient to cut through the thickest part of the chair. Power on the saw and smoothly guide the sled holding the chair through the blade, precisely following the marked line. This single, uninterrupted pass will bisect the chair, including legs, aprons, and seat, into two separate pieces.",
+      "rationale": "This single, powerful cut is the ultimate act of subtractive transformation, as instructed. It brutally exposes the chair's internal structure and material reality, sacrificing its form and function for a new, critical perception of its components as a cross-section. All damages are addressed not by mending, but by being bisected and revealed.",
+      "tools_required": [
+        "Table saw",
+        "Push sticks"
+      ],
+      "affected_parts": [
+        "front_left_leg",
+        "front_right_leg",
+        "back_left_leg",
+        "seat",
+        "front_apron",
+        "left_side_apron",
+        "back_apron",
+        "back_left_glider"
+      ],
+      "affected_damages": [
+        "damage_01",
+        "damage_02",
+        "damage_03",
+        "damage_04",
+        "damage_05"
+      ],
+      "prerequisites": [
+        "mark_dissection_plane"
+      ]
+    },
+    {
+      "step_id": "bisect_remaining_gliders",
+      "title": "Bisect Untouched Gliders",
+      "description": "Identify any gliders that were not sectioned by the main table saw cut. Using a fine-toothed handsaw, perform a separate, precise cut on each of these gliders. The cut should be on the same plane and aesthetic as the main dissection, creating a matching cross-section.",
+      "rationale": "This extends the dissection to the object's smallest points of contact with the world. It ensures the subtractive logic is applied consistently, destabilizing even the parts untouched by the primary cut and unifying the entire object in its transformed state, as per the user's note to address gliders separately.",
+      "tools_required": [
+        "Japanese pull saw",
+        "Bench vise"
+      ],
+      "affected_parts": [
+        "front_right_glider",
+        "back_right_glider"
+      ],
+      "affected_damages": [],
+      "prerequisites": [
+        "execute_table_saw_dissection"
+      ]
+    },
+    {
+      "step_id": "char_exposed_cross_sections",
+      "title": "Char All Cut Surfaces",
+      "description": "Using a blowtorch, apply a deep char (shou sugi ban technique) to all newly exposed wood surfaces created by the table saw and handsaw cuts. Control the flame to create a uniform, dark, textured finish across the entire cross-section, then brush away loose soot with a wire brush.",
+      "rationale": "Charring the raw, exposed cross-sections visually cauterizes the 'wound.' It creates a stark, dramatic contrast between the chair's original finish and its newly revealed interior, highlighting the violence of the cut and framing it as a deliberate aesthetic feature.",
+      "tools_required": [
+        "Blowtorch",
+        "Wire brush",
+        "Fire extinguisher"
+      ],
+      "affected_parts": [
+        "front_left_leg",
+        "front_right_leg",
+        "back_left_leg",
+        "seat",
+        "front_apron",
+        "left_side_apron",
+        "back_apron",
+        "back_left_glider",
+        "front_right_glider",
+        "back_right_glider"
+      ],
+      "affected_damages": [],
+      "prerequisites": [
+        "execute_table_saw_dissection",
+        "bisect_remaining_gliders"
+      ]
+    },
+    {
+      "step_id": "present_dissected_halves",
+      "title": "Position Dissected Halves",
+      "description": "Place the two resulting halves of the chair on a display surface. Position them slightly apart from each other, with the charred, cut surfaces facing forward. The gap between them should be intentional, emphasizing the void created by the cut.",
+      "rationale": "The final arrangement completes the transformation from a functional object to a critical sculpture. Separating the halves makes the act of dissection permanent and central to the piece's new identity, forcing a confrontation with its deconstructed form and the space between what was once whole.",
+      "tools_required": [
+        "Display surface"
+      ],
+      "affected_parts": [
+        "front_left_leg",
+        "front_right_leg",
+        "back_left_leg",
+        "back_right_leg",
+        "seat",
+        "backrest"
+      ],
+      "affected_damages": [],
+      "prerequisites": [
+        "char_exposed_cross_sections"
+      ]
+    }
+  ]
+}

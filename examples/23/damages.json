@@ -1,0 +1,112 @@
+[
+  {
+    "id": "damage_01",
+    "type": "Chip",
+    "description": "A visible chip or gouge is present on the top-left edge of the backrest.",
+    "part_id": "backrest",
+    "coordinates": {
+      "x": -0.18,
+      "y": 0.76,
+      "z": 0.2
+    }
+  },
+  {
+    "id": "damage_02",
+    "type": "Cut Mark",
+    "description": "Several distinct cut marks, made by a knife or saw, are visible on the top surface of the backrest.",
+    "part_id": "backrest",
+    "coordinates": {
+      "x": -0.2,
+      "y": 0.76,
+      "z": 0.225
+    }
+  },
+  {
+    "id": "damage_03",
+    "type": "Stain",
+    "description": "A small, dark spot or stain is present on the top surface of the backrest, towards the left of the center.",
+    "part_id": "backrest",
+    "coordinates": {
+      "x": -0.05,
+      "y": 0.76,
+      "z": 0.225
+    }
+  },
+  {
+    "id": "damage_04",
+    "type": "Scratch",
+    "description": "A distinct light-colored scratch is visible on the top surface of the seat, slightly to the back of the center.",
+    "part_id": "seat",
+    "coordinates": {
+      "x": 0,
+      "y": 0.44,
+      "z": 0.05
+    }
+  },
+  {
+    "id": "damage_05",
+    "type": "Scuff Mark",
+    "description": "Visible scuff marks and discolorations (red and black) are present on the lower section of the leg.",
+    "part_id": "front_left_leg",
+    "coordinates": {
+      "x": -0.235,
+      "y": 0.05,
+      "z": -0.2225
+    }
+  },
+  {
+    "id": "damage_06",
+    "type": "Scuff Mark",
+    "description": "Visible scuff marks and discolorations (red and black) are present on the lower section of the leg.",
+    "part_id": "front_right_leg",
+    "coordinates": {
+      "x": 0.235,
+      "y": 0.05,
+      "z": -0.2225
+    }
+  },
+  {
+    "id": "damage_07",
+    "type": "Scuff Mark",
+    "description": "Visible scuff marks and discolorations (red and black) are present on the lower section of the leg.",
+    "part_id": "back_left_leg",
+    "coordinates": {
+      "x": -0.235,
+      "y": 0.05,
+      "z": 0.2225
+    }
+  },
+  {
+    "id": "damage_08",
+    "type": "Scuff Mark",
+    "description": "Visible scuff marks and discolorations (red and black) are present on the lower section of the leg.",
+    "part_id": "back_right_leg",
+    "coordinates": {
+      "x": 0.235,
+      "y": 0.05,
+      "z": 0.2225
+    }
+  },
+  {
+    "id": "damage_09",
+    "type": "Wear and Tear",
+    "description": "The plastic glider on the front left leg shows visible signs of wear and dirt accumulation.",
+    "part_id": "front_left_glider",
+    "coordinates": {
+      "x": -0.235,
+      "y": 0.004,
+      "z": -0.2225
+    }
+  },
+  {
+    "id": "damage_10",
+    "type": "Foreign Object",
+    "description": "Chewing gum is present on the underside of the seat, as indicated by the user prompt.",
+    "part_id": "seat",
+    "coordinates": {
+      "x": -0.20,
+      "y": 0.42,
+      "z": 0.20
+    }
+  }
+]

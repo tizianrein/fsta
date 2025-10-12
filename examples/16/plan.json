@@ -1,0 +1,302 @@
+{
+  "steps": [
+    {
+      "step_id": "setup_work_area",
+      "title": "Setup Work Area",
+      "description": "Clear and prepare a stable work surface. Gather all necessary tools and materials for the repair process, ensuring adequate lighting and ventilation. Lay down protective sheeting to prevent damage to the work surface.",
+      "tools_required": [
+        "Work bench",
+        "Protective sheeting",
+        "Gloves",
+        "Safety glasses"
+      ],
+      "affected_parts": [],
+      "affected_damages": [],
+      "prerequisites": []
+    },
+    {
+      "step_id": "secure_chair_for_work",
+      "title": "Secure Chair",
+      "description": "Secure the chair on a stable work surface using clamps or other stabilizing methods to prevent movement during cutting and other repair operations, ensuring safety and precision.",
+      "tools_required": [
+        "Work clamps",
+        "Vise (optional)"
+      ],
+      "affected_parts": [],
+      "affected_damages": [],
+      "prerequisites": [
+        "setup_work_area"
+      ]
+    },
+    {
+      "step_id": "measure_cut_line",
+      "title": "Measure Cut Line",
+      "description": "Measure the height of the front legs (0.426m) as the target height for the back legs. Mark a precise, straight cut line around both back legs using a measuring tape and a square, ensuring the resulting stool will be stable and level. This prepares the chair for conversion into a stool.",
+      "tools_required": [
+        "Measuring tape",
+        "Pencil",
+        "Combination square"
+      ],
+      "affected_parts": [
+        "back_left_leg",
+        "back_right_leg"
+      ],
+      "affected_damages": [],
+      "prerequisites": [
+        "secure_chair_for_work"
+      ]
+    },
+    {
+      "step_id": "cut_back_legs_remove_backrest",
+      "title": "Cut Back Legs",
+      "description": "Carefully cut the back legs along the marked line using a reciprocating saw. Ensure clean, straight cuts. Once the legs are severed, remove and discard the upper sections of the back legs and the entire backrest. This action eliminates the backrest and the top portion of the back legs, addressing the severe crack on the back right leg and the deep scratch on the backrest by removal.",
+      "tools_required": [
+        "Reciprocating saw",
+        "Safety glasses",
+        "Clamps"
+      ],
+      "affected_parts": [
+        "back_left_leg",
+        "back_right_leg",
+        "backrest"
+      ],
+      "affected_damages": [
+        "damage_01",
+        "damage_05"
+      ],
+      "prerequisites": [
+        "measure_cut_line"
+      ]
+    },
+    {
+      "step_id": "smooth_new_cut_edges",
+      "title": "Smooth Cut Edges",
+      "description": "Use a rasp or coarse sandpaper (80-grit) to quickly smooth and deburr the newly cut top edges of the back legs. The goal is to remove sharp edges and splinters for safety and basic functionality, not to achieve a fine aesthetic finish.",
+      "tools_required": [
+        "Rasp",
+        "80-grit sandpaper",
+        "Sanding block"
+      ],
+      "affected_parts": [
+        "back_left_leg",
+        "back_right_leg"
+      ],
+      "affected_damages": [],
+      "prerequisites": [
+        "cut_back_legs_remove_backrest"
+      ]
+    },
+    {
+      "step_id": "remove_old_gliders",
+      "title": "Pry Off Gliders",
+      "description": "Carefully pry off the four old gliders from the bottom of each leg using a pry bar or screwdriver. Discard the old gliders.",
+      "tools_required": [
+        "Pry bar",
+        "Flat-head screwdriver"
+      ],
+      "affected_parts": [
+        "front_left_glider",
+        "front_right_glider",
+        "back_left_glider",
+        "back_right_glider"
+      ],
+      "affected_damages": [],
+      "prerequisites": [
+        "cut_back_legs_remove_backrest"
+      ]
+    },
+    {
+      "step_id": "install_new_gliders",
+      "title": "Hammer New Gliders",
+      "description": "Position the new heavy-duty gliders onto the bottom of each leg. Use a hammer to firmly tap them into place, ensuring they are securely seated and provide a stable base for the stool.",
+      "tools_required": [
+        "Heavy-duty gliders (4x)",
+        "Rubber mallet",
+        "Hammer"
+      ],
+      "affected_parts": [
+        "front_left_leg",
+        "front_right_leg",
+        "back_left_leg",
+        "back_right_leg"
+      ],
+      "affected_damages": [],
+      "prerequisites": [
+        "remove_old_gliders"
+      ]
+    },
+    {
+      "step_id": "clean_remaining_surfaces",
+      "title": "Clean Remaining Surfaces",
+      "description": "Thoroughly clean all areas affected by scuff marks, scratches, and the chip that remain after the modification. Use a degreaser or isopropyl alcohol to remove any dirt, grease, or loose debris. Ensure surfaces are dry before proceeding with repairs.",
+      "tools_required": [
+        "Degreaser",
+        "Clean rags",
+        "Isopropyl alcohol"
+      ],
+      "affected_parts": [
+        "back_left_leg",
+        "back_right_leg",
+        "seat",
+        "right_side_apron"
+      ],
+      "affected_damages": [
+        "damage_02",
+        "damage_03",
+        "damage_04",
+        "damage_06"
+      ],
+      "prerequisites": [
+        "smooth_new_cut_edges"
+      ]
+    },
+    {
+      "step_id": "fill_chip_and_scratch",
+      "title": "Fill Chip and Scratch",
+      "description": "Apply a fast-drying, durable wood filler to the faint scratch on the seat surface and the minor chip on the top edge of the right side apron. Overfill slightly to allow for quick leveling. Ensure the filler is pressed firmly into the damaged areas for a robust repair.",
+      "tools_required": [
+        "Wood filler",
+        "Putty knife",
+        "Spatula"
+      ],
+      "affected_parts": [
+        "seat",
+        "right_side_apron"
+      ],
+      "affected_damages": [
+        "damage_04",
+        "damage_06"
+      ],
+      "prerequisites": [
+        "clean_remaining_surfaces"
+      ]
+    },
+    {
+      "step_id": "allow_filler_curing",
+      "title": "Allow Filler Curing",
+      "description": "Allow sufficient time for the wood filler applied to the seat and apron to fully cure and harden according to the manufacturer's instructions. This is critical for the durability of the repairs.",
+      "tools_required": [],
+      "affected_parts": [
+        "seat",
+        "right_side_apron"
+      ],
+      "affected_damages": [
+        "damage_04",
+        "damage_06"
+      ],
+      "prerequisites": [
+        "fill_chip_and_scratch"
+      ]
+    },
+    {
+      "step_id": "sand_all_repaired_areas",
+      "title": "Sand Repaired Areas",
+      "description": "Once all fillers are fully cured, sand the scuff marks on the back legs, the filled scratch on the seat, and the filled chip on the apron. Start with 80-100 grit sandpaper to quickly level filled areas and smooth out surface imperfections. Focus on creating a smooth, functional surface for durability, not a fine aesthetic finish.",
+      "tools_required": [
+        "Orbital sander (optional)",
+        "Sanding block",
+        "80-100 grit sandpaper"
+      ],
+      "affected_parts": [
+        "back_left_leg",
+        "back_right_leg",
+        "seat",
+        "right_side_apron"
+      ],
+      "affected_damages": [
+        "damage_02",
+        "damage_03",
+        "damage_04",
+        "damage_06"
+      ],
+      "prerequisites": [
+        "allow_filler_curing",
+        "clean_remaining_surfaces"
+      ]
+    },
+    {
+      "step_id": "clean_dust_final",
+      "title": "Clean Dust Final",
+      "description": "Thoroughly wipe down the entire stool to remove any sanding dust and debris from all repaired surfaces and newly installed gliders. Use a tack cloth or compressed air followed by a damp cloth to ensure the surfaces are perfectly clean before applying the protective coating.",
+      "tools_required": [
+        "Tack cloth",
+        "Compressed air",
+        "Damp cloth"
+      ],
+      "affected_parts": [
+        "back_left_leg",
+        "back_right_leg",
+        "seat",
+        "right_side_apron",
+        "front_left_leg",
+        "front_right_leg"
+      ],
+      "affected_damages": [
+        "damage_02",
+        "damage_03",
+        "damage_04",
+        "damage_06"
+      ],
+      "prerequisites": [
+        "sand_all_repaired_areas",
+        "install_new_gliders"
+      ]
+    },
+    {
+      "step_id": "prepare_paint_area",
+      "title": "Prepare Paint Area",
+      "description": "Set up a well-ventilated area for painting. Lay down additional protective sheeting to prevent overspray. Ensure adequate lighting for even application of the paint.",
+      "tools_required": [
+        "Ventilation fan (optional)",
+        "Protective sheeting",
+        "Respirator mask"
+      ],
+      "affected_parts": [],
+      "affected_damages": [],
+      "prerequisites": [
+        "clean_dust_final"
+      ]
+    },
+    {
+      "step_id": "apply_enamel_spray_paint",
+      "title": "Apply Enamel Paint",
+      "description": "Apply a thick, robust coat of enamel spray paint to all repaired and sanded areas, including the newly cut top edges of the back legs, the back legs, seat, and right side apron. Focus on achieving full coverage for maximum protection and durability, rather than a fine aesthetic finish. Follow manufacturer's instructions for application and drying times.",
+      "tools_required": [
+        "Enamel spray paint",
+        "Respirator mask",
+        "Gloves"
+      ],
+      "affected_parts": [
+        "back_left_leg",
+        "back_right_leg",
+        "seat",
+        "right_side_apron"
+      ],
+      "affected_damages": [
+        "damage_02",
+        "damage_03",
+        "damage_04",
+        "damage_06"
+      ],
+      "prerequisites": [
+        "prepare_paint_area"
+      ]
+    },
+    {
+      "step_id": "check_final_stability",
+      "title": "Check Final Stability",
+      "description": "Once the paint is fully cured, flip the stool over and place it on a level surface. Gently apply pressure and check for any wobbling or instability. Ensure all legs are firmly on the ground and the stool is robust for immediate use.",
+      "tools_required": [],
+      "affected_parts": [
+        "front_left_leg",
+        "front_right_leg",
+        "back_left_leg",
+        "back_right_leg"
+      ],
+      "affected_damages": [],
+      "prerequisites": [
+        "apply_enamel_spray_paint"
+      ]
+    }
+  ]
+}

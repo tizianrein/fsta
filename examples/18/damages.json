@@ -1,0 +1,46 @@
+[
+  {
+    "id": "damage_01",
+    "type": "Missing",
+    "description": "The glider is visually confirmed to be missing from its expected position.",
+    "part_id": "front_left_glider",
+    "coordinates": {
+      "x": -0.235,
+      "y": 0.004,
+      "z": -0.2225
+    }
+  },
+  {
+    "id": "damage_02",
+    "type": "Missing",
+    "description": "The glider is visually confirmed to be missing from its expected position.",
+    "part_id": "front_right_glider",
+    "coordinates": {
+      "x": 0.235,
+      "y": 0.004,
+      "z": -0.2225
+    }
+  },
+  {
+    "id": "damage_03",
+    "type": "Missing",
+    "description": "The glider is visually confirmed to be missing from its expected position.",
+    "part_id": "back_left_glider",
+    "coordinates": {
+      "x": -0.235,
+      "y": 0.004,
+      "z": 0.2225
+    }
+  },
+  {
+    "id": "damage_04",
+    "type": "Missing",
+    "description": "The glider is visually confirmed to be missing from its expected position.",
+    "part_id": "back_right_glider",
+    "coordinates": {
+      "x": 0.235,
+      "y": 0.004,
+      "z": 0.2225
+    }
+  }
+]

@@ -1,0 +1,72 @@
+[
+  {
+    "id": "damage_01",
+    "part_id": "seat",
+    "type": "Scuff Mark",
+    "description": "Multiple light scuff marks and small chips in the finish on the top surface of the seat, mainly near the front edge.",
+    "coordinates": {
+      "x": 0.05,
+      "y": 0.44,
+      "z": -0.21
+    },
+    "severity": "minor",
+    "confidence": 1,
+    "evidence": "Visible in multiple close-up and wide-angle photos of the chair's seat."
+  },
+  {
+    "id": "damage_02",
+    "part_id": "front_right_leg",
+    "type": "Crack",
+    "description": "A significant crack runs across the top surface of the front right leg.",
+    "coordinates": {
+      "x": 0.235,
+      "y": 0.434,
+      "z": -0.2225
+    },
+    "severity": "moderate",
+    "confidence": 1,
+    "evidence": "Clearly visible in a close-up photo of the front-right leg joint."
+  },
+  {
+    "id": "damage_03",
+    "part_id": "front_left_leg",
+    "type": "Crack",
+    "description": "A minor crack is visible on the top surface of the front left leg.",
+    "coordinates": {
+      "x": -0.235,
+      "y": 0.434,
+      "z": -0.2225
+    },
+    "severity": "minor",
+    "confidence": 0.95,
+    "evidence": "Visible in a close-up photo of the front-left leg."
+  },
+  {
+    "id": "damage_04",
+    "part_id": "back_left_glider",
+    "type": "Poor Repair",
+    "description": "The glider shows signs of a poor repair, with excess white adhesive visible and a worn felt pad.",
+    "coordinates": {
+      "x": -0.235,
+      "y": 0.008,
+      "z": 0.2225
+    },
+    "severity": "moderate",
+    "confidence": 0.85,
+    "evidence": "Close-up photo of the bottom of a leg, which is assumed to be the back left."
+  },
+  {
+    "id": "damage_05",
+    "part_id": "front_right_leg",
+    "type": "Poor Repair",
+    "description": "Excess transparent glue residue from a previous repair is visible on the exterior face of the front right leg, near the joint with the front apron.",
+    "coordinates": {
+      "x": 0.215,
+      "y": 0.38,
+      "z": -0.2
+    },
+    "severity": "minor",
+    "confidence": 0.9,
+    "evidence": "Close-up photo of a joint showing dried, transparent adhesive."
+  }
+]

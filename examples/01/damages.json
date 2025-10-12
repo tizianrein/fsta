@@ -1,0 +1,46 @@
+[
+  {
+    "id": "damage_01",
+    "type": "Shatter/Break",
+    "description": "The back apron is severely broken and shattered, especially at its connection points.",
+    "part_id": "back_apron",
+    "coordinates": {
+      "x": -0.235,
+      "y": 0.384,
+      "z": 0.2225
+    }
+  },
+  {
+    "id": "damage_02",
+    "type": "Scuff Mark",
+    "description": "Multiple noticeable scuff marks and surface abrasions are present on the seat surface.",
+    "part_id": "seat",
+    "coordinates": {
+      "x": 0,
+      "y": 0.437,
+      "z": 0
+    }
+  },
+  {
+    "id": "damage_03",
+    "type": "Break/Separation Damage",
+    "description": "The top connection point of the front left leg shows rough, broken edges indicating forceful separation from other components.",
+    "part_id": "front_left_leg",
+    "coordinates": {
+      "x": -0.235,
+      "y": 0.437,
+      "z": -0.2225
+    }
+  },
+  {
+    "id": "damage_04",
+    "type": "Break/Separation Damage",
+    "description": "The top connection point of the front right leg shows rough, broken edges indicating forceful separation from other components.",
+    "part_id": "front_right_leg",
+    "coordinates": {
+      "x": 0.235,
+      "y": 0.437,
+      "z": -0.2225
+    }
+  }
+]

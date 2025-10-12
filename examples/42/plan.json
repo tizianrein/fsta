@@ -1,0 +1,289 @@
+{
+  "steps": [
+    {
+      "step_id": "prepare_workspace_and_chair",
+      "title": "Prepare Workspace and Chair",
+      "description": "Set up a well-ventilated work area with drop cloths to protect surrounding surfaces. Thoroughly clean the entire chair with a degreasing agent and a clean cloth to remove all dirt, oils, and residues.",
+      "rationale": "A pristine work environment and a chemically clean surface are the foundation for achieving the flawless, idealized finish required. This initial purification is the first step in erasing the object's previous existence.",
+      "tools_required": [
+        "Drop cloths",
+        "Degreaser",
+        "Clean cloths"
+      ],
+      "affected_parts": [
+        "front_left_leg",
+        "front_right_leg",
+        "back_left_leg",
+        "back_right_leg",
+        "front_apron",
+        "back_apron",
+        "left_side_apron",
+        "right_side_apron",
+        "seat",
+        "backrest"
+      ],
+      "affected_damages": [],
+      "prerequisites": []
+    },
+    {
+      "step_id": "remove_old_gliders",
+      "title": "Remove Old Gliders",
+      "description": "Using a pry bar or flat-head screwdriver, carefully remove the four existing plastic gliders from the bottom of each leg. Ensure the leg bottoms are clear of any residual plastic or fasteners.",
+      "rationale": "The original, worn gliders are discarded as part of the aggressive reconstruction. They are replaced to ensure every component, functional or aesthetic, aligns with the new, perfected state of the chair.",
+      "tools_required": [
+        "Pry bar",
+        "Pliers"
+      ],
+      "affected_parts": [
+        "front_left_glider",
+        "front_right_glider",
+        "back_left_glider",
+        "back_right_glider",
+        "front_left_leg",
+        "front_right_leg",
+        "back_left_leg",
+        "back_right_leg"
+      ],
+      "affected_damages": [],
+      "prerequisites": [
+        "prepare_workspace_and_chair"
+      ]
+    },
+    {
+      "step_id": "fill_deep_imperfections",
+      "title": "Fill Deep Imperfections",
+      "description": "Apply a high-performance, two-part epoxy wood filler to the deep scratches and indentations on the front apron and front left leg. Overfill the damages slightly to account for shrinkage and to allow for sanding flush with the surrounding surface.",
+      "rationale": "To create a perfected surface, historical evidence of significant damage must be completely obliterated. This filling step aggressively reconstructs the form, creating a new, idealized surface that shows no sign of past trauma.",
+      "tools_required": [
+        "Epoxy wood filler",
+        "Putty knife"
+      ],
+      "affected_parts": [
+        "front_apron",
+        "front_left_leg"
+      ],
+      "affected_damages": [
+        "damage_01",
+        "damage_03"
+      ],
+      "prerequisites": [
+        "prepare_workspace_and_chair"
+      ]
+    },
+    {
+      "step_id": "strip_and_sand_chair",
+      "title": "Strip and Sand Chair",
+      "description": "Mechanically sand the entire wooden structure of the chair. Begin with 120-grit sandpaper to remove the original lacquer finish and level the cured wood filler. Progress to 220-grit sandpaper to create a uniformly smooth surface, ready for priming. Pay close attention to all curves and joints.",
+      "rationale": "This aggressive sanding erases all traces of the chair's past life—the original finish, patina, and minor damages—sacrificing material authenticity to create a blank canvas for its new, perfected identity.",
+      "tools_required": [
+        "Orbital sander",
+        "120-grit sandpaper",
+        "220-grit sandpaper",
+        "Sanding block"
+      ],
+      "affected_parts": [
+        "front_left_leg",
+        "front_right_leg",
+        "back_left_leg",
+        "back_right_leg",
+        "front_apron",
+        "back_apron",
+        "left_side_apron",
+        "right_side_apron",
+        "seat",
+        "backrest"
+      ],
+      "affected_damages": [
+        "damage_01",
+        "damage_02",
+        "damage_03",
+        "damage_04",
+        "damage_05",
+        "damage_06"
+      ],
+      "prerequisites": [
+        "fill_deep_imperfections"
+      ]
+    },
+    {
+      "step_id": "final_surface_cleaning",
+      "title": "Final Surface Cleaning",
+      "description": "After sanding, use a vacuum with a brush attachment to remove the majority of the dust. Follow up by wiping down the entire chair with a tack cloth to remove any remaining fine particles, ensuring a perfectly clean surface for priming.",
+      "rationale": "Absolute cleanliness is non-negotiable for achieving a flawless, glass-like finish. This step ensures the new surface is not marred by any remnants of the old, guaranteeing the perfection of the new aesthetic.",
+      "tools_required": [
+        "Vacuum with brush attachment",
+        "Tack cloth"
+      ],
+      "affected_parts": [
+        "front_left_leg",
+        "front_right_leg",
+        "back_left_leg",
+        "back_right_leg",
+        "front_apron",
+        "back_apron",
+        "left_side_apron",
+        "right_side_apron",
+        "seat",
+        "backrest"
+      ],
+      "affected_damages": [],
+      "prerequisites": [
+        "strip_and_sand_chair"
+      ]
+    },
+    {
+      "step_id": "mask_hardware_and_prime",
+      "title": "Mask Hardware and Prime",
+      "description": "Carefully mask the metal stacking hardware on the underside of the chair with painter's tape. Apply a thin, even coat of high-adhesion wood primer to all sanded surfaces. Allow to cure fully as per the manufacturer's instructions.",
+      "rationale": "The primer creates a uniform foundation, obliterating the natural wood grain and ensuring the new, vibrant color is pure and consistent. This is a critical step in inventing a new, idealized appearance for the chair.",
+      "tools_required": [
+        "Painter's tape",
+        "High-adhesion wood primer",
+        "Paint brush or sprayer"
+      ],
+      "affected_parts": [
+        "front_left_leg",
+        "front_right_leg",
+        "back_left_leg",
+        "back_right_leg",
+        "front_apron",
+        "back_apron",
+        "left_side_apron",
+        "right_side_apron",
+        "seat",
+        "backrest"
+      ],
+      "affected_damages": [],
+      "prerequisites": [
+        "final_surface_cleaning"
+      ]
+    },
+    {
+      "step_id": "sand_primer_coat",
+      "title": "Sand Primer Coat",
+      "description": "Once the primer is fully cured, lightly sand the entire surface with 320-grit sandpaper to eliminate any minor imperfections or raised grain. The goal is a surface that is perfectly smooth to the touch. Wipe away all dust with a tack cloth.",
+      "rationale": "This meticulous sanding of the primer is essential for achieving the 'triumphant unity of the perfected style.' It ensures the subsequent color coats lay perfectly flat, contributing to the final, flawless, high-gloss finish.",
+      "tools_required": [
+        "320-grit sandpaper",
+        "Sanding block",
+        "Tack cloth"
+      ],
+      "affected_parts": [
+        "front_left_leg",
+        "front_right_leg",
+        "back_left_leg",
+        "back_right_leg",
+        "front_apron",
+        "back_apron",
+        "left_side_apron",
+        "right_side_apron",
+        "seat",
+        "backrest"
+      ],
+      "affected_damages": [],
+      "prerequisites": [
+        "mask_hardware_and_prime"
+      ]
+    },
+    {
+      "step_id": "apply_first_color_coat",
+      "title": "Apply First Color Coat",
+      "description": "Apply a thin, even layer of the high-gloss red paint to all primed surfaces. Use long, consistent strokes to avoid drips and ensure uniform coverage. Allow to dry according to the paint manufacturer's specifications.",
+      "rationale": "This step begins the chair's aesthetic rebirth, applying the bold new color that defines its reinvented and perfected stylistic identity.",
+      "tools_required": [
+        "High-gloss red paint",
+        "High-quality paint brush or sprayer"
+      ],
+      "affected_parts": [
+        "front_left_leg",
+        "front_right_leg",
+        "back_left_leg",
+        "back_right_leg",
+        "front_apron",
+        "back_apron",
+        "left_side_apron",
+        "right_side_apron",
+        "seat",
+        "backrest"
+      ],
+      "affected_damages": [],
+      "prerequisites": [
+        "sand_primer_coat"
+      ]
+    },
+    {
+      "step_id": "apply_final_color_coat",
+      "title": "Apply Final Color Coat",
+      "description": "After the first coat is properly cured, apply a second and final coat of the high-gloss red paint. This coat should be applied meticulously to achieve a deep, rich, and completely uniform color field.",
+      "rationale": "A second coat is not for repair but for perfection. It ensures a flawless, saturated color field, which is non-negotiable for realizing the object's idealized, high-impact visual form.",
+      "tools_required": [
+        "High-gloss red paint",
+        "High-quality paint brush or sprayer"
+      ],
+      "affected_parts": [
+        "front_left_leg",
+        "front_right_leg",
+        "back_left_leg",
+        "back_right_leg",
+        "front_apron",
+        "back_apron",
+        "left_side_apron",
+        "right_side_apron",
+        "seat",
+        "backrest"
+      ],
+      "affected_damages": [],
+      "prerequisites": [
+        "apply_first_color_coat"
+      ]
+    },
+    {
+      "step_id": "apply_protective_clear_coat",
+      "title": "Apply Protective Clear Coat",
+      "description": "Once the final color coat is fully cured, apply a high-gloss, non-yellowing polyurethane clear coat. Apply at least two coats for maximum depth, durability, and shine, lightly sanding with 400-grit sandpaper between coats if recommended by the manufacturer.",
+      "rationale": "The clear coat is the final step in achieving a perfected state. It provides robust surface performance and enhances the gloss to a level beyond the original, completing the transformation into a flawless object that embodies an idealized style.",
+      "tools_required": [
+        "High-gloss polyurethane clear coat",
+        "High-quality paint brush or sprayer",
+        "400-grit sandpaper"
+      ],
+      "affected_parts": [
+        "front_left_leg",
+        "front_right_leg",
+        "back_left_leg",
+        "back_right_leg",
+        "front_apron",
+        "back_apron",
+        "left_side_apron",
+        "right_side_apron",
+        "seat",
+        "backrest"
+      ],
+      "affected_damages": [],
+      "prerequisites": [
+        "apply_final_color_coat"
+      ]
+    },
+    {
+      "step_id": "final_assembly",
+      "title": "Install New Gliders",
+      "description": "After the final clear coat has fully cured for at least 24-48 hours, carefully remove the painter's tape from the hardware. Install the new plastic gliders by tapping them gently into place on the bottom of each leg with a rubber mallet.",
+      "rationale": "Installing new, pristine hardware is the final act of stylistic completion. It ensures every single component of the chair contributes to its new, perfected, and idealized form, leaving no trace of its former state.",
+      "tools_required": [
+        "New plastic gliders",
+        "Rubber mallet"
+      ],
+      "affected_parts": [
+        "front_left_leg",
+        "front_right_leg",
+        "back_left_leg",
+        "back_right_leg"
+      ],
+      "affected_damages": [],
+      "prerequisites": [
+        "apply_protective_clear_coat",
+        "remove_old_gliders"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,328 @@
+{
+  "objectName": "santo_02",
+  "description": "A minimalist wooden stacking chair, likely made of beech or a similar light-colored timber with a clear lacquer finish. Its frame is constructed from four rectangular legs with softly rounded edges. They are connected with glued dowel connections. The front and back legs are connected by side and front/back aprons, providing support for the flat, square seat panel. The two rear legs extend vertically to support a single, solid, curved backrest. The chair features plastic gliders on the bottom of each leg for floor protection and metal hardware on the underside for stacking.",
+  "parts": [
+    {
+      "id": "front_left_leg",
+      "origin": {
+        "x": -0.235,
+        "y": 0.1145,
+        "z": -0.2225
+      },
+      "dimensions": {
+        "width": 0.03,
+        "height": 0.213,
+        "depth": 0.045
+      },
+      "connections": [
+        "front_left_glider",
+        "front_left_leg_top_half"
+      ],
+      "status": "defective"
+    },
+    {
+      "id": "front_right_leg",
+      "origin": {
+        "x": 0.235,
+        "y": 0.211,
+        "z": -0.2225
+      },
+      "dimensions": {
+        "width": 0.03,
+        "height": 0.406,
+        "depth": 0.045
+      },
+      "connections": [
+        "front_right_glider",
+        "front_right_leg_patch"
+      ],
+      "status": "defective"
+    },
+    {
+      "id": "back_left_leg",
+      "origin": {
+        "x": -0.235,
+        "y": 0.384,
+        "z": 0.2225
+      },
+      "dimensions": {
+        "width": 0.03,
+        "height": 0.752,
+        "depth": 0.045
+      },
+      "connections": [
+        "back_apron",
+        "left_side_apron",
+        "seat",
+        "backrest",
+        "back_left_glider"
+      ],
+      "status": "defective"
+    },
+    {
+      "id": "back_right_leg",
+      "origin": {
+        "x": 0.235,
+        "y": 0.374,
+        "z": 0.2225
+      },
+      "dimensions": {
+        "width": 0.03,
+        "height": 0.732,
+        "depth": 0.045
+      },
+      "connections": [
+        "back_right_glider",
+        "back_right_leg_patch"
+      ],
+      "status": "defective"
+    },
+    {
+      "id": "front_apron",
+      "origin": {
+        "x": 0,
+        "y": 0.404,
+        "z": -0.2315
+      },
+      "dimensions": {
+        "width": 0.44,
+        "height": 0.06,
+        "depth": 0.027
+      },
+      "connections": [
+        "front_left_leg_top_half",
+        "front_right_leg_patch",
+        "seat"
+      ],
+      "status": "intact"
+    },
+    {
+      "id": "back_apron",
+      "origin": {
+        "x": 0,
+        "y": 0.404,
+        "z": 0.2315
+      },
+      "dimensions": {
+        "width": 0.44,
+        "height": 0.06,
+        "depth": 0.027
+      },
+      "connections": [
+        "back_left_leg",
+        "back_right_leg_patch",
+        "seat"
+      ],
+      "status": "intact"
+    },
+    {
+      "id": "left_side_apron",
+      "origin": {
+        "x": -0.2065,
+        "y": 0.404,
+        "z": 0
+      },
+      "dimensions": {
+        "width": 0.027,
+        "height": 0.06,
+        "depth": 0.436
+      },
+      "connections": [
+        "front_left_leg_top_half",
+        "back_left_leg",
+        "seat"
+      ],
+      "status": "intact"
+    },
+    {
+      "id": "right_side_apron",
+      "origin": {
+        "x": 0.2065,
+        "y": 0.404,
+        "z": 0
+      },
+      "dimensions": {
+        "width": 0.027,
+        "height": 0.06,
+        "depth": 0.436
+      },
+      "connections": [
+        "front_right_leg_patch",
+        "back_right_leg_patch",
+        "seat"
+      ],
+      "status": "intact"
+    },
+    {
+      "id": "seat",
+      "origin": {
+        "x": 0,
+        "y": 0.437,
+        "z": 0
+      },
+      "dimensions": {
+        "width": 0.44,
+        "height": 0.006,
+        "depth": 0.49
+      },
+      "connections": [
+        "front_left_leg_top_half",
+        "front_right_leg_patch",
+        "back_left_leg",
+        "back_right_leg_patch",
+        "front_apron",
+        "back_apron",
+        "left_side_apron",
+        "right_side_apron"
+      ],
+      "status": "defective"
+    },
+    {
+      "id": "backrest",
+      "origin": {
+        "x": 0,
+        "y": 0.705,
+        "z": 0.225
+      },
+      "dimensions": {
+        "width": 0.44,
+        "height": 0.11,
+        "depth": 0.05
+      },
+      "connections": [
+        "back_left_leg",
+        "back_right_leg_patch"
+      ],
+      "status": "intact"
+    },
+    {
+      "id": "front_left_glider",
+      "origin": {
+        "x": -0.235,
+        "y": 0.004,
+        "z": -0.2225
+      },
+      "dimensions": {
+        "width": 0.025,
+        "height": 0.008,
+        "depth": 0.04
+      },
+      "connections": [
+        "front_left_leg"
+      ],
+      "status": "intact"
+    },
+    {
+      "id": "front_right_glider",
+      "origin": {
+        "x": 0.235,
+        "y": 0.004,
+        "z": -0.2225
+      },
+      "dimensions": {
+        "width": 0.025,
+        "height": 0.008,
+        "depth": 0.04
+      },
+      "connections": [
+        "front_right_leg"
+      ],
+      "status": "intact"
+    },
+    {
+      "id": "back_left_glider",
+      "origin": {
+        "x": -0.235,
+        "y": 0.004,
+        "z": 0.2225
+      },
+      "dimensions": {
+        "width": 0.025,
+        "height": 0.008,
+        "depth": 0.04
+      },
+      "connections": [
+        "back_left_leg"
+      ],
+      "status": "intact"
+    },
+    {
+      "id": "back_right_glider",
+      "origin": {
+        "x": 0.235,
+        "y": 0.004,
+        "z": 0.2225
+      },
+      "dimensions": {
+        "width": 0.025,
+        "height": 0.008,
+        "depth": 0.04
+      },
+      "connections": [
+        "back_right_leg"
+      ],
+      "status": "intact"
+    },
+    {
+      "id": "front_left_leg_top_half",
+      "origin": {
+        "x": -0.235,
+        "y": 0.3275,
+        "z": -0.2225
+      },
+      "dimensions": {
+        "width": 0.03,
+        "height": 0.213,
+        "depth": 0.045
+      },
+      "connections": [
+        "front_apron",
+        "left_side_apron",
+        "seat",
+        "front_left_leg"
+      ],
+      "status": "new"
+    },
+    {
+      "id": "front_right_leg_patch",
+      "origin": {
+        "x": 0.235,
+        "y": 0.424,
+        "z": -0.2225
+      },
+      "dimensions": {
+        "width": 0.03,
+        "height": 0.02,
+        "depth": 0.045
+      },
+      "connections": [
+        "front_apron",
+        "right_side_apron",
+        "seat",
+        "front_right_leg"
+      ],
+      "status": "new"
+    },
+    {
+      "id": "back_right_leg_patch",
+      "origin": {
+        "x": 0.235,
+        "y": 0.75,
+        "z": 0.2225
+      },
+      "dimensions": {
+        "width": 0.03,
+        "height": 0.02,
+        "depth": 0.045
+      },
+      "connections": [
+        "back_apron",
+        "right_side_apron",
+        "seat",
+        "backrest",
+        "back_right_leg"
+      ],
+      "status": "new"
+    }
+  ]
+}

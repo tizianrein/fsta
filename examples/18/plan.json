@@ -1,0 +1,189 @@
+{
+  "steps": [
+    {
+      "step_id": "prepare_the_altar",
+      "title": "Prepare The Altar",
+      "description": "Clear a stable work surface. Invert the chair and secure it so all four leg ends are accessible and facing upwards. This is not a workshop; it's a stage for transformation.",
+      "rationale": "The repair is a deliberate act, a performance. Preparing the space and positioning the object correctly establishes the necessary focus and elevates the mundane act of fixing into a ritual of re-creation.",
+      "tools_required": [
+        "Stable work surface",
+        "Clamps or weights (optional)"
+      ],
+      "affected_parts": [
+        "front_left_leg",
+        "front_right_leg",
+        "back_left_leg",
+        "back_right_leg"
+      ],
+      "affected_damages": [],
+      "prerequisites": []
+    },
+    {
+      "step_id": "harvest_the_readymades",
+      "title": "Harvest The Readymades",
+      "description": "Procure four identical PET plastic beverage bottles, with their caps securely attached. Ensure they are empty and rinsed. These are not raw materials; they are pre-fabricated solutions waiting to be re-contextualized.",
+      "rationale": "The philosophy rejects conventional repair materials in favor of finding solutions in the discarded. 'Harvesting' these 'readymades' is the foundational act of resourceful appropriation, seeing potential where others see trash.",
+      "tools_required": [
+        "Four PET plastic bottles (with caps)"
+      ],
+      "affected_parts": [],
+      "affected_damages": [],
+      "prerequisites": []
+    },
+    {
+      "step_id": "perform_the_excision",
+      "title": "Perform The Excision",
+      "description": "Using a sharp utility knife, carefully cut the top section from each of the four bottles. Make the cut approximately 2 inches (5 cm) below the base of the threaded neck, creating four identical plastic collars.",
+      "rationale": "This is an act of creative destruction. By excising the functional form from the larger object, we destroy the bottle's original purpose to liberate its new one. The precision of the cut contrasts with the crudeness of the source material.",
+      "tools_required": [
+        "Utility knife",
+        "Safety gloves",
+        "Eye protection",
+        "Measuring tape"
+      ],
+      "affected_parts": [],
+      "affected_damages": [],
+      "prerequisites": [
+        "harvest_the_readymades"
+      ]
+    },
+    {
+      "step_id": "abrade_the_interface",
+      "title": "Abrade The Interface",
+      "description": "Vigorously sand the bottom 2 inches (5 cm) of each chair leg. The goal is not smoothness but a rough, chaotic texture that will bite into the plastic during fusion. Blow away all dust.",
+      "rationale": "A seamless, invisible repair is anathema. Abrading the surface is a forceful preparation that ensures the new part doesn't just sit on the old, but aggressively bonds to it, creating a visibly strong and unapologetic union.",
+      "tools_required": [
+        "Coarse-grit sandpaper",
+        "Cleaning cloth"
+      ],
+      "affected_parts": [
+        "front_left_leg",
+        "front_right_leg",
+        "back_left_leg",
+        "back_right_leg"
+      ],
+      "affected_damages": [],
+      "prerequisites": [
+        "prepare_the_altar"
+      ]
+    },
+    {
+      "step_id": "stage_the_intervention",
+      "title": "Stage The Intervention",
+      "description": "Place one of the excised bottle-top collars over each of the abraded leg ends. The cap should face down, acting as the new foot. Ensure a snug but not forced fit. This is the final dress rehearsal before the permanent transformation.",
+      "rationale": "This step physically manifests the absurd proposal. The juxtaposition of the refined chair leg and the crude plastic collar is a deliberate challenge to aesthetic norms, a moment of wit before the act of forceful fusion makes it permanent.",
+      "tools_required": [],
+      "affected_parts": [
+        "front_left_leg",
+        "front_right_leg",
+        "back_left_leg",
+        "back_right_leg"
+      ],
+      "affected_damages": [
+        "damage_01",
+        "damage_02",
+        "damage_03",
+        "damage_04"
+      ],
+      "prerequisites": [
+        "perform_the_excision",
+        "abrade_the_interface"
+      ]
+    },
+    {
+      "step_id": "initiate_thermal_fusion",
+      "title": "Initiate Thermal Fusion",
+      "description": "Apply intense, moving heat from a heat gun to one of the staged collars. Circle the leg continuously until the plastic visibly shrinks and conforms tightly to the wood, creating a single, fused form. Repeat for the other three legs.",
+      "rationale": "This is the climax of the repair. Raw energy is used to force a violent transformation, turning a piece of trash into a bespoke, perfectly molded component. The process is chaotic but yields a precise, functional result, embodying the core philosophy.",
+      "tools_required": [
+        "Heat gun",
+        "Heat-resistant gloves"
+      ],
+      "affected_parts": [
+        "front_left_leg",
+        "front_right_leg",
+        "back_left_leg",
+        "back_right_leg"
+      ],
+      "affected_damages": [
+        "damage_01",
+        "damage_02",
+        "damage_03",
+        "damage_04"
+      ],
+      "prerequisites": [
+        "stage_the_intervention"
+      ]
+    },
+    {
+      "step_id": "quench_and_harden",
+      "title": "Quench And Harden",
+      "description": "Allow the newly fused plastic on all four legs to cool completely to room temperature without any external intervention. Do not touch or move them. This period of stillness is critical for the material to achieve its final, hardened state.",
+      "rationale": "After the violent application of heat, a period of calm is necessary to lock in the transformation. This step allows the re-appropriated material to settle into its new form, gaining the strength and permanence required for its new function.",
+      "tools_required": [],
+      "affected_parts": [
+        "front_left_leg",
+        "front_right_leg",
+        "back_left_leg",
+        "back_right_leg"
+      ],
+      "affected_damages": [
+        "damage_01",
+        "damage_02",
+        "damage_03",
+        "damage_04"
+      ],
+      "prerequisites": [
+        "initiate_thermal_fusion"
+      ]
+    },
+    {
+      "step_id": "debride_the_excess",
+      "title": "Debride The Excess",
+      "description": "Once fully hardened, use a utility knife to carefully trim away any melted, uneven, or aesthetically displeasing plastic flashing around the top edge of the new collars. The goal is a clean, deliberate edge, not a perfect one.",
+      "rationale": "This final shaping refines the chaos of the fusion. It's not about hiding the repair's origin but about giving the raw result a finished, intentional form. The act of 'debriding' acknowledges the violent process while asserting control over the final outcome.",
+      "tools_required": [
+        "Utility knife"
+      ],
+      "affected_parts": [
+        "front_left_glider",
+        "front_right_glider",
+        "back_left_glider",
+        "back_right_glider"
+      ],
+      "affected_damages": [
+        "damage_01",
+        "damage_02",
+        "damage_03",
+        "damage_04"
+      ],
+      "prerequisites": [
+        "quench_and_harden"
+      ]
+    },
+    {
+      "step_id": "confirm_the_transfiguration",
+      "title": "Confirm The Transfiguration",
+      "description": "Carefully turn the chair upright. Place it on a flat surface and press down on the seat to test for stability and levelness. The chair is no longer simply repaired; it has been fundamentally altered.",
+      "rationale": "The ultimate test of the audacious solution is its function. This step proves that the radical re-appropriation was not just an artistic statement but a successful act of engineering, validating the entire philosophy by confirming the object's new, altered reality.",
+      "tools_required": [
+        "Level surface"
+      ],
+      "affected_parts": [
+        "front_left_glider",
+        "front_right_glider",
+        "back_left_glider",
+        "back_right_glider"
+      ],
+      "affected_damages": [
+        "damage_01",
+        "damage_02",
+        "damage_03",
+        "damage_04"
+      ],
+      "prerequisites": [
+        "debride_the_excess"
+      ]
+    }
+  ]
+}

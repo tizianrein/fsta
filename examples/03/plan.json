@@ -1,0 +1,192 @@
+{
+  "steps": [
+    {
+      "step_id": "prepare_workspace_and_materials",
+      "title": "Prepare Workspace and Materials",
+      "description": "Set up a safe and organized workspace suitable for metalwork and assembly. Lay out the disassembled chair components on a protected surface. Gather all required materials, including the metal L-profiles, leather hide, and all necessary tools and safety equipment.",
+      "rationale": "A proper setup is foundational for executing the intervention with the required precision and care. This preparation ensures that the new, distinct support system can be fabricated without compromising the integrity of the original object.",
+      "tools_required": [
+        "Welding machine",
+        "Angle grinder with cutting disc",
+        "Drill with metal bits",
+        "Measuring tape",
+        "Protective gloves",
+        "Welding mask",
+        "Leather cutting tools",
+        "Metal L-profiles",
+        "Leather hide"
+      ],
+      "affected_parts": [],
+      "affected_damages": [],
+      "prerequisites": []
+    },
+    {
+      "step_id": "remove_loose_debris",
+      "title": "Remove Loose Debris",
+      "description": "Using a soft brush and tweezers, delicately remove any completely detached splinters and debris from the broken areas of the back apron and front legs. No attempt should be made to clean, sand, or alter the damaged surfaces themselves.",
+      "rationale": "This action is a minimal stabilization measure to prevent the loss of loose fragments during handling. It is not an aesthetic repair but a conservation step, preserving the object's authentic, 'wounded' state as dictated by the philosophy.",
+      "tools_required": [
+        "Soft-bristle brush",
+        "Tweezers"
+      ],
+      "affected_parts": [
+        "back_apron",
+        "front_left_leg",
+        "front_right_leg"
+      ],
+      "affected_damages": [
+        "damage_01",
+        "damage_02",
+        "damage_03",
+        "damage_04"
+      ],
+      "prerequisites": [
+        "prepare_workspace_and_materials"
+      ]
+    },
+    {
+      "step_id": "measure_for_armature",
+      "title": "Measure For Support Armature",
+      "description": "With the components already separated, dry-fit them into their original positions to take precise measurements of the chair's undercarriage. Plan the dimensions for a rectangular metal frame that will sit beneath the aprons, providing support without direct, invasive contact.",
+      "rationale": "Accurate measurement is critical to fabricating an armature that fits perfectly as a distinct, external system. This ensures the intervention is non-damaging and respects the absolute integrity of the original material.",
+      "tools_required": [
+        "Measuring tape",
+        "Caliper",
+        "Engineer's square"
+      ],
+      "affected_parts": [
+        "front_left_leg",
+        "front_right_leg",
+        "back_left_leg",
+        "back_right_leg",
+        "front_apron",
+        "back_apron",
+        "left_side_apron",
+        "right_side_apron"
+      ],
+      "affected_damages": [],
+      "prerequisites": [
+        "prepare_workspace_and_materials"
+      ]
+    },
+    {
+      "step_id": "cut_metal_profiles",
+      "title": "Cut Metal Profiles",
+      "description": "Using an angle grinder or metal saw, cut the L-profiles to the lengths determined in the measurement step. Ensure the cuts are clean and precise to facilitate accurate welding.",
+      "rationale": "This is the first physical step in creating the honest and robust armature. The precision of this step reflects the intelligence of the intervention, which makes no pretense of being part of the original object.",
+      "tools_required": [
+        "Angle grinder",
+        "Metal cutting disc",
+        "Safety glasses"
+      ],
+      "affected_parts": [],
+      "affected_damages": [],
+      "prerequisites": [
+        "measure_for_armature"
+      ]
+    },
+    {
+      "step_id": "create_lashing_points_on_frame",
+      "title": "Create Frame Lashing Points",
+      "description": "Using a drill or angle grinder, create evenly spaced slots or holes along the cut metal profiles. These points will serve as anchors for the leather straps, allowing them to be threaded through and securely fastened.",
+      "rationale": "This step is crucial for creating a non-invasive connection. By modifying the new armature instead of the original object, we uphold the principle of reversibility and absolute integrity of the historic material. These points make the lashing system both intelligent and functional.",
+      "tools_required": [
+        "Drill with metal bits",
+        "Angle grinder with cutting disc",
+        "Center punch",
+        "Safety glasses"
+      ],
+      "affected_parts": [],
+      "affected_damages": [],
+      "prerequisites": [
+        "cut_metal_profiles"
+      ]
+    },
+    {
+      "step_id": "weld_support_frame",
+      "title": "Weld Support Frame",
+      "description": "Weld the cut and prepared metal profiles into a single, rigid rectangular frame. The welds should be strong and functional, creating the core of the stabilization armature.",
+      "rationale": "Welding fabricates the distinct, visible armature that will provide the necessary structural support. This new system is intentionally different in material and construction, honestly declaring itself as a modern intervention.",
+      "tools_required": [
+        "Welding machine",
+        "Welding mask",
+        "Welding clamps"
+      ],
+      "affected_parts": [],
+      "affected_damages": [],
+      "prerequisites": [
+        "create_lashing_points_on_frame"
+      ]
+    },
+    {
+      "step_id": "prepare_leather_straps",
+      "title": "Prepare Leather Straps",
+      "description": "Cut the leather hide into long, uniform straps. These straps will be used to lash the original chair components to the new metal frame.",
+      "rationale": "Leather is selected as the lashing material because it is strong yet soft, allowing for a secure, non-damaging, and fully reversible connection. This method avoids any invasive fasteners like screws or bolts, preserving the original material's integrity.",
+      "tools_required": [
+        "Utility knife",
+        "Cutting mat",
+        "Straight edge"
+      ],
+      "affected_parts": [],
+      "affected_damages": [],
+      "prerequisites": [
+        "prepare_workspace_and_materials"
+      ]
+    },
+    {
+      "step_id": "assemble_with_armature",
+      "title": "Assemble With Armature",
+      "description": "Position the welded metal frame. Carefully arrange the original legs, aprons, and seat in their correct orientation around and upon the frame. Thread the prepared leather straps through the lashing points on the armature and wrap them around the chair components to securely lash all parts to the metal frame, creating a stable, unified structure.",
+      "rationale": "This step unites the original object with the new support system in a way that is both structurally effective and philosophically honest. The lashing is a visible, non-invasive binding that stabilizes the chair against catastrophic failure while celebrating the distinction between the historic object and its modern support.",
+      "tools_required": [
+        "Leather straps"
+      ],
+      "affected_parts": [
+        "front_left_leg",
+        "front_right_leg",
+        "back_left_leg",
+        "back_right_leg",
+        "front_apron",
+        "back_apron",
+        "left_side_apron",
+        "right_side_apron",
+        "seat"
+      ],
+      "affected_damages": [
+        "damage_01",
+        "damage_02",
+        "damage_03",
+        "damage_04",
+        "damage_05"
+      ],
+      "prerequisites": [
+        "weld_support_frame",
+        "remove_loose_debris",
+        "prepare_leather_straps"
+      ]
+    },
+    {
+      "step_id": "final_stability_check",
+      "title": "Check Final Stability",
+      "description": "Gently test the assembled chair to confirm that the new armature and lashing provide sufficient stability. Adjust the tension of the leather straps as needed to eliminate any wobble or looseness.",
+      "rationale": "This final verification ensures the intervention has met its sole objective: the stabilization of the object to prevent catastrophic failure. The repair is complete once stability is achieved, with no further aesthetic or restorative actions taken.",
+      "tools_required": [],
+      "affected_parts": [
+        "front_left_leg",
+        "front_right_leg",
+        "back_left_leg",
+        "back_right_leg",
+        "front_apron",
+        "back_apron",
+        "left_side_apron",
+        "right_side_apron",
+        "seat"
+      ],
+      "affected_damages": [],
+      "prerequisites": [
+        "assemble_with_armature"
+      ]
+    }
+  ]
+}

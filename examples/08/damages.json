@@ -1,0 +1,24 @@
+[
+  {
+    "id": "damage_01",
+    "type": "Crack",
+    "description": "A visible crack is present on the top corner of the front left leg, extending across its top surface.",
+    "part_id": "front_left_leg",
+    "coordinates": {
+      "x": -0.25,
+      "y": 0.434,
+      "z": -0.245
+    }
+  },
+  {
+    "id": "damage_02",
+    "type": "Scuff Mark",
+    "description": "Scuff marks are visible on the right and left sides of the chair seat.",
+    "part_id": "seat",
+    "coordinates": {
+      "x": 0,
+      "y": 0.437,
+      "z": 0
+    }
+  }
+]
