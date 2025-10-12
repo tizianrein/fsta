@@ -14,16 +14,13 @@
         #viewer-container { width: 100%; height: 40vh; position: relative; background-color: #fff; }
         #viewer-canvas { display: block; width: 100%; height: 100%; }
         #info-box { position: absolute; top: 10px; left: 0px; padding: 0px; background-color: transparent; border: none; font-family: monospace; font-size: 12px; line-height: 1.4; z-index: 101; display: none; pointer-events: none; max-width: 250px; }
-        
-        /* Updated Base styles for overlays (adds padding from edge) */
-        #step-display-container { display: none; position: absolute; top: 10px; right: 10px; z-index: 100; display: flex; flex-direction: column; align-items: flex-end; pointer-events: none; }
-        
-        .step-nav-arrow { cursor: pointer; display: block; width: 30px; height: 30px; border: 1px solid #d00; color: #d00; background-color: #fff; text-align: center; line-height: 28px; font-size: 20px; margin-top: 5px; user-select: none; pointer-events: auto; }
-        .step-nav-arrow.disabled { cursor: not-allowed; color: #ccc; border-color: #ccc; pointer-events: none; }
-        #step-info-panel { display: none; position: absolute; bottom: 10px; left: 0px; right: 0px; background-color: rgba(221, 51, 51, 0.9); color: #fff; padding: 15px; border: 1px solid #d00; cursor: pointer; z-index: 100; border-left: none; border-right: none; }
+        #step-display-container { display: none; position: absolute; top: 10px; right: 0px; z-index: 100; display: flex; flex-direction: column; align-items: flex-end; }
+        .step-nav-arrow { cursor: pointer; display: block; width: 30px; height: 30px; border: 1px solid #d00; color: #d00; background-color: #fff; text-align: center; line-height: 28px; font-size: 20px; margin-top: 5px; user-select: none; }
+        .step-nav-arrow.disabled { cursor: not-allowed; color: #ccc; border-color: #ccc; }
+        #step-info-panel { display: none; position: absolute; bottom: 10px; left: 0px; right: 0px; background-color: rgba(221, 51, 51, 0.85); color: #fff; padding: 15px; border: 1px solid #d00; cursor: pointer; z-index: 100; }
         #step-info-panel h4 { margin: 0 0 5px 0; font-size: 16px; font-weight: bold; text-align: center;  }
         #step-info-panel .click-prompt { font-size: 8px; text-transform: uppercase; margin-top: 8px; opacity: 0.8; text-align: center; }
-        #step-info-panel.completed { background-color: rgba(25, 135, 84, 0.9); border-color: #198754; }
+        #step-info-panel.completed { background-color: rgba(25, 135, 84, 0.85); border-color: #198754; }
         #bottom-ui-container { display: flex; flex-direction: column; gap: 12px; }
         .icon-controls { display: flex; justify-content: space-around; text-align: center; padding: 10px 0; }
         .icon-button { cursor: pointer; color: #000; }
@@ -54,9 +51,7 @@
         #graph-container { width: 100%; flex-grow: 1; min-height: 0; }
         #graph-container svg { width: 100%; height: 100%; }
         #graph-title { margin-top: 45px; }
-        
-        /* Updated Base styles for step choices */
-        #step-nav-choices { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; margin-bottom: 5px; pointer-events: auto; }
+        #step-nav-choices { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; margin-bottom: 5px; }
         .step-choice-btn {
             cursor: pointer;
             border: 1px solid #d00;
@@ -69,72 +64,8 @@
             min-width: 120px;
             height: 30px;
             line-height: 28px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         .step-choice-btn:hover { background-color: #d00; color: #fff; }
-
-        /* --- MOBILE RESPONSIVE STYLES --- */
-        @media (max-width: 768px) {
-            /* Reposition container to span top */
-            #step-display-container {
-                top: 10px;
-                right: 10px;
-                left: 10px;
-                flex-direction: row-reverse; /* Arrow on left, choices on right */
-                align-items: flex-start;
-                justify-content: space-between;
-            }
-
-            /* Back arrow styling for mobile */
-            #step-nav-prev {
-                margin-top: 0;
-                margin-right: 10px;
-                height: 26px;
-                width: 26px;
-                line-height: 24px;
-                font-size: 16px;
-                flex-shrink: 0;
-                background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent */
-            }
-
-            /* Turn choices into a horizontal scrollable row */
-            #step-nav-choices {
-                flex-direction: row;
-                overflow-x: auto;
-                white-space: nowrap;
-                max-width: 100%;
-                align-items: flex-start;
-                /* Hide scrollbar for cleaner look */
-                -ms-overflow-style: none;  /* IE and Edge */
-                scrollbar-width: none;  /* Firefox */
-            }
-            #step-nav-choices::-webkit-scrollbar {
-                display: none; /* Chrome, Safari, Opera */
-            }
-
-            /* Compact button styling for mobile */
-            .step-choice-btn {
-                font-size: 12px;
-                height: 26px;
-                line-height: 24px;
-                min-width: auto;
-                padding: 0 8px;
-                background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent */
-                flex-shrink: 0; /* Prevent squashing */
-            }
-
-            /* Adjust bottom step info panel text size */
-            #step-info-panel { padding: 10px; bottom: 0; }
-            #step-info-panel h4 { font-size: 14px; }
-            
-            /* Adjust UI container gaps */
-            #app-wrapper { gap: 10px; padding: 10px 0; width: 95%; }
-            #top-header { gap: 10px; }
-            #object-name { padding: 8px; }
-            .btn { padding: 10px; font-size: 13px; }
-            .action-buttons { flex-wrap: wrap; gap: 5px; }
-            .action-buttons .btn { min-width: 45%; flex-grow: 1; }
-        }
     </style>
 </head>
 <body>
