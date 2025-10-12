@@ -4,6 +4,10 @@ Machine Reasoning and the Logics of Repair
 *A Web Framework for AI-Assisted Repair Workflows*  
 by **Tizian Rein**, 2025  
 Technical University of Munich · Chair of Digital Fabrication
+https://github.com/augmentedfabricationlab
+
+Supervised by Prof. Dr. Kathrin Dörfler
+& Begüm Saral
 
 ---
 
