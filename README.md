@@ -1,5 +1,5 @@
 # FSTA – From Structure To Action  
-Machine Reasoning and the Logics of Repair
+**Machine Reasoning and the Logics of Repair**
 
 *A Web Framework for AI-Assisted Repair Workflows*  
 by **Tizian Rein**, 2025  
