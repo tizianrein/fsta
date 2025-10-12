@@ -670,53 +670,28 @@
                 updateHELGA(`Step ${step.step_number} completed! Time taken:`, false, durationMinutes);
             });
 
-            document.getElementById('ask-question-btn').addEventListener('click', async () => {
-                const question = userPromptInput.value.trim();
-                if (!question) {
-                    updateHELGA("Please type a question in the text area first.");
-                    return;
-                }
-                if (!currentHistoryJson) {
-                    updateHELGA("Please load a plan first.");
-                    return;
-                }
-                const currentStep = currentHistoryJson.steps[currentStepIndex];
-                updateHELGA("Thinking...", true);
+            document.getElementById("ask-question-btn").addEventListener("click", async () => {
+            const question = userPromptInput.value.trim();
+            if (!question) return updateHELGA("Please write your question first.");
+            if (!currentHistoryJson) return updateHELGA("Please load a repair plan first.");
 
-                try {
-                    const response = await fetch('/api/guide-repair_new', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            question: question,
-                            stepContext: currentStep
-                        })
-                    });
+            const currentStep = currentHistoryJson.steps[currentStepIndex];
+            updateHELGA("Thinking...", true);
 
-                    const result = await response.json(); // Always parse JSON to get error messages
+            try {
+                const res = await fetch("/api/guide-repair_new", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ question, stepContext: currentStep })
+                });
 
-                    if (!response.ok) {
-                        // Use the message from our back-end's JSON error response
-                        throw new Error(result.message || `Server error: ${response.status}`);
-                    }
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.message || `Error ${res.status}`);
 
-                    // --- START OF MODIFIED SECTION ---
-
-                    // The 'result' object is now the simple { answer: "..." } we created on the back-end.
-                    const text = result.answer;
-
-                    if (!text) {
-                        throw new Error('Received an empty answer from the server.');
-                    }
-
-                    // --- END OF MODIFIED SECTION ---
-
-                    updateHELGA(text);
-
-                } catch (error) {
-                    console.error("Ask H.E.L.G.A. Error:", error);
-                    updateHELGA(`Sorry, an error occurred: ${error.message}`);
-                }
+                updateHELGA(data.answer || "No answer received.");
+            } catch (err) {
+                updateHELGA("Error: " + err.message);
+            }
             });
 
             document.getElementById('comment-btn').addEventListener('click', () => {
