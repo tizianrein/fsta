@@ -1,87 +1,126 @@
-// File: /api/guide-repair_new.js
+// /api/guide-repair_new.js
+// Minimal, robust "Ask H.E.L.G.A." endpoint for Gemini 2.x/1.5
+// Env: GEMINI_API_KEY (required), GEMINI_MODEL (optional; default: gemini-2.0-flash)
 
-// Set a maximum duration for the serverless function to run (e.g., 60 seconds).
-export const maxDuration = 60;
-
-// The main handler function for the API endpoint.
 export default async function handler(req, res) {
-  // 1. --- Basic Request Validation ---
-  if (req.method !== "POST") {
-    res.setHeader("Allow", "POST");
-    return res.status(405).json({ message: "Method Not Allowed. Please use POST." });
-  }
-
-  // 2. --- API Key and Configuration ---
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    console.error("FATAL: GEMINI_API_KEY environment variable is not set.");
-    return res.status(500).json({ message: "Server configuration error: The API key is missing." });
-  }
-
   try {
-    // 3. --- Input Validation ---
-    const { question, stepContext } = req.body;
-    if (!question || typeof question !== 'string' || question.trim() === '') {
-      return res.status(400).json({ message: "Bad Request: 'question' is a required field and cannot be empty." });
+    if (req.method !== "POST") {
+      return res.status(405).json({ message: "Method not allowed" });
     }
 
-    // 4. --- Constructing the Prompt for Gemini ---
-    const geminiParts = [
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      return res.status(500).json({ message: "Missing GEMINI_API_KEY" });
+    }
+
+    const MODEL = process.env.GEMINI_MODEL || "gemini-2.0-flash";
+
+    // --- Parse input ---
+    const { question, stepContext } = req.body || {};
+    if (!question || typeof question !== "string") {
+      return res.status(400).json({ message: "Please provide a 'question' string." });
+    }
+    if (!stepContext || typeof stepContext !== "object") {
+      return res.status(400).json({ message: "Please provide a valid 'stepContext' object." });
+    }
+
+    // --- Build prompt parts (role required for newer Gemini models) ---
+    const parts = [
       {
-        text: "You are H.E.L.G.A., a helpful and expert repair guide. A user has provided a JSON object representing a single step in a repair plan and has a question about it. Your task is to answer their question clearly and concisely in plain text, using the provided JSON as context.",
+        text:
+          "You are H.E.L.G.A., a helpful and expert repair guide. " +
+          "A user provided a JSON object representing one repair step and asked a question about it. " +
+          "Answer clearly and concisely in plain text. If something is unknown, say so briefly.",
       },
-      {
-        text: `Repair Step Context (JSON):\n${JSON.stringify(stepContext || {}, null, 2)}`,
-      },
-      {
-        text: `User's Question:\n"${question}"`,
-      },
+      { text: `Repair Step Context (JSON):\n${JSON.stringify(stepContext, null, 2)}` },
+      { text: `User's Question:\n"${question}"` },
     ];
 
-    const geminiPayload = {
-      contents: [{ parts: geminiParts }],
+    const payload = {
+      contents: [{ role: "user", parts }],
       generationConfig: {
         temperature: 0.6,
         maxOutputTokens: 400,
       },
     };
 
-    // 5. --- Calling the Gemini API ---
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${apiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${apiKey}`;
 
-    const geminiResponse = await fetch(geminiUrl, {
+    // --- Call Gemini ---
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 30000); // 30s timeout
+
+    const resp = await fetch(url, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(geminiPayload),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+      signal: controller.signal,
+    }).catch((e) => {
+      // fetch-level error (network/timeout/abort)
+      throw new Error(`Network error calling Gemini: ${e.message || e}`);
     });
+    clearTimeout(timeout);
 
-    // 6. --- ROBUST RESPONSE & ERROR HANDLING ---
-    if (!geminiResponse.ok) {
-      const errorText = await geminiResponse.text();
-      console.error("Gemini API Error:", errorText);
-      throw new Error(`The AI service failed with status ${geminiResponse.status}. Details: ${errorText}`);
+    const data = await resp.json().catch(() => ({}));
+
+    if (!resp.ok) {
+      // Surface Gemini error details to the UI for easier debugging
+      const geminiMsg =
+        data?.error?.message ||
+        data?.message ||
+        (typeof data === "string" ? data : JSON.stringify(data));
+      return res.status(resp.status).json({
+        message: "Gemini returned an error",
+        error: geminiMsg,
+        status: resp.status,
+      });
     }
 
-    const data = await geminiResponse.json();
+    // --- Extract answer robustly across response shapes ---
+    let answer = "";
+    try {
+      const cand = data?.candidates?.[0];
 
-    // 7. --- Extracting the Answer ---
-    const answer = data?.candidates?.[0]?.content?.parts?.[0]?.text.trim();
+      // Preferred: content.parts[].text
+      if (Array.isArray(cand?.content?.parts)) {
+        answer = cand.content.parts.map((p) => p?.text || "").join("").trim();
+      }
+
+      // Fallback: content[] (some responses flatten parts)
+      if (!answer && Array.isArray(cand?.content)) {
+        answer = cand.content.map((p) => p?.text || "").join("").trim();
+      }
+
+      // Fallback: direct text on candidate (rare)
+      if (!answer && typeof cand?.text === "string") {
+        answer = String(cand.text).trim();
+      }
+    } catch (e) {
+      // continue to generic fallback below
+    }
 
     if (!answer) {
-        console.warn("Could not extract an answer from the Gemini API response:", JSON.stringify(data, null, 2));
-        return res.status(200).json({ answer: "I was able to contact the AI, but it did not provide a valid answer. Please try rephrasing your question." });
+      // Safety: give a friendly note and dump a snippet to logs
+      console.warn(
+        "Gemini response did not include extractable text. Full payload:",
+        JSON.stringify(data, null, 2)
+      );
+      return res.status(200).json({
+        answer:
+          "I reached the AI service, but it returned no text. Please try a simpler phrasing or ask a follow-up.",
+      });
     }
 
-    // 8. --- Sending the Successful Response ---
     return res.status(200).json({ answer });
-
   } catch (err) {
     console.error("Error in guide-repair_new handler:", err);
+    const message =
+      err?.name === "AbortError"
+        ? "Request to AI timed out."
+        : String(err?.message || err);
     return res.status(500).json({
-      message: "An internal error occurred while processing your question.",
-      error: err.message,
+      message: "AI request failed",
+      error: message,
     });
   }
 }
