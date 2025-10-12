@@ -18,6 +18,8 @@ No installation or cloning is required — simply open the deployed web app and 
 
 ## 🧱 System Concept
 
+![The Operative Framework of FSTA](./docs/images/operative_framework.png)
+
 The framework divides repair into **five structured steps**:
 
 1. **Generate Assembly**  
@@ -85,6 +87,8 @@ This plurality turns FSTA into a **comparative reasoning tool**, allowing design
 ---
 
 ## ⚙️ Technologies
+
+![The System Architecture of FSTA](./docs/images/stack_architecture.png)
 
 | Layer | Implementation |
 |-------|----------------|
