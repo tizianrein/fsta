@@ -2,8 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <!-- MODIFICATION: Made viewport tag more mobile-friendly and accessible -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=0.5, maximum-scale=1.0">
     <title>Step 4: Guide Repair</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛠️</text></svg>">
     <style>
@@ -67,33 +66,6 @@
             line-height: 28px;
         }
         .step-choice-btn:hover { background-color: #d00; color: #fff; }
-
-        /* MODIFICATION: Added media query for mobile responsiveness */
-        @media (max-width: 600px) {
-            body {
-                padding: 10px 0;
-            }
-            #app-wrapper {
-                width: 95%;
-                gap: 15px;
-            }
-            .action-buttons {
-                flex-direction: column;
-            }
-            .btn {
-                font-size: 16px;
-                padding: 15px;
-            }
-            .icon-button .label {
-                font-size: 13px;
-            }
-            .instructions-group textarea {
-                font-size: 16px;
-            }
-            #helga-output {
-                font-size: 14px;
-            }
-        }
     </style>
 </head>
 <body>
@@ -545,10 +517,10 @@
                 if (!part) return;
                 switch (part.status) {
                     case 'new': mesh.material = newMaterial; break;
-                    case 'discarded': material = discardedMaterial; break;
-                    case 'missing': material = missingPartMaterial; break;
-                    case 'defective': material = defectivePartMaterial; break;
-                    default: material = intactPartMaterial; break;
+                    case 'discarded': mesh.material = discardedMaterial; break;
+                    case 'missing': mesh.material = missingPartMaterial; break;
+                    case 'defective': mesh.material = defectivePartMaterial; break;
+                    default: mesh.material = intactPartMaterial; break;
                 }
             });
             damageSpheres.forEach(sphere => { sphere.material = defaultDotMaterial; });
