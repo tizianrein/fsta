@@ -14,8 +14,6 @@ It implements the workflow developed in the master thesis *Machine Reasoning and
 
 No installation or cloning is required — simply open the deployed web app and follow the five steps of the repair process.
 
-Link: https://fsta-tizian-reins-projects.vercel.app/
-
 ---
 
 ## 🧱 System Concept
@@ -40,7 +38,7 @@ The framework divides repair into **five structured steps**:
    Output → `record.json`
 
 5. **Review & Document**  
-   Log performed steps, attach photos, and export the complete intervention record.
+   Log performed steps, attach photos, and export the complete intervention record.  
    Input → `record.json`
 
 ---
@@ -96,18 +94,18 @@ The frontend never exposes the API key to users.
 ## 🚀 How to Use
 
 1. Open the deployed URL  
-   → **https://fsta.vercel.app/** (replace with your actual deployment URL)
+   → **https://fsta-ten.vercel.app/**
 
 2. Choose a workflow step:
    - **Generate Assembly** → model your object  
    - **Catalog Damages** → upload photos, mark issues  
    - **Plan Actions** → generate repair plan  
-   - **Guide Repair** → execute and ask H.E.L.G.A.
+   - **Guide Repair** → execute and ask
 
 3. Export or download your JSON files at any time.  
    They can be re-imported into the next phase.
 
-4. All computation happens through the serverless API hosted by you.  
+4. All computation happens through the serverless API.  
    Users never need an API key.
 
 ---
@@ -161,7 +159,7 @@ The frontend never exposes the API key to users.
 
 ## 🧭 Philosophy
 
-FSTA is grounded in the thesis FROM STRUCTURE TO ACTION: *Machine Reasoning and the Logics of Repair*.  
+FSTA is grounded in the thesis **FROM STRUCTURE TO ACTION:** *Machine Reasoning and the Logics of Repair*.  
 It explores how digital systems and multimodal AI can structure repair as a design act — not merely maintenance but a creative continuation of the built environment.
 
 ---
@@ -179,7 +177,7 @@ It explores how digital systems and multimodal AI can structure repair as a desi
 
 - Do **not** upload sensitive or copyrighted material.  
 - AI results are suggestions — always verify with qualified expertise before applying in practice.  
-- API usage may incur cost on your Vercel or Google Cloud account.
+- API usage may incur cost.
 
 ---
 
