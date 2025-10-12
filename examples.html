@@ -2,22 +2,86 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Repair Plan Examples</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Repair Examples</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧠</text></svg>">
     <style>
-        body { font-family: sans-serif; padding: 2em; }
-        ul { list-style: none; padding: 0; }
-        li { margin: 1em 0; }
-        a { font-size: 1.2em; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #fff;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            padding: 20px 0;
+            text-align: center;
+        }
+        .container {
+            max-width: 420px;
+            width: 90%;
+            background: #fff;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 {
+            color: #000;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        p.subtitle {
+            font-size: 18px;
+            color: #666;
+            margin-top: 0;
+            margin-bottom: 30px;
+        }
+        .workflow-nav {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .workflow-nav li a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            background-color: #f0f0f0;
+            color: #000;
+            padding: 15px 20px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .workflow-nav li a:hover {
+            background-color: #ddd;
+        }
     </style>
 </head>
 <body>
-    <h1>Repair Plan Viewer Examples</h1>
-    <p>Click a link below to see a pre-loaded repair plan example.</p>
-    <ul>
-        <li><a href="guide-repair_viewer.html?example=chair">Example 1: Repairing a Wooden Chair</a></li>
-        <li><a href="guide-repair_viewer.html?example=table">Example 2: Fixing a Wobbly Table</a></li>
-        <li><a href="guide-repair_viewer.html?example=lamp">Example 3: Rewiring a Vintage Lamp</a></li>
-        <!-- Add links for your other 7 examples here -->
-    </ul>
+    <div class="container">
+        <h1>Repair Plan Examples</h1>
+        <p class="subtitle">Ten different repair logics, pre-loaded for review.</p>
+
+        <nav>
+            <ul class="workflow-nav">
+                <li><a href="guide-repair_new.html?example=16"><span>🧹</span> The Janitor's Cookbook</a></li>
+                <li><a href="guide-repair_new.html?example=04"><span>⏳</span> The Long-Term Thinker</a></li>
+                <li><a href="guide-repair_new.html?example=18"><span>🚲</span> The Readymade Brain</a></li>
+                <li><a href="guide-repair_new.html?example=05"><span>🔪</span> The Anarchitect</a></li>
+                <li><a href="guide-repair_new.html?example=03"><span>🕸️</span> The Purist</a></li>
+                <li><a href="guide-repair_new.html?example=02"><span>🛠️</span> The Gentle Craftsman</a></li>
+                <li><a href="guide-repair_new.html?example=08"><span>✨</span> The Jeweler of Joints</a></li>
+                <li><a href="guide-repair_new.html?example=23"><span>🏙️</span> The Urbanist</a></li>
+                <li><a href="guide-repair_new.html?example=01"><span>🔬</span> The Preservation Scientist</a></li>
+                <li><a href="guide-repair_new.html?example=42"><span>🏰</span> The Stylistic Idealist</a></li>
+            </ul>
+        </nav>
+    </div>
 </body>
 </html>
