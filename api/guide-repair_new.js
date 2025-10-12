@@ -1,5 +1,5 @@
 // File: /api/guide-repair_new.js
-export const maxDuration = 60; // Set a 60-second timeout
+export const maxDuration = 60;
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -21,7 +21,7 @@ export default async function handler(req, res) {
 
     const geminiParts = [
       {
-        text: `You are H.E.L.G.A., a helpful and expert repair guide. A user has provided a JSON object representing a single step in a repair plan and has a question about it. Your task is to answer their question clearly and concisely, using the provided JSON as context.`,
+        text: `You are H.E.L.G.A., a helpful and expert repair guide. A user has provided a JSON object representing a single step in a repair plan and has a question about it. Your task is to answer their question clearly and concisely in plain text, using the provided JSON as context.`,
       },
       {
         text: `Repair Step Context (JSON):\n${JSON.stringify(stepContext || {}, null, 2)}`,
@@ -31,16 +31,16 @@ export default async function handler(req, res) {
       },
     ];
 
+    // --- THE FIX: Simplify the generationConfig ---
+    // We remove the responseMimeType to make the request more robust and avoid potential conflicts.
     const geminiPayload = {
       contents: [{ parts: geminiParts }],
       generationConfig: {
         temperature: 0.6,
         maxOutputTokens: 400,
-        responseMimeType: "text/plain",
       },
     };
 
-    // --- THE FIX: The URL typo is corrected here ---
     const geminiResponse = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent?key=${apiKey}`,
       {
@@ -57,6 +57,7 @@ export default async function handler(req, res) {
       throw new Error(data.error?.message || `API call failed with status ${geminiResponse.status}`);
     }
 
+    // The parsing logic remains correct for a standard response.
     const answer = data?.candidates?.[0]?.content?.parts?.map((p) => p.text || "").join("\n").trim() || "Sorry, I could not generate an answer.";
 
     return res.status(200).json({ answer });
