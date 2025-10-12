@@ -44,18 +44,29 @@ export default async function handler(req, res) {
       { text: `User's Question: "${question}"` }
     ];
     
-    const googleApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${apiKey}`;
+    const model = req.body.geminiModel || 'gemini-2.5-pro';
+    const googleApiUrl =
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+
 
     const googleResponse = await fetch(googleApiUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        contents: [{ parts: geminiParts }],
+        systemInstruction: { role: 'system', parts: [{ text: SYSTEM_PROMPT }] },
+        contents: [{
+          role: 'user',
+          parts: [
+            { text: `Current Repair Step Context:\n${JSON.stringify(stepContext, null, 2)}` },
+            { text: `User Question:\n${question}` }
+          ]
+        }],
         generationConfig: {
-            "temperature": 0.6, // Increased slightly to allow for more detailed, expert-like nuance
-            "maxOutputTokens": 350, // Increased to allow for more detailed answers
+          temperature: 0.6,
+          maxOutputTokens: 350,
+          responseMimeType: 'text/plain'
         }
-      }),
+      })
     });
 
     if (!googleResponse.ok) {

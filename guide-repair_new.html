@@ -704,16 +704,24 @@
                     }
 
                     const result = await response.json();
-                    
-                    if (!result.candidates?.[0]?.content?.parts?.[0]?.text) {
-                        let reason = "Invalid API response structure.";
-                        if (result.candidates?.[0]?.finishReason === "SAFETY") {
-                            reason = "The request was blocked for safety reasons.";
-                        }
-                        throw new Error(reason);
+
+                    const parts = result?.candidates?.[0]?.content?.parts || [];
+                    let text = parts.map(p => p?.text || '').filter(Boolean).join('\n').trim();
+
+                    if (!text && result?.candidates?.[0]?.text) {
+                    text = String(result.candidates[0].text).trim();
                     }
 
-                    updateHELGA(result.candidates[0].content.parts[0].text);
+                    if (text.startsWith('```')) {
+                    text = text.replace(/^```[a-zA-Z0-9]*\n?/,'').replace(/```$/,'').trim();
+                    }
+
+                    if (!text) {
+                    const fr = result?.candidates?.[0]?.finishReason;
+                    throw new Error(fr === 'SAFETY' ? 'The request was blocked for safety reasons.' : 'Invalid API response structure.');
+                    }
+
+                    updateHELGA(text);
 
                 } catch (error) {
                     console.error("Ask H.E.L.G.A. Error:", error);
