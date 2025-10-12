@@ -672,14 +672,53 @@
 
             document.getElementById('ask-question-btn').addEventListener('click', async () => {
                 const question = userPromptInput.value.trim();
-                if (!question) { updateHELGA("Please type a question in the text area first."); return; }
-                if (!currentHistoryJson) { updateHELGA("Please load a plan first."); return; }
+                if (!question) {
+                    updateHELGA("Please type a question in the text area first.");
+                    return;
+                }
+                if (!currentHistoryJson) {
+                    updateHELGA("Please load a plan first.");
+                    return;
+                }
                 const currentStep = currentHistoryJson.steps[currentStepIndex];
                 updateHELGA("Thinking...", true);
-                // Placeholder for API call
-                setTimeout(() => {
-                     updateHELGA("This is a simulated answer to your question. In a real application, this would come from an AI model.");
-                }, 1500);
+
+                try {
+                    const response = await fetch('/api/guide-repair_new', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            question: question, 
+                            stepContext: currentStep
+                        })
+                    });
+
+                    if (!response.ok) {
+                        let errorMsg = `Server error: ${response.status} ${response.statusText}`;
+                        try {
+                            const errorData = await response.json();
+                            errorMsg = errorData.message || errorMsg;
+                        } catch (e) {
+                        }
+                        throw new Error(errorMsg);
+                    }
+
+                    const result = await response.json();
+                    
+                    if (!result.candidates?.[0]?.content?.parts?.[0]?.text) {
+                        let reason = "Invalid API response structure.";
+                        if (result.candidates?.[0]?.finishReason === "SAFETY") {
+                            reason = "The request was blocked for safety reasons.";
+                        }
+                        throw new Error(reason);
+                    }
+
+                    updateHELGA(result.candidates[0].content.parts[0].text);
+
+                } catch (error) {
+                    console.error("Ask H.E.L.G.A. Error:", error);
+                    updateHELGA(`Sorry, an error occurred: ${error.message}`);
+                }
             });
 
             document.getElementById('comment-btn').addEventListener('click', () => {
