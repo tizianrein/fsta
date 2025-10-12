@@ -49,11 +49,11 @@ Each phase is assisted by a dedicated reasoning agent:
 
 | Agent | Function |
 |-------|-----------|
-| **H.A.N.S.** | Generates assemblies |
-| **M.A.G.D.A.** | Detects and classifies damages |
-| **R.O.L.F.** | Plans and sequences repair actions |
-| **H.E.L.G.A.** | Guides repair interactively |
-| **S.I.G.N.A.** | Compiles the final documentation |
+| **H.A.N.S.** 🌟| Generates assemblies |
+| **M.A.G.D.A.** 🔎| Detects and classifies damages |
+| **R.O.L.F.** 🔥| Plans and sequences repair actions |
+| **H.E.L.G.A.** 🎭| Guides repair interactively |
+| **S.I.G.N.A.** 💾| Compiles the final documentation |
 
 All reasoning is performed via the Vercel serverless API connecting to **Gemini 2.5 Pro Vision**.  
 The frontend never exposes the API key to users.
