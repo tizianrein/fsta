@@ -40,9 +40,9 @@ export default async function handler(req, res) {
       },
     };
 
-    // --- THE FIX: Use the correct, current model name ---
+    // --- THE FIX: The URL typo is corrected here ---
     const geminiResponse = await fetch(
-      `https://generativelenlanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent?key=${apiKey}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
