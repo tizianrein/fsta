@@ -48,12 +48,11 @@ export default async function handler(req, res) {
     const googleApiUrl =
       `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
-
     const googleResponse = await fetch(googleApiUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        systemInstruction: { role: 'system', parts: [{ text: SYSTEM_PROMPT }] },
+        systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] }, // no role here
         contents: [{
           role: 'user',
           parts: [
@@ -69,14 +68,18 @@ export default async function handler(req, res) {
       })
     });
 
+    // pass through non OK responses instead of masking them
     if (!googleResponse.ok) {
-        const errorText = await googleResponse.text();
-        console.error("Google API Error:", errorText);
-        throw new Error(`Google API Error: ${errorText}`);
+      let payload;
+      try { payload = await googleResponse.json(); }
+      catch { payload = { error: await googleResponse.text() }; }
+      console.error('Google API Error:', payload);
+      return res.status(googleResponse.status).json(payload);
     }
 
+    // OK branch
     const googleData = await googleResponse.json();
-    res.status(200).json(googleData);
+    return res.status(200).json(googleData);
 
   } catch (error) {
     console.error('Error in /api/ask-helga handler:', error);

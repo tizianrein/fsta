@@ -694,13 +694,13 @@
                     });
 
                     if (!response.ok) {
-                        let errorMsg = `Server error: ${response.status} ${response.statusText}`;
-                        try {
-                            const errorData = await response.json();
-                            errorMsg = errorData.message || errorMsg;
-                        } catch (e) {
-                        }
-                        throw new Error(errorMsg);
+                    let errorMsg = `Server error: ${response.status} ${response.statusText}`;
+                    try {
+                        const e = await response.json();
+                        if (e.error) errorMsg = typeof e.error === 'string' ? e.error : JSON.stringify(e.error);
+                        else if (e.message) errorMsg = e.message;
+                    } catch {}
+                    throw new Error(errorMsg);
                     }
 
                     const result = await response.json();
