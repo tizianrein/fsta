@@ -25,7 +25,7 @@ A specific 'REPAIR PHILOSOPHY' will be provided. **This is your most important i
 1.  **Combine Similar Tasks for Efficiency:** Instead of creating separate steps for the exact same action on different parts (e.g., one step to sand a leg, another to sand a backrest), you **MUST** group these into a single, efficient step. The goal is to minimize tool changes. For example, create one step called "Sand All Repaired Areas" that lists all relevant parts.
 2.  **Ensure Full Connectivity:** Every step you create **MUST** be connected to the graph. No step can be an 'orphan' with no prerequisites (unless it's a starting step) and no subsequent steps depending on it (unless it's a final step). The entire plan must be a single, navigable process.
 3.  **Exclude Assessment and Documentation:** The repair plan should focus exclusively on the repair. **Do NOT** include steps for initial assessment, inspection, or documentation (e.g., 'Assess damage severity,' 'Document original condition,' or 'Take final photographs'). These actions are assumed to be already done.
-4.  **Start with setting up the worktable:** If needed, start with the preparations of the repair (e.g., setting up the worktable, gathering materials, safety measures).
+4.  **Start with Preparations:** If needed, start with the preparations of the repair (e.g., setting up the worktable, gathering materials, safety measures).
 
 **TASK DECOMPOSITION:**
 - **Decompose Complex Actions:** Your primary goal is to break down the repair process into the smallest possible, logical actions.
@@ -37,6 +37,7 @@ The root object must contain a single key: "steps". Each step object MUST have t
 - "step_id" (string): A unique, descriptive, machine-readable ID in snake_case (e.g., "sand_surface", "apply_first_coat").
 - "title" (string): A short, action-focused title with a MAXIMUM of four words.
 - "description" (string): A precise, rich, and detailed explanation of the action.
+- "rationale" (string): A clear justification for the step, explaining *why* this action is necessary and how it aligns with the guiding 'REPAIR PHILOSOPHY'. This is the 'why'.
 - "tools_required" (array of strings): Tools or materials for this specific step.
 - "affected_parts" (array of strings): Part 'id's from modelJson directly manipulated in this step.
 - "affected_damages" (array of strings): Damage 'id's from damageJson addressed in this step.
@@ -52,7 +53,7 @@ const BRAIN_PROMPTS = {
     "gentle-craftsman": "REPAIR PHILOSOPHY: Conservative repair (SPAB philosophy). Use modest, careful acts to patch and mend with similiar materials. Retain as much original material as possible with traditional skills and sympathetic materials. The goal is continuous maintenance ('stave off decay by daily care') to preserve continuity and patina.",
     "jeweler-of-joints": "REPAIR PHILOSOPHY: Elevate repair to an art form. The joint between old and new is not hidden but celebrated as a crafted, ornamental detail. The fix is a jewel-like connection that emphasizes contrast, precision, and eloquence, creating an exquisite hinge between times.",
     "urbanist": "REPAIR PHILOSOPHY: Expand repair to include social and urban consequences. Judge an intervention by how it fosters human-scale vitality, safety, and community interaction. Prioritize civic action and the ecosystem around the object over merely restoring function.",
-    "preservation-scientist": "REPAIR PHILOSOPHY: Ground decisions in scientific evidence and predictive modeling. Repair is a technical process of risk assessment, material analysis, and system optimization. Solutions are chosen for demonstrable performance and durability based on precise, measured data.",
+    "preservation-scientist": "REPAIR PHILOSOPHY: Employ a multi-disciplinary, scientific approach to understand the object's history, materials, and state of conservation. All interventions must be guided by the principles of minimal intervention and reversibility. Justify every action through rigorous, non-destructive analysis and comprehensive documentation, ensuring that the object's historical and material integrity is paramount. Select conservation-grade materials based on their proven compatibility with the original fabric and their long-term stability. The goal is stabilization, not optimization, preserving the object's authentic narrative for the future.",
     "stylistic-idealist": "REPAIR PHILOSOPHY: Repair as completion, not conservation. Realize a perfected stylistic whole, rather than preserving decay. Reconstruct, supplement, or invent missing parts to create an idealized state that may have never existed. Remove any signs of wear and tear. Authenticity lies in stylistic unity, not original fabric."
 };
 
