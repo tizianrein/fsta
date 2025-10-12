@@ -32,7 +32,7 @@ The framework divides repair into **five structured steps**:
    Output → `plan.json` (directed action graph)
 
 4. **Guide Repair**  
-   Follow the generated plan interactively. The embedded agent **H.E.L.G.A.** (Helpful Electronic & Logistical Guidance Agent) answers on-site repair questions.
+   Follow the generated plan interactively. The embedded agent answers on-site repair questions.  
    Output → `record.json`
 
 5. **Review & Document**  
