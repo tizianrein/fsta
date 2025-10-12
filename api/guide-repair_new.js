@@ -17,27 +17,34 @@ export default async function handler(req, res) {
       return res.status(400).json({ message: "Missing question" });
     }
 
-    // Corrected payload structure for the Gemini API
+    // A more compatible payload structure using a multi-turn conversation
+    // to set the system prompt/persona. This works better with models like gemini-pro.
     const geminiPayload = {
-      system_instruction: { // Correct key: "system_instruction" with an underscore
-        parts: [
-          {
-            text: `You are H.E.L.G.A., a repair guide. The user will ask about a repair plan (JSON). Use the provided plan step as context, then answer in plain text.`,
-          },
-        ],
-      },
       contents: [
+        // Turn 1: Sets the persona of H.E.L.G.A.
         {
           role: "user",
-          parts: [
-            {
-              text: `Repair plan step:\n${JSON.stringify(
-                stepContext || {},
-                null,
-                2
-              )}\n\nUser question:\n${question}`,
-            },
-          ],
+          parts: [{
+            text: "You are H.E.L.G.A., a helpful and expert repair guide. When a user provides a JSON object representing a step in a repair plan and asks a question, you must answer their question concisely based on the provided context.",
+          }],
+        },
+        // Turn 2: A simple acknowledgment from the model to confirm it understood the persona.
+        {
+          role: "model",
+          parts: [{
+            text: "Understood. I will act as H.E.L.G.A. and answer questions based on the repair step provided.",
+          }],
+        },
+        // Turn 3: The actual user question with the context.
+        {
+          role: "user",
+          parts: [{
+            text: `Here is the current repair step:\n${JSON.stringify(
+              stepContext || {},
+              null,
+              2
+            )}\n\nHere is my question:\n${question}`,
+          }],
         },
       ],
       generationConfig: {
@@ -48,18 +55,19 @@ export default async function handler(req, res) {
     };
 
     const r = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent?key=${apiKey}`,
+      // Using the standard, widely available gemini-pro model
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(geminiPayload), // Send the correctly structured payload
+        body: JSON.stringify(geminiPayload),
       }
     );
 
     const data = await r.json();
 
+    // If the API call was not successful, log the error and throw it.
     if (!r.ok) {
-      // Improved error logging to see the actual API error on the server
       console.error("Gemini API Error Response:", data);
       throw new Error(
         data.error?.message || `The API call failed with status ${r.status}`
@@ -72,8 +80,12 @@ export default async function handler(req, res) {
 
     return res.status(200).json({ answer });
   } catch (err) {
+    // Log the full error on the server for debugging
     console.error("Backend Error:", err);
-    // Send a more descriptive error to the frontend
-    return res.status(500).json({ message: "An internal error occurred.", error: String(err.message) });
+    // Send a more descriptive error message to the frontend
+    return res.status(500).json({
+      message: "An internal error occurred.",
+      error: String(err.message), // Send the actual error message
+    });
   }
 }
