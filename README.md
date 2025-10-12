@@ -222,7 +222,7 @@ See the `LICENSE` file for details.
 
 ---
 
-## 🧩 Citation
+## 📢 Citation
 
 If you reference this repository in research or teaching:
 
