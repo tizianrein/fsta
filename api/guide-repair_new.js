@@ -1,51 +1,32 @@
 // Simple /api/guide-repair_new
 export default async function handler(req, res) {
+  // 1. Basic method check
   if (req.method !== "POST") {
-    return res.status(405).json({ message: "Use POST" });
+    return res.status(405).json({ message: "Use POST method" });
   }
 
+  // 2. Check for the API Key
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    return res.status(500).json({ message: "Missing GEMINI_API_KEY" });
+    console.error("GEMINI_API_KEY is not set in environment variables.");
+    return res.status(500).json({ message: "Server configuration error: Missing API Key." });
   }
 
   try {
-    const { question, stepContext } =
-      typeof req.body === "object" ? req.body : JSON.parse(req.body || "{}");
+    // 3. Directly parse the body. In Vercel, this should already be an object.
+    const { question, stepContext } = req.body;
 
     if (!question) {
-      return res.status(400).json({ message: "Missing question" });
+      return res.status(400).json({ message: "Missing 'question' in request body." });
     }
 
-    // A more compatible payload structure using a multi-turn conversation
-    // to set the system prompt/persona. This works better with models like gemini-pro.
+    // This multi-turn structure is the most compatible way to set a persona
+    // for the gemini-pro model.
     const geminiPayload = {
       contents: [
-        // Turn 1: Sets the persona of H.E.L.G.A.
-        {
-          role: "user",
-          parts: [{
-            text: "You are H.E.L.G.A., a helpful and expert repair guide. When a user provides a JSON object representing a step in a repair plan and asks a question, you must answer their question concisely based on the provided context.",
-          }],
-        },
-        // Turn 2: A simple acknowledgment from the model to confirm it understood the persona.
-        {
-          role: "model",
-          parts: [{
-            text: "Understood. I will act as H.E.L.G.A. and answer questions based on the repair step provided.",
-          }],
-        },
-        // Turn 3: The actual user question with the context.
-        {
-          role: "user",
-          parts: [{
-            text: `Here is the current repair step:\n${JSON.stringify(
-              stepContext || {},
-              null,
-              2
-            )}\n\nHere is my question:\n${question}`,
-          }],
-        },
+        { role: "user", parts: [{ text: "You are H.E.L.G.A., an expert repair guide. Answer the user's question based on the JSON context of the repair step they provide." }] },
+        { role: "model", parts: [{ text: "Understood. I am H.E.L.G.A. I will answer based on the provided repair step." }] },
+        { role: "user", parts: [{ text: `Repair step context:\n${JSON.stringify(stepContext || {}, null, 2)}\n\nQuestion:\n${question}` }] }
       ],
       generationConfig: {
         temperature: 0.6,
@@ -54,38 +35,47 @@ export default async function handler(req, res) {
       },
     };
 
-    const r = await fetch(
-      // Using the standard, widely available gemini-pro model
+    // 4. Fetch from Google with a timeout controller
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 9000); // 9-second timeout
+
+    const geminiResponse = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(geminiPayload),
+        signal: controller.signal, // Attach the abort signal
       }
     );
 
-    const data = await r.json();
+    clearTimeout(timeoutId); // Clear the timeout if the request completes in time
 
-    // If the API call was not successful, log the error and throw it.
-    if (!r.ok) {
+    const data = await geminiResponse.json();
+
+    // 5. Explicitly check if the API call was successful
+    if (!geminiResponse.ok) {
       console.error("Gemini API Error Response:", data);
-      throw new Error(
-        data.error?.message || `The API call failed with status ${r.status}`
-      );
+      // Forward the specific error from Google to the frontend
+      throw new Error(data.error?.message || `API call failed with status ${geminiResponse.status}`);
     }
 
-    const answer =
-      data?.candidates?.[0]?.content?.parts?.map((p) => p.text || "").join("\n").trim() ||
-      "Sorry, I could not generate an answer.";
+    const answer = data?.candidates?.[0]?.content?.parts?.map((p) => p.text || "").join("\n").trim() || "Sorry, I could not find an answer.";
 
     return res.status(200).json({ answer });
+
   } catch (err) {
-    // Log the full error on the server for debugging
-    console.error("Backend Error:", err);
-    // Send a more descriptive error message to the frontend
-    return res.status(500).json({
-      message: "An internal error occurred.",
-      error: String(err.message), // Send the actual error message
-    });
+    // 6. This is the critical part for debugging.
+    console.error("!!! BACKEND CRASH !!!:", err); // This will show the real error in your Vercel logs
+
+    let errorMessage = "An internal server error occurred.";
+    if (err.name === 'AbortError') {
+      errorMessage = "The request to the AI model timed out. Please try again.";
+    } else if (err.message) {
+      // Forward the actual error message to the frontend for better debugging
+      errorMessage = err.message;
+    }
+
+    return res.status(500).json({ message: errorMessage, error: String(err) });
   }
 }
