@@ -32,12 +32,12 @@ The framework divides repair into **five structured steps**:
    Output → `plan.json` (directed action graph)
 
 4. **Guide Repair**  
-   Follow the generated plan interactively.  
-   The embedded agent **H.E.L.G.A.** (Helpful Electronic & Logistical Guidance Agent) answers on-site repair questions.
+   Follow the generated plan interactively. The embedded agent **H.E.L.G.A.** (Helpful Electronic & Logistical Guidance Agent) answers on-site repair questions.
+   Output → `record.json`
 
 5. **Review & Document**  
-   Log performed steps, attach photos, and export the complete intervention record.  
-   Output → `record.json`
+   Log performed steps, attach photos, and export the complete intervention record.
+   Input → `record.json`
 
 ---
 
@@ -157,7 +157,7 @@ The frontend never exposes the API key to users.
 
 ## 🧭 Philosophy
 
-FSTA is grounded in the thesis *Machine Reasoning and the Logics of Repair*.  
+FSTA is grounded in the thesis FROM STRUCTURE TO ACTION: *Machine Reasoning and the Logics of Repair*.  
 It explores how digital systems and multimodal AI can structure repair as a design act — not merely maintenance but a creative continuation of the built environment.
 
 ---
@@ -190,7 +190,7 @@ See the `LICENSE` file for details.
 
 If you reference this repository in research or teaching:
 
-> Rein, Tizian (2025). *FSTA – From Structure To Action: A Framework for AI-Assisted Repair Workflows.*  
+> Rein, Tizian (2025). *From Structure To Action: Machine Reasoning and the Logics of Repair.*  
 > Technical University of Munich, Chair of Digital Fabrication.
 
 ---
@@ -198,5 +198,5 @@ If you reference this repository in research or teaching:
 ## 💬 Contact
 
 **Tizian Rein**  
-📧 tizian.rein@tum.de  
+📧 mail@tizianrein.de    
 🔗 [https://github.com/tizianrein/fsta](https://github.com/tizianrein/fsta)
