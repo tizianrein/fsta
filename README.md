@@ -60,7 +60,7 @@ The frontend never exposes the API key to users.
 
 ---
 
-## 🧩 Repair Philosophies (The Ten Brains)
+## 🔮 Repair Philosophies (The Ten Archetypes of Repair)
 
 FSTA structures repair not as a single solution but as a **design space of competing logics**.  
 Each “Brain” represents a different way of reasoning about intervention — technical, cultural, or conceptual.  
@@ -68,16 +68,16 @@ These archetypes can be selected to shape the generated repair plan or combined 
 
 | Brain | Orientation | Description |
 |--------|--------------|-------------|
-| **The Janitor’s Cookbook** | Pragmatic | Fast, cheap, robust. Function over aesthetics. Repair as survival logic. |
-| **The Long-Term Thinker** | Systemic | Inspired by Stewart Brand’s *Shearing Layers*. Focuses on modularity, reversibility, and preparation for future repairs. |
-| **The Readymade Brain** | Conceptual | Uses existing objects or materials creatively (after Duchamp). Repair as clever reappropriation. |
-| **The Anarchitect** | Subversive | Inspired by Gordon Matta-Clark. Cutting away and exposing hidden systems; questioning order. |
-| **The Purist** | Ethical | Following John Ruskin’s idea of honesty and authenticity. Intervene only when necessary, leave traces visible. |
-| **The Gentle Craftsman** | Traditional | Rooted in SPAB’s minimal intervention. Uses traditional skills and reversible methods. |
-| **The Jeweler of Joints** | Artisanal | Following Carlo Scarpa. The joint becomes a crafted, visible dialogue between old and new. |
-| **The Urbanist** | Societal | Inspired by Jane Jacobs. Repair as civic act, strengthening community and everyday use. |
-| **The Preservation Scientist** | Technical | Guided by ICOMOS principles. Based on research, risk assessment, and material science. |
-| **The Stylistic Idealist** | Aesthetic | Following Viollet-le-Duc. Aims for stylistic unity and perfection, sometimes reconstructing beyond authenticity. |
+| 🧹 **The Janitor’s Cookbook** | Pragmatic | Fast, cheap, robust. Function over aesthetics. Repair as survival logic. |
+| ⏳ **The Long-Term Thinker** | Systemic | Inspired by Stewart Brand’s *Shearing Layers*. Focuses on modularity, reversibility, and preparation for future repairs. |
+| 🚲 **The Readymade Brain** | Conceptual | Uses existing objects or materials creatively (after Duchamp). Repair as clever reappropriation. |
+| 🔪 **The Anarchitect** | Subversive | Inspired by Gordon Matta-Clark. Cutting away and exposing hidden systems; questioning order. |
+| 🕸️ **The Purist** | Ethical | Following John Ruskin’s idea of honesty and authenticity. Intervene only when necessary, leave traces visible. |
+| 🛠️ **The Gentle Craftsman** | Traditional | Rooted in SPAB’s minimal intervention. Uses traditional skills and reversible methods. |
+| ✨ **The Jeweler of Joints** | Artisanal | Following Carlo Scarpa. The joint becomes a crafted, visible dialogue between old and new. |
+| 🏙️ **The Urbanist** | Societal | Inspired by Jane Jacobs. Repair as civic act, strengthening community and everyday use. |
+| 🔬 **The Preservation Scientist** | Technical | Guided by ICOMOS principles. Based on research, risk assessment, and material science. |
+| 🏰 **The Stylistic Idealist** | Aesthetic | Following Viollet-le-Duc. Aims for stylistic unity and perfection, sometimes reconstructing beyond authenticity. |
 
 Each logic produces **distinct action graphs** and **different physical results** from the same input.  
 This plurality turns FSTA into a **comparative reasoning tool**, allowing designers, conservators, and craftspeople to negotiate between competing values — authenticity, economy, performance, ecology, or aesthetics.
