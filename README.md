@@ -94,7 +94,8 @@ The frontend never exposes the API key to users.
 ## 🚀 How to Use
 
 1. Open the deployed URL  
-   → **https://fsta-ten.vercel.app/**
+   → <a href="https://fsta-ten.vercel.app/" target="_blank" rel="noopener noreferrer">**fsta-ten.vercel.app**</a>
+
 
 2. Choose a workflow step:
    - **Generate Assembly** → model your object  
