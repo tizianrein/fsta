@@ -152,7 +152,7 @@
             <div class="modal-actions"><button class="btn modal-btn close-modal-btn">Close</button></div>
         </div>
     </div>
-    <div id="step-detail-modal-overlay" class="modal-overlay"><div class="modal-content"><h3>Step Details</h3><div class="modal-body" id="step-detail-modal-body"></div><div class="modal-actions"><button class="btn modal-btn close-modal-btn">Close</button></div></div></div>
+    <div id="step-detail-modal-overlay" class="modal-overlay"><div class="modal-content"><h3 id="step-detail-title">Step Details</h3><div class="modal-body" id="step-detail-modal-body"></div><div class="modal-actions"><button class="btn modal-btn close-modal-btn">Close</button></div></div></div>
     <div id="settings-modal-overlay" class="modal-overlay">
         <div class="modal-content">
             <h3>Settings</h3>
@@ -507,9 +507,15 @@
         function showStepDetailModal() {
             if (!currentPlanJson || !currentStepId || !planMap.has(currentStepId)) return;
             const step = planMap.get(currentStepId);
+            
+            document.getElementById('step-detail-title').textContent = step.title;
+            
             const body = document.getElementById('step-detail-modal-body');
+
             body.innerHTML = `
                 <p>${step.description}</p>
+                <b>Rationale:</b>
+                <p style="margin-top: 5px;">${step.rationale || 'No rationale provided.'}</p>
                 <b>Tools Required:</b> <ul>${(step.tools_required || ['None']).map(t => `<li>${t}</li>`).join('')}</ul>
                 <b>Affected Parts:</b> <ul>${(step.affected_parts || ['None']).map(p => `<li>${p}</li>`).join('')}</ul>
                 <b>Addressed Damages:</b> <ul>${(step.affected_damages || ['None']).map(d => `<li>${d}</li>`).join('')}</ul>
