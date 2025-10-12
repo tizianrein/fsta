@@ -3,6 +3,7 @@ Machine Reasoning and the Logics of Repair
 
 *A Web Framework for AI-Assisted Repair Workflows*  
 by **Tizian Rein**, 2025  
+https://tizianrein.de/
 
 Supervised by Prof. Dr. Kathrin Dörfler
 & Begüm Saral  
@@ -235,3 +236,5 @@ If you reference this repository in research or teaching:
 **Tizian Rein**  
 📧 mail@tizianrein.de    
 🔗 [https://github.com/tizianrein/fsta](https://github.com/tizianrein/fsta)
+
+https://tizianrein.de/
