@@ -2,64 +2,45 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-    <title>Step 4: Execute Plan</title>
+    <meta name="viewport" content="width=device-width, initial-scale=0.75">
+    <title>Step 4: Guide Repair</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛠️</text></svg>">
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; background-color: #fff; color: #000; display: flex; justify-content: center; padding: 20px 0; }
-
-        #app-wrapper { width: 90%; max-width: 420px; display: flex; flex-direction: column; gap: 20px; }
+        #app-wrapper { width: 90%; max-width: 520px; display: flex; flex-direction: column; gap: 20px; }
         #top-header { display: flex; flex-direction: column; gap: 20px; }
         .top-input-row { display: flex; align-items: stretch; gap: 10px; }
         #object-name { flex-grow: 1; background-color: #f0f0f0; padding: 12px; border: 1px solid #000; border-radius: 0; font-size: 14px; box-sizing: border-box; }
-
         #viewer-container { width: 100%; height: 40vh; position: relative; background-color: #fff; }
         #viewer-canvas { display: block; width: 100%; height: 100%; }
         #info-box { position: absolute; top: 10px; left: 0px; padding: 0px; background-color: transparent; border: none; font-family: monospace; font-size: 12px; line-height: 1.4; z-index: 101; display: none; pointer-events: none; max-width: 250px; }
-
         #step-display-container { display: none; position: absolute; top: 10px; right: 0px; z-index: 100; display: flex; flex-direction: column; align-items: flex-end; }
-        #step-counter { font-family: monospace; font-size: 12px; color: #d00; margin-bottom: 5px; }
         .step-nav-arrow { cursor: pointer; display: block; width: 30px; height: 30px; border: 1px solid #d00; color: #d00; background-color: #fff; text-align: center; line-height: 28px; font-size: 20px; margin-top: 5px; user-select: none; }
         .step-nav-arrow.disabled { cursor: not-allowed; color: #ccc; border-color: #ccc; }
         #step-info-panel { display: none; position: absolute; bottom: 10px; left: 0px; right: 0px; background-color: rgba(221, 51, 51, 0.85); color: #fff; padding: 15px; border: 1px solid #d00; cursor: pointer; z-index: 100; }
         #step-info-panel h4 { margin: 0 0 5px 0; font-size: 16px; font-weight: bold; text-align: center;  }
-        #step-info-panel p { margin: 0; font-size: 12px; }
         #step-info-panel .click-prompt { font-size: 8px; text-transform: uppercase; margin-top: 8px; opacity: 0.8; text-align: center; }
-
-        #step-info-panel.completed {
-            background-color: rgba(25, 135, 84, 0.85);
-            border-color: #198754;
-        }
-
-        #bottom-ui-container { display: flex; flex-direction: column; gap: 15px; }
+        #step-info-panel.completed { background-color: rgba(25, 135, 84, 0.85); border-color: #198754; }
+        #bottom-ui-container { display: flex; flex-direction: column; gap: 12px; }
         .icon-controls { display: flex; justify-content: space-around; text-align: center; padding: 10px 0; }
         .icon-button { cursor: pointer; color: #000; }
         .icon-button svg { width: 18px; height: 18px; }
         .icon-button .label { font-size: 12px; margin-top: 5px; }
-
         .action-buttons { display: flex; gap: 10px; }
-        .btn { flex-grow: 1; padding: 12px; font-size: 14px; font-weight: 600; border: none; border-radius: 0; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; }
+        .btn { flex-grow: 1; padding: 12px; font-size: 14px; font-weight: 600; border: none; border-radius: 0; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; background-color: #000; color: #fff; }
         .btn-primary { background-color: #0d6efd; color: #fff; }
         .btn-success { background-color: #198754; color: #fff; }
-        .btn-dark { background-color: #000; color: #fff; }
-        .btn.disabled { background-color: #ccc; cursor: not-allowed; border: 1px solid #bbb; }
-        
+        .btn.disabled { background-color: #ccc; cursor: not-allowed; }
         .instructions-group { background-color: #fff; padding: 15px; border: 1px solid #000; }
         .instructions-group label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 8px; color: #000; }
         .instructions-group textarea { width: 100%; height: 60px; padding: 10px; border: none; background-color: #fff; color: #000; border-radius: 0; font-size: 14px; box-sizing: border-box; resize: vertical; }
-
         .helga-group { background-color: #000; color: #fff; padding: 15px; }
         #helga-output { font-family: "SF Mono", Consolas, Menlo, monospace; font-size: 13px; line-height: 1.5; min-height: 20px; white-space: pre-wrap; }
         #helga-output .cursor { display: inline-block; background-color: #fff; width: 8px; height: 1em; animation: blink 1s step-end infinite; }
-
-        @keyframes blink {
-            from, to { background-color: transparent; }
-            50% { background-color: #fff; }
-        }
-
-        .modal-overlay, .modal-content, .modal-actions { box-sizing: border-box; }
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,.7); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
-        .modal-content { background-color: #fff; padding: 20px; border: 1px solid #000; width: 100%; max-width: 400px; display: flex; flex-direction: column; max-height: 80vh; }
+        @keyframes blink { from, to { background-color: transparent; } 50% { background-color: #fff; } }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,.7); z-index: 1000; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
+        .modal-content { background-color: #fff; padding: 20px; border: 1px solid #000; width: 100%; max-width: 400px; display: flex; flex-direction: column; max-height: 80vh; position: relative; }
+        .svg-save-btn { position: absolute; top: 20px; left: 20px; flex-grow: 0; z-index: 10; }
         .modal-content h3 { margin-top: 0; color: #000; text-align: center; }
         .modal-body { overflow-y: auto; }
         .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
@@ -67,8 +48,24 @@
         .hidden-input { display: none; }
         #json-view-modal-overlay .modal-content textarea { width: 100%; height: 40vh; resize: none; font-family: monospace; font-size: 12px; margin-bottom: 10px; border-radius: 0; }
         #graph-modal-overlay .modal-content { max-width: 90vw; height: 80vh; }
-        #graph-container { width: 100%; height: calc(100% - 40px); }
+        #graph-container { width: 100%; flex-grow: 1; min-height: 0; }
         #graph-container svg { width: 100%; height: 100%; }
+        #graph-title { margin-top: 45px; }
+        #step-nav-choices { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; margin-bottom: 5px; }
+        .step-choice-btn {
+            cursor: pointer;
+            border: 1px solid #d00;
+            color: #d00;
+            background-color: #fff;
+            padding: 0 10px;
+            font-size: 14px;
+            user-select: none;
+            text-align: right;
+            min-width: 120px;
+            height: 30px;
+            line-height: 28px;
+        }
+        .step-choice-btn:hover { background-color: #d00; color: #fff; }
     </style>
 </head>
 <body>
@@ -84,8 +81,7 @@
             <div id="info-box"></div>
             
             <div id="step-display-container">
-                <div id="step-counter"></div>
-                <div id="step-nav-next" class="step-nav-arrow">→</div>
+                <div id="step-nav-choices"></div>
                 <div id="step-nav-prev" class="step-nav-arrow">←</div>
             </div>
             <div id="step-info-panel">
@@ -96,17 +92,20 @@
         
         <div id="bottom-ui-container">
              <div class="icon-controls">
-                <div id="upload-json-btn" class="icon-button" title="Upload JSON"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z"/></svg><div class="label">Upload JSON</div></div>
-                <div id="copy-json-btn" class="icon-button" title="Read & Copy JSON"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H6z"/><path d="M2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1H2z"/></svg><div class="label">Read & Copy JSON</div></div>
-                <div id="view-plan-graph-btn" class="icon-button" title="View plan graph"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M13.5 1a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.499 2.499 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5zm-8.5 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm11 5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/></svg><div class="label">View Graph</div></div>
-                <div id="download-json-btn" class="icon-button" title="Download JSON"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/></svg><div class="label">Download JSON</div></div>
+                <div id="upload-json-btn" class="icon-button" title="Upload JSON"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z"/></svg><div class="label">Upload</div></div>
+                <div id="copy-json-btn" class="icon-button" title="Read & Copy JSON"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H6z"/><path d="M2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1H2z"/></svg><div class="label">Read & Copy</div></div>
+                <div id="explode-view-btn" class="icon-button" title="Explode View"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M5.828 10.172a.5.5 0 0 0-.707 0l-4.096 4.096V11.5a.5.5 0 0 0-1 0v3.975a.5.5 0 0 0 .5.5H4.5a.5.5 0 0 0 0-1H1.732l4.096-4.096a.5.5 0 0 0 0-.707zm4.344-4.344a.5.5 0 0 0 .707 0l4.096-4.096V4.5a.5.5 0 1 0 1 0V.525a.5.5 0 0 0-.5-.5H11.5a.5.5 0 0 0 0 1h2.768l-4.096 4.096a.5.5 0 0 0 0 .707z"/></svg><div class="label">Explode</div></div>
+                <div id="reset-view-btn" class="icon-button" title="Reset View" style="display:none;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M.172 15.828a.5.5 0 0 0 .707 0l4.096-4.096V14.5a.5.5 0 1 0 1 0v-3.975a.5.5 0 0 0-.5-.5H1.5a.5.5 0 0 0 0 1h2.768L.172 15.121a.5.5 0 0 0 0 .707zM15.828.172a.5.5 0 0 0-.707 0l-4.096 4.096V1.5a.5.5 0 1 0-1 0v3.975a.5.5 0 0 0 .5.5H14.5a.5.5 0 0 0 0-1h-2.768L15.828.879a.5.5 0 0 0 0-.707z"/></svg><div class="label">Restore</div></div>
+                <div id="view-plan-graph-btn" class="icon-button" title="View plan graph"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M13.5 1a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.499 2.499 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5zm-8.5 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm11 5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/></svg><div class="label">Graph</div></div>
+                <div id="download-drawings-btn" class="icon-button" title="Download Drawings"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="14" height="14" rx="2"></rect><line x1="9" y1="6" x2="9" y2="12"></line><line x1="6" y1="9" x2="12" y2="9"></line></svg><div class="label">Drawings</div></div>
+                <div id="download-json-btn" class="icon-button" title="Download JSON"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/></svg><div class="label">Download</div></div>
             </div>
             
             <div class="action-buttons">
                 <button id="start-btn" class="btn btn-primary">⏱️ Start</button>
                 <button id="done-btn" class="btn btn-success">✅ Done!</button>
-                <button id="ask-question-btn" class="btn btn-dark">❓ Ask</button>
-                <button id="comment-btn" class="btn btn-dark">💬 Comment</button>
+                <button id="ask-question-btn" class="btn">❓ Ask</button>
+                <button id="comment-btn" class="btn">💬 Comment</button>
             </div>
 
             <div class="instructions-group">
@@ -120,9 +119,9 @@
         </div>
     </div>
     
-    <div id="data-choice-modal-overlay" class="modal-overlay"><div class="modal-content"><h3 id="data-choice-title">Select Data</h3><div class="action-buttons" style="display: grid; grid-template-columns: 1fr; gap: 10px;"><button id="choice-btn-assembly" class="btn modal-btn">📦 Assembly</button><button id="choice-btn-damages" class="btn modal-btn">📍 Damages</button><button id="choice-btn-plan" class="btn modal-btn">📋 Repair-Plan</button><button id="choice-btn-history" class="btn modal-btn">📖 History</button></div><div class="modal-actions" style="margin-top:20px"><button class="btn modal-btn close-modal-btn">Cancel</button></div></div></div>
+    <div id="data-choice-modal-overlay" class="modal-overlay"><div class="modal-content"><h3 id="data-choice-title">Select Data</h3><div class="action-buttons" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;"><button id="choice-btn-assembly" class="btn modal-btn">📦 Assembly</button><button id="choice-btn-damages" class="btn modal-btn">📍 Damages</button><button id="choice-btn-plan" class="btn modal-btn">📋 Plan</button><button id="choice-btn-history" class="btn modal-btn">📖 History</button></div><div class="modal-actions" style="margin-top:20px"><button class="btn modal-btn close-modal-btn">Cancel</button></div></div></div>
     <div id="json-view-modal-overlay" class="modal-overlay"><div class="modal-content"><h3 id="json-view-title">Current JSON</h3><textarea id="json-view-textarea" readonly></textarea><div class="modal-actions"><button id="copy-json-from-modal-btn" class="btn modal-btn">Copy</button><button class="btn modal-btn close-modal-btn">Close</button></div></div></div>
-    <div id="graph-modal-overlay" class="modal-overlay"><div class="modal-content"><h3 id="graph-title">Graph</h3><div id="graph-container"></div><div class="modal-actions"><button class="btn modal-btn close-modal-btn">Close</button></div></div></div>
+    <div id="graph-modal-overlay" class="modal-overlay"><div class="modal-content"><button id="save-graph-svg-btn" class="btn modal-btn svg-save-btn">Save as SVG</button><h3 id="graph-title">Graph</h3><div id="graph-container"></div><div class="modal-actions"><button class="btn modal-btn close-modal-btn">Close</button></div></div></div>
     <div id="step-detail-modal-overlay" class="modal-overlay"><div class="modal-content"><h3>Step Details</h3><div id="step-detail-modal-body" class="modal-body"></div><div class="modal-actions"><button class="btn modal-btn close-modal-btn">Close</button></div></div></div>
 
     <input type="file" id="assembly-upload-input" class="hidden-input" accept=".json">
@@ -139,31 +138,37 @@
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
         const HELGA_PREFIX = "H.E.L.G.A.🎭: ";
+        const ANIMATION_DURATION = 800;
         let scene, camera, renderer, controls, axesScene, axesCamera, infoBox, raycaster, mouse;
         let typingInterval;
         let currentModelJson, currentDamageJson, currentHistoryJson;
-        let currentStepIndex = 0;
+        let currentStepId = null;
+        let stepHistory = [];
+        let planMap = new Map();
         let stepStartTime = null;
+        let activeAnimations = [];
 
         const objectGroup = new THREE.Group();
         const damageSpheres = [];
         const partMeshesMap = new Map();
         
         const viewerContainer = document.getElementById('viewer-container');
-        const viewerCanvas = document.getElementById('viewer-canvas');
         const helgaOutputEl = document.getElementById('helga-output');
         const userPromptInput = document.getElementById('user-prompt');
         const stepDisplayContainer = document.getElementById('step-display-container');
         const stepInfoPanel = document.getElementById('step-info-panel');
-        const stepCounterEl = document.getElementById('step-counter');
-        const stepNavNextBtn = document.getElementById('step-nav-next');
         const stepNavPrevBtn = document.getElementById('step-nav-prev');
         const startBtn = document.getElementById('start-btn');
         const doneBtn = document.getElementById('done-btn');
+        const explodeBtn = document.getElementById('explode-view-btn');
+        const resetBtn = document.getElementById('reset-view-btn');
 
-        const defaultPartMaterial = new THREE.MeshStandardMaterial({ color: 0x666666, transparent: true, opacity: 0.4, side: THREE.DoubleSide });
-        const stepHighlightMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000, transparent: true, opacity: 0.4, side: THREE.DoubleSide });
-        const selectionPartMaterial = new THREE.MeshStandardMaterial({ color: 0x0000ff, transparent: true, opacity: 0.8, side: THREE.DoubleSide });
+        const intactPartMaterial = new THREE.MeshStandardMaterial({ color: 0x666666, transparent: true, opacity: 0.3, side: THREE.DoubleSide });
+        const defectivePartMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000, transparent: true, opacity: 0.3, side: THREE.DoubleSide });
+        const missingPartMaterial = new THREE.MeshStandardMaterial({ color: 0xffff00, transparent: true, opacity: 0.3, side: THREE.DoubleSide });
+        const selectionPartMaterial = new THREE.MeshStandardMaterial({ color: 0x0000ff, transparent: true, opacity: 0.7, side: THREE.DoubleSide });
+        const newMaterial = new THREE.MeshStandardMaterial({ color: 0xf600f6, transparent: true, opacity: 0.3, side: THREE.DoubleSide });
+        const discardedMaterial = new THREE.MeshStandardMaterial({ color: 0xfdda0d, transparent: true, opacity: 0.3, side: THREE.DoubleSide });
         const outlineMaterial = new THREE.LineBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.8});
         const defaultDotMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
         const selectedDotMaterial = new THREE.MeshBasicMaterial({ color: 0x6f0000 });
@@ -173,35 +178,58 @@
             scene.background = new THREE.Color(0xffffff);
             scene.add(objectGroup);
             camera = new THREE.PerspectiveCamera(50, viewerContainer.clientWidth / viewerContainer.clientHeight, 0.01, 1000);
-            camera.position.set(-1.0, 0.9, -1.2);
-            renderer = new THREE.WebGLRenderer({ canvas: viewerCanvas, antialias: true, alpha: true });
+            camera.position.set(-0.8, 1.0, -1.2);
+            renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('viewer-canvas'), antialias: true, alpha: true });
             renderer.autoClear = false;
             renderer.setPixelRatio(window.devicePixelRatio);
             renderer.setSize(viewerContainer.clientWidth, viewerContainer.clientHeight);
             controls = new OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true;
-            controls.target.set(0, 0.4, 0);
+            controls.target.set(0, 0, 0);
             scene.add(new THREE.AmbientLight(0xffffff, 0.8), new THREE.DirectionalLight(0xffffff, 0.7, 3));
             axesScene = new THREE.Scene();
             const gizmoSize = 2.5;
             axesCamera = new THREE.OrthographicCamera(-gizmoSize, gizmoSize, gizmoSize, -gizmoSize, -10, 10);
-            const axes = new THREE.AxesHelper(1.5);
-            axes.rotation.x = -Math.PI / 2;
-            axesScene.add(axes);
+            axesScene.add(new THREE.AxesHelper(1.5));
             infoBox = document.getElementById('info-box');
             raycaster = new THREE.Raycaster();
             mouse = new THREE.Vector2();
             setupEventListeners();
-            loadDefaults();
+            const urlParams = new URLSearchParams(window.location.search);
+            const exampleName = urlParams.get('example');
+            if (exampleName) {
+                updateHELGA(`Loading example: ${exampleName}...`, true);
+                const assemblyUrl = `examples/${exampleName}/assembly.json`;
+                const damagesUrl = `examples/${exampleName}/damages.json`;
+                const planUrl = `examples/${exampleName}/plan.json`;
+                Promise.all([
+                    fetch(assemblyUrl).then(res => { if (!res.ok) throw new Error(res.statusText); return res.json(); }),
+                    fetch(damagesUrl).then(res => { if (!res.ok) throw new Error(res.statusText); return res.json(); }),
+                    fetch(planUrl).then(res => { if (!res.ok) throw new Error(res.statusText); return res.json(); })
+                ])
+                .then(([assemblyData, damagesData, planData]) => {
+                    createModel(assemblyData);
+                    createDamages(damagesData);
+                    initializeHistory(planData);
+                    displayCurrentStep();
+                    updateHELGA(`Successfully loaded the "${assemblyData.objectName || exampleName}" example. Ready to start repair.`);
+                })
+                .catch(error => {
+                    console.error("Failed to load example files:", error);
+                    updateHELGA(`Error: Could not load the '${exampleName}' example. Files may be missing or invalid.`);
+                    loadDefaults();
+                });
+            } else {
+                loadDefaults();
+            }
             animate();
         }
 
         function loadDefaults() {
-            const defaultModel = { "objectName": "Default Cube", "parts": [{ "id": "cube", "origin": {"x": -0.25, "y": -0.25, "z": 0.0}, "dimensions": {"width": 0.5, "depth": 0.5, "height": 0.5}, "connections": [] }] };
-            const defaultDamage = [{ "id": "damage_01", "type": "Scratch", "description": "A default scratch on the top surface.", "part_id": "cube", "coordinates": { "x": 0.0, "y": 0.0, "z": 0.5 } }];
-            const defaultPlan = { "steps": [{ "step_number": 1, "title": "Fill Scratch", "description": "Apply wood filler to the scratch.", "tools_required": ["Wood filler"], "affected_parts": ["cube"], "affected_damages": ["damage_01"] }] };
+            const defaultModel = { "objectName": "", "parts": [{ "id": "cube", "status": "defective", "origin": {"x": 0, "y": 0.25, "z": 0}, "dimensions": {"width": 0.5, "depth": 0.5, "height": 0.5}, "connections": [] }] };
+            const defaultDamage = [{ "id": "damage_01", "type": "Scratch", "description": "A default scratch on the top surface.", "part_id": "cube", "coordinates": { "x": 0.0, "y": 0.5, "z": 0.0 } }];
+            const defaultPlan = { "steps": [{ "step_id": "fill_scratch", "step_number": 1, "title": "Fill Scratch", "description": "Apply wood filler to the scratch.", "tools_required": ["Wood filler"], "affected_parts": ["cube"], "affected_damages": ["damage_01"], "prerequisites": [] }] };
             createModel(defaultModel);
-            document.getElementById('object-name').value = "";
             createDamages(defaultDamage);
             initializeHistory(defaultPlan);
             updateHELGA("Hello! I am H.E.L.G.A. - the Helpful Electronic & Logistical Guidance Agent. Load a plan to begin the repair process.");
@@ -209,22 +237,39 @@
         }
         
         function initializeHistory(planJson) {
-            currentHistoryJson = JSON.parse(JSON.stringify(planJson)); 
-            currentHistoryJson.steps.forEach(step => {
-                step.completed = false;
-                step.time_minutes = 0;
-                step.comments = step.comments || "";
-            });
+            currentHistoryJson = JSON.parse(JSON.stringify(planJson));
+            planMap.clear();
+            stepHistory = [];
+            if (currentHistoryJson && currentHistoryJson.steps) {
+                currentHistoryJson.steps.forEach(step => {
+                    if (step.completed === undefined) step.completed = false;
+                    if (step.time_minutes === undefined) step.time_minutes = 0;
+                    if (step.comments === undefined) step.comments = "";
+                    planMap.set(step.step_id, step);
+                });
+                const startStep = currentHistoryJson.steps.find(step => !step.prerequisites || step.prerequisites.length === 0);
+                currentStepId = startStep ? startStep.step_id : null;
+            } else {
+                currentStepId = null;
+            }
         }
 
         function animate() {
             requestAnimationFrame(animate);
+            if (activeAnimations.length > 0) {
+                const now = performance.now();
+                activeAnimations.forEach(anim => {
+                    const progress = Math.min((now - anim.startTime) / ANIMATION_DURATION, 1);
+                    const easedProgress = 1 - Math.pow(1 - progress, 3);
+                    anim.mesh.position.lerpVectors(anim.start, anim.end, easedProgress);
+                });
+                activeAnimations = activeAnimations.filter(anim => now - anim.startTime < ANIMATION_DURATION);
+            }
             controls.update();
             renderer.clear();
             renderer.render(scene, camera);
             renderer.clearDepth();
-            const gizmoSize = 80;
-            renderer.setViewport(10, 10, gizmoSize, gizmoSize);
+            renderer.setViewport(10, 10, 80, 80);
             axesCamera.quaternion.copy(camera.quaternion);
             renderer.render(axesScene, axesCamera);
             renderer.setViewport(0, 0, renderer.domElement.clientWidth, renderer.domElement.clientHeight);
@@ -238,36 +283,104 @@
         }
 
         function saveCurrentComment() {
-            if (!currentHistoryJson || !currentHistoryJson.steps[currentStepIndex]) return;
-            const step = currentHistoryJson.steps[currentStepIndex];
-            step.comments = userPromptInput.value.trim();
+            if (!currentHistoryJson || !planMap.has(currentStepId)) return;
+            const step = planMap.get(currentStepId);
+            if (step) {
+                step.comments = userPromptInput.value.trim();
+            }
         }
 
         function displayCurrentStep() {
-            if (!currentHistoryJson || !currentHistoryJson.steps || currentHistoryJson.steps.length === 0) {
+            if (!currentHistoryJson || !currentStepId || !planMap.has(currentStepId)) {
                 stepDisplayContainer.style.display = 'none';
                 stepInfoPanel.style.display = 'none';
+                highlightElements([], []);
                 return;
             }
-
+            
             stepDisplayContainer.style.display = 'flex';
             stepInfoPanel.style.display = 'block';
-            const step = currentHistoryJson.steps[currentStepIndex];
-            if (!step) return;
-
-            stepInfoPanel.classList.toggle('completed', step.completed);
-            stepCounterEl.textContent = `Current Step: Nr. ${step.step_number}`;
+            
+            const step = planMap.get(currentStepId);
             document.getElementById('step-info-title').textContent = step.title + (step.completed ? ' (Done)' : '');
+            stepInfoPanel.classList.toggle('completed', step.completed);
             userPromptInput.value = step.comments || '';
-            stepNavPrevBtn.classList.toggle('disabled', currentStepIndex === 0);
-            stepNavNextBtn.classList.toggle('disabled', currentStepIndex === currentHistoryJson.steps.length - 1);
-            highlightElements(step.affected_parts || [], step.affected_damages || [], stepHighlightMaterial);
+            
+            const choicesContainer = document.getElementById('step-nav-choices');
+            choicesContainer.innerHTML = '';
+
+            const currentlyCompletedAndHistory = new Set([...stepHistory, currentStepId]);
+
+            const availableChoices = currentHistoryJson.steps.filter(s =>
+                !currentlyCompletedAndHistory.has(s.step_id) && 
+                s.prerequisites && s.prerequisites.includes(currentStepId)
+            );
+
+            const prerequisites = step.prerequisites || [];
+
+            if (availableChoices.length > 0) {
+                availableChoices.forEach(choice => {
+                    const btn = document.createElement('div');
+                    btn.textContent = `${choice.title} →`;
+                    btn.className = 'step-choice-btn';
+                    btn.onclick = () => {
+                        saveCurrentComment();
+                        stepHistory.push(currentStepId);
+                        currentStepId = choice.step_id;
+                        displayCurrentStep();
+                    };
+                    choicesContainer.appendChild(btn);
+                });
+            } else {
+                const isTerminalNode = !currentHistoryJson.steps.some(s => s.prerequisites && s.prerequisites.includes(currentStepId));
+                if (isTerminalNode) {
+                    const info = document.createElement('div');
+                    info.innerHTML = "✔ No further Steps";
+                    info.className = 'step-choice-btn';
+                    info.style.cursor = 'default'; 
+                    info.style.color = '#198754';
+                    info.style.borderColor = '#198754';
+                    info.style.backgroundColor = '#e8f5e9';
+                    info.style.textAlign = 'center';
+                    choicesContainer.appendChild(info);
+                }
+            }
+            
+            prerequisites.forEach(prereqId => {
+                const prereqStep = planMap.get(prereqId);
+                if (prereqStep) {
+                    const btn = document.createElement('div');
+                    btn.textContent = `← ${prereqStep.title}`; 
+                    btn.className = 'step-choice-btn';
+                    btn.style.borderColor = '#ccc'; 
+                    btn.style.color = '#333';
+                    btn.style.backgroundColor = '#fff';
+
+                    btn.onmouseover = () => { btn.style.backgroundColor = '#f0f0f0'; };
+                    btn.onmouseout = () => { btn.style.backgroundColor = '#fff'; };
+
+                    btn.onclick = () => {
+                        saveCurrentComment();
+                        const newCurrentStepId = prereqId;
+                        const historyIndex = stepHistory.lastIndexOf(newCurrentStepId);
+                        if (historyIndex > -1) {
+                            stepHistory.length = historyIndex;
+                        }
+                        currentStepId = newCurrentStepId;
+                        displayCurrentStep();
+                    };
+                    choicesContainer.appendChild(btn);
+                }
+            });
+            
+            stepNavPrevBtn.classList.toggle('disabled', stepHistory.length === 0);
+            highlightElements(step.affected_parts || [], step.affected_damages || []);
             updateButtonStates();
         }
 
         function updateButtonStates() {
-            if (!currentHistoryJson) return;
-            const step = currentHistoryJson.steps[currentStepIndex];
+            if (!currentHistoryJson || !planMap.has(currentStepId)) return;
+            const step = planMap.get(currentStepId);
             startBtn.classList.toggle('disabled', step.completed || !!stepStartTime);
             doneBtn.classList.toggle('disabled', step.completed || !stepStartTime);
         }
@@ -276,35 +389,46 @@
             while (objectGroup.children.length > 0) objectGroup.remove(objectGroup.children[0]);
             partMeshesMap.clear();
             currentModelJson = jsonData;
-            document.getElementById('object-name').value = jsonData.objectName || "Untitled";
-            const bounds = new THREE.Box3();
+            document.getElementById('object-name').value = jsonData.objectName || "Untitled Repair";
+
             jsonData.parts.forEach(part => {
                 const geo = new THREE.BoxGeometry(part.dimensions.width, part.dimensions.height, part.dimensions.depth);
-                const pos = new THREE.Vector3(part.origin.x + part.dimensions.width/2, part.origin.z + part.dimensions.height/2, part.origin.y + part.dimensions.depth/2);
-                const mesh = new THREE.Mesh(geo, defaultPartMaterial);
-                mesh.position.copy(pos);
-                mesh.userData.part = part;
-                objectGroup.add(mesh);
+                const pos = new THREE.Vector3(part.origin.x, part.origin.y, part.origin.z);
+                const partGroup = new THREE.Group();
+                let material;
+                switch (part.status) {
+                    case 'new': material = newMaterial; break;
+                    case 'discarded': material = discardedMaterial; break;
+                    case 'missing': material = missingPartMaterial; break;
+                    case 'defective': material = defectivePartMaterial; break;
+                    default: material = intactPartMaterial; break;
+                }
+                const mesh = new THREE.Mesh(geo, material);
                 const line = new THREE.LineSegments(new THREE.EdgesGeometry(geo), outlineMaterial);
-                line.position.copy(pos);
-                objectGroup.add(line);
+                partGroup.add(mesh, line);
+                partGroup.userData.originalPosition = pos.clone();
+                partGroup.position.copy(pos);
+                if (part.rotation) partGroup.rotation.set(part.rotation.x || 0, part.rotation.y || 0, part.rotation.z || 0, 'YXZ');
+                partGroup.userData.part = part;
+                objectGroup.add(partGroup);
                 partMeshesMap.set(part.id, mesh);
             });
-            bounds.setFromObject(objectGroup);
-            const center = new THREE.Vector3();
-            bounds.getCenter(center);
-            controls.target.copy(center);
+            const bounds = new THREE.Box3().setFromObject(objectGroup);
+            controls.target.copy(bounds.getCenter(new THREE.Vector3()));
+            resetBtn.style.display = 'none';
+            explodeBtn.style.display = 'inline-block';
         }
 
         function createDamages(jsonData) {
             damageSpheres.forEach(s => scene.remove(s));
             damageSpheres.length = 0;
-            if(!currentModelJson) { updateHELGA("Error: Please load an assembly file first."); return; }
+            if(!currentModelJson || !Array.isArray(jsonData)) return;
             currentDamageJson = jsonData;
             const dotGeometry = new THREE.SphereGeometry(0.015, 16, 16);
             jsonData.forEach(damage => {
+                if (!damage.coordinates || !damage.part_id) return;
                 const sphere = new THREE.Mesh(dotGeometry, defaultDotMaterial.clone());
-                sphere.position.set(damage.coordinates.x, damage.coordinates.z, damage.coordinates.y);
+                sphere.position.set(damage.coordinates.x, damage.coordinates.y, damage.coordinates.z);
                 sphere.userData.damage = damage;
                 damageSpheres.push(sphere);
                 scene.add(sphere);
@@ -342,14 +466,19 @@
                 try {
                     const data = JSON.parse(e.target.result);
                     if (type === 'assembly') {
+                        damageSpheres.forEach(s => scene.remove(s));
+                        damageSpheres.length = 0;
+                        currentDamageJson = null;
+                        currentHistoryJson = null;
+                        currentStepId = null;
                         createModel(data);
+                        displayCurrentStep();
                         updateHELGA("Assembly loaded. Please upload damages and a plan.");
                     } else if (type === 'damages') {
                         createDamages(data);
                         updateHELGA("Damages loaded. Please upload a plan.");
                     } else if (type === 'plan') {
                         initializeHistory(data);
-                        currentStepIndex = 0;
                         displayCurrentStep();
                         updateHELGA(`Plan loaded with ${data.steps.length} steps. You can now start the repair.`);
                     }
@@ -382,8 +511,18 @@
             URL.revokeObjectURL(a.href);
         }
 
-        function highlightElements(partsToHighlight = [], damagesToHighlight = [], material) {
-            partMeshesMap.forEach(mesh => { mesh.material = defaultPartMaterial; });
+        function highlightElements(partsToHighlight = [], damagesToHighlight = []) {
+             partMeshesMap.forEach((mesh) => {
+                const part = mesh.parent.userData.part;
+                if (!part) return;
+                switch (part.status) {
+                    case 'new': mesh.material = newMaterial; break;
+                    case 'discarded': mesh.material = discardedMaterial; break;
+                    case 'missing': mesh.material = missingPartMaterial; break;
+                    case 'defective': mesh.material = defectivePartMaterial; break;
+                    default: mesh.material = intactPartMaterial; break;
+                }
+            });
             damageSpheres.forEach(sphere => { sphere.material = defaultDotMaterial; });
             damagesToHighlight.forEach(damageId => {
                 const sphere = damageSpheres.find(s => s.userData.damage.id === damageId);
@@ -391,7 +530,7 @@
             });
             partsToHighlight.forEach(partId => {
                 const mesh = partMeshesMap.get(partId);
-                if (mesh) mesh.material = material;
+                if (mesh) mesh.material = defectivePartMaterial;
             });
         }
 
@@ -404,9 +543,9 @@
             const sphereIntersects = raycaster.intersectObjects(damageSpheres);
             const partIntersects = raycaster.intersectObjects(Array.from(partMeshesMap.values()));
             
-            const step = currentHistoryJson?.steps?.[currentStepIndex];
+            const step = planMap.get(currentStepId);
             if (step) {
-                highlightElements(step.affected_parts || [], step.affected_damages || [], stepHighlightMaterial);
+                highlightElements(step.affected_parts || [], step.affected_damages || []);
             }
 
             infoBox.style.display = 'none';
@@ -421,7 +560,7 @@
 
             } else if (partIntersects.length > 0) {
                 const clickedPart = partIntersects[0].object;
-                const partData = clickedPart.userData.part;
+                const partData = clickedPart.parent.userData.part;
                 clickedPart.material = selectionPartMaterial;
                 if (partData) {
                     const d = partData.dimensions;
@@ -432,71 +571,168 @@
             }
         }
 
-function viewGraph() {
+        function viewGraph() {
             if (!currentHistoryJson || !currentHistoryJson.steps || currentHistoryJson.steps.length === 0) {
                 updateHELGA("Load a repair plan to see its graph.");
                 return;
             }
 
-            const objectId = (currentModelJson?.objectName || 'object').replace(/\s+/g, '_');
-            const steps = currentHistoryJson.steps; // THIS IS THE ONLY LINE THAT NEEDED TO BE CHANGED
-            const currentStepNumber = steps[currentStepIndex]?.step_number;
-
-            const removeKeywords = ['remove', 'unscrew', 'detach', 'disassemble', 'pry', 'take off', 'unclip', 'sand', 'cut', 'unfasten', 'separate', 'take out', 'disconnect'];
-            const addKeywords = ['add', 'apply', 'install', 'attach', 'secure', 'clamp', 'glue', 'insert', 'place', 'reassemble', 'fill', 'coat'];
+            const steps = currentHistoryJson.steps;
+            const currentStep = planMap.get(currentStepId);
+            const currentStepIdForGraph = currentStep?.step_id || `S${currentStep?.step_number}`;
             
-            let dot = `digraph RepairPlan {\n  rankdir=LR;\n  node [fontname="Helvetica,Arial,sans-serif", fixedsize=true, width=1.6, height=1.2];\n  edge [fontname="Helvetica,Arial,sans-serif"];\n\n`;
+            const removeKeywords = ['remove', 'unscrew', 'detach', 'disassemble', 'pry', 'take off', 'unclip', 'sand', 'cut', 'unfasten', 'separate', 'take out', 'disconnect', 'clean'];
+            const addKeywords = ['add', 'apply', 'install', 'attach', 'secure', 'glue', 'insert', 'place', 'reassemble', 'fill', 'coat'];
+            
+            let dot = `digraph RepairPlan {\n  rankdir=LR;\n  node [fontname="Helvetica,Arial,sans-serif", fixedsize=true, width=1.6, height=1.6];\n  edge [fontname="Helvetica,Arial,sans-serif"];\n\n`;
 
             steps.forEach(step => {
+                const nodeId = step.step_id || `S${step.step_number}`;
                 const label = step.title.replace(/\s+/g, '\\n');
-                const nodeId = `${objectId}-S${step.step_number}`;
                 const titleLower = step.title.toLowerCase();
                 
                 let attributes = [];
-                let styleProperties = ['filled']; 
-
+                let styleProperties = [];
                 let shape = 'circle';
-                if (removeKeywords.some(kw => titleLower.includes(kw))) {
-                    shape = 'doublecircle';
-                    styleProperties.push('dashed');
-                } else if (addKeywords.some(kw => titleLower.includes(kw))) {
-                    shape = 'doublecircle';
+                
+                if (removeKeywords.some(kw => titleLower.includes(kw))) { 
+                    shape = 'doublecircle'; 
+                    styleProperties.push('dashed'); 
+                } else if (addKeywords.some(kw => titleLower.includes(kw))) { 
+                    shape = 'doublecircle'; 
                 }
                 attributes.push(`shape=${shape}`);
                 
                 if (step.completed) {
-                    attributes.push(`fillcolor="#198754"`);
-                    attributes.push('fontcolor=white');
-                } else if (step.step_number === currentStepNumber) {
-                    attributes.push(`fillcolor="#dd3333"`);
-                    attributes.push('fontcolor=white');
-                } else if (step.step_number === 1 || step.step_number === steps.length) {
                     styleProperties.push('filled');
-                    attributes.push('fillcolor=black');
-                    attributes.push('fontcolor=white');
-                } else {
-                    attributes.push(`fillcolor="white"`);
-                    attributes.push('fontcolor=black');
+                    attributes.push('fillcolor="#198754"', 'fontcolor=white');
+                } else if (nodeId === currentStepIdForGraph) { 
+                    styleProperties.push('filled');
+                    attributes.push('fillcolor="#dd3333"', 'fontcolor=white'); 
                 }
-
-                attributes.push(`style="${styleProperties.join(',')}"`);
+                
+                if (styleProperties.length > 0) {
+                    attributes.push(`style="${styleProperties.join(',')}"`);
+                }
                 
                 dot += `  "${nodeId}" [label="${label}", ${attributes.join(', ')}];\n`;
             });
 
-            for (let i = 0; i < steps.length - 1; i++) {
-                dot += `  "${objectId}-S${steps[i].step_number}" -> "${objectId}-S${steps[i+1].step_number}";\n`;
-            }
+            steps.forEach(step => {
+                const toNodeId = step.step_id || `S${step.step_number}`;
+                if (step.prerequisites && step.prerequisites.length > 0) {
+                    step.prerequisites.forEach(prereqId => { 
+                        dot += `  "${prereqId}" -> "${toNodeId}";\n`; 
+                    });
+                } else if (step.step_number > 1) {
+                    const fromNodeId = `S${step.step_number - 1}`;
+                    if (steps.some(s => `S${s.step_number}` === fromNodeId)) {
+                        dot += `  "${fromNodeId}" -> "${toNodeId}";\n`;
+                    }
+                }
+            });
+            
             dot += '}';
-
+            
             document.getElementById('graph-title').textContent = "Repair Plan Graph";
             d3.select("#graph-container").graphviz({ useWorker: false }).renderDot(dot);
             document.getElementById('graph-modal-overlay').style.display = 'flex';
         }
 
+        function animateParts(isExploding) { 
+            if (objectGroup.children.length === 0) return; activeAnimations = []; 
+            const center = new THREE.Box3().setFromObject(objectGroup).getCenter(new THREE.Vector3()); 
+            const size = new THREE.Box3().setFromObject(objectGroup).getSize(new THREE.Vector3());
+            const explodeFactor = Math.max(size.x, size.y, size.z, size.length()) * 0.1;
+            objectGroup.children.forEach(partGroup => { 
+                if (partGroup.userData.originalPosition) { 
+                    const start = partGroup.position.clone(); let end; 
+                    if (isExploding) { end = partGroup.userData.originalPosition.clone().add(partGroup.userData.originalPosition.clone().sub(center).normalize().multiplyScalar(explodeFactor)); } 
+                    else { end = partGroup.userData.originalPosition.clone(); } 
+                    activeAnimations.push({ mesh: partGroup, start: start, end: end, startTime: performance.now() }); 
+                } 
+            }); 
+        }
+
+        function generateAssemblySVG(assemblyJson, damageJson) {
+            const { objectName, parts } = assemblyJson || {};
+            if (!parts || parts.length === 0) return '';
+            const allWorldVertices = new Map();
+            const globalBBox = new THREE.Box3();
+            parts.forEach(part => {
+                const centerPos = new THREE.Vector3(part.origin.x, part.origin.y, part.origin.z);
+                const w = part.dimensions.width, h = part.dimensions.height, d = part.dimensions.depth;
+                const localVertices = [ new THREE.Vector3(-w/2,-h/2,d/2), new THREE.Vector3(w/2,-h/2,d/2), new THREE.Vector3(w/2,h/2,d/2), new THREE.Vector3(-w/2,h/2,d/2), new THREE.Vector3(-w/2,-h/2,-d/2), new THREE.Vector3(w/2,-h/2,-d/2), new THREE.Vector3(w/2,h/2,-d/2), new THREE.Vector3(-w/2,h/2,-d/2) ];
+                const euler = new THREE.Euler(part.rotation?.x || 0, part.rotation?.y || 0, part.rotation?.z || 0, 'YXZ');
+                const quaternion = new THREE.Quaternion().setFromEuler(euler);
+                const partMatrix = new THREE.Matrix4().compose(centerPos, quaternion, new THREE.Vector3(1, 1, 1));
+                const worldVertices = localVertices.map(v => v.clone().applyMatrix4(partMatrix));
+                allWorldVertices.set(part.id, worldVertices);
+                worldVertices.forEach(v => globalBBox.expandByPoint(v));
+            });
+            const globalSize = globalBBox.getSize(new THREE.Vector3());
+            const scale = 200, padding = 60;
+            const viewWidth = Math.max(globalSize.x, globalSize.z) * scale, viewHeight = Math.max(globalSize.y, globalSize.z) * scale;
+            const svgWidth = (viewWidth * 4) + (padding * 5), svgHeight = (viewHeight * 3) + (padding * 4);
+            const views = {
+                'TOP':    {x:viewWidth+padding*2, y:padding,               p:v=>({x:-v.x,y:-v.z}), dir:new THREE.Vector3(0,-1,0)},
+                'LEFT':   {x:padding,             y:viewHeight+padding*2,  p:v=>({x:v.z, y:-v.y}), dir:new THREE.Vector3(1,0,0)},
+                'FRONT':  {x:viewWidth+padding*2, y:viewHeight+padding*2,  p:v=>({x:-v.x,y:-v.y}), dir:new THREE.Vector3(0,0,-1)},
+                'RIGHT':  {x:viewWidth*2+padding*3,y:viewHeight+padding*2, p:v=>({x:-v.z,y:-v.y}), dir:new THREE.Vector3(-1,0,0)},
+                'BACK':   {x:viewWidth*3+padding*4,y:viewHeight+padding*2, p:v=>({x:v.x, y:-v.y}), dir:new THREE.Vector3(0,0,1)},
+                'BOTTOM': {x:viewWidth+padding*2, y:viewHeight*2+padding*3,p:v=>({x:-v.x,y:v.z}),  dir:new THREE.Vector3(0,1,0)}
+            };
+            const faces = [[0,1,2,3],[5,4,7,6],[1,5,6,2],[4,0,3,7],[3,2,6,7],[4,5,1,0]], edges = [[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
+            let svgGroups = '';
+            for (const [name, view] of Object.entries(views)) {
+                const pBounds = Array.from(allWorldVertices.values()).flat().map(v => view.p(v)).reduce((a,p)=>({minX:Math.min(a.minX,p.x),minY:Math.min(a.minY,p.y),maxX:Math.max(a.maxX,p.x),maxY:Math.max(a.maxY,p.y)}),{minX:Infinity,minY:Infinity,maxX:-Infinity,maxY:-Infinity});
+                const centerX = (pBounds.minX + pBounds.maxX)/2, centerY = (pBounds.minY + pBounds.maxY)/2;
+                const groupTransform = `translate(${view.x}, ${view.y})`, contentTransform = `translate(${viewWidth/2}, ${viewHeight/2}) scale(${scale}) translate(${-centerX}, ${-centerY})`;
+                let hiddenLinesHTML='', visibleLinesHTML='';
+                parts.forEach(part => {
+                    const worldVertices = allWorldVertices.get(part.id); if (!worldVertices) return;
+                    const visibleEdges = new Set();
+                    faces.forEach(faceIndices => {
+                        const v0=worldVertices[faceIndices[0]], v1=worldVertices[faceIndices[1]], v2=worldVertices[faceIndices[2]];
+                        const n = new THREE.Vector3().crossVectors(new THREE.Vector3().subVectors(v1,v0),new THREE.Vector3().subVectors(v2,v0)).normalize();
+                        if (n.dot(view.dir) > 0) faceIndices.forEach((v, i) => visibleEdges.add([v, faceIndices[(i+1)%faceIndices.length]].sort().join('-')));
+                    });
+                    edges.forEach(edgeIndices => {
+                        const p1 = view.p(worldVertices[edgeIndices[0]]), p2 = view.p(worldVertices[edgeIndices[1]]);
+                        const line = `<line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" />`;
+                        if (visibleEdges.has(edgeIndices.sort().join('-'))) visibleLinesHTML+=line; else hiddenLinesHTML+=line;
+                    });
+                });
+                let damageMarkers = (damageJson||[]).map(d => `<circle cx="${view.p(new THREE.Vector3(d.coordinates.x,d.coordinates.y,d.coordinates.z)).x}" cy="${view.p(new THREE.Vector3(d.coordinates.x,d.coordinates.y,d.coordinates.z)).y}" r="${2/scale}" class="damage-marker" />`).join('');
+                svgGroups += `<g transform="${groupTransform}"><text x="${viewWidth/2}" y="${viewHeight+20}" text-anchor="middle" font-size="14" font-family="sans-serif">${name}</text><g transform="${contentTransform}"><g class="hidden-lines">${hiddenLinesHTML}</g><g class="visible-lines">${visibleLinesHTML}</g>${damageMarkers}</g></g>`;
+            }
+            const style = `<style>.visible-lines line{stroke:#000;stroke-width:${1/scale};}.hidden-lines line{stroke:#888;stroke-width:${0.5/scale};stroke-dasharray:${2.5/scale};}.damage-marker{fill:#D00;stroke:none;}.label{font-size:16px;font-family:sans-serif;}</style>`;
+            return `<svg width="${svgWidth}" height="${svgHeight}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${svgWidth} ${svgHeight}">${style}<rect x="0" y="0" width="${svgWidth}" height="${svgHeight}" fill="#fff"/><text x="${padding}" y="35" class="label" font-weight="bold">Assembly: ${objectName || 'Untitled'}</text>${svgGroups}</svg>`;
+        }
+
+        function downloadAssemblyDrawing() {
+            if (!currentModelJson) { updateHELGA("Please load an assembly first."); return; }
+            updateHELGA("Generating drawing...", true);
+            setTimeout(() => {
+                const svgData = generateAssemblySVG(currentModelJson, currentDamageJson);
+                if (!svgData) { updateHELGA("Failed to generate drawing."); return; }
+                const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${(document.getElementById('object-name').value||'assembly').replace(/\s+/g,'_')}_drawing.svg`;
+                a.click();
+                URL.revokeObjectURL(url);
+                updateHELGA("Assembly drawing downloaded.");
+            }, 50);
+        }
+
         function setupEventListeners() {
             window.addEventListener('resize', onWindowResize);
-            viewerCanvas.addEventListener('click', onObjectClick);
+            viewerContainer.addEventListener('click', onObjectClick);
+
+            explodeBtn.addEventListener('click', () => { animateParts(true); explodeBtn.style.display = 'none'; resetBtn.style.display = 'inline-block'; });
+            resetBtn.addEventListener('click', () => { animateParts(false); resetBtn.style.display = 'none'; explodeBtn.style.display = 'inline-block'; });
 
             startBtn.addEventListener('click', () => {
                 if (startBtn.classList.contains('disabled')) return;
@@ -508,57 +744,61 @@ function viewGraph() {
             doneBtn.addEventListener('click', () => {
                 if (doneBtn.classList.contains('disabled') || !stepStartTime) return;
                 const durationMinutes = (new Date() - stepStartTime) / 60000;
-                const step = currentHistoryJson.steps[currentStepIndex];
+                const step = planMap.get(currentStepId);
                 step.completed = true;
                 step.time_minutes = parseFloat(durationMinutes.toFixed(2));
                 saveCurrentComment();
                 stepStartTime = null;
                 displayCurrentStep();
-                updateHELGA(`Step ${step.step_number} completed! Time taken:`, false, durationMinutes);
+                updateHELGA(`Step ${step.step_number || ''} completed! Time taken:`, false, durationMinutes);
             });
 
-            document.getElementById('ask-question-btn').addEventListener('click', async () => {
+            document.getElementById("ask-question-btn").addEventListener("click", async () => {
                 const question = userPromptInput.value.trim();
-                if (!question) { updateHELGA("Please type a question in the text area first."); return; }
-                if (!currentHistoryJson) { updateHELGA("Please load a plan first."); return; }
-                const currentStep = currentHistoryJson.steps[currentStepIndex];
+                if (!question) {
+                    updateHELGA("Please write your question first.");
+                    return;
+                }
+                if (!currentHistoryJson || !planMap.has(currentStepId)) {
+                    updateHELGA("Please load a repair plan first.");
+                    return;
+                }
+
+                const currentStep = planMap.get(currentStepId);
                 updateHELGA("Thinking...", true);
+
                 try {
-                    const response = await fetch('/api/guide-repair', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                    const response = await fetch("/api/guide-repair", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ question, stepContext: currentStep })
                     });
-                    if (!response.ok) {
-                        let errorMsg = `Server error ${response.status}. Check API file name and location.`;
-                        try { errorMsg = (await response.json()).message || errorMsg; } catch (e) {}
-                        throw new Error(errorMsg);
-                    }
-                    const result = await response.json();
-                    if (!result.candidates?.[0]?.content?.parts?.[0]?.text) {
-                        throw new Error(result.candidates?.[0]?.finishReason === "SAFETY" ? "Request blocked for safety reasons." : "Invalid API response.");
-                    }
-                    updateHELGA(result.candidates[0].content.parts[0].text);
-                } catch (error) {
-                    console.error("Ask H.E.L.G.A. Error:", error);
-                    updateHELGA(`Sorry, an error occurred: ${error.message}`);
-                }
-            });
 
-            document.getElementById('comment-btn').addEventListener('click', () => {
-                 if (!currentHistoryJson) { updateHELGA("Please load a plan first."); return; }
-                 saveCurrentComment();
-                 updateHELGA("Your comment has been saved to the history file for this step.");
+                    const responseData = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(responseData.error || responseData.message || `Server returned an unknown error with status ${response.status}`);
+                    }
+
+                    updateHELGA(responseData.answer || "Sorry, I could not generate an answer.");
+
+                } catch (error) {
+                    console.error("Ask H.E.L.G.A. failed:", error);
+                    updateHELGA("Error: " + error.message);
+                }
             });
             
             let currentAction = '';
-            document.querySelectorAll('[id$="-json-btn"]').forEach(btn => btn.addEventListener('click', () => {
-                const action = btn.id.split('-')[0]; // upload, copy, download
-                currentAction = action;
-                document.getElementById('data-choice-title').textContent = `What to ${action}?`;
-                document.getElementById('data-choice-modal-overlay').style.display = 'flex';
-            }));
-            
+            const openChoiceModal = (action) => { 
+                currentAction = action; 
+                document.getElementById('data-choice-title').textContent = `What to ${action}?`; 
+                document.getElementById('data-choice-modal-overlay').style.display = 'flex'; 
+            };
+
+            document.getElementById('upload-json-btn').addEventListener('click', () => openChoiceModal('upload'));
+            document.getElementById('copy-json-btn').addEventListener('click', () => openChoiceModal('copy'));
+            document.getElementById('download-json-btn').addEventListener('click', () => openChoiceModal('download'));
+            document.getElementById('download-drawings-btn').addEventListener('click', downloadAssemblyDrawing);
             document.getElementById('view-plan-graph-btn').addEventListener('click', viewGraph);
 
             document.getElementById('choice-btn-assembly').addEventListener('click', () => handleChoice('assembly'));
@@ -568,7 +808,7 @@ function viewGraph() {
 
             function handleChoice(type) {
                 const actions = {
-                    upload: () => document.getElementById(`${type}-upload-input`).click(),
+                    upload: () => document.getElementById(`${type === 'history' ? 'plan' : type}-upload-input`).click(),
                     copy: () => viewJson(type),
                     download: () => downloadJson(type)
                 };
@@ -582,26 +822,40 @@ function viewGraph() {
                 updateHELGA("JSON copied to clipboard.");
                 document.getElementById('json-view-modal-overlay').style.display = 'none';
             });
+            document.getElementById('save-graph-svg-btn').addEventListener('click', () => { const svgEl = document.querySelector('#graph-container svg'); if (!svgEl) return; svgEl.setAttribute("xmlns", "http://www.w3.org/2000/svg"); const blob = new Blob([new XMLSerializer().serializeToString(svgEl)], { type: "image/svg+xml;charset=utf-8" }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `${(document.getElementById('object-name').value||'object').replace(/\s+/g,'_')}_graph.svg`; a.click(); URL.revokeObjectURL(a.href); updateHELGA("Graph saved as SVG."); });
 
-            stepNavNextBtn.addEventListener('click', () => navigateSteps(1));
-            stepNavPrevBtn.addEventListener('click', () => navigateSteps(-1));
-
-            function navigateSteps(direction) {
-                saveCurrentComment();
-                const newIndex = currentStepIndex + direction;
-                if (newIndex >= 0 && newIndex < currentHistoryJson.steps.length) {
-                    currentStepIndex = newIndex;
+            stepNavPrevBtn.addEventListener('click', () => {
+                if (stepHistory.length > 0) {
+                    saveCurrentComment();
+                    currentStepId = stepHistory.pop();
                     displayCurrentStep();
                 }
-            }
+            });
             
             stepInfoPanel.addEventListener('click', () => {
-                if (!currentHistoryJson || !currentHistoryJson.steps) return;
-                const step = currentHistoryJson.steps[currentStepIndex];
-                if (!step) return;
+                if (!currentHistoryJson || !planMap.has(currentStepId)) return;
+                
+                const step = planMap.get(currentStepId);
+                const modal = document.getElementById('step-detail-modal-overlay');
                 const body = document.getElementById('step-detail-modal-body');
-                body.innerHTML = `<p>${step.description}</p><b>Tools:</b><ul>${(step.tools_required||[]).map(t=>`<li>${t}</li>`).join('')}</ul>`;
-                document.getElementById('step-detail-modal-overlay').style.display = 'flex';
+                modal.querySelector('h3').textContent = step.title;
+                body.innerHTML = `
+                    <p>${step.description || 'No description provided.'}</p>
+                    
+                    <b>Rationale:</b>
+                    <p style="margin-top: 5px; margin-bottom: 15px;">${step.rationale || 'No rationale provided.'}</p>
+                    
+                    <b>Tools Required:</b>
+                    <ul>${(step.tools_required && step.tools_required.length > 0 ? step.tools_required : ['None']).map(t => `<li>${t}</li>`).join('')}</ul>
+                    
+                    <b>Affected Parts:</b>
+                    <ul>${(step.affected_parts && step.affected_parts.length > 0 ? step.affected_parts : ['None']).map(p => `<li>${p}</li>`).join('')}</ul>
+                    
+                    <b>Addressed Damages:</b>
+                    <ul>${(step.affected_damages && step.affected_damages.length > 0 ? step.affected_damages : ['None']).map(d => `<li>${d}</li>`).join('')}</ul>
+                `;
+
+                modal.style.display = 'flex';
             });
 
             document.getElementById('assembly-upload-input').addEventListener('change', (e) => handleFileUpload(e, 'assembly'));
