@@ -6,7 +6,8 @@ by **Tizian Rein**, 2025
 
 Supervised by Prof. Dr. Kathrin Dörfler
 & Begüm Saral  
-Technical University of Munich · Chair of Digital Fabrication · https://github.com/augmentedfabricationlab
+Technical University of Munich · Chair of Digital Fabrication  
+https://github.com/augmentedfabricationlab
 
 ---
 
