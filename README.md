@@ -5,6 +5,8 @@
 by **Tizian Rein**, 2025  
 https://tizianrein.de/
 
+📄 [Read the full thesis (PDF)](docs/images/Rein_Tizian_2025_FromStructureToAction.pdf)
+
 Supervised by Prof. Dr. Kathrin Dörfler
 & Begüm Saral  
 Technical University of Munich · Chair of Digital Fabrication  
