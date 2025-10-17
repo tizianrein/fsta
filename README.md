@@ -5,9 +5,9 @@
 by **Tizian Rein**, 2025  
 https://tizianrein.de/
 
-[Read the full thesis (PDF)](docs/pdf/Rein_Tizian_2025_FromStructureToAction.pdf)
-
-[![Thesis PDF](https://img.shields.io/badge/📄_Download-Thesis-blue)](docs/Rein_Tizian_2025_FromStructureToAction.pdf)
+<p>
+  📄 <a href="docs/Rein_Tizian_2025_FromStructureToAction.pdf" target="_blank">Read the full thesis (PDF)</a>
+</p>
 
 Supervised by Prof. Dr. Kathrin Dörfler
 & Begüm Saral  
