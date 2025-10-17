@@ -7,6 +7,8 @@ https://tizianrein.de/
 
 [Read the full thesis (PDF)](docs/pdf/Rein_Tizian_2025_FromStructureToAction.pdf)
 
+[![Thesis PDF](https://img.shields.io/badge/📄_Download-Thesis-blue)](docs/Rein_Tizian_2025_FromStructureToAction.pdf)
+
 Supervised by Prof. Dr. Kathrin Dörfler
 & Begüm Saral  
 Technical University of Munich · Chair of Digital Fabrication  
