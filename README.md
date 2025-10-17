@@ -6,7 +6,7 @@ by **Tizian Rein**, 2025
 https://tizianrein.de/
 
 <p>
-  📄 <a href="docs/Rein_Tizian_2025_FromStructureToAction.pdf" target="_blank">Read the full thesis (PDF)</a>
+  📄 <a href="docs/pdf/Rein_Tizian_2025_FromStructureToAction.pdf" target="_blank">Read the full thesis (PDF)</a>
 </p>
 
 Supervised by Prof. Dr. Kathrin Dörfler
