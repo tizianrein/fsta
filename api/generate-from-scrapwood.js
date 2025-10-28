@@ -14,7 +14,7 @@ You MUST construct the object using ONLY the materials listed. You are FORBIDDEN
 3.  **Handling Cuts:** When a piece is cut:
     a.  The original piece in the 'parts' array must have its 'dimensions' and 'origin' updated to reflect its new, smaller size.
     b.  You MUST create a NEW part entry for the "offcut" (the piece that was removed).
-    c.  This new offcut part MUST have a unique ID (e.g., "original_id_offcut"), its correct dimensions, and its `status` property MUST be set to `"discarded"`.
+    c.  This new offcut part MUST have a unique ID (e.g., "original_id_offcut"), its correct dimensions, and its status property MUST be set to discarded.
 4.  **Asymmetry is Encouraged:** The design does NOT need to be symmetrical. Create a functional and creative assembly that works with the given, often irregular, pieces.
 5.  **Output Raw JSON Only:** Your entire response must be ONLY the raw JSON object. Do not use markdown (like \`\`\`json) or add any explanatory text.
 
@@ -63,7 +63,7 @@ export default async function handler(req, res) {
     ];
     
     // Use a model that is good with creative tasks and following complex instructions
-    const model = 'gemini-1.5-pro-latest';
+    const model = 'gemini-2.5-pro';
     const temp = freakyness !== undefined ? freakyness : 0.5;
     
     const googleApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
