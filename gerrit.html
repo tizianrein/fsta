@@ -24,9 +24,9 @@
 
         /* --- Layout --- */
         #ui-panel {
-            width: 40%;
-            max-width: 500px;
-            min-width: 380px;
+            width: 60%;
+            min-width: 600px;
+            max-width: 750px;
             padding: 40px;
             display: flex;
             flex-direction: column;
@@ -62,9 +62,32 @@
             width: 100%; border: 1px solid var(--foreground); background-color: var(--background);
             color: var(--foreground); padding: 12px; font-size: 14px; box-sizing: border-box;
         }
-        #scrapwood-list { display: flex; flex-direction: column; gap: 8px; }
-        .scrapwood-row input { /* Specific for the small inputs */
-             width: 100%; border: 1px solid var(--accent); padding: 8px; text-align: center;
+        
+        #scrapwood-list { display: flex; flex-direction: column; gap: 10px; }
+
+        .scrapwood-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .scrapwood-row input {
+            width: 100%;
+            border: 1px solid var(--foreground);
+            padding: 12px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .scrapwood-row .remove-piece-btn {
+            border: 1px solid var(--foreground);
+            background: white;
+            width: 45px;
+            height: 45px;
+            padding: 0;
+            font-size: 16px;
+            cursor: pointer;
+            flex-shrink: 0;
         }
 
         /* --- Custom Slider --- */
@@ -223,6 +246,7 @@
         function addPieceRow(data = { w: '', d: '', h: '', amount: 1 }) {
             const id = `piece-${Date.now()}-${Math.random()}`;
             scrapwoodPieces.push({ id, ...data });
+
             const row = document.createElement('div');
             row.className = 'scrapwood-row';
             row.dataset.id = id;
@@ -230,27 +254,33 @@
                 <input type="number" placeholder="W" value="${data.w}" data-prop="w">
                 <input type="number" placeholder="D" value="${data.d}" data-prop="d">
                 <input type="number" placeholder="H" value="${data.h}" data-prop="h">
-                <input type="number" placeholder="Amt" value="${data.amount}" data-prop="amount" min="1">
-                <button class="remove-piece-btn" title="Remove piece">×</button>`;
+                <input type="number" placeholder="1" value="${data.amount}" data-prop="amount" min="1">
+                <button class="remove-piece-btn" title="Remove piece">×</button>
+            `;
             scrapwoodList.appendChild(row);
         }
 
         function setupEventListeners() {
             window.addEventListener('resize', onWindowResize);
             document.getElementById('add-piece-btn').addEventListener('click', () => addPieceRow());
+            
             scrapwoodList.addEventListener('click', e => {
                 if (e.target.classList.contains('remove-piece-btn')) {
                     const row = e.target.closest('.scrapwood-row');
+                    if (!row) return;
                     scrapwoodPieces = scrapwoodPieces.filter(p => p.id !== row.dataset.id);
                     row.remove();
                 }
             });
+
             scrapwoodList.addEventListener('input', e => {
                 const input = e.target;
                 const row = input.closest('.scrapwood-row');
+                if (!row) return;
                 const piece = scrapwoodPieces.find(p => p.id === row.dataset.id);
                 if (piece) piece[input.dataset.prop] = parseFloat(input.value) || input.value;
             });
+
             viewerCanvas.addEventListener('click', onCanvasClick);
             generateBtn.addEventListener('click', generateAssembly);
             document.getElementById('view-json-btn').addEventListener('click', viewJson);
