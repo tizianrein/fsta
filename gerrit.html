@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scrapwood Assembler</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪵</text></svg>">
+    <style>
+        :root {
+            --background: #FFFFFF;
+            --foreground: #000000;
+            --accent: #888888;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            background-color: var(--background);
+            color: var(--foreground);
+            display: flex;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+        #app-wrapper {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+        }
+
+        /* --- Header --- */
+        #header { text-align: center; }
+        #header h1 { margin: 0; font-size: 24px; }
+        #header p { margin: 10px 0 0; color: var(--accent); }
+
+        /* --- Input Section --- */
+        .input-section { display: flex; flex-direction: column; gap: 20px; }
+        .input-group { display: flex; flex-direction: column; gap: 8px; }
+        .input-group label { font-weight: 600; font-size: 14px; }
+        
+        #scrapwood-form { display: flex; gap: 10px; align-items: stretch; }
+        .dimension-inputs { display: flex; gap: 10px; flex-grow: 1; }
+        .dimension-inputs input {
+            width: 100%;
+            border: 1px solid var(--foreground);
+            background-color: var(--background);
+            color: var(--foreground);
+            padding: 10px;
+            font-size: 14px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            border: 1px solid var(--foreground);
+            cursor: pointer;
+            background-color: var(--foreground);
+            color: var(--background);
+            white-space: nowrap;
+        }
+        .btn:hover { opacity: 0.8; }
+        
+        #scrapwood-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 150px;
+            overflow-y: auto;
+            border: 1px solid var(--accent);
+            padding: 10px;
+        }
+        #scrapwood-list li {
+            font-family: monospace;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+        }
+         #scrapwood-list li button {
+            background: none; border: none; color: var(--accent); cursor: pointer;
+        }
+
+        #prompt-input {
+            width: 100%;
+            border: 1px solid var(--foreground);
+            background-color: var(--background);
+            color: var(--foreground);
+            padding: 10px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        #freakyness-slider { width: 100%; }
+
+        /* --- Viewer --- */
+        #viewer-container { width: 100%; height: 50vh; position: relative; border: 1px solid var(--foreground); }
+        #viewer-canvas { display: block; width: 100%; height: 100%; }
+
+        /* --- Controls & Status --- */
+        #controls { display: flex; justify-content: space-between; align-items: center; gap: 20px; }
+        #view-buttons { display: flex; gap: 10px; }
+        .view-btn { text-decoration: underline; cursor: pointer; font-size: 14px; background: none; border: none; color: var(--foreground); padding: 0;}
+        #reset-view-btn { display: none; }
+        #status-output { font-family: monospace; font-size: 13px; text-align: right; color: var(--accent); }
+    </style>
+</head>
+<body>
+    <div id="app-wrapper">
+        <div id="header">
+            <h1>Scrapwood Assembler</h1>
+            <p>Describe an object, and the AI will build it using only the wood you have.</p>
+        </div>
+
+        <div class="input-section">
+            <div class="input-group">
+                <label>1. Add your scrapwood pieces (in cm)</label>
+                <form id="scrapwood-form" action="javascript:void(0);">
+                    <div class="dimension-inputs">
+                        <input type="number" id="width-input" placeholder="width" required min="1">
+                        <input type="number" id="depth-input" placeholder="depth" required min="1">
+                        <input type="number" id="height-input" placeholder="height" required min="1">
+                    </div>
+                    <button type="submit" class="btn">Add Piece</button>
+                </form>
+                <ul id="scrapwood-list">
+                    <!-- Pieces will be added here by JS -->
+                </ul>
+            </div>
+
+            <div class="input-group">
+                <label for="prompt-input">2. Describe what you want to build</label>
+                <input type="text" id="prompt-input" placeholder="e.g., 'a small stool', 'a model of a duck', 'a side table'">
+            </div>
+
+            <div class="input-group">
+                <label for="freakyness-slider">3. Set "Freakyness": <span id="freakyness-value">0.5</span></label>
+                <input type="range" id="freakyness-slider" min="0" max="1" step="0.1" value="0.5">
+            </div>
+
+            <button id="generate-btn" class="btn">Generate Assembly</button>
+        </div>
+        
+        <div id="viewer-container">
+            <canvas id="viewer-canvas"></canvas>
+        </div>
+
+        <div id="controls">
+            <div id="view-buttons">
+                <button id="explode-view-btn" class="view-btn">Explode</button>
+                <button id="reset-view-btn" class="view-btn">Reset</button>
+            </div>
+            <div id="status-output">Ready.</div>
+        </div>
+    </div>
+
+    <!-- Libraries -->
+    <script type="importmap">{"imports": {"three": "https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"}}</script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        // --- STATE & CONSTANTS ---
+        let scene, camera, renderer, controls;
+        const objectGroup = new THREE.Group();
+        let activeAnimations = [];
+        const ANIMATION_DURATION = 800; // ms
+        let scrapwoodPieces = [];
+
+        // --- DOM ELEMENTS ---
+        const viewerContainer = document.getElementById('viewer-container');
+        const viewerCanvas = document.getElementById('viewer-canvas');
+        const statusOutput = document.getElementById('status-output');
+        const generateBtn = document.getElementById('generate-btn');
+        const explodeBtn = document.getElementById('explode-view-btn');
+        const resetBtn = document.getElementById('reset-view-btn');
+        const freakynessSlider = document.getElementById('freakyness-slider');
+        const freakynessValue = document.getElementById('freakyness-value');
+        const scrapwoodForm = document.getElementById('scrapwood-form');
+        const widthInput = document.getElementById('width-input');
+        const depthInput = document.getElementById('depth-input');
+        const heightInput = document.getElementById('height-input');
+        const scrapwoodList = document.getElementById('scrapwood-list');
+        const promptInput = document.getElementById('prompt-input');
+
+        // --- MATERIALS ---
+        const defaultMaterial = new THREE.MeshStandardMaterial({ color: 0xdeb887, side: THREE.DoubleSide }); // BurlyWood color
+        const outlineMaterial = new THREE.LineBasicMaterial({ color: 0x000000, opacity: 0.8, transparent: true });
+
+        // --- CORE FUNCTIONS ---
+        function init() {
+            // Scene setup
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xffffff);
+            scene.add(objectGroup);
+
+            // Camera setup
+            camera = new THREE.PerspectiveCamera(50, viewerContainer.clientWidth / viewerContainer.clientHeight, 0.01, 1000);
+            camera.position.set(0.8, 1.0, 1.2);
+
+            // Renderer setup
+            renderer = new THREE.WebGLRenderer({ canvas: viewerCanvas, antialias: true, alpha: true });
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(viewerContainer.clientWidth, viewerContainer.clientHeight);
+
+            // Controls
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+
+            // Lighting
+            scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+            scene.add(new THREE.DirectionalLight(0xffffff, 0.7));
+
+            setupEventListeners();
+            animate();
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            if (activeAnimations.length > 0) {
+                const now = performance.now();
+                activeAnimations.forEach(anim => {
+                    const progress = Math.min((now - anim.startTime) / ANIMATION_DURATION, 1);
+                    const easedProgress = 1 - Math.pow(1 - progress, 3); // easeOutCubic
+                    anim.mesh.position.lerpVectors(anim.start, anim.end, easedProgress);
+                });
+                activeAnimations = activeAnimations.filter(anim => (now - anim.startTime) < ANIMATION_DURATION);
+            }
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        function onWindowResize() {
+            camera.aspect = viewerContainer.clientWidth / viewerContainer.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(viewerContainer.clientWidth, viewerContainer.clientHeight);
+        }
+
+        function clearModel() {
+            activeAnimations = [];
+            while (objectGroup.children.length > 0) {
+                objectGroup.remove(objectGroup.children[0]);
+            }
+        }
+
+        function createModel(jsonData) {
+            clearModel();
+            if (!jsonData || !jsonData.parts) {
+                updateStatus("Error: Invalid assembly data received.");
+                return;
+            }
+
+            const allPartsGroup = new THREE.Group();
+            jsonData.parts.forEach(part => {
+                // Ignore discarded parts for initial rendering
+                if (part.status === 'discarded') return;
+
+                const geo = new THREE.BoxGeometry(part.dimensions.width, part.dimensions.height, part.dimensions.depth);
+                const pos = new THREE.Vector3(part.origin.x, part.origin.y, part.origin.z);
+
+                const partGroup = new THREE.Group();
+                const mesh = new THREE.Mesh(geo, defaultMaterial);
+                const outline = new THREE.LineSegments(new THREE.EdgesGeometry(geo), outlineMaterial);
+                
+                partGroup.add(mesh);
+                partGroup.add(outline);
+                partGroup.userData.originalPosition = pos.clone();
+                partGroup.position.copy(pos);
+                
+                allPartsGroup.add(partGroup);
+            });
+            
+            objectGroup.add(allPartsGroup);
+            
+            // Center camera
+            const bounds = new THREE.Box3().setFromObject(allPartsGroup);
+            const center = bounds.getCenter(new THREE.Vector3());
+            const size = bounds.getSize(new THREE.Vector3());
+            const maxDim = Math.max(size.x, size.y, size.z);
+            
+            controls.target.copy(center);
+            camera.position.copy(center);
+            camera.position.x += maxDim * 1.5;
+            camera.position.y += maxDim * 1.2;
+            camera.position.z += maxDim * 1.5;
+            camera.lookAt(center);
+
+            resetBtn.style.display = 'none';
+            explodeBtn.style.display = 'inline-block';
+            updateStatus(`Assembly loaded with ${jsonData.parts.filter(p => p.status !== 'discarded').length} parts.`);
+        }
+
+        function animateParts(isExploding) {
+            if (objectGroup.children.length === 0) return;
+            const modelGroup = objectGroup.children[0];
+            if (!modelGroup) return;
+
+            activeAnimations = [];
+            const center = new THREE.Box3().setFromObject(modelGroup).getCenter(new THREE.Vector3());
+            
+            modelGroup.children.forEach(partGroup => {
+                if (partGroup.userData.originalPosition) {
+                    const startPos = partGroup.position.clone();
+                    let endPos;
+                    if (isExploding) {
+                        const direction = partGroup.userData.originalPosition.clone().sub(center).normalize();
+                        endPos = partGroup.userData.originalPosition.clone().add(direction.multiplyScalar(0.2));
+                    } else {
+                        endPos = partGroup.userData.originalPosition.clone();
+                    }
+                    activeAnimations.push({ mesh: partGroup, start: startPos, end: endPos, startTime: performance.now() });
+                }
+            });
+        }
+        
+        function updateStatus(message) {
+            statusOutput.textContent = message;
+        }
+
+        // --- EVENT LISTENERS & UI LOGIC ---
+        function setupEventListeners() {
+            window.addEventListener('resize', onWindowResize);
+
+            freakynessSlider.addEventListener('input', () => {
+                freakynessValue.textContent = freakynessSlider.value;
+            });
+
+            scrapwoodForm.addEventListener('submit', () => {
+                const piece = {
+                    width: parseFloat(widthInput.value),
+                    depth: parseFloat(depthInput.value),
+                    height: parseFloat(heightInput.value),
+                };
+                scrapwoodPieces.push(piece);
+                renderPieceList();
+                widthInput.value = depthInput.value = heightInput.value = '';
+                widthInput.focus();
+            });
+
+            generateBtn.addEventListener('click', generateAssembly);
+            
+            explodeBtn.addEventListener('click', () => {
+                animateParts(true);
+                explodeBtn.style.display = 'none';
+                resetBtn.style.display = 'inline-block';
+            });
+            resetBtn.addEventListener('click', () => {
+                animateParts(false);
+                resetBtn.style.display = 'none';
+                explodeBtn.style.display = 'inline-block';
+            });
+        }
+
+        function renderPieceList() {
+            scrapwoodList.innerHTML = '';
+            if (scrapwoodPieces.length === 0) {
+                 scrapwoodList.innerHTML = '<li style="color: var(--accent)">No pieces added yet.</li>';
+            }
+            scrapwoodPieces.forEach((piece, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span>${piece.width} x ${piece.depth} x ${piece.height} cm</span> <button data-index="${index}">✖</button>`;
+                scrapwoodList.appendChild(li);
+            });
+            // Add remove listener
+            scrapwoodList.querySelectorAll('button').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const indexToRemove = parseInt(e.target.dataset.index, 10);
+                    scrapwoodPieces.splice(indexToRemove, 1);
+                    renderPieceList();
+                });
+            });
+        }
+
+        async function generateAssembly() {
+            if (scrapwoodPieces.length === 0) {
+                updateStatus("Please add at least one piece of scrapwood.");
+                return;
+            }
+            if (!promptInput.value.trim()) {
+                updateStatus("Please describe what you want to build.");
+                return;
+            }
+
+            updateStatus("Generating... this may take a moment.");
+            generateBtn.disabled = true;
+
+            try {
+                // Convert cm to meters for the AI
+                const piecesInMeters = scrapwoodPieces.map(p => ({
+                    width: p.width / 100,
+                    depth: p.depth / 100,
+                    height: p.height / 100
+                }));
+
+                const payload = {
+                    prompt: promptInput.value,
+                    scrapwood: piecesInMeters,
+                    freakyness: parseFloat(freakynessSlider.value)
+                };
+
+                const response = await fetch('/api/generate-from-scrapwood', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                });
+
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.message || `Server error: ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                if (!result.candidates?.[0]?.content?.parts?.[0]?.text) {
+                     if(result.candidates?.[0]?.finishReason === "SAFETY") {
+                        throw new Error("Generation failed due to safety policies. Please modify your prompt.");
+                     }
+                     throw new Error("Invalid API response structure.");
+                }
+                const newAssembly = JSON.parse(result.candidates[0].content.parts[0].text.replace(/```json\n|```/g, '').trim());
+                createModel(newAssembly);
+
+            } catch (error) {
+                console.error("Generation Error:", error);
+                updateStatus(`Error: ${error.message}`);
+            } finally {
+                generateBtn.disabled = false;
+            }
+        }
+
+        // --- INITIALIZATION ---
+        init();
+        renderPieceList();
+    </script>
+</body>
+</html>
