@@ -24,6 +24,7 @@ The root object must contain 'objectName' (string) and 'parts' (array). Each par
 - **origin** (object): The center point of the part in meters {x, y, z}.
 - **dimensions** (object): The size in meters {width, height, depth}.
 - **connections** (array of strings): IDs of other parts it is physically connected to.
+- **color** (string): A CSS-style hex color string (e.g., "#8B4513" for saddle brown or "#DEB887" for burlywood). Parts can also be painted with colors!
 - **status** (string, optional): Only use "discarded" for offcuts. Do not add a status for parts that are in use.
 
 **COORDINATE SYSTEM:**

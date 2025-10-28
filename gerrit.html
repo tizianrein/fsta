@@ -13,41 +13,23 @@
             --primary-blue: #007AFF;
         }
         html, body {
-            height: 100%;
-            margin: 0;
-            overflow: hidden;
+            height: 100%; margin: 0; overflow: hidden;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Helvetica Neue", Arial, sans-serif;
-            background-color: var(--background);
-            color: var(--foreground);
+            background-color: var(--background); color: var(--foreground);
         }
         body { display: flex; }
-
-        /* --- Layout --- */
         #ui-panel {
-            width: 50%;
-            min-width: 500px;
-            max-width: 750px;
-            padding: 40px;
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto;
-            height: 100vh;
-            box-sizing: border-box;
-            border-right: 1px solid #EAEAEA;
+            width: 60%; min-width: 550px; max-width: 750px; padding: 40px;
+            display: flex; flex-direction: column; overflow-y: auto;
+            height: 100vh; box-sizing: border-box; border-right: 1px solid #EAEAEA;
         }
         #viewer-panel { flex-grow: 1; height: 100vh; position: relative; }
         #viewer-canvas { display: block; width: 100%; height: 100%; }
-
-        /* --- Typography --- */
         h1 { margin: 0; font-size: 32px; font-weight: 600; }
         #header p { margin: 5px 0 0; color: var(--accent); font-size: 16px; }
         label { font-weight: 600; font-size: 14px; display: block; }
-
-        /* --- Structure & Spacing --- */
         .input-section { display: flex; flex-direction: column; gap: 15px; margin-top: 40px; }
         .controls-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
-
-        /* --- Buttons --- */
         .btn {
             padding: 12px 20px; font-size: 14px; font-weight: 600; border: 1px solid var(--foreground);
             cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px;
@@ -56,58 +38,27 @@
         .btn.secondary { background-color: var(--background); color: var(--foreground); }
         .btn:disabled { background-color: #ccc; border-color: #ccc; cursor: not-allowed; }
         .btn:hover:not(:disabled) { opacity: 0.7; }
-
-        /* --- Inputs --- */
         .input-field {
             width: 100%; border: 1px solid var(--foreground); background-color: var(--background);
             color: var(--foreground); padding: 12px; font-size: 14px; box-sizing: border-box;
         }
-        
         #scrapwood-list { display: flex; flex-direction: column; gap: 10px; }
-
-        .scrapwood-row {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
+        .scrapwood-row { display: flex; gap: 10px; align-items: center; }
         .scrapwood-row input {
-            width: 100%;
-            border: 1px solid var(--foreground);
-            padding: 12px;
-            text-align: center;
-            font-size: 14px;
+            width: 100%; border: 1px solid var(--foreground); padding: 12px;
+            text-align: center; font-size: 14px;
         }
-
         .scrapwood-row .remove-piece-btn {
-            border: 1px solid var(--foreground);
-            background: white;
-            width: 45px;
-            height: 45px;
-            padding: 0;
-            font-size: 16px;
-            cursor: pointer;
-            flex-shrink: 0;
+            border: 1px solid var(--foreground); background: white; width: 45px; height: 45px;
+            padding: 0; font-size: 16px; cursor: pointer; flex-shrink: 0;
         }
-
-        /* --- Custom Slider --- */
         input[type="range"] { -webkit-appearance: none; appearance: none; width: 100%; height: 5px; background: #EAEAEA; outline: none; }
         input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 20px; height: 20px; background: var(--primary-blue); cursor: pointer; border-radius: 50%; }
         input[type="range"]::-moz-range-thumb { width: 20px; height: 20px; background: var(--primary-blue); cursor: pointer; border-radius: 50%; border: 0; }
-        
-        /* --- Gerrit's Response Box --- */
         #gerrit-box {
-            border: 1px solid var(--foreground);
-            padding: 15px;
-            font-family: "SF Mono", Consolas, Menlo, monospace;
-            font-size: 14px;
-            line-height: 1.6;
-            min-height: 70px;
-            margin-top: 40px;
+            border: 1px solid var(--foreground); padding: 15px; font-family: "SF Mono", Consolas, Menlo, monospace;
+            font-size: 14px; line-height: 1.6; min-height: 70px; margin-top: 40px;
         }
-        #gerrit-output .cursor { display: inline-block; background-color: var(--foreground); width: 8px; height: 1em; animation: blink 1s step-end infinite; }
-        @keyframes blink { 50% { background-color: transparent; } }
-        
         #info-box { position: absolute; top: 10px; left: 10px; padding: 8px 12px; background-color: rgba(0, 0, 0, 0.7); color: white; border-radius: 4px; font-family: monospace; font-size: 13px; z-index: 100; display: none; }
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,.7); z-index: 1000; justify-content: center; align-items: center; }
         .modal-content { background-color: #fff; padding: 20px; width: 90%; max-width: 500px; }
@@ -175,12 +126,12 @@
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
         let scene, camera, renderer, controls, raycaster, mouse;
-        let scrapwoodPieces = [], currentModelJson = null, selectedPartMesh = null, typingInterval = null;
+        let scrapwoodPieces = [], currentModelJson = null, selectedPartMesh = null;
+        let typingInterval = null, thinkingTimerInterval = null; // <-- NEW: Timer interval
         const objectGroup = new THREE.Group();
-        const defaultMaterial = new THREE.MeshStandardMaterial({ color: 0xdeb887, side: THREE.DoubleSide });
         const selectionMaterial = new THREE.MeshStandardMaterial({ color: 0x007AFF, side: THREE.DoubleSide });
+        const outlineMaterial = new THREE.LineBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.8 }); // <-- NEW: Outline material
 
-        // --- DOM ELEMENT REFERENCES ---
         const viewerPanel = document.getElementById('viewer-panel');
         const viewerCanvas = document.getElementById('viewer-canvas');
         const gerritOutput = document.getElementById('gerrit-output');
@@ -192,21 +143,16 @@
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0xffffff);
             scene.add(objectGroup);
-
             camera = new THREE.PerspectiveCamera(50, viewerPanel.clientWidth / viewerPanel.clientHeight, 0.01, 1000);
             camera.position.set(0.8, 1.0, 1.2);
-
             renderer = new THREE.WebGLRenderer({ canvas: viewerCanvas, antialias: true, alpha: true });
             renderer.setPixelRatio(window.devicePixelRatio);
             renderer.setSize(viewerPanel.clientWidth, viewerPanel.clientHeight);
-
             controls = new OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true;
-
             scene.add(new THREE.AmbientLight(0xffffff, 0.8), new THREE.DirectionalLight(0xffffff, 0.7));
             raycaster = new THREE.Raycaster();
             mouse = new THREE.Vector2();
-
             setupEventListeners();
             addPieceRow();
             updateGerrit("Hello! I'm Gerrit. Provide some scrapwood and a prompt, and I'll design something for you.");
@@ -229,12 +175,10 @@
                 const textEl = document.getElementById('gerrit-text');
                 const cursorEl = gerritOutput.querySelector('.cursor');
                 if (!textEl || !cursorEl) return;
-                
                 let i = 0;
                 typingInterval = setInterval(() => {
-                    if (i < message.length) {
-                        textEl.textContent += message.charAt(i++);
-                    } else {
+                    if (i < message.length) textEl.textContent += message.charAt(i++);
+                    else {
                         clearInterval(typingInterval);
                         typingInterval = null;
                         if (cursorEl) cursorEl.style.display = 'none';
@@ -246,7 +190,6 @@
         function addPieceRow(data = { w: '', d: '', h: '', amount: 1 }) {
             const id = `piece-${Date.now()}-${Math.random()}`;
             scrapwoodPieces.push({ id, ...data });
-
             const row = document.createElement('div');
             row.className = 'scrapwood-row';
             row.dataset.id = id;
@@ -263,7 +206,6 @@
         function setupEventListeners() {
             window.addEventListener('resize', onWindowResize);
             document.getElementById('add-piece-btn').addEventListener('click', () => addPieceRow());
-            
             scrapwoodList.addEventListener('click', e => {
                 if (e.target.classList.contains('remove-piece-btn')) {
                     const row = e.target.closest('.scrapwood-row');
@@ -272,7 +214,6 @@
                     row.remove();
                 }
             });
-
             scrapwoodList.addEventListener('input', e => {
                 const input = e.target;
                 const row = input.closest('.scrapwood-row');
@@ -280,7 +221,6 @@
                 const piece = scrapwoodPieces.find(p => p.id === row.dataset.id);
                 if (piece) piece[input.dataset.prop] = parseFloat(input.value) || input.value;
             });
-
             viewerCanvas.addEventListener('click', onCanvasClick);
             generateBtn.addEventListener('click', generateAssembly);
             document.getElementById('view-json-btn').addEventListener('click', viewJson);
@@ -308,11 +248,22 @@
                 updateGerrit("I need some instructions! Please describe what you want me to build.");
                 return;
             }
-            updateGerrit("Okay, let me think... designing from these pieces now.", true);
+
+            // --- NEW: Start Thinking Timer ---
+            let seconds = 0;
+            const thinkingMessage = "Okay, let me think...";
+            updateGerrit(`${thinkingMessage} (0s)`, true);
+            thinkingTimerInterval = setInterval(() => {
+                seconds++;
+                updateGerrit(`${thinkingMessage} (${seconds}s)`, true);
+            }, 1000);
+
             generateBtn.disabled = true;
+
             try {
                 const piecesInMeters = validPieces.flatMap(p => Array(p.amount || 1).fill({ width: p.w / 100, depth: p.d / 100, height: p.h / 100 }));
                 const payload = { prompt, scrapwood: piecesInMeters, freakyness: parseFloat(document.getElementById('freakyness-slider').value) };
+                
                 const response = await fetch('/api/generate-from-scrapwood', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
                 if (!response.ok) {
                     const contentType = response.headers.get("content-type");
@@ -322,10 +273,21 @@
                 const result = await response.json();
                 const newAssembly = JSON.parse(result.candidates[0].content.parts[0].text.replace(/```json\n|```/g, '').trim());
                 createModel(newAssembly);
-                updateGerrit(`Alright, I've designed a "${newAssembly.objectName}" for you. Take a look!`);
+
+                // --- NEW: Material Usage Calculation ---
+                const totalInitialVolume = piecesInMeters.reduce((acc, p) => acc + (p.width * p.depth * p.height), 0);
+                const usedParts = newAssembly.parts.filter(p => p.status !== 'discarded');
+                const usedVolume = usedParts.reduce((acc, p) => acc + (p.dimensions.width * p.dimensions.depth * p.dimensions.height), 0);
+                const usagePercentage = totalInitialVolume > 0 ? (usedVolume / totalInitialVolume) * 100 : 0;
+
+                updateGerrit(`Alright, I've designed a "${newAssembly.objectName}" for you. This design uses ${usagePercentage.toFixed(1)}% of your available materials. Take a look!`);
+
             } catch (error) {
                 updateGerrit(`Oh, something went wrong. The server said: ${error.message}`);
             } finally {
+                // --- NEW: Stop Thinking Timer ---
+                if (thinkingTimerInterval) clearInterval(thinkingTimerInterval);
+                thinkingTimerInterval = null;
                 generateBtn.disabled = false;
             }
         }
@@ -335,17 +297,41 @@
             camera.updateProjectionMatrix();
             renderer.setSize(viewerPanel.clientWidth, viewerPanel.clientHeight);
         }
+
         function createModel(jsonData) {
             clearModel();
             currentModelJson = jsonData;
             const allPartsGroup = new THREE.Group();
+
             jsonData.parts.forEach(part => {
                 if (part.status === 'discarded') return;
-                const mesh = new THREE.Mesh(new THREE.BoxGeometry(part.dimensions.width, part.dimensions.height, part.dimensions.depth), defaultMaterial);
-                mesh.position.set(part.origin.x, part.origin.y, part.origin.z);
-                mesh.userData.partInfo = part;
-                allPartsGroup.add(mesh);
+
+                // --- NEW: AI Colors & Outlines ---
+                const geometry = new THREE.BoxGeometry(part.dimensions.width, part.dimensions.height, part.dimensions.depth);
+                
+                // 1. Create part material with AI-provided color (or fallback)
+                const partColor = part.color || '#DEB887'; // Fallback to burlywood
+                const partMaterial = new THREE.MeshStandardMaterial({ color: partColor, side: THREE.DoubleSide });
+                const mesh = new THREE.Mesh(geometry, partMaterial);
+
+                // 2. Create the black outline
+                const edges = new THREE.EdgesGeometry(geometry);
+                const outline = new THREE.LineSegments(edges, outlineMaterial);
+
+                // 3. Create a group to hold both mesh and outline
+                const partGroup = new THREE.Group();
+                partGroup.add(mesh);
+                partGroup.add(outline);
+                
+                // 4. Store data and position the group
+                partGroup.userData.partInfo = part;
+                partGroup.userData.originalMaterial = partMaterial; // Store original material for deselection
+                partGroup.userData.mesh = mesh; // Direct reference to the mesh for selection
+                partGroup.position.set(part.origin.x, part.origin.y, part.origin.z);
+
+                allPartsGroup.add(partGroup);
             });
+
             objectGroup.add(allPartsGroup);
             const bounds = new THREE.Box3().setFromObject(allPartsGroup);
             const center = bounds.getCenter(new THREE.Vector3());
@@ -355,22 +341,35 @@
             camera.position.copy(center).add(new THREE.Vector3(1, 0.8, 1).normalize().multiplyScalar(maxDim * 2));
             camera.lookAt(center);
         }
+        
         function clearModel() {
             while (objectGroup.children.length > 0) objectGroup.remove(objectGroup.children[0]);
             currentModelJson = null; selectedPartMesh = null; infoBox.style.display = 'none';
         }
+
         function onCanvasClick(event) {
             const rect = renderer.domElement.getBoundingClientRect();
             mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
             mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
             raycaster.setFromCamera(mouse, camera);
-            const intersects = raycaster.intersectObjects(objectGroup.children, true);
-            if (selectedPartMesh) selectedPartMesh.material = defaultMaterial;
-            selectedPartMesh = null; infoBox.style.display = 'none';
+
+            // --- MODIFIED: Raycast against the invisible meshes, not the groups ---
+            const meshes = [];
+            objectGroup.traverse(obj => { if (obj.isMesh) meshes.push(obj); });
+            const intersects = raycaster.intersectObjects(meshes);
+
+            // Deselect previous
+            if (selectedPartMesh) {
+                selectedPartMesh.material = selectedPartMesh.parent.userData.originalMaterial; // Revert to original material
+                selectedPartMesh = null;
+            }
+            infoBox.style.display = 'none';
+
             if (intersects.length > 0) {
-                selectedPartMesh = intersects[0].object;
-                selectedPartMesh.material = selectionMaterial;
-                const partInfo = selectedPartMesh.userData.partInfo;
+                selectedPartMesh = intersects[0].object; // The mesh itself is the intersected object
+                selectedPartMesh.material = selectionMaterial; // Apply selection material
+                
+                const partInfo = selectedPartMesh.parent.userData.partInfo; // Get info from parent group
                 if (partInfo) {
                     const d = partInfo.dimensions;
                     infoBox.innerHTML = `<b>ID:</b> ${partInfo.id}<br><b>Size (cm):</b> ${(d.width*100).toFixed(1)} x ${(d.depth*100).toFixed(1)} x ${(d.height*100).toFixed(1)}`;
@@ -378,6 +377,7 @@
                 }
             }
         }
+
         function viewJson() {
             if (!currentModelJson) { updateGerrit("There's no model loaded to view."); return; }
             document.getElementById('json-textarea').value = JSON.stringify(currentModelJson, null, 2);
@@ -410,4 +410,4 @@
         init();
     </script>
 </body>
-</html>
+</html>```
