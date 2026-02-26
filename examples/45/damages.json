@@ -1,7 +1,7 @@
 [
   {
     "id": "damage_01",
-    "part_id": "front_apron",
+    "part_id": "left_wall_lower_center_bottom",
     "type": "Scratch",
     "description": "A long, deep vertical scratch is visible on the right side of the front apron.",
     "coordinates": {
