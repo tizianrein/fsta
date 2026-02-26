@@ -1,271 +1,271 @@
 {
   "objectName": "fritz_pflaum_huette",
-  "parts": [
+  "parts":[
     {
       "id": "left_wall_lower_center_bottom",
       "origin": { "x": -3.404088, "y": 0.430000, "z": 0.067030 },
       "dimensions": { "width": 0.860000, "height": 0.507500, "depth": 1.119541 },
       "rotation": { "x": -0.000000, "y": 3.141593, "z": 1.570796 },
-      "connections": ["left_wall_lower_center_top", "left_wall_lower_front", "left_wall_lower_back", "upper_floor"]
+      "connections":["left_wall_lower_center_top", "left_wall_lower_front", "left_wall_lower_back", "upper_floor"]
     },
     {
       "id": "left_wall_lower_center_top",
       "origin": { "x": -3.404088, "y": 2.010000, "z": 0.067030 },
       "dimensions": { "width": 0.520000, "height": 0.507500, "depth": 1.119541 },
       "rotation": { "x": -0.000000, "y": 3.141593, "z": 1.570796 },
-      "connections": ["left_wall_lower_center_bottom", "left_wall_lower_front", "left_wall_lower_back", "upper_floor"]
+      "connections":["left_wall_lower_center_bottom", "left_wall_lower_front", "left_wall_lower_back", "upper_floor"]
     },
     {
       "id": "left_wall_lower_front",
       "origin": { "x": -3.404088, "y": 1.135000, "z": -1.347675 },
       "dimensions": { "width": 2.270000, "height": 0.507500, "depth": 1.709868 },
       "rotation": { "x": -0.000000, "y": 3.141593, "z": 1.570796 },
-      "connections": ["left_wall_lower_center_bottom", "left_wall_lower_center_top", "front_wall_lower_left", "upper_floor", "gable_wall_left"]
+      "connections":["left_wall_lower_center_bottom", "left_wall_lower_center_top", "front_wall_lower_left", "upper_floor", "gable_wall_left"]
     },
     {
       "id": "window_sill_front_lower",
       "origin": { "x": -1.189573, "y": 0.430000, "z": -2.481166 },
       "dimensions": { "width": 0.860000, "height": 0.945527, "depth": 0.557114 },
       "rotation": { "x": -0.000000, "y": 3.141593, "z": 1.570796 },
-      "connections": ["window_lintel_front_lower", "front_wall_lower_left", "front_wall_lower_middle"]
+      "connections":["window_lintel_front_lower", "front_wall_lower_left", "front_wall_lower_middle"]
     },
     {
       "id": "window_lintel_front_lower",
       "origin": { "x": -1.189573, "y": 2.010000, "z": -2.481166 },
       "dimensions": { "width": 0.520000, "height": 0.945527, "depth": 0.557114 },
       "rotation": { "x": -0.000000, "y": 3.141593, "z": 1.570796 },
-      "connections": ["window_sill_front_lower", "front_wall_lower_left", "front_wall_lower_middle", "upper_floor"]
+      "connections":["window_sill_front_lower", "front_wall_lower_left", "front_wall_lower_middle", "upper_floor"]
     },
     {
       "id": "front_wall_lower_left",
       "origin": { "x": -2.660087, "y": 1.135000, "z": -2.481166 },
       "dimensions": { "width": 2.270000, "height": 1.995502, "depth": 0.557114 },
       "rotation": { "x": -0.000000, "y": 3.141593, "z": 1.570796 },
-      "connections": ["left_wall_lower_front", "front_wall_lower_middle", "window_sill_front_lower", "window_lintel_front_lower", "upper_floor"]
+      "connections":["left_wall_lower_front", "front_wall_lower_middle", "window_sill_front_lower", "window_lintel_front_lower", "upper_floor"]
     },
     {
       "id": "door_frame_front",
       "origin": { "x": 2.488810, "y": 2.010000, "z": -2.481166 },
       "dimensions": { "width": 0.520000, "height": 0.709583, "depth": 0.557114 },
       "rotation": { "x": -0.000000, "y": 3.141593, "z": 1.570796 },
-      "connections": ["front_wall_lower_middle", "front_wall_lower_right", "upper_floor"]
+      "connections":["front_wall_lower_middle", "front_wall_lower_right", "upper_floor"]
     },
     {
       "id": "front_wall_lower_right",
       "origin": { "x": 3.336176, "y": 1.135000, "z": -2.481166 },
       "dimensions": { "width": 2.270000, "height": 0.985149, "depth": 0.557114 },
       "rotation": { "x": -0.000000, "y": 3.141593, "z": 1.570796 },
-      "connections": ["right_wall_lower", "front_wall_lower_middle", "door_frame_front", "upper_floor"]
+      "connections":["right_wall_lower", "front_wall_lower_middle", "door_frame_front", "upper_floor"]
     },
     {
       "id": "front_wall_lower_middle",
       "origin": { "x": 0.708604, "y": 1.135000, "z": -2.481166 },
       "dimensions": { "width": 2.270000, "height": 2.850828, "depth": 0.557114 },
       "rotation": { "x": -0.000000, "y": 3.141593, "z": 1.570796 },
-      "connections": ["front_wall_lower_left", "front_wall_lower_right", "window_sill_front_lower", "window_lintel_front_lower", "door_frame_front", "upper_floor"]
+      "connections":["front_wall_lower_left", "front_wall_lower_right", "window_sill_front_lower", "window_lintel_front_lower", "door_frame_front", "upper_floor"]
     },
     {
       "id": "chimney",
       "origin": { "x": 0.305074, "y": 2.910000, "z": 1.050698 },
       "dimensions": { "width": 5.820000, "height": 1.006332, "depth": 0.584200 },
       "rotation": { "x": -0.000000, "y": 3.141593, "z": 1.570796 },
-      "connections": ["back_wall_lower_middle", "upper_floor", "roof_panel_back"]
+      "connections":["back_wall_lower_middle", "upper_floor", "roof_panel_back"]
     },
     {
       "id": "left_wall_lower_back",
       "origin": { "x": -3.404088, "y": 1.135000, "z": 1.409549 },
       "dimensions": { "width": 2.270000, "height": 0.507500, "depth": 1.565496 },
       "rotation": { "x": -0.000000, "y": 3.141593, "z": 1.570796 },
-      "connections": ["left_wall_lower_center_bottom", "left_wall_lower_center_top", "back_wall_lower_left", "upper_floor", "gable_wall_left"]
+      "connections":["left_wall_lower_center_bottom", "left_wall_lower_center_top", "back_wall_lower_left", "upper_floor", "gable_wall_left"]
     },
     {
       "id": "window_sill_back_left",
       "origin": { "x": -1.149491, "y": 0.430000, "z": 2.467300 },
       "dimensions": { "width": 0.860000, "height": 1.079162, "depth": 0.550007 },
       "rotation": { "x": -0.000000, "y": 3.141593, "z": 1.570796 },
-      "connections": ["window_lintel_back_left", "back_wall_lower_left", "back_wall_lower_middle"]
+      "connections":["window_lintel_back_left", "back_wall_lower_left", "back_wall_lower_middle"]
     },
     {
       "id": "window_lintel_back_left",
       "origin": { "x": -1.149491, "y": 2.010000, "z": 2.467300 },
       "dimensions": { "width": 0.520000, "height": 1.079162, "depth": 0.550007 },
       "rotation": { "x": -0.000000, "y": 3.141593, "z": 1.570796 },
-      "connections": ["window_sill_back_left", "back_wall_lower_left", "back_wall_lower_middle", "upper_floor"]
+      "connections":["window_sill_back_left", "back_wall_lower_left", "back_wall_lower_middle", "upper_floor"]
     },
     {
       "id": "back_wall_lower_left",
       "origin": { "x": -2.673455, "y": 1.135000, "z": 2.467300 },
       "dimensions": { "width": 2.270000, "height": 1.968767, "depth": 0.550007 },
       "rotation": { "x": -0.000000, "y": 3.141593, "z": 1.570796 },
-      "connections": ["left_wall_lower_back", "back_wall_lower_middle", "window_sill_back_left", "window_lintel_back_left", "upper_floor"]
+      "connections":["left_wall_lower_back", "back_wall_lower_middle", "window_sill_back_left", "window_lintel_back_left", "upper_floor"]
     },
     {
       "id": "window_sill_back_right",
       "origin": { "x": 2.382096, "y": 0.430000, "z": 2.467300 },
       "dimensions": { "width": 0.860000, "height": 0.461277, "depth": 0.550007 },
       "rotation": { "x": -0.000000, "y": 3.141593, "z": 1.570796 },
-      "connections": ["window_lintel_back_right", "back_wall_lower_middle", "back_wall_lower_right"]
+      "connections":["window_lintel_back_right", "back_wall_lower_middle", "back_wall_lower_right"]
     },
     {
       "id": "window_lintel_back_right",
       "origin": { "x": 2.382096, "y": 2.010000, "z": 2.467300 },
       "dimensions": { "width": 0.520000, "height": 0.461277, "depth": 0.550007 },
       "rotation": { "x": -0.000000, "y": 3.141593, "z": 1.570796 },
-      "connections": ["window_sill_back_right", "back_wall_lower_middle", "back_wall_lower_right", "upper_floor"]
+      "connections":["window_sill_back_right", "back_wall_lower_middle", "back_wall_lower_right", "upper_floor"]
     },
     {
       "id": "back_wall_lower_right",
       "origin": { "x": 3.220734, "y": 1.135000, "z": 2.467300 },
       "dimensions": { "width": 2.270000, "height": 1.215999, "depth": 0.550007 },
       "rotation": { "x": -0.000000, "y": 3.141593, "z": 1.570796 },
-      "connections": ["right_wall_lower", "back_wall_lower_middle", "window_sill_back_right", "window_lintel_back_right", "upper_floor"]
+      "connections":["right_wall_lower", "back_wall_lower_middle", "window_sill_back_right", "window_lintel_back_right", "upper_floor"]
     },
     {
       "id": "back_wall_lower_middle",
       "origin": { "x": 0.770774, "y": 1.135000, "z": 2.467300 },
       "dimensions": { "width": 2.270000, "height": 2.761367, "depth": 0.550007 },
       "rotation": { "x": -0.000000, "y": 3.141593, "z": 1.570796 },
-      "connections": ["back_wall_lower_left", "back_wall_lower_right", "window_sill_back_left", "window_lintel_back_left", "window_sill_back_right", "window_lintel_back_right", "upper_floor", "chimney"]
+      "connections":["back_wall_lower_left", "back_wall_lower_right", "window_sill_back_left", "window_lintel_back_left", "window_sill_back_right", "window_lintel_back_right", "upper_floor", "chimney"]
     },
     {
       "id": "gable_wall_left",
       "origin": { "x": -3.640876, "y": 3.928854, "z": -0.006539 },
       "dimensions": { "width": 3.317709, "height": 0.203450, "depth": 5.497013 },
       "rotation": { "x": -0.000000, "y": 3.141593, "z": 1.570796 },
-      "connections": ["left_wall_lower_front", "left_wall_lower_back", "upper_floor", "roof_panel_front", "roof_panel_back"]
+      "connections":["left_wall_lower_front", "left_wall_lower_back", "upper_floor", "roof_panel_front", "roof_panel_back"]
     },
     {
       "id": "upper_floor",
       "origin": { "x": 0.042780, "y": 2.410000, "z": 0.007213 },
       "dimensions": { "width": 0.280000, "height": 7.163862, "depth": 5.117563 },
       "rotation": { "x": -0.000000, "y": 3.141593, "z": 1.570796 },
-      "connections": ["front_wall_lower_middle", "back_wall_lower_middle", "left_wall_lower_front", "right_wall_lower", "gable_wall_left", "gable_wall_right", "chimney"]
+      "connections":["front_wall_lower_middle", "back_wall_lower_middle", "left_wall_lower_front", "right_wall_lower", "gable_wall_left", "gable_wall_right", "chimney"]
     },
     {
       "id": "gable_wall_right",
       "origin": { "x": 3.726752, "y": 3.928782, "z": -0.006065 },
       "dimensions": { "width": 3.317565, "height": 0.202765, "depth": 5.496066 },
       "rotation": { "x": -0.000000, "y": 3.141593, "z": 1.570796 },
-      "connections": ["right_wall_lower", "upper_floor", "roof_panel_front", "roof_panel_back"]
+      "connections":["right_wall_lower", "upper_floor", "roof_panel_front", "roof_panel_back"]
     },
     {
       "id": "roof_panel_back",
       "origin": { "x": 0.042727, "y": 4.856050, "z": 1.384747 },
       "dimensions": { "width": 0.203150, "height": 7.820818, "depth": 3.368744 },
       "rotation": { "x": -0.549779, "y": 3.141593, "z": 1.570796 },
-      "connections": ["roof_panel_front", "gable_wall_left", "gable_wall_right", "chimney"]
+      "connections":["roof_panel_front", "gable_wall_left", "gable_wall_right", "chimney"]
     },
     {
       "id": "roof_panel_front",
       "origin": { "x": 0.042728, "y": 4.856133, "z": -1.393503 },
       "dimensions": { "width": 0.203402, "height": 7.820821, "depth": 3.368756 },
       "rotation": { "x": 0.549779, "y": 3.141593, "z": 1.570796 },
-      "connections": ["roof_panel_back", "gable_wall_left", "gable_wall_right"]
+      "connections":["roof_panel_back", "gable_wall_left", "gable_wall_right"]
     },
     {
-      "id": "shutter_back_left_slat_1",
+      "id": "timber_wall_back_left_slat_1",
       "origin": { "x": -0.989749, "y": 2.756443, "z": 2.653981 },
       "dimensions": { "width": 0.972886, "height": 0.751907, "depth": 0.175974 },
       "rotation": { "x": -0.000000, "y": 3.141593, "z": 1.570796 },
-      "connections": ["shutter_back_left_panel", "shutter_back_left_slat_2"]
+      "connections":["timber_wall_back_left_panel", "timber_wall_back_left_slat_2"]
     },
     {
-      "id": "shutter_back_left_slat_2",
+      "id": "timber_wall_back_left_slat_2",
       "origin": { "x": -0.989749, "y": 3.883794, "z": 2.653981 },
       "dimensions": { "width": 0.061817, "height": 0.751907, "depth": 0.175974 },
       "rotation": { "x": -0.000000, "y": 3.141593, "z": 1.570796 },
-      "connections": ["shutter_back_left_panel", "shutter_back_left_slat_1"]
+      "connections":["timber_wall_back_left_panel", "timber_wall_back_left_slat_1"]
     },
     {
-      "id": "shutter_back_left_panel",
+      "id": "timber_wall_back_left_panel",
       "origin": { "x": -2.452427, "y": 3.092351, "z": 2.653981 },
       "dimensions": { "width": 1.644702, "height": 2.173448, "depth": 0.175974 },
       "rotation": { "x": -0.000000, "y": 3.141593, "z": 1.570796 },
-      "connections": ["gable_wall_left", "shutter_back_left_slat_1", "shutter_back_left_slat_2"]
+      "connections":["gable_wall_left", "timber_wall_back_left_slat_1", "timber_wall_back_left_slat_2"]
     },
     {
-      "id": "shutter_back_right_slat_1",
+      "id": "timber_wall_back_right_slat_1",
       "origin": { "x": 1.118520, "y": 2.756443, "z": 2.653981 },
       "dimensions": { "width": 0.972886, "height": 0.751907, "depth": 0.175974 },
       "rotation": { "x": -0.000000, "y": 3.141593, "z": 1.570796 },
-      "connections": ["shutter_back_right_panel_1", "shutter_back_right_slat_2"]
+      "connections":["timber_wall_back_right_panel_1", "timber_wall_back_right_slat_2"]
     },
     {
-      "id": "shutter_back_right_slat_2",
+      "id": "timber_wall_back_right_slat_2",
       "origin": { "x": 1.118520, "y": 3.883794, "z": 2.653981 },
       "dimensions": { "width": 0.061817, "height": 0.751907, "depth": 0.175974 },
       "rotation": { "x": -0.000000, "y": 3.141593, "z": 1.570796 },
-      "connections": ["shutter_back_right_panel_1", "shutter_back_right_slat_1"]
+      "connections":["timber_wall_back_right_panel_1", "timber_wall_back_right_slat_1"]
     },
     {
-      "id": "shutter_back_right_panel_1",
+      "id": "timber_wall_back_right_panel_1",
       "origin": { "x": 0.064385, "y": 3.092351, "z": 2.653981 },
       "dimensions": { "width": 1.644702, "height": 1.356362, "depth": 0.175974 },
       "rotation": { "x": -0.000000, "y": 3.141593, "z": 1.570796 },
-      "connections": ["gable_wall_right", "shutter_back_right_panel_2", "shutter_back_right_slat_1", "shutter_back_right_slat_2"]
+      "connections":["gable_wall_right", "timber_wall_back_right_panel_2", "timber_wall_back_right_slat_1", "timber_wall_back_right_slat_2"]
     },
     {
-      "id": "shutter_back_right_panel_2",
+      "id": "timber_wall_back_right_panel_2",
       "origin": { "x": 2.559592, "y": 3.092351, "z": 2.653981 },
       "dimensions": { "width": 1.644702, "height": 2.130238, "depth": 0.175974 },
       "rotation": { "x": -0.000000, "y": 3.141593, "z": 1.570796 },
-      "connections": ["gable_wall_right", "shutter_back_right_panel_1"]
+      "connections":["gable_wall_right", "timber_wall_back_right_panel_1"]
     },
     {
-      "id": "shutter_front_left_slat_1",
+      "id": "timber_wall_front_left_slat_1",
       "origin": { "x": -0.989749, "y": 2.756443, "z": -2.652834 },
       "dimensions": { "width": 0.972886, "height": 0.751907, "depth": 0.202530 },
       "rotation": { "x": -0.000000, "y": 3.141593, "z": 1.570796 },
-      "connections": ["shutter_front_left_panel", "shutter_front_left_slat_2"]
+      "connections":["timber_wall_front_left_panel", "timber_wall_front_left_slat_2"]
     },
     {
-      "id": "shutter_front_left_slat_2",
+      "id": "timber_wall_front_left_slat_2",
       "origin": { "x": -0.989749, "y": 3.883737, "z": -2.652834 },
       "dimensions": { "width": 0.061703, "height": 0.751907, "depth": 0.202530 },
       "rotation": { "x": -0.000000, "y": 3.141593, "z": 1.570796 },
-      "connections": ["shutter_front_left_panel", "shutter_front_left_slat_1"]
+      "connections":["timber_wall_front_left_panel", "timber_wall_front_left_slat_1"]
     },
     {
-      "id": "shutter_front_left_panel",
+      "id": "timber_wall_front_left_panel",
       "origin": { "x": -2.452427, "y": 3.092294, "z": -2.652834 },
       "dimensions": { "width": 1.644589, "height": 2.173448, "depth": 0.202530 },
       "rotation": { "x": -0.000000, "y": 3.141593, "z": 1.570796 },
-      "connections": ["gable_wall_left", "shutter_front_left_slat_1", "shutter_front_left_slat_2"]
+      "connections":["gable_wall_left", "timber_wall_front_left_slat_1", "timber_wall_front_left_slat_2"]
     },
     {
-      "id": "shutter_front_right_slat_1",
+      "id": "timber_wall_front_right_slat_1",
       "origin": { "x": 1.118520, "y": 2.756443, "z": -2.652834 },
       "dimensions": { "width": 0.972886, "height": 0.751907, "depth": 0.202530 },
       "rotation": { "x": -0.000000, "y": 3.141593, "z": 1.570796 },
-      "connections": ["shutter_front_right_panel_1", "shutter_front_right_slat_2"]
+      "connections":["timber_wall_front_right_panel_1", "timber_wall_front_right_slat_2"]
     },
     {
-      "id": "shutter_front_right_slat_2",
+      "id": "timber_wall_front_right_slat_2",
       "origin": { "x": 1.118520, "y": 3.883737, "z": -2.652834 },
       "dimensions": { "width": 0.061703, "height": 0.751907, "depth": 0.202530 },
       "rotation": { "x": -0.000000, "y": 3.141593, "z": 1.570796 },
-      "connections": ["shutter_front_right_panel_1", "shutter_front_right_slat_1"]
+      "connections":["timber_wall_front_right_panel_1", "timber_wall_front_right_slat_1"]
     },
     {
-      "id": "shutter_front_right_panel_1",
+      "id": "timber_wall_front_right_panel_1",
       "origin": { "x": 2.559921, "y": 3.092294, "z": -2.652834 },
       "dimensions": { "width": 1.644589, "height": 2.130896, "depth": 0.202530 },
       "rotation": { "x": -0.000000, "y": 3.141593, "z": 1.570796 },
-      "connections": ["gable_wall_right", "shutter_front_right_panel_2"]
+      "connections":["gable_wall_right", "timber_wall_front_right_panel_2"]
     },
     {
-      "id": "shutter_front_right_panel_2",
+      "id": "timber_wall_front_right_panel_2",
       "origin": { "x": 0.064385, "y": 3.092294, "z": -2.652834 },
       "dimensions": { "width": 1.644589, "height": 1.356362, "depth": 0.202530 },
       "rotation": { "x": -0.000000, "y": 3.141593, "z": 1.570796 },
-      "connections": ["gable_wall_right", "shutter_front_right_panel_1", "shutter_front_right_slat_1", "shutter_front_right_slat_2"]
+      "connections":["gable_wall_right", "timber_wall_front_right_panel_1", "timber_wall_front_right_slat_1", "timber_wall_front_right_slat_2"]
     },
     {
       "id": "right_wall_lower",
       "origin": { "x": 3.627701, "y": 1.135000, "z": -0.005156 },
       "dimensions": { "width": 2.270000, "height": 0.402065, "depth": 4.394905 },
       "rotation": { "x": -0.000000, "y": 3.141593, "z": 1.570796 },
-      "connections": ["front_wall_lower_right", "back_wall_lower_right", "upper_floor", "gable_wall_right"]
+      "connections":["front_wall_lower_right", "back_wall_lower_right", "upper_floor", "gable_wall_right"]
     }
   ]
 }

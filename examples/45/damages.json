@@ -71,16 +71,16 @@
   },
   {
     "id": "damage_06",
-    "part_id": "shutter_front_left_panel",
-    "type": "Warping",
-    "description": "The wooden panel of the front left shutter is warped outward and slightly splintered near the bottom hinge.",
+    "part_id": "timber_wall_front_left_panel",
+    "type": "Missing Shingles",
+    "description": "Several wooden shingles are severely weathered or missing entirely from this section of the timber wall, exposing the underlayment to the elements.",
     "coordinates": {
       "x": -2.452427,
       "y": 3.092294,
       "z": -2.652834
     },
     "severity": "moderate",
-    "confidence": 0.82,
-    "evidence": "The shutter does not close completely and shows an irregular curve relative to the window frame."
+    "confidence": 0.89,
+    "evidence": "Visual inspection shows a patchy area where the protective wooden shingles have broken off or deteriorated."
   }
 ]
