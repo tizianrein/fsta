@@ -379,23 +379,39 @@
         }
 
         function resetMaterials() {
-            partMeshesMap.forEach((mesh) => {
+            const damagedPartIds = currentDamageJson
+                ? new Set(currentDamageJson.map(d => d.part_id))
+                : new Set();
+
+            partMeshesMap.forEach((mesh, partId) => {
                 const part = mesh.parent.userData.part;
+
+                // Priority 1: derived damage state
+                if (damagedPartIds.has(partId)) {
+                    mesh.material = defectivePartMaterial;
+                    mesh.parent.children[1].visible = true;
+                    return;
+                }
+
+                // Priority 2: assembly status
                 switch (part.status) {
-                    case 'missing': 
+                    case 'missing':
                         mesh.material = missingPartMaterial;
                         mesh.parent.children[1].visible = false;
                         break;
-                    case 'defective': 
-                        mesh.material = defectivePartMaterial; 
+                    case 'defective':
+                        mesh.material = defectivePartMaterial;
                         mesh.parent.children[1].visible = true;
                         break;
-                    default: 
+                    default:
                         mesh.material = intactPartMaterial;
                         mesh.parent.children[1].visible = true;
                 }
             });
-            damageSpheres.forEach(sphere => { sphere.material = defaultDotMaterial; });
+
+            damageSpheres.forEach(sphere => {
+                sphere.material = defaultDotMaterial;
+            });
         }
 
         function createModel(jsonData) {
