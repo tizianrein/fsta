@@ -1,0 +1,86 @@
+[
+  {
+    "id": "damage_01",
+    "part_id": "front_apron",
+    "type": "Scratch",
+    "description": "A long, deep vertical scratch is visible on the right side of the front apron.",
+    "coordinates": {
+      "x": 0.15,
+      "y": 0.404,
+      "z": -0.245
+    },
+    "severity": "minor",
+    "confidence": 0.95,
+    "evidence": "Clearly visible in the close-up image of the front apron and seat."
+  },
+  {
+    "id": "damage_02",
+    "part_id": "seat",
+    "type": "Scratch",
+    "description": "Multiple faint scratches are present on the wooden seat surface.",
+    "coordinates": {
+      "x": 0.1,
+      "y": 0.44,
+      "z": -0.1
+    },
+    "severity": "minor",
+    "confidence": 0.85,
+    "evidence": "Visible upon close inspection of the seat in multiple images."
+  },
+  {
+    "id": "damage_03",
+    "part_id": "front_left_leg",
+    "type": "Scuff Mark",
+    "description": "Several scuff marks and indentations are located midway up the front left leg.",
+    "coordinates": {
+      "x": -0.22,
+      "y": 0.25,
+      "z": -0.2225
+    },
+    "severity": "moderate",
+    "confidence": 0.9,
+    "evidence": "Clearly shown in a dedicated close-up image of the leg."
+  },
+  {
+    "id": "damage_04",
+    "part_id": "left_side_apron",
+    "type": "Scratch",
+    "description": "A noticeable horizontal scratch is present on the left side apron.",
+    "coordinates": {
+      "x": -0.22,
+      "y": 0.404,
+      "z": 0.1
+    },
+    "severity": "minor",
+    "confidence": 0.9,
+    "evidence": "Visible in the close-up image showing the connection between the leg and the seat frame."
+  },
+  {
+    "id": "damage_05",
+    "part_id": "front_right_leg",
+    "type": "Scratch",
+    "description": "A cluster of minor scratches and scuffs on the front-facing side of the front right leg.",
+    "coordinates": {
+      "x": 0.235,
+      "y": 0.2,
+      "z": -0.245
+    },
+    "severity": "minor",
+    "confidence": 0.9,
+    "evidence": "Visible in a close-up image of the leg."
+  },
+  {
+    "id": "damage_06",
+    "part_id": "backrest",
+    "type": "Scuff Mark",
+    "description": "Scuff marks and light scratches are visible on the top edge of the backrest.",
+    "coordinates": {
+      "x": 0.1,
+      "y": 0.75,
+      "z": 0.225
+    },
+    "severity": "minor",
+    "confidence": 0.8,
+    "evidence": "Shown in the close-up image of the upper part of the chair."
+  }
+]
