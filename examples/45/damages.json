@@ -5,9 +5,9 @@
     "type": "Crack",
     "description": "A large crack is visible on the front roof panel, possibly resulting from weather or hail damage.",
     "coordinates": {
-      "x": 0.042728,
-      "y": 4.856133,
-      "z": -1.393503
+      "x": -1.500000,
+      "y": 5.500000,
+      "z": -1.000000
     },
     "severity": "moderate",
     "confidence": 0.92,
@@ -19,9 +19,9 @@
     "type": "Water Damage",
     "description": "Visible water stains, discoloration, and peeling exterior paint near the bottom of the wall.",
     "coordinates": {
-      "x": -2.660087,
-      "y": 1.135000,
-      "z": -2.481166
+      "x": -3.200000,
+      "y": 0.300000,
+      "z": -2.760000
     },
     "severity": "minor",
     "confidence": 0.88,
@@ -33,9 +33,9 @@
     "type": "Spalling",
     "description": "Mortar is crumbling and some bricks show spalling on the upper section of the chimney stack.",
     "coordinates": {
-      "x": 0.305074,
-      "y": 2.910000,
-      "z": 1.050698
+      "x": 0.500000,
+      "y": 5.200000,
+      "z": 1.340000
     },
     "severity": "moderate",
     "confidence": 0.95,
@@ -47,9 +47,9 @@
     "type": "Wood Rot",
     "description": "Early signs of wood rot and splintering are present on the right edge of the front lower window sill.",
     "coordinates": {
-      "x": -1.189573,
-      "y": 0.430000,
-      "z": -2.481166
+      "x": -0.750000,
+      "y": 0.860000,
+      "z": -2.760000
     },
     "severity": "minor",
     "confidence": 0.85,
@@ -61,9 +61,9 @@
     "type": "Dent",
     "description": "A deep dent and scuff mark on the front door frame, likely caused by a heavy physical impact.",
     "coordinates": {
-      "x": 2.488810,
-      "y": 2.010000,
-      "z": -2.481166
+      "x": 2.600000,
+      "y": 1.900000,
+      "z": -2.760000
     },
     "severity": "minor",
     "confidence": 0.90,
@@ -75,9 +75,9 @@
     "type": "Missing Shingles",
     "description": "Several wooden shingles are severely weathered or missing entirely from this section of the timber wall, exposing the underlayment to the elements.",
     "coordinates": {
-      "x": -2.452427,
-      "y": 3.092294,
-      "z": -2.652834
+      "x": -1.800000,
+      "y": 3.600000,
+      "z": -2.750000
     },
     "severity": "moderate",
     "confidence": 0.89,
