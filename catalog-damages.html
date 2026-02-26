@@ -231,7 +231,6 @@
         // Stable thin outlines
         const outlineMaterial = new THREE.LineBasicMaterial({
             color: 0x000000,
-            transparent: false,
             depthTest: true,
             depthWrite: false
         });
@@ -463,14 +462,17 @@
 
         function createModel(jsonData) {
             clearModel();
+
             if (!jsonData || !jsonData.parts || !Array.isArray(jsonData.parts)) {
                 updateMIA("Error: Could not parse assembly file. Is it valid JSON?");
                 return;
             }
+
             currentModelJson = jsonData;
             objectNameInput.value = jsonData.objectName || "Untitled";
-            
+
             jsonData.parts.forEach(part => {
+
                 const geo = new THREE.BoxGeometry(
                     part.dimensions.width,
                     part.dimensions.height,
@@ -478,15 +480,27 @@
                 );
 
                 geo.computeVertexNormals();
+
+                const pos = new THREE.Vector3(
+                    part.origin.x,
+                    part.origin.y,
+                    part.origin.z
+                );
+
+                const partGroup = new THREE.Group();
+
                 const mesh = new THREE.Mesh(geo, intactPartMaterial);
-                const edgesGeo = new THREE.EdgesGeometry(geo, 1); 
+
+                const edgesGeo = new THREE.EdgesGeometry(geo);
                 const line = new THREE.LineSegments(edgesGeo, outlineMaterial);
-                
+
                 partGroup.add(mesh);
                 partGroup.add(line);
-                partGroup.userData.originalPosition = pos.clone();
+
                 partGroup.position.copy(pos);
-                
+                partGroup.userData.originalPosition = pos.clone();
+                partGroup.userData.part = part;
+
                 if (part.rotation) {
                     partGroup.rotation.set(
                         part.rotation.x || 0,
@@ -495,22 +509,20 @@
                         'YXZ'
                     );
                 }
-                
-                partGroup.userData.part = part;
+
                 objectGroup.add(partGroup);
                 partMeshesMap.set(part.id, mesh);
             });
 
             const bounds = new THREE.Box3().setFromObject(objectGroup);
-            const center = new THREE.Vector3();
-            bounds.getCenter(center);
+            const center = bounds.getCenter(new THREE.Vector3());
             controls.target.copy(center);
 
             resetBtn.style.display = 'none';
             explodeBtn.style.display = 'inline-block';
+
             resetMaterials();
-            updateMIA(`Assembly "${jsonData.objectName}" loaded. Upload damage file or add photos to catalog damages.`);
-            computeDamageScaleFromObject(objectGroup);
+            updateMIA(`Assembly "${jsonData.objectName}" loaded.`);
         }
 
         function createDamages(jsonData) {
