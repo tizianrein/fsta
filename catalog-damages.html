@@ -497,10 +497,24 @@
                 const finalPosition = localOffset.clone().applyMatrix4(partMatrix);
                 
                 const sphere = new THREE.Mesh(dotGeometry, defaultDotMaterial.clone());
-                sphere.position.copy(finalPosition);
                 sphere.userData.damage = damage;
+
+                // Find the part group
+                const partGroup = objectGroup.children.find(
+                    g => g.userData.part?.id === damage.part_id
+                );
+
+                if (!partGroup) return;
+
+                // Convert world position to local part space
+                const localPosition = partGroup.worldToLocal(finalPosition.clone());
+
+                sphere.position.copy(localPosition);
+
+                // Attach to part
+                partGroup.add(sphere);
+
                 damageSpheres.push(sphere);
-                scene.add(sphere);
             });
             resetMaterials();
             applyDamageStatusFromDamageJson();
@@ -609,6 +623,7 @@
 
             currentModelJson.parts.forEach(part => {
 
+
                 // Determine final status (damage overrides assembly)
                 let finalStatus = part.status || "intact";
 
@@ -657,7 +672,7 @@
             mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
             raycaster.setFromCamera(mouse, camera);
 
-            const sphereIntersects = raycaster.intersectObjects(damageSpheres);
+            const sphereIntersects = raycaster.intersectObjects(damageSpheres, true);
             const partIntersects = raycaster.intersectObjects(Array.from(partMeshesMap.values()));
             
             resetMaterials();
