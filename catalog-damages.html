@@ -290,16 +290,14 @@
 
             const maxDim = Math.max(size.x, size.y, size.z);
             const fov = camera.fov * (Math.PI / 180);
-            let cameraDistance = maxDim / (2 * Math.tan(fov / 2));
+            let distance = maxDim / (2 * Math.tan(fov / 2));
+            distance *= 1.6; // padding
 
-            cameraDistance *= 1.5; // add some padding
-
-            const direction = new THREE.Vector3()
-                .subVectors(camera.position, controls.target)
-                .normalize();
+            // 👇 Force a standard isometric-like direction
+            const direction = new THREE.Vector3(1, 0.8, 1).normalize();
 
             camera.position.copy(
-                direction.multiplyScalar(cameraDistance).add(center)
+                direction.multiplyScalar(distance).add(center)
             );
 
             controls.target.copy(center);
