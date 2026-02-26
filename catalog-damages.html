@@ -134,7 +134,7 @@
             </div>
             <div class="settings-group">
                 <label for="sphere-scale-slider">Damage Marker Scale: <span id="sphere-scale-value">1.00</span></label>
-                <input type="range" id="sphere-scale-slider" class="settings-input" min="0.5" max="5" step="0.1" value="5.0">
+                <input type="range" id="sphere-scale-slider" class="settings-input" min="0.5" max="5" step="0.1" value="1.0">
             </div>
             <div class="modal-actions">
                 <button id="save-settings-btn" class="btn modal-btn">Save</button>
@@ -258,6 +258,7 @@
                     createDamages(damagesData);
                     applyDamageStatusFromDamageJson();
                     frameObject(objectGroup);
+                    computeDamageScaleFromObject(objectGroup);
 
                     objectNameInput.value = assemblyData.objectName || exampleName;
                     updateMIA(`Loaded example ${exampleName}.`);
@@ -302,6 +303,25 @@
 
             controls.target.copy(center);
             controls.update();
+        }
+
+        function computeDamageScaleFromObject(object) {
+            const box = new THREE.Box3().setFromObject(object);
+            const size = box.getSize(new THREE.Vector3());
+
+            const maxDim = Math.max(size.x, size.y, size.z);
+
+            // You can tune this factor
+            const scaleFactor = maxDim * 2.5;
+
+            // Clamp to safe range
+            const computedScale = THREE.MathUtils.clamp(scaleFactor, 0.8, 8);
+
+            sphereScale = computedScale;
+
+            // Update slider UI to match
+            sphereScaleSlider.value = computedScale;
+            sphereScaleValue.textContent = computedScale.toFixed(2);
         }
 
         function animate() {
@@ -423,6 +443,7 @@
             explodeBtn.style.display = 'inline-block';
             resetMaterials();
             updateMIA(`Assembly "${jsonData.objectName}" loaded. Upload damage file or add photos to catalog damages.`);
+            computeDamageScaleFromObject(objectGroup);
         }
 
         function createDamages(jsonData) {
