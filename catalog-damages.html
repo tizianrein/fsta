@@ -235,7 +235,39 @@
             mouseDownPos = new THREE.Vector2();
 
             setupEventListeners();
-            loadDefaults();
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const exampleName = urlParams.get('example');
+
+            if (exampleName) {
+                const assemblyUrl = `examples/${exampleName}/assembly.json`;
+                const damagesUrl = `examples/${exampleName}/damages.json`;
+
+                Promise.all([
+                    fetch(assemblyUrl).then(res => {
+                        if (!res.ok) throw new Error(res.statusText);
+                        return res.json();
+                    }),
+                    fetch(damagesUrl).then(res => {
+                        if (!res.ok) throw new Error(res.statusText);
+                        return res.json();
+                    })
+                ])
+                .then(([assemblyData, damagesData]) => {
+                    createModel(assemblyData);
+                    createDamages(damagesData);
+                    objectNameInput.value = assemblyData.objectName || exampleName;
+                    updateMIA(`Loaded example ${exampleName}.`);
+                })
+                .catch(error => {
+                    console.error("Example load failed:", error);
+                    loadDefaults();
+                });
+
+            } else {
+                loadDefaults();
+            }
+
             animate();
         }
 
