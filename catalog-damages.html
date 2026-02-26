@@ -768,11 +768,11 @@
         }
         
         function downloadAssemblyDrawing() {
-            if (!currentModelJson) { updateROLF("Please load an assembly first."); return; }
-            updateROLF("Generating drawing...", true);
+            if (!currentModelJson) { updateMIA("Please load an assembly first."); return; }
+            updateMIA("Generating drawing...", true);
             setTimeout(() => {
                 const svgData = generateAssemblySVG(currentModelJson, currentDamageJson);
-                if (!svgData) { updateROLF("Failed to generate drawing."); return; }
+                if (!svgData) { updateMIA("Failed to generate drawing."); return; }
                 const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
@@ -780,7 +780,7 @@
                 a.download = `${(document.getElementById('object-name').value||'assembly').replace(/\s+/g,'_')}_drawing.svg`;
                 a.click();
                 URL.revokeObjectURL(url);
-                updateROLF("Assembly drawing downloaded.");
+                updateMIA("Assembly drawing downloaded.");
             }, 50);
         }
 
