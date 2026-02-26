@@ -196,45 +196,43 @@
         
         // --- MATERIALS (CLEAN ARCHITECTURAL SETUP) ---
 
-        const intactPartMaterial = new THREE.MeshStandardMaterial({
-            color: 0xbfbfbf,
-            roughness: 0.8,
-            metalness: 0.0,
-            transparent: false,
+        const intactPartMaterial = new THREE.MeshBasicMaterial({
+            color: 0xd9d9d9,
+            transparent: true,
+            opacity: 0.35,
+            depthWrite: false,
             side: THREE.FrontSide
         });
 
-        const defectivePartMaterial = new THREE.MeshStandardMaterial({
+        const defectivePartMaterial = new THREE.MeshBasicMaterial({
             color: 0xff4d4d,
-            roughness: 0.8,
-            metalness: 0.0,
-            transparent: false,
+            transparent: true,
+            opacity: 0.6,
+            depthWrite: false,
             side: THREE.FrontSide
         });
 
-        const missingPartMaterial = new THREE.MeshStandardMaterial({
+        const missingPartMaterial = new THREE.MeshBasicMaterial({
             color: 0xffe066,
-            roughness: 0.8,
-            metalness: 0.0,
-            transparent: false,
+            transparent: true,
+            opacity: 0.5,
+            depthWrite: false,
             side: THREE.FrontSide
         });
 
-        const selectionPartMaterial = new THREE.MeshStandardMaterial({
+        const selectionPartMaterial = new THREE.MeshBasicMaterial({
             color: 0x4d79ff,
-            roughness: 0.6,
-            metalness: 0.0,
-            transparent: false,
+            transparent: true,
+            opacity: 0.6,
+            depthWrite: false,
             side: THREE.FrontSide
         });
 
         // Stable thin outlines
         const outlineMaterial = new THREE.LineBasicMaterial({
             color: 0x000000,
-            depthTest: true,
-            depthWrite: false
+            transparent: false
         });
-
         // Damage markers
         const defaultDotMaterial = new THREE.MeshBasicMaterial({
             color: 0xff0000,
