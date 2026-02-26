@@ -194,34 +194,60 @@
         const sphereScaleValue = document.getElementById('sphere-scale-value');
         const saveSettingsBtn = document.getElementById('save-settings-btn');
         
-        // --- MATERIALS ---
+        // --- MATERIALS (CLEAN ARCHITECTURAL SETUP) ---
+
         const intactPartMaterial = new THREE.MeshStandardMaterial({
-            color: 0x666666,
-            transparent: true,
-            opacity: 0.3,
-            depthWrite: false,     // 🔥 IMPORTANT
-            side: THREE.DoubleSide
+            color: 0xbfbfbf,
+            roughness: 0.8,
+            metalness: 0.0,
+            transparent: false,
+            side: THREE.FrontSide
         });
 
         const defectivePartMaterial = new THREE.MeshStandardMaterial({
-            color: 0xff0000,
-            transparent: true,
-            opacity: 0.3,
-            depthWrite: false,
-            side: THREE.DoubleSide
+            color: 0xff4d4d,
+            roughness: 0.8,
+            metalness: 0.0,
+            transparent: false,
+            side: THREE.FrontSide
         });
 
         const missingPartMaterial = new THREE.MeshStandardMaterial({
-            color: 0xffff00,
-            transparent: true,
-            opacity: 0.3,
-            depthWrite: false,
-            side: THREE.DoubleSide
+            color: 0xffe066,
+            roughness: 0.8,
+            metalness: 0.0,
+            transparent: false,
+            side: THREE.FrontSide
         });
-        const selectionPartMaterial = new THREE.MeshStandardMaterial({ color: 0x0000ff, transparent: true, opacity: 0.7, side: THREE.DoubleSide });
-        const outlineMaterial = new THREE.LineBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.8});
-        const defaultDotMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-        const selectedDotMaterial = new THREE.MeshBasicMaterial({ color: 0x6f0000 });
+
+        const selectionPartMaterial = new THREE.MeshStandardMaterial({
+            color: 0x4d79ff,
+            roughness: 0.6,
+            metalness: 0.0,
+            transparent: false,
+            side: THREE.FrontSide
+        });
+
+        // Stable thin outlines
+        const outlineMaterial = new THREE.LineBasicMaterial({
+            color: 0x000000,
+            transparent: false,
+            depthTest: true,
+            depthWrite: false
+        });
+
+        // Damage markers
+        const defaultDotMaterial = new THREE.MeshBasicMaterial({
+            color: 0xff0000,
+            depthTest: true,
+            depthWrite: false
+        });
+
+        const selectedDotMaterial = new THREE.MeshBasicMaterial({
+            color: 0x6f0000,
+            depthTest: true,
+            depthWrite: false
+        });
 
         // --- CORE 3D & UI FUNCTIONS ---
         function init() {
@@ -234,6 +260,7 @@
 
             renderer = new THREE.WebGLRenderer({ canvas: viewerCanvas, antialias: true, alpha: true });
             renderer.autoClear = false;
+            renderer.sortObjects = true;
             renderer.setPixelRatio(window.devicePixelRatio);
             renderer.setSize(viewerContainer.clientWidth, viewerContainer.clientHeight);
 
@@ -444,12 +471,16 @@
             objectNameInput.value = jsonData.objectName || "Untitled";
             
             jsonData.parts.forEach(part => {
-                const geo = new THREE.BoxGeometry(part.dimensions.width, part.dimensions.height, part.dimensions.depth);
-                const pos = new THREE.Vector3(part.origin.x, part.origin.y, part.origin.z);
+                const geo = new THREE.BoxGeometry(
+                    part.dimensions.width,
+                    part.dimensions.height,
+                    part.dimensions.depth
+                );
 
-                const partGroup = new THREE.Group();
+                geo.computeVertexNormals();
                 const mesh = new THREE.Mesh(geo, intactPartMaterial);
-                const line = new THREE.LineSegments(new THREE.EdgesGeometry(geo), outlineMaterial);
+                const edgesGeo = new THREE.EdgesGeometry(geo, 1); 
+                const line = new THREE.LineSegments(edgesGeo, outlineMaterial);
                 
                 partGroup.add(mesh);
                 partGroup.add(line);
