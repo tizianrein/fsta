@@ -256,6 +256,9 @@
                 .then(([assemblyData, damagesData]) => {
                     createModel(assemblyData);
                     createDamages(damagesData);
+
+                    frameObject(objectGroup);   // ← ADD THIS LINE
+
                     objectNameInput.value = assemblyData.objectName || exampleName;
                     updateMIA(`Loaded example ${exampleName}.`);
                 })
@@ -278,6 +281,29 @@
             createDamages(defaultDamage);
             objectNameInput.value = "";
             updateMIA("Hello! I am M.A.G.D.A. the Mapping Agent for General Damages. Upload an assembly and damage file, or add photos to begin.");
+        }
+
+        function frameObject(object) {
+            const box = new THREE.Box3().setFromObject(object);
+            const center = box.getCenter(new THREE.Vector3());
+            const size = box.getSize(new THREE.Vector3());
+
+            const maxDim = Math.max(size.x, size.y, size.z);
+            const fov = camera.fov * (Math.PI / 180);
+            let cameraDistance = maxDim / (2 * Math.tan(fov / 2));
+
+            cameraDistance *= 1.5; // add some padding
+
+            const direction = new THREE.Vector3()
+                .subVectors(camera.position, controls.target)
+                .normalize();
+
+            camera.position.copy(
+                direction.multiplyScalar(cameraDistance).add(center)
+            );
+
+            controls.target.copy(center);
+            controls.update();
         }
 
         function animate() {
