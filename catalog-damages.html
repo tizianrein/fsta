@@ -608,12 +608,22 @@
             const addedEdges = new Set();
 
             currentModelJson.parts.forEach(part => {
+
+                // Determine final status (damage overrides assembly)
+                let finalStatus = part.status || "intact";
+
+                if (damagedPartIds.has(part.id)) {
+                    finalStatus = "damaged";
+                }
+
                 let fillColor = '#dddddd';
-                if (part.status === 'defective') fillColor = '#ffc0c0';
-                if (part.status === 'missing') fillColor = '#ffee9c';
+                if (finalStatus === 'damaged') fillColor = '#ffcccc';
+                else if (finalStatus === 'defective') fillColor = '#ffc0c0';
+                else if (finalStatus === 'missing') fillColor = '#ffee9c';
 
                 const label = part.name || part.id;
-                dot += `"${part.id}" [label="${label}\\n(${part.status})", fillcolor="${fillColor}"];\n`;
+
+                dot += `"${part.id}" [label="${label}\\n(${finalStatus})", fillcolor="${fillColor}"];\n`;
 
                 if (part.status !== 'missing') {
                     part.connections?.forEach(connectedId => {
