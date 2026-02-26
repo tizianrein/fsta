@@ -256,8 +256,8 @@
                 .then(([assemblyData, damagesData]) => {
                     createModel(assemblyData);
                     createDamages(damagesData);
-
-                    frameObject(objectGroup);   // ← ADD THIS LINE
+                    applyDamageStatusFromDamageJson();
+                    frameObject(objectGroup);
 
                     objectNameInput.value = assemblyData.objectName || exampleName;
                     updateMIA(`Loaded example ${exampleName}.`);
@@ -466,6 +466,21 @@
                 scene.add(sphere);
             });
             resetMaterials();
+            applyDamageStatusFromDamageJson();
+        }
+
+        function applyDamageStatusFromDamageJson() {
+            if (!currentDamageJson || !currentModelJson) return;
+
+            const damagedPartIds = new Set(
+                currentDamageJson.map(d => d.part_id)
+            );
+
+            partMeshesMap.forEach((mesh, partId) => {
+                if (damagedPartIds.has(partId)) {
+                    mesh.material = defectivePartMaterial;
+                }
+            });
         }
 
         function updateMIA(message, isTyping = false) {
