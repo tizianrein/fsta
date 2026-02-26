@@ -656,13 +656,12 @@
 
             dot += '}';
 
-            document.getElementById('graph-title').textContent = "Assembly Connection Graph";
+            document.getElementById('graph-modal-overlay').style.display = 'flex';
+
             d3.select("#graph-container")
             .graphviz({useWorker: false})
-            .engine('sfdp')   // switched from 'dot'
+            .engine('sfdp')
             .renderDot(dot);
-
-            document.getElementById('graph-modal-overlay').style.display = 'flex';
         }
 
         
