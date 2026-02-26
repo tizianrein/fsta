@@ -1,271 +1,271 @@
 {
-  "objectName": "mountain_hut",
+  "objectName": "mountain_cabin",
   "parts": [
     {
-      "id": "shutter_right_side_lower",
-      "origin": { "x": 3.489544, "y": 0.075740, "z": 0.430000 },
-      "dimensions": { "width": 0.507500, "height": 1.119541, "depth": 0.860000 },
-      "rotation": { "x": -0.000000, "y": 0.000000, "z": 0.000000 },
-      "connections": ["wall_gable_right"]
+      "id": "left_wall_lower_front_window_bottom",
+      "origin": { "x": -3.404088, "y": -0.067030, "z": 0.430000 },
+      "dimensions": { "width": 0.507500, "height": 0.860000, "depth": 1.119541 },
+      "rotation": { "x": 1.570796, "y": -0.000000, "z": 0.000000 },
+      "connections": ["left_wall_lower_front_main", "front_wall_lower_left_main"]
     },
     {
-      "id": "shutter_right_side_upper",
-      "origin": { "x": 3.489544, "y": 0.075740, "z": 2.010000 },
-      "dimensions": { "width": 0.507500, "height": 1.119541, "depth": 0.520000 },
-      "rotation": { "x": -0.000000, "y": 0.000000, "z": 0.000000 },
-      "connections": ["wall_gable_right"]
+      "id": "left_wall_lower_front_window_top",
+      "origin": { "x": -3.404088, "y": -0.067030, "z": 2.010000 },
+      "dimensions": { "width": 0.507500, "height": 0.520000, "depth": 1.119541 },
+      "rotation": { "x": 1.570796, "y": -0.000000, "z": 0.000000 },
+      "connections": ["left_wall_lower_front_main", "upper_floor", "front_wall_lower_left_window_top"]
     },
     {
-      "id": "wall_stone_back_right",
-      "origin": { "x": 3.489545, "y": -1.338965, "z": 1.135000 },
-      "dimensions": { "width": 0.507500, "height": 1.709868, "depth": 2.270000 },
-      "rotation": { "x": -0.000000, "y": 0.000000, "z": 0.000000 },
-      "connections": ["wall_gable_right", "wall_stone_back_center", "floor_upper"]
+      "id": "left_wall_lower_front_main",
+      "origin": { "x": -3.404088, "y": 1.347675, "z": 1.135000 },
+      "dimensions": { "width": 0.507500, "height": 2.270000, "depth": 1.709868 },
+      "rotation": { "x": 1.570796, "y": -0.000000, "z": 0.000000 },
+      "connections": ["left_wall_lower_front_window_bottom", "left_wall_lower_front_window_top", "front_wall_lower_left_main", "left_wall_lower_back_main", "upper_floor"]
     },
     {
-      "id": "shutter_back_lower",
-      "origin": { "x": 1.275029, "y": -2.472456, "z": 0.430000 },
-      "dimensions": { "width": 0.945527, "height": 0.557116, "depth": 0.860000 },
-      "rotation": { "x": -0.000000, "y": 0.000000, "z": 0.000000 },
-      "connections": ["wall_stone_back_main", "wall_stone_back_center"]
+      "id": "front_wall_lower_left_window_bottom",
+      "origin": { "x": -1.189573, "y": 2.481166, "z": 0.430000 },
+      "dimensions": { "width": 0.945527, "height": 0.860000, "depth": 0.557114 },
+      "rotation": { "x": 1.570796, "y": -0.000000, "z": 0.000000 },
+      "connections": ["front_wall_lower_left_main"]
     },
     {
-      "id": "shutter_back_upper_right",
-      "origin": { "x": 1.275029, "y": -2.472456, "z": 2.010000 },
-      "dimensions": { "width": 0.945527, "height": 0.557116, "depth": 0.520000 },
-      "rotation": { "x": -0.000000, "y": 0.000000, "z": 0.000000 },
-      "connections": ["siding_panel_back_center", "siding_panel_back_right"]
+      "id": "front_wall_lower_left_window_top",
+      "origin": { "x": -1.189573, "y": 2.481166, "z": 2.010000 },
+      "dimensions": { "width": 0.945527, "height": 0.520000, "depth": 0.557114 },
+      "rotation": { "x": 1.570796, "y": -0.000000, "z": 0.000000 },
+      "connections": ["front_wall_lower_left_main", "upper_floor", "left_wall_lower_front_window_top"]
     },
     {
-      "id": "wall_stone_back_center",
-      "origin": { "x": 2.745543, "y": -2.472456, "z": 1.135000 },
-      "dimensions": { "width": 1.995503, "height": 0.557116, "depth": 2.270000 },
-      "rotation": { "x": -0.000000, "y": 0.000000, "z": 0.000000 },
-      "connections": ["wall_stone_back_main", "wall_stone_back_right", "floor_upper"]
+      "id": "front_wall_lower_left_main",
+      "origin": { "x": -2.660087, "y": 2.481166, "z": 1.135000 },
+      "dimensions": { "width": 1.995502, "height": 2.270000, "depth": 0.557114 },
+      "rotation": { "x": 1.570796, "y": -0.000000, "z": 0.000000 },
+      "connections": ["left_wall_lower_front_main", "front_wall_lower_left_window_bottom", "front_wall_lower_left_window_top", "front_wall_lower_center_main", "upper_floor"]
     },
     {
-      "id": "shutter_back_upper_left",
-      "origin": { "x": -2.403353, "y": -2.472456, "z": 2.010000 },
-      "dimensions": { "width": 0.709585, "height": 0.557116, "depth": 0.520000 },
-      "rotation": { "x": -0.000000, "y": 0.000000, "z": 0.000000 },
-      "connections": ["siding_panel_back_left", "siding_panel_back_center"]
+      "id": "front_wall_lower_right_window_top",
+      "origin": { "x": 2.488810, "y": 2.481166, "z": 2.010000 },
+      "dimensions": { "width": 0.709583, "height": 0.520000, "depth": 0.557114 },
+      "rotation": { "x": 1.570796, "y": -0.000000, "z": 0.000000 },
+      "connections": ["front_wall_lower_right_main", "front_wall_lower_center_main", "upper_floor"]
     },
     {
-      "id": "wall_stone_back_left",
-      "origin": { "x": -3.250719, "y": -2.472456, "z": 1.135000 },
-      "dimensions": { "width": 0.985150, "height": 0.557116, "depth": 2.270000 },
-      "rotation": { "x": -0.000000, "y": 0.000000, "z": 0.000000 },
-      "connections": ["wall_stone_back_main", "wall_stone_left_side", "floor_upper"]
+      "id": "front_wall_lower_right_main",
+      "origin": { "x": 3.336176, "y": 2.481166, "z": 1.135000 },
+      "dimensions": { "width": 0.985149, "height": 2.270000, "depth": 0.557114 },
+      "rotation": { "x": 1.570796, "y": -0.000000, "z": 0.000000 },
+      "connections": ["front_wall_lower_right_window_top", "right_wall_lower_main", "upper_floor"]
     },
     {
-      "id": "wall_stone_back_main",
-      "origin": { "x": -0.623148, "y": -2.472456, "z": 1.135000 },
-      "dimensions": { "width": 2.850828, "height": 0.557116, "depth": 2.270000 },
-      "rotation": { "x": -0.000000, "y": 0.000000, "z": 0.000000 },
-      "connections": ["wall_stone_back_left", "wall_stone_back_center", "floor_upper"]
+      "id": "front_wall_lower_center_main",
+      "origin": { "x": 0.708604, "y": 2.481166, "z": 1.135000 },
+      "dimensions": { "width": 2.850828, "height": 2.270000, "depth": 0.557114 },
+      "rotation": { "x": 1.570796, "y": -0.000000, "z": 0.000000 },
+      "connections": ["front_wall_lower_left_main", "front_wall_lower_right_window_top", "upper_floor"]
     },
     {
       "id": "chimney",
-      "origin": { "x": -0.219618, "y": 1.059408, "z": 2.910000 },
-      "dimensions": { "width": 1.006332, "height": 0.584200, "depth": 5.820000 },
-      "rotation": { "x": -0.000000, "y": 0.000000, "z": 0.000000 },
-      "connections": ["floor_upper", "roof_panel_front", "roof_panel_back"]
+      "origin": { "x": 0.305074, "y": -1.050698, "z": 2.910000 },
+      "dimensions": { "width": 1.006332, "height": 5.820000, "depth": 0.584200 },
+      "rotation": { "x": 1.570796, "y": -0.000000, "z": 0.000000 },
+      "connections": ["roof_panel_back", "upper_floor"]
     },
     {
-      "id": "wall_stone_front_right",
-      "origin": { "x": 3.489544, "y": 1.418258, "z": 1.135000 },
-      "dimensions": { "width": 0.507500, "height": 1.565496, "depth": 2.270000 },
-      "rotation": { "x": -0.000000, "y": 0.000000, "z": 0.000000 },
-      "connections": ["wall_gable_right", "wall_stone_front_center", "floor_upper"]
+      "id": "left_wall_lower_back_main",
+      "origin": { "x": -3.404088, "y": -1.409549, "z": 1.135000 },
+      "dimensions": { "width": 0.507500, "height": 2.270000, "depth": 1.565496 },
+      "rotation": { "x": 1.570796, "y": -0.000000, "z": 0.000000 },
+      "connections": ["left_wall_lower_front_main", "back_wall_lower_left_main", "upper_floor"]
     },
     {
-      "id": "shutter_front_lower_right",
-      "origin": { "x": 1.234947, "y": 2.476010, "z": 0.430000 },
-      "dimensions": { "width": 1.079163, "height": 0.550008, "depth": 0.860000 },
-      "rotation": { "x": -0.000000, "y": 0.000000, "z": 0.000000 },
-      "connections": ["wall_stone_front_main", "wall_stone_front_center"]
+      "id": "back_wall_lower_left_window_bottom",
+      "origin": { "x": -1.149491, "y": -2.467300, "z": 0.430000 },
+      "dimensions": { "width": 1.079162, "height": 0.860000, "depth": 0.550007 },
+      "rotation": { "x": 1.570796, "y": -0.000000, "z": 0.000000 },
+      "connections": ["back_wall_lower_left_main"]
     },
     {
-      "id": "shutter_front_upper_right",
-      "origin": { "x": 1.234947, "y": 2.476010, "z": 2.010000 },
-      "dimensions": { "width": 1.079163, "height": 0.550008, "depth": 0.520000 },
-      "rotation": { "x": -0.000000, "y": 0.000000, "z": 0.000000 },
-      "connections": ["siding_panel_front_center", "siding_panel_front_right"]
+      "id": "back_wall_lower_left_window_top",
+      "origin": { "x": -1.149491, "y": -2.467300, "z": 2.010000 },
+      "dimensions": { "width": 1.079162, "height": 0.520000, "depth": 0.550007 },
+      "rotation": { "x": 1.570796, "y": -0.000000, "z": 0.000000 },
+      "connections": ["back_wall_lower_left_main", "upper_floor"]
     },
     {
-      "id": "wall_stone_front_center",
-      "origin": { "x": 2.758911, "y": 2.476010, "z": 1.135000 },
-      "dimensions": { "width": 1.968767, "height": 0.550008, "depth": 2.270000 },
-      "rotation": { "x": -0.000000, "y": 0.000000, "z": 0.000000 },
-      "connections": ["wall_stone_front_main", "wall_stone_front_right", "floor_upper"]
+      "id": "back_wall_lower_left_main",
+      "origin": { "x": -2.673455, "y": -2.467300, "z": 1.135000 },
+      "dimensions": { "width": 1.968767, "height": 2.270000, "depth": 0.550007 },
+      "rotation": { "x": 1.570796, "y": -0.000000, "z": 0.000000 },
+      "connections": ["left_wall_lower_back_main", "back_wall_lower_left_window_bottom", "back_wall_lower_left_window_top", "back_wall_lower_center_main", "upper_floor"]
     },
     {
-      "id": "shutter_front_lower_left",
-      "origin": { "x": -2.296640, "y": 2.476010, "z": 0.430000 },
-      "dimensions": { "width": 0.461278, "height": 0.550008, "depth": 0.860000 },
-      "rotation": { "x": -0.000000, "y": 0.000000, "z": 0.000000 },
-      "connections": ["wall_stone_front_main", "wall_stone_front_left"]
+      "id": "back_wall_lower_right_window_bottom",
+      "origin": { "x": 2.382096, "y": -2.467300, "z": 0.430000 },
+      "dimensions": { "width": 0.461277, "height": 0.860000, "depth": 0.550007 },
+      "rotation": { "x": 1.570796, "y": -0.000000, "z": 0.000000 },
+      "connections": ["back_wall_lower_right_main"]
     },
     {
-      "id": "solar_panel",
-      "origin": { "x": -2.296640, "y": 2.476010, "z": 2.010000 },
-      "dimensions": { "width": 0.461278, "height": 0.550008, "depth": 0.520000 },
-      "rotation": { "x": -0.000000, "y": 0.000000, "z": 0.000000 },
-      "connections": ["siding_panel_front_left", "siding_panel_front_center"]
+      "id": "back_wall_lower_right_window_top",
+      "origin": { "x": 2.382096, "y": -2.467300, "z": 2.010000 },
+      "dimensions": { "width": 0.461277, "height": 0.520000, "depth": 0.550007 },
+      "rotation": { "x": 1.570796, "y": -0.000000, "z": 0.000000 },
+      "connections": ["back_wall_lower_right_main", "upper_floor"]
     },
     {
-      "id": "wall_stone_front_left",
-      "origin": { "x": -3.135278, "y": 2.476010, "z": 1.135000 },
-      "dimensions": { "width": 1.216000, "height": 0.550008, "depth": 2.270000 },
-      "rotation": { "x": -0.000000, "y": 0.000000, "z": 0.000000 },
-      "connections": ["wall_stone_front_main", "wall_stone_left_side", "floor_upper"]
+      "id": "back_wall_lower_right_main",
+      "origin": { "x": 3.220734, "y": -2.467300, "z": 1.135000 },
+      "dimensions": { "width": 1.215999, "height": 2.270000, "depth": 0.550007 },
+      "rotation": { "x": 1.570796, "y": -0.000000, "z": 0.000000 },
+      "connections": ["back_wall_lower_right_window_bottom", "back_wall_lower_right_window_top", "back_wall_lower_center_main", "right_wall_lower_main", "upper_floor"]
     },
     {
-      "id": "wall_stone_front_main",
-      "origin": { "x": -0.685318, "y": 2.476010, "z": 1.135000 },
-      "dimensions": { "width": 2.761368, "height": 0.550008, "depth": 2.270000 },
-      "rotation": { "x": -0.000000, "y": 0.000000, "z": 0.000000 },
-      "connections": ["wall_stone_front_left", "wall_stone_front_center", "floor_upper"]
+      "id": "back_wall_lower_center_main",
+      "origin": { "x": 0.770774, "y": -2.467300, "z": 1.135000 },
+      "dimensions": { "width": 2.761367, "height": 2.270000, "depth": 0.550007 },
+      "rotation": { "x": 1.570796, "y": -0.000000, "z": 0.000000 },
+      "connections": ["back_wall_lower_left_main", "back_wall_lower_right_main", "upper_floor"]
     },
     {
-      "id": "wall_gable_right",
-      "origin": { "x": 3.726332, "y": 0.002171, "z": 3.928854 },
-      "dimensions": { "width": 0.203450, "height": 5.497013, "depth": 3.317709 },
-      "rotation": { "x": -0.000000, "y": 0.000000, "z": 0.000000 },
-      "connections": ["floor_upper", "roof_panel_front", "roof_panel_back", "wall_stone_front_right", "wall_stone_back_right"]
+      "id": "wall_left_gable",
+      "origin": { "x": -3.640876, "y": 0.006539, "z": 3.928854 },
+      "dimensions": { "width": 0.203450, "height": 3.317709, "depth": 5.497013 },
+      "rotation": { "x": 1.570796, "y": -0.000000, "z": 0.000000 },
+      "connections": ["left_wall_lower_front_main", "left_wall_lower_back_main", "upper_floor", "roof_panel_front", "roof_panel_back", "front_wall_upper_left_main", "back_wall_upper_left_main"]
     },
     {
-      "id": "floor_upper",
-      "origin": { "x": 0.042676, "y": 0.015922, "z": 2.410000 },
-      "dimensions": { "width": 7.163862, "height": 5.117563, "depth": 0.280000 },
-      "rotation": { "x": -0.000000, "y": 0.000000, "z": 0.000000 },
-      "connections": ["wall_gable_left", "wall_gable_right", "wall_stone_left_side"]
+      "id": "upper_floor",
+      "origin": { "x": 0.042780, "y": -0.007213, "z": 2.410000 },
+      "dimensions": { "width": 7.163862, "height": 0.280000, "depth": 5.117563 },
+      "rotation": { "x": 1.570796, "y": -0.000000, "z": 0.000000 },
+      "connections": ["wall_left_gable", "wall_right_gable", "left_wall_lower_front_main", "front_wall_lower_left_main", "front_wall_lower_center_main", "front_wall_lower_right_main", "right_wall_lower_main", "back_wall_lower_right_main", "back_wall_lower_center_main", "back_wall_lower_left_main", "left_wall_lower_back_main", "front_wall_upper_left_main", "front_wall_upper_center_main", "front_wall_upper_right_main", "back_wall_upper_right_main", "back_wall_upper_center_main", "back_wall_upper_left_main"]
     },
     {
-      "id": "wall_gable_left",
-      "origin": { "x": -3.641296, "y": 0.002644, "z": 3.928782 },
-      "dimensions": { "width": 0.202765, "height": 5.496066, "depth": 3.317565 },
-      "rotation": { "x": -0.000000, "y": 0.000000, "z": 0.000000 },
-      "connections": ["floor_upper", "roof_panel_front", "roof_panel_back", "wall_stone_front_left", "wall_stone_back_left", "wall_stone_left_side"]
-    },
-    {
-      "id": "roof_panel_front",
-      "origin": { "x": 0.042728, "y": 1.393487, "z": 4.856109 },
-      "dimensions": { "width": 7.820821, "height": 2.977881, "depth": 1.919753 },
-      "rotation": { "x": -0.000000, "y": 0.000000, "z": 0.000000 },
-      "connections": ["roof_panel_back", "wall_gable_left", "wall_gable_right", "chimney"]
+      "id": "wall_right_gable",
+      "origin": { "x": 3.726752, "y": 0.006065, "z": 3.928782 },
+      "dimensions": { "width": 0.202765, "height": 3.317565, "depth": 5.496066 },
+      "rotation": { "x": 1.570796, "y": -0.000000, "z": 0.000000 },
+      "connections": ["right_wall_lower_main", "upper_floor", "roof_panel_front", "roof_panel_back", "front_wall_upper_right_main", "back_wall_upper_right_main"]
     },
     {
       "id": "roof_panel_back",
-      "origin": { "x": 0.042728, "y": -1.384777, "z": 4.856109 },
-      "dimensions": { "width": 7.820821, "height": 2.977881, "depth": 1.919753 },
-      "rotation": { "x": -0.000000, "y": 0.000000, "z": 0.000000 },
-      "connections": ["roof_panel_front", "wall_gable_left", "wall_gable_right", "chimney"]
+      "origin": { "x": 0.042727, "y": -1.384747, "z": 4.856050 },
+      "dimensions": { "width": 7.820818, "height": 0.203150, "depth": 3.368744 },
+      "rotation": { "x": 1.021018, "y": 3.141593, "z": 3.141593 },
+      "connections": ["roof_panel_front", "wall_left_gable", "wall_right_gable", "chimney", "back_wall_upper_left_main", "back_wall_upper_center_main", "back_wall_upper_right_main"]
     },
     {
-      "id": "window_frame_front_upper_right_a",
-      "origin": { "x": 1.075205, "y": 2.662691, "z": 2.756443 },
-      "dimensions": { "width": 0.751907, "height": 0.175975, "depth": 0.972886 },
-      "rotation": { "x": -0.000000, "y": 0.000000, "z": 0.000000 },
-      "connections": ["siding_panel_front_center", "siding_panel_front_right", "window_frame_front_upper_right_b"]
+      "id": "roof_panel_front",
+      "origin": { "x": 0.042728, "y": 1.393503, "z": 4.856133 },
+      "dimensions": { "width": 7.820821, "height": 0.203402, "depth": 3.368756 },
+      "rotation": { "x": 1.021018, "y": 0.000000, "z": 0.000000 },
+      "connections": ["roof_panel_back", "wall_left_gable", "wall_right_gable", "front_wall_upper_left_main", "front_wall_upper_center_main", "front_wall_upper_right_main"]
     },
     {
-      "id": "window_frame_front_upper_right_b",
-      "origin": { "x": 1.075205, "y": 2.662691, "z": 3.883794 },
-      "dimensions": { "width": 0.751907, "height": 0.175975, "depth": 0.061817 },
-      "rotation": { "x": -0.000000, "y": 0.000000, "z": 0.000000 },
-      "connections": ["window_frame_front_upper_right_a"]
+      "id": "back_wall_upper_left_window_bottom",
+      "origin": { "x": -0.989749, "y": -2.653981, "z": 2.756443 },
+      "dimensions": { "width": 0.751907, "height": 0.972886, "depth": 0.175974 },
+      "rotation": { "x": 1.570796, "y": -0.000000, "z": 0.000000 },
+      "connections": ["back_wall_upper_left_main"]
     },
     {
-      "id": "siding_panel_front_right",
-      "origin": { "x": 2.537882, "y": 2.662691, "z": 3.092351 },
-      "dimensions": { "width": 2.173451, "height": 0.175975, "depth": 1.644703 },
-      "rotation": { "x": -0.000000, "y": 0.000000, "z": 0.000000 },
-      "connections": ["siding_panel_front_center", "wall_gable_right", "floor_upper", "roof_panel_front"]
+      "id": "back_wall_upper_left_window_top",
+      "origin": { "x": -0.989749, "y": -2.653981, "z": 3.883794 },
+      "dimensions": { "width": 0.751907, "height": 0.061817, "depth": 0.175974 },
+      "rotation": { "x": 1.570796, "y": -0.000000, "z": 0.000000 },
+      "connections": ["back_wall_upper_left_main", "roof_panel_back"]
     },
     {
-      "id": "window_frame_front_upper_left_a",
-      "origin": { "x": -1.033063, "y": 2.662691, "z": 2.756443 },
-      "dimensions": { "width": 0.751909, "height": 0.175975, "depth": 0.972886 },
-      "rotation": { "x": -0.000000, "y": 0.000000, "z": 0.000000 },
-      "connections": ["siding_panel_front_center", "siding_panel_front_left", "window_frame_front_upper_left_b"]
+      "id": "back_wall_upper_left_main",
+      "origin": { "x": -2.452427, "y": -2.653981, "z": 3.092351 },
+      "dimensions": { "width": 2.173448, "height": 1.644702, "depth": 0.175974 },
+      "rotation": { "x": 1.570796, "y": -0.000000, "z": 0.000000 },
+      "connections": ["wall_left_gable", "upper_floor", "roof_panel_back", "back_wall_upper_left_window_bottom", "back_wall_upper_left_window_top", "back_wall_upper_center_main"]
     },
     {
-      "id": "window_frame_front_upper_left_b",
-      "origin": { "x": -1.033063, "y": 2.662691, "z": 3.883794 },
-      "dimensions": { "width": 0.751909, "height": 0.175975, "depth": 0.061817 },
-      "rotation": { "x": -0.000000, "y": 0.000000, "z": 0.000000 },
-      "connections": ["window_frame_front_upper_left_a"]
+      "id": "back_wall_upper_right_window_bottom",
+      "origin": { "x": 1.118520, "y": -2.653981, "z": 2.756443 },
+      "dimensions": { "width": 0.751907, "height": 0.972886, "depth": 0.175974 },
+      "rotation": { "x": 1.570796, "y": -0.000000, "z": 0.000000 },
+      "connections": ["back_wall_upper_right_main"]
     },
     {
-      "id": "siding_panel_front_center",
-      "origin": { "x": 0.021072, "y": 2.662691, "z": 3.092351 },
-      "dimensions": { "width": 1.356363, "height": 0.175975, "depth": 1.644703 },
-      "rotation": { "x": -0.000000, "y": 0.000000, "z": 0.000000 },
-      "connections": ["siding_panel_front_left", "siding_panel_front_right", "floor_upper", "roof_panel_front"]
+      "id": "back_wall_upper_right_window_top",
+      "origin": { "x": 1.118520, "y": -2.653981, "z": 3.883794 },
+      "dimensions": { "width": 0.751907, "height": 0.061817, "depth": 0.175974 },
+      "rotation": { "x": 1.570796, "y": -0.000000, "z": 0.000000 },
+      "connections": ["back_wall_upper_right_main", "roof_panel_back"]
     },
     {
-      "id": "siding_panel_front_left",
-      "origin": { "x": -2.474135, "y": 2.662691, "z": 3.092351 },
-      "dimensions": { "width": 2.130239, "height": 0.175975, "depth": 1.644703 },
-      "rotation": { "x": -0.000000, "y": 0.000000, "z": 0.000000 },
-      "connections": ["siding_panel_front_center", "wall_gable_left", "floor_upper", "roof_panel_front"]
+      "id": "back_wall_upper_center_main",
+      "origin": { "x": 0.064385, "y": -2.653981, "z": 3.092351 },
+      "dimensions": { "width": 1.356362, "height": 1.644702, "depth": 0.175974 },
+      "rotation": { "x": 1.570796, "y": -0.000000, "z": 0.000000 },
+      "connections": ["back_wall_upper_left_main", "back_wall_upper_right_main", "upper_floor", "roof_panel_back"]
     },
     {
-      "id": "window_frame_back_upper_right_a",
-      "origin": { "x": 1.075205, "y": -2.644124, "z": 2.756443 },
-      "dimensions": { "width": 0.751907, "height": 0.202530, "depth": 0.972886 },
-      "rotation": { "x": -0.000000, "y": 0.000000, "z": 0.000000 },
-      "connections": ["siding_panel_back_center", "siding_panel_back_right", "window_frame_back_upper_right_b"]
+      "id": "back_wall_upper_right_main",
+      "origin": { "x": 2.559592, "y": -2.653981, "z": 3.092351 },
+      "dimensions": { "width": 2.130238, "height": 1.644702, "depth": 0.175974 },
+      "rotation": { "x": 1.570796, "y": -0.000000, "z": 0.000000 },
+      "connections": ["wall_right_gable", "upper_floor", "roof_panel_back", "back_wall_upper_right_window_bottom", "back_wall_upper_right_window_top", "back_wall_upper_center_main"]
     },
     {
-      "id": "window_frame_back_upper_right_b",
-      "origin": { "x": 1.075205, "y": -2.644124, "z": 3.883737 },
-      "dimensions": { "width": 0.751907, "height": 0.202530, "depth": 0.061703 },
-      "rotation": { "x": -0.000000, "y": 0.000000, "z": 0.000000 },
-      "connections": ["window_frame_back_upper_right_a"]
+      "id": "front_wall_upper_left_window_bottom",
+      "origin": { "x": -0.989749, "y": 2.652834, "z": 2.756443 },
+      "dimensions": { "width": 0.751907, "height": 0.972886, "depth": 0.202530 },
+      "rotation": { "x": 1.570796, "y": -0.000000, "z": 0.000000 },
+      "connections": ["front_wall_upper_left_main"]
     },
     {
-      "id": "siding_panel_back_right",
-      "origin": { "x": 2.537882, "y": -2.644124, "z": 3.092294 },
-      "dimensions": { "width": 2.173451, "height": 0.202530, "depth": 1.644589 },
-      "rotation": { "x": -0.000000, "y": 0.000000, "z": 0.000000 },
-      "connections": ["siding_panel_back_center", "wall_gable_right", "floor_upper", "roof_panel_back"]
+      "id": "front_wall_upper_left_window_top",
+      "origin": { "x": -0.989749, "y": 2.652834, "z": 3.883737 },
+      "dimensions": { "width": 0.751907, "height": 0.061703, "depth": 0.202530 },
+      "rotation": { "x": 1.570796, "y": -0.000000, "z": 0.000000 },
+      "connections": ["front_wall_upper_left_main", "roof_panel_front"]
     },
     {
-      "id": "window_frame_back_upper_left_a",
-      "origin": { "x": -1.033063, "y": -2.644124, "z": 2.756443 },
-      "dimensions": { "width": 0.751909, "height": 0.202530, "depth": 0.972886 },
-      "rotation": { "x": -0.000000, "y": 0.000000, "z": 0.000000 },
-      "connections": ["siding_panel_back_center", "siding_panel_back_left", "window_frame_back_upper_left_b"]
+      "id": "front_wall_upper_left_main",
+      "origin": { "x": -2.452427, "y": 2.652834, "z": 3.092294 },
+      "dimensions": { "width": 2.173448, "height": 1.644589, "depth": 0.202530 },
+      "rotation": { "x": 1.570796, "y": 0.000000, "z": 0.000000 },
+      "connections": ["wall_left_gable", "upper_floor", "roof_panel_front", "front_wall_upper_left_window_bottom", "front_wall_upper_left_window_top", "front_wall_upper_center_main"]
     },
     {
-      "id": "window_frame_back_upper_left_b",
-      "origin": { "x": -1.033063, "y": -2.644124, "z": 3.883737 },
-      "dimensions": { "width": 0.751909, "height": 0.202530, "depth": 0.061703 },
-      "rotation": { "x": -0.000000, "y": 0.000000, "z": 0.000000 },
-      "connections": ["window_frame_back_upper_left_a"]
+      "id": "front_wall_upper_right_window_bottom",
+      "origin": { "x": 1.118520, "y": 2.652834, "z": 2.756443 },
+      "dimensions": { "width": 0.751907, "height": 0.972886, "depth": 0.202530 },
+      "rotation": { "x": 1.570796, "y": -0.000000, "z": 0.000000 },
+      "connections": ["front_wall_upper_right_main"]
     },
     {
-      "id": "siding_panel_back_left",
-      "origin": { "x": -2.474464, "y": -2.644124, "z": 3.092294 },
-      "dimensions": { "width": 2.130898, "height": 0.202530, "depth": 1.644589 },
-      "rotation": { "x": -0.000000, "y": 0.000000, "z": 0.000000 },
-      "connections": ["siding_panel_back_center", "wall_gable_left", "floor_upper", "roof_panel_back"]
+      "id": "front_wall_upper_right_window_top",
+      "origin": { "x": 1.118520, "y": 2.652834, "z": 3.883737 },
+      "dimensions": { "width": 0.751907, "height": 0.061703, "depth": 0.202530 },
+      "rotation": { "x": 1.570796, "y": -0.000000, "z": 0.000000 },
+      "connections": ["front_wall_upper_right_main", "roof_panel_front"]
     },
     {
-      "id": "siding_panel_back_center",
-      "origin": { "x": 0.021072, "y": -2.644124, "z": 3.092294 },
-      "dimensions": { "width": 1.356363, "height": 0.202530, "depth": 1.644589 },
-      "rotation": { "x": -0.000000, "y": 0.000000, "z": 0.000000 },
-      "connections": ["siding_panel_back_left", "siding_panel_back_right", "floor_upper", "roof_panel_back"]
+      "id": "front_wall_upper_right_main",
+      "origin": { "x": 2.559921, "y": 2.652834, "z": 3.092294 },
+      "dimensions": { "width": 2.130896, "height": 1.644589, "depth": 0.202530 },
+      "rotation": { "x": 1.570796, "y": -0.000000, "z": 0.000000 },
+      "connections": ["wall_right_gable", "upper_floor", "roof_panel_front", "front_wall_upper_right_window_bottom", "front_wall_upper_right_window_top", "front_wall_upper_center_main"]
     },
     {
-      "id": "wall_stone_left_side",
-      "origin": { "x": -3.542245, "y": 0.003554, "z": 1.135000 },
-      "dimensions": { "width": 0.402065, "height": 4.394905, "depth": 2.270000 },
-      "rotation": { "x": -0.000000, "y": 0.000000, "z": 0.000000 },
-      "connections": ["wall_gable_left", "wall_stone_front_left", "wall_stone_back_left", "floor_upper"]
+      "id": "front_wall_upper_center_main",
+      "origin": { "x": 0.064385, "y": 2.652834, "z": 3.092294 },
+      "dimensions": { "width": 1.356362, "height": 1.644589, "depth": 0.202530 },
+      "rotation": { "x": 1.570796, "y": -0.000000, "z": 0.000000 },
+      "connections": ["front_wall_upper_left_main", "front_wall_upper_right_main", "upper_floor", "roof_panel_front"]
+    },
+    {
+      "id": "right_wall_lower_main",
+      "origin": { "x": 3.627701, "y": 0.005156, "z": 1.135000 },
+      "dimensions": { "width": 0.402065, "height": 2.270000, "depth": 4.394905 },
+      "rotation": { "x": 1.570796, "y": -0.000000, "z": 0.000000 },
+      "connections": ["front_wall_lower_right_main", "back_wall_lower_right_main", "upper_floor", "wall_right_gable"]
     }
   ]
 }
