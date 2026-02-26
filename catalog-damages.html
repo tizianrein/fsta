@@ -621,6 +621,9 @@
             `;
 
             const addedEdges = new Set();
+            const damagedPartIds = currentDamageJson
+                ? new Set(currentDamageJson.map(d => d.part_id))
+                : new Set();
 
             currentModelJson.parts.forEach(part => {
 
