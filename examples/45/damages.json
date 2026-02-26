@@ -1,13 +1,85 @@
-[
-  {
+{
     "id": "damage_01",
-    "type": "Scratch",
-    "description": "A default scratch.",
-    "part_id": "cube",
+    "part_id": "roof_panel_front",
+    "type": "Crack",
+    "description": "A large crack is visible on the front roof panel, possibly resulting from weather or hail damage.",
     "coordinates": {
-      "x": 0,
+      "x": 1.5,
+      "y": 5.2,
+      "z": -1.5
+    },
+    "severity": "moderate",
+    "confidence": 0.92,
+    "evidence": "Clearly visible drone footage showing a fissure in the roofing material."
+  },
+  {
+    "id": "damage_02",
+    "part_id": "front_wall_lower_left",
+    "type": "Water Damage",
+    "description": "Visible water stains, discoloration, and peeling exterior paint near the bottom of the wall.",
+    "coordinates": {
+      "x": -2.5,
       "y": 0.5,
-      "z": 0
-    }
+      "z": -2.48
+    },
+    "severity": "minor",
+    "confidence": 0.88,
+    "evidence": "Moisture mapping and visual inspection show distinct discoloration and dampness."
+  },
+  {
+    "id": "damage_03",
+    "part_id": "chimney",
+    "type": "Spalling",
+    "description": "Mortar is crumbling and some bricks show spalling on the upper section of the chimney stack.",
+    "coordinates": {
+      "x": 0.35,
+      "y": 3.4,
+      "z": 1.05
+    },
+    "severity": "moderate",
+    "confidence": 0.95,
+    "evidence": "Close-up telephoto imagery reveals missing mortar and fractured brick surfaces."
+  },
+  {
+    "id": "damage_04",
+    "part_id": "window_sill_front_lower",
+    "type": "Wood Rot",
+    "description": "Early signs of wood rot and splintering are present on the right edge of the front lower window sill.",
+    "coordinates": {
+      "x": -1.0,
+      "y": 0.43,
+      "z": -2.48
+    },
+    "severity": "minor",
+    "confidence": 0.85,
+    "evidence": "Physical inspection noted soft wood texture and flaking paint along the edge."
+  },
+  {
+    "id": "damage_05",
+    "part_id": "door_frame_front",
+    "type": "Dent",
+    "description": "A deep dent and scuff mark on the front door frame, likely caused by a heavy physical impact.",
+    "coordinates": {
+      "x": 2.48,
+      "y": 1.8,
+      "z": -2.48
+    },
+    "severity": "minor",
+    "confidence": 0.90,
+    "evidence": "Visible indentation accompanied by scratched paint."
+  },
+  {
+    "id": "damage_06",
+    "part_id": "shutter_front_left_panel",
+    "type": "Warping",
+    "description": "The wooden panel of the front left shutter is warped outward and slightly splintered near the bottom hinge.",
+    "coordinates": {
+      "x": -2.45,
+      "y": 2.5,
+      "z": -2.65
+    },
+    "severity": "moderate",
+    "confidence": 0.82,
+    "evidence": "The shutter does not close completely and shows an irregular curve relative to the window frame."
   }
 ]
