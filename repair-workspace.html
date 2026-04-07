@@ -36,9 +36,10 @@
     textarea { resize:vertical; min-height:88px; }
     .section-title { padding:10px 12px; border-bottom:1px solid #000; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; }
     .graph-panel { display:grid; gap:0; }
-    .graph-viewport { overflow:auto; min-height:260px; max-height:340px; background:#fff; border-bottom:1px solid #000; }
-    .graph-canvas { display:inline-block; min-width:100%; min-height:100%; padding:14px; }
+    .graph-viewport { overflow:hidden; min-height:260px; max-height:340px; background:#fff; border-bottom:1px solid #000; position:relative; cursor:grab; }
+    .graph-canvas { display:inline-block; min-width:100%; min-height:100%; padding:14px; will-change:transform; }
     .graph-canvas svg { display:block; width:auto; height:auto; max-width:none; }
+    #action-graph-viewport:active { cursor:grabbing; }
     .graph-controls { display:flex; justify-content:flex-end; gap:8px; padding:10px; }
     #step-list { padding:10px; display:grid; gap:8px; max-height:320px; overflow:auto; }
     .step-card { border:1px solid #000; padding:10px; cursor:pointer; background:#fff; }
@@ -112,11 +113,6 @@
     <section class="card graph-panel">
       <div class="section-title">Current Action Graph</div>
       <div class="graph-viewport" id="action-graph-viewport"><div class="graph-canvas" id="action-graph-canvas"></div></div>
-      <div class="graph-controls">
-        <button class="btn secondary small" id="action-zoom-out-btn">−</button>
-        <button class="btn secondary small" id="action-zoom-reset-btn">Reset</button>
-        <button class="btn secondary small" id="action-zoom-in-btn">+</button>
-      </div>
     </section>
 
     <div class="main-actions">
@@ -208,7 +204,11 @@
   <script src="https://unpkg.com/d3@7.8.5/dist/d3.min.js"></script>
   <script src="https://unpkg.com/@hpcc-js/wasm@2.12.2/dist/graphviz.umd.js"></script>
   <script src="https://unpkg.com/d3-graphviz@5.1.0/build/d3-graphviz.js"></script>
-  <script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/"}}</script>
-  <script type="module" src="./repair-workspace.js"></script>
+  
+  <!-- Swapped to 0.147.0 to guarantee global compatibility with OrbitControls.js -->
+  <script src="https://unpkg.com/three@0.147.0/build/three.min.js"></script>
+  <script src="https://unpkg.com/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
+  
+  <script src="./repair-workspace.js"></script>
 </body>
 </html>

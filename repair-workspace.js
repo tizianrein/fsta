@@ -22,7 +22,7 @@ const state = {
   photos: [],
   intent: { axes: DEFAULT_AXES.map(([label, value], i) => ({ id: `axis_${i+1}`, label, value })), summary: 'Balanced repair with moderate emphasis on structural performance and reasonable reversibility.' },
   constraints: { tools_available: '', materials_available: '', time_budget_minutes: 60, budget_limit: '', skill_level: 'intermediate', safety_level: 'normal', allowed_operations: '', avoid_operations: '', additional_constraints: '' },
-  ui: { exploded: false, selectedPartId: null, selectedDamageId: null, actionGraphScale: 1 },
+  ui: { exploded: false, selectedPartId: null, selectedDamageId: null },
 };
 
 const el = {};
@@ -42,7 +42,8 @@ const materials = {
   missing: new THREE.MeshBasicMaterial({ color: 0xffde59, transparent: true, opacity: 0.8, depthWrite: false, side: THREE.FrontSide }),
   newPart: new THREE.MeshBasicMaterial({ color: 0xc000ff, transparent: true, opacity: 0.75, depthWrite: false, side: THREE.FrontSide }),
   discarded: new THREE.MeshBasicMaterial({ color: 0x111111, transparent: true, opacity: 0.18, depthWrite: false, side: THREE.FrontSide }),
-  selected: new THREE.MeshBasicMaterial({ color: 0x2f6bff, transparent: true, opacity: 0.85, depthWrite: false, side: THREE.FrontSide }),
+  selected: new THREE.MeshBasicMaterial({ color: 0x2f6bff, transparent: true, opacity: 0.9, depthWrite: false, side: THREE.FrontSide }),
+  stepHighlight: new THREE.MeshBasicMaterial({ color: 0xa9d6ff, transparent: true, opacity: 0.92, depthWrite: false, side: THREE.FrontSide }),
   outline: new THREE.LineBasicMaterial({ color: 0x000000 }),
   damage: new THREE.MeshBasicMaterial({ color: 0xc1121f, depthWrite: false }),
   selectedDamage: new THREE.MeshBasicMaterial({ color: 0x2f6bff, depthWrite: false }),
@@ -92,9 +93,6 @@ function initDom() {
   qs('start-guidance-btn').onclick = startGuidance;
   qs('save-version-btn').onclick = savePlanVersion;
   qs('add-damage-note-btn').onclick = addDamageFromNote;
-  qs('action-zoom-in-btn').onclick = () => scaleActionGraph(1.15);
-  qs('action-zoom-out-btn').onclick = () => scaleActionGraph(1 / 1.15);
-  qs('action-zoom-reset-btn').onclick = () => { state.ui.actionGraphScale = 1; applyGraphScale(); };
 
   el['assembly-file'].addEventListener('change', (e) => loadJsonFile(e.target.files[0], 'assembly'));
   el['damages-file'].addEventListener('change', (e) => loadJsonFile(e.target.files[0], 'damages'));
@@ -450,7 +448,8 @@ function onViewerPointerUp(event) {
   const hit = hitTest(event);
   const moved = !pointerDownPos ? 99 : Math.hypot(event.clientX - pointerDownPos.x, event.clientY - pointerDownPos.y);
   pointerDownPos = null;
-  if (moved > 6 || !hit) return;
+  if (moved > 6) return;
+  if (!hit) { state.ui.selectedPartId = null; state.ui.selectedDamageId = null; apply3DSelection(); return; }
   if (hit.type === 'part') { state.ui.selectedPartId = hit.data.id; state.ui.selectedDamageId = null; openDetailForPart(hit.data.id); }
   else { state.ui.selectedDamageId = hit.data.id; state.ui.selectedPartId = hit.data.part_id; openDetailForDamage(hit.data.id); }
   apply3DSelection();
@@ -530,30 +529,34 @@ function renderActionGraph() {
     el['action-graph-canvas'].innerHTML = '<div style="padding:16px;color:#666">No plan loaded.</div>';
     return;
   }
-  const lines = ['digraph G {', 'rankdir=TB;', 'graph [pad="0.45", nodesep="0.45", ranksep="0.7", bgcolor="transparent", splines=ortho];', 'node [shape=ellipse, style="solid", color="#111111", fontname="Helvetica", fontsize=14, margin="0.18,0.12"];', 'edge [color="#111111", arrowsize=0.8, penwidth=1.2];'];
+  const lines = [
+    'digraph G {',
+    'rankdir=LR;',
+    'graph [pad="0.55", nodesep="0.65", ranksep="0.95", bgcolor="transparent", splines=ortho];',
+    'node [shape=circle, fixedsize=true, width=1.65, height=1.65, style="solid,filled", fillcolor="#ffffff", color="#111111", fontname="Helvetica", fontsize=14, margin="0.08,0.08"];',
+    'edge [color="#111111", arrowsize=0.8, penwidth=1.2];'
+  ];
   const incoming = new Map(steps.map(s => [s.step_id, 0]));
-  steps.forEach(step => (step.prerequisites || []).forEach(pre => incoming.set(step.step_id, (incoming.get(step.step_id) || 0) + 1)));
+  steps.forEach(step => (step.prerequisites || []).forEach(() => incoming.set(step.step_id, (incoming.get(step.step_id) || 0) + 1)));
   steps.forEach(step => {
     const active = step.step_id === state.currentStepId;
     const done = !!step.completed;
     const optional = !!step.optional || /optional|parallel/i.test(step.description || '');
-    const style = `${optional ? 'dashed' : 'solid'}${active || done ? ',bold' : ''}`;
-    const per = incoming.get(step.step_id) > 1 ? 2 : 1;
-    const displayTitle = (step.title && !/^\w+$/.test(step.title)) ? step.title : humanizeId(step.step_id);
-    const lbl = escapeDot(multilineLabel(displayTitle, 12));
-    lines.push(`"${step.step_id}" [label="${lbl}", style="${style}", peripheries=${per}, penwidth=${active ? 2.2 : 1.2}];`);
+    const per = incoming.get(step.step_id) > 1 || done ? 2 : 1;
+    const displayTitle = step.title || humanizeId(step.step_id);
+    const lbl = escapeDot(oneWordPerLine(displayTitle));
+    const fill = active ? '#cfe8ff' : '#ffffff';
+    const style = optional ? 'dashed,filled' : 'solid,filled';
+    lines.push(`"${step.step_id}" [label="${lbl}", style="${style}", peripheries=${per}, penwidth=${active ? 2.8 : 1.5}, fillcolor="${fill}"];`);
   });
   steps.forEach(step => (step.prerequisites || []).forEach(pre => lines.push(`"${pre}" -> "${step.step_id}";`)));
   lines.push('}');
-  renderGraphviz(el['action-graph-canvas'], lines.join('\n'), (id) => openDetailForStep(id)).then(applyGraphScale);
+  renderGraphviz(el['action-graph-canvas'], lines.join('
+'), (id) => openDetailForStep(id));
 }
 
-function scaleActionGraph(factor) { state.ui.actionGraphScale = Math.max(0.45, Math.min(2.5, state.ui.actionGraphScale * factor)); applyGraphScale(); }
-function applyGraphScale() {
-  const svg = el['action-graph-canvas'].querySelector('svg');
-  if (!svg) return;
-  svg.style.transformOrigin = 'top left';
-  svg.style.transform = `scale(${state.ui.actionGraphScale})`;
+function oneWordPerLine(text) {
+  return String(text || '').trim().split(/\s+/).slice(0, 4).join('\n');
 }
 
 function renderSpatialGraph() {
@@ -590,7 +593,7 @@ function renderSpatialGraph() {
 
 function renderGraphviz(container, dot, onClick) {
   container.innerHTML = '';
-  const selection = d3.select(container).graphviz({ useWorker: false, zoom: false, fit: false });
+  const selection = d3.select(container).graphviz({ useWorker: false, zoom: true, fit: false });
   selection.renderDot(dot);
   return new Promise(resolve => {
     selection.on('end', () => {
@@ -646,7 +649,7 @@ function renderStepList() {
 function currentStep() { return (state.plan?.steps || []).find(s => s.step_id === state.currentStepId) || null; }
 function updateStepOverlay() {
   const step = currentStep();
-  if (!step || !state.guidanceActive) { el['step-overlay'].style.display = 'none'; return; }
+  if (!step) { el['step-overlay'].style.display = 'none'; return; }
   el['step-overlay'].style.display = 'block';
   el['step-overlay-title'].textContent = step.title || step.step_id;
   el['step-overlay-body'].textContent = step.description || '';
@@ -656,7 +659,7 @@ function highlightCurrentStep() {
   partMeshesMap.forEach((mesh,id) => mesh.material = id === state.ui.selectedPartId ? materials.selected : materialForPart(mesh.userData.part.status));
   damageSpheres.forEach(s => s.material = s.userData.damage.id === state.ui.selectedDamageId ? materials.selectedDamage : materials.damage);
   const step = currentStep(); if (!step) return;
-  (step.affected_parts || []).forEach(id => { const mesh = partMeshesMap.get(id); if (mesh) mesh.material = materials.selected; });
+  (step.affected_parts || []).forEach(id => { const mesh = partMeshesMap.get(id); if (mesh && id !== state.ui.selectedPartId) mesh.material = materials.stepHighlight; });
   (step.affected_damages || []).forEach(id => { const sphere = damageSpheres.find(s => s.userData.damage?.id === id); if (sphere) sphere.material = materials.selectedDamage; });
 }
 function startGuidance() { if (!state.plan?.steps?.length) return log('Generate a plan first.'); state.guidanceActive = true; if (!state.currentStepId) state.currentStepId = (state.plan.steps.find(s => !s.prerequisites?.length) || state.plan.steps[0]).step_id; updateStepOverlay(); highlightCurrentStep(); renderStepList(); renderActionGraph(); log('Guidance started.'); }
@@ -672,10 +675,12 @@ async function addDamageFromNote() {
 function openDetailForStep(stepId) {
   const step = (state.plan?.steps || []).find(s => s.step_id === stepId);
   if (!step) return;
-  state.currentStepId = stepId; renderStepList(); renderActionGraph(); highlightCurrentStep();
-  renderDetailModal(step.title || step.step_id, [
-    ['Step ID', step.step_id], ['Description', step.description || ''], ['Rationale', step.rationale || ''], ['Tools Required', (step.tools_required || []).join(', ') || '-'], ['Affected Parts', (step.affected_parts || []).join(', ') || '-'], ['Affected Damages', (step.affected_damages || []).join(', ') || '-'], ['Prerequisites', (step.prerequisites || []).join(', ') || 'none'], ['Expected Outcome', step.expected_outcome || '-'], ['Safety Notes', step.safety_notes || '-']
-  ]);
+  state.currentStepId = stepId;
+  state.guidanceActive = true;
+  updateStepOverlay();
+  highlightCurrentStep();
+  renderStepList();
+  renderActionGraph();
 }
 function openDetailForPart(partId) {
   const part = (state.assembly.parts || []).find(p => p.id === partId); if (!part) return;
