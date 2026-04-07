@@ -1,0 +1,447 @@
+{
+  "workspace_id": "workspace_santo_04_long_term",
+  "objectName": "santo_04",
+  "description": "Unified repair workspace containing assembly, damages, action graph, and execution history.",
+  "version": "2.0",
+  "created_with": {
+    "assembly_source": "longterm_assembly.json",
+    "damage_source": "longterm_damages.json",
+    "plan_source": "longterm_plan.json"
+  },
+  "settings": {
+    "selected_strategy": {
+      "id": "long-term-thinker",
+      "name": "The Long-Term Thinker"
+    },
+    "goals": [
+      {
+        "id": "preserve_material",
+        "label": "Preserve material",
+        "weight": 0.7
+      },
+      {
+        "id": "future_maintenance",
+        "label": "Future maintenance",
+        "weight": 1.0
+      },
+      {
+        "id": "durability",
+        "label": "Durability",
+        "weight": 0.9
+      },
+      {
+        "id": "low_cost",
+        "label": "Low cost",
+        "weight": 0.4
+      },
+      {
+        "id": "speed",
+        "label": "Speed",
+        "weight": 0.3
+      },
+      {
+        "id": "reversibility",
+        "label": "Reversibility",
+        "weight": 0.9
+      }
+    ],
+    "constraints": {
+      "available_tools": [
+        "workbench",
+        "protective sheeting",
+        "task lighting",
+        "pry tool",
+        "flat-head screwdriver",
+        "heat gun",
+        "rubber mallet",
+        "wood block",
+        "joint separator tool",
+        "dental pick",
+        "compressed air",
+        "wood epoxy",
+        "syringe",
+        "bar clamps",
+        "orbital sander",
+        "sandpaper",
+        "power drill",
+        "allen key"
+      ],
+      "material_preferences": [
+        "retain original timber where possible",
+        "upgrade weak replaceable parts",
+        "use mechanical fasteners where future disassembly is beneficial"
+      ],
+      "notes": "User may add damages or modify assembly during execution."
+    }
+  },
+  "assembly": {
+    "objectName": "santo_04",
+    "description": "A minimalist wooden stacking chair, likely made of beech or a similar light-colored timber with a clear lacquer finish.",
+    "parts": [
+      {
+        "id": "front_left_leg",
+        "origin": { "x": -0.235, "y": 0.221, "z": -0.2225 },
+        "dimensions": { "width": 0.03, "height": 0.426, "depth": 0.045 },
+        "connections": ["front_apron", "left_side_apron", "seat", "front_left_glider_new"],
+        "material": "timber",
+        "status": "intact"
+      },
+      {
+        "id": "front_right_leg",
+        "origin": { "x": 0.235, "y": 0.221, "z": -0.2225 },
+        "dimensions": { "width": 0.03, "height": 0.426, "depth": 0.045 },
+        "connections": ["front_apron", "right_side_apron", "seat", "front_right_glider_new"],
+        "material": "timber",
+        "status": "defective"
+      },
+      {
+        "id": "back_left_leg",
+        "origin": { "x": -0.235, "y": 0.384, "z": 0.2225 },
+        "dimensions": { "width": 0.03, "height": 0.752, "depth": 0.045 },
+        "connections": ["back_apron", "left_side_apron", "seat", "backrest", "back_left_glider_new"],
+        "material": "timber",
+        "status": "intact"
+      },
+      {
+        "id": "back_right_leg",
+        "origin": { "x": 0.235, "y": 0.384, "z": 0.2225 },
+        "dimensions": { "width": 0.03, "height": 0.752, "depth": 0.045 },
+        "connections": ["back_apron", "right_side_apron", "seat", "backrest", "back_right_glider_new"],
+        "material": "timber",
+        "status": "intact"
+      },
+      {
+        "id": "front_apron",
+        "origin": { "x": 0, "y": 0.404, "z": -0.2315 },
+        "dimensions": { "width": 0.44, "height": 0.06, "depth": 0.027 },
+        "connections": ["front_left_leg", "front_right_leg", "seat"],
+        "material": "timber",
+        "status": "intact"
+      },
+      {
+        "id": "back_apron",
+        "origin": { "x": 0, "y": 0.404, "z": 0.2315 },
+        "dimensions": { "width": 0.44, "height": 0.06, "depth": 0.027 },
+        "connections": ["back_left_leg", "back_right_leg", "seat"],
+        "material": "timber",
+        "status": "intact"
+      },
+      {
+        "id": "left_side_apron",
+        "origin": { "x": -0.2065, "y": 0.404, "z": 0 },
+        "dimensions": { "width": 0.027, "height": 0.06, "depth": 0.436 },
+        "connections": ["front_left_leg", "back_left_leg", "seat"],
+        "material": "timber",
+        "status": "intact"
+      },
+      {
+        "id": "right_side_apron",
+        "origin": { "x": 0.2065, "y": 0.404, "z": 0 },
+        "dimensions": { "width": 0.027, "height": 0.06, "depth": 0.436 },
+        "connections": ["front_right_leg", "back_right_leg", "seat"],
+        "material": "timber",
+        "status": "intact"
+      },
+      {
+        "id": "seat",
+        "origin": { "x": 0, "y": 0.437, "z": 0 },
+        "dimensions": { "width": 0.44, "height": 0.006, "depth": 0.49 },
+        "connections": ["front_left_leg", "front_right_leg", "back_left_leg", "back_right_leg", "front_apron", "back_apron", "left_side_apron", "right_side_apron"],
+        "material": "timber",
+        "status": "intact"
+      },
+      {
+        "id": "backrest",
+        "origin": { "x": 0, "y": 0.705, "z": 0.225 },
+        "dimensions": { "width": 0.44, "height": 0.11, "depth": 0.05 },
+        "connections": ["back_left_leg", "back_right_leg"],
+        "material": "timber",
+        "status": "intact"
+      }
+    ]
+  },
+  "damages": [
+    {
+      "id": "damage_01",
+      "part_id": "front_right_leg",
+      "type": "Crack",
+      "description": "A small hairline crack is visible on the top surface of the front right leg, near the front.",
+      "coordinates": { "x": 0.235, "y": 0.434, "z": -0.235 },
+      "severity": "moderate",
+      "confidence": 0.9,
+      "evidence": "Visible in close-up photograph of the front-right leg/seat joint."
+    },
+    {
+      "id": "damage_02",
+      "part_id": "seat",
+      "type": "Scuff Mark",
+      "description": "Noticeable scuffing and discoloration along the front edge of the seat.",
+      "coordinates": { "x": -0.1, "y": 0.438, "z": -0.245 },
+      "severity": "minor",
+      "confidence": 0.95,
+      "evidence": "Clearly visible in the close-up image of the seat's front corner."
+    },
+    {
+      "id": "damage_03",
+      "part_id": "seat",
+      "type": "Stain",
+      "description": "A cluster of small, dark stains or impressions on the top surface of the seat.",
+      "coordinates": { "x": 0, "y": 0.44, "z": 0.15 },
+      "severity": "minor",
+      "confidence": 0.85,
+      "evidence": "Visible in a top-down close-up of the seat surface."
+    },
+    {
+      "id": "damage_04",
+      "part_id": "seat",
+      "type": "Scratch",
+      "description": "A long, light-colored scratch on the seat's top surface toward the left side.",
+      "coordinates": { "x": -0.15, "y": 0.44, "z": 0.05 },
+      "severity": "minor",
+      "confidence": 0.9,
+      "evidence": "Visible in a photograph showing the left side of the seat."
+    },
+    {
+      "id": "damage_05",
+      "part_id": "backrest",
+      "type": "Dent",
+      "description": "A small circular dent on the front face of the backrest near the top right corner.",
+      "coordinates": { "x": 0.18, "y": 0.75, "z": 0.2 },
+      "severity": "minor",
+      "confidence": 0.8,
+      "evidence": "Visible in a close-up photograph of the backrest and back-right leg joint."
+    },
+    {
+      "id": "damage_06",
+      "part_id": "front_left_leg",
+      "type": "Scuff Mark",
+      "description": "Multiple horizontal scuff marks are visible on the front face of the front left leg.",
+      "coordinates": { "x": -0.235, "y": 0.2, "z": -0.245 },
+      "severity": "minor",
+      "confidence": 0.8,
+      "evidence": "Visible in a close-up photograph of a leg, identified as the front left."
+    }
+  ],
+  "action_graph": {
+    "entry_actions": [
+      "prepare_workspace",
+      "address_minor_damages",
+      "sand_seat_surface"
+    ],
+    "actions": [
+      {
+        "action_id": "prepare_workspace",
+        "title": "Prepare Work Area",
+        "description": "Set up a clean, well-lit, ventilated work area and prepare all tools and protection.",
+        "rationale": "Ensures safe and efficient repair preparation.",
+        "tools_required": ["workbench", "protective sheeting", "task lighting"],
+        "affected_parts": [],
+        "affected_damages": [],
+        "depends_on": [],
+        "next_actions": ["remove_old_gliders", "disassemble_damaged_joint", "address_minor_damages", "sand_seat_surface"],
+        "status": "pending",
+        "clickable": true
+      },
+      {
+        "action_id": "remove_old_gliders",
+        "title": "Remove Old Gliders",
+        "description": "Carefully pry off the existing plastic gliders from the chair legs.",
+        "rationale": "Clears the base condition for upgraded replaceable gliders.",
+        "tools_required": ["pry tool", "flat-head screwdriver"],
+        "affected_parts": ["front_left_leg", "front_right_leg", "back_left_leg", "back_right_leg"],
+        "affected_damages": [],
+        "depends_on": ["prepare_workspace"],
+        "next_actions": ["fabricate_new_gliders"],
+        "status": "pending",
+        "clickable": true
+      },
+      {
+        "action_id": "disassemble_damaged_joint",
+        "title": "Disassemble Joint",
+        "description": "Separate the front_right_leg from the connected aprons with localized heat and careful tapping.",
+        "rationale": "Provides access to the cracked connection and allows joint upgrading.",
+        "tools_required": ["heat gun", "rubber mallet", "wood block", "joint separator tool"],
+        "affected_parts": ["front_right_leg", "front_apron", "right_side_apron"],
+        "affected_damages": ["damage_01"],
+        "depends_on": ["prepare_workspace"],
+        "next_actions": ["clean_and_prepare_crack"],
+        "status": "pending",
+        "clickable": true
+      },
+      {
+        "action_id": "clean_and_prepare_crack",
+        "title": "Prepare Leg Crack",
+        "description": "Clean dust, debris, and old glue from the crack in the front right leg.",
+        "rationale": "Improves bond quality before structural repair.",
+        "tools_required": ["dental pick", "compressed air"],
+        "affected_parts": ["front_right_leg"],
+        "affected_damages": ["damage_01"],
+        "depends_on": ["disassemble_damaged_joint"],
+        "next_actions": ["inject_epoxy_into_crack"],
+        "status": "pending",
+        "clickable": true
+      },
+      {
+        "action_id": "inject_epoxy_into_crack",
+        "title": "Inject Epoxy",
+        "description": "Inject slow-curing structural epoxy into the cleaned crack.",
+        "rationale": "Rebonds the wood fibers and strengthens the damaged area.",
+        "tools_required": ["wood epoxy", "syringe", "mixing container"],
+        "affected_parts": ["front_right_leg"],
+        "affected_damages": ["damage_01"],
+        "depends_on": ["clean_and_prepare_crack"],
+        "next_actions": ["clamp_and_cure_leg"],
+        "status": "pending",
+        "clickable": true
+      },
+      {
+        "action_id": "clamp_and_cure_leg",
+        "title": "Clamp And Cure",
+        "description": "Clamp the repaired leg evenly and allow the adhesive to cure fully.",
+        "rationale": "Restores structural integrity before reassembly.",
+        "tools_required": ["bar clamps", "wood blocks"],
+        "affected_parts": ["front_right_leg"],
+        "affected_damages": ["damage_01"],
+        "depends_on": ["inject_epoxy_into_crack"],
+        "next_actions": ["upgrade_leg_joint", "final_sanding_and_prep"],
+        "status": "pending",
+        "clickable": true
+      },
+      {
+        "action_id": "fabricate_new_gliders",
+        "title": "Fabricate New Gliders",
+        "description": "Create durable replacement gliders with pilot holes for mechanical attachment.",
+        "rationale": "Improves durability and future replaceability.",
+        "tools_required": ["oak wood stock", "saw", "drill press", "sandpaper"],
+        "affected_parts": ["front_left_leg", "front_right_leg", "back_left_leg", "back_right_leg"],
+        "affected_damages": [],
+        "depends_on": ["remove_old_gliders"],
+        "next_actions": ["attach_new_gliders"],
+        "status": "pending",
+        "clickable": true
+      },
+      {
+        "action_id": "address_minor_damages",
+        "title": "Address Minor Damages",
+        "description": "Reduce denting at the backrest and sand minor scuffs from the front left leg.",
+        "rationale": "Addresses secondary issues in parallel while preserving original material.",
+        "tools_required": ["steam iron", "cloth", "sandpaper"],
+        "affected_parts": ["backrest", "front_left_leg"],
+        "affected_damages": ["damage_05", "damage_06"],
+        "depends_on": ["prepare_workspace"],
+        "next_actions": ["final_sanding_and_prep"],
+        "status": "pending",
+        "clickable": true
+      },
+      {
+        "action_id": "sand_seat_surface",
+        "title": "Sand Seat Surface",
+        "description": "Sand the seat to remove scuffs, stains, and scratches and prepare for refinishing.",
+        "rationale": "Creates a uniform, repair-ready surface.",
+        "tools_required": ["orbital sander", "sandpaper"],
+        "affected_parts": ["seat"],
+        "affected_damages": ["damage_02", "damage_03", "damage_04"],
+        "depends_on": ["prepare_workspace"],
+        "next_actions": ["final_sanding_and_prep"],
+        "status": "pending",
+        "clickable": true
+      },
+      {
+        "action_id": "upgrade_leg_joint",
+        "title": "Upgrade Fasteners",
+        "description": "Replace the glued dowel logic with threaded inserts and mechanical fasteners.",
+        "rationale": "Improves future maintainability and reversibility.",
+        "tools_required": ["power drill", "drill bits", "M6 threaded inserts", "Allen key"],
+        "affected_parts": ["front_right_leg", "front_apron", "right_side_apron"],
+        "affected_damages": [],
+        "depends_on": ["clamp_and_cure_leg"],
+        "next_actions": ["reassemble_leg_joint"],
+        "status": "pending",
+        "clickable": true
+      },
+      {
+        "action_id": "final_sanding_and_prep",
+        "title": "Final Surface Prep",
+        "description": "Final light sanding and dust removal across all repaired surfaces.",
+        "rationale": "Ensures finish consistency across repaired and retained surfaces.",
+        "tools_required": ["sandpaper", "tack cloth"],
+        "affected_parts": ["seat", "front_right_leg", "front_left_leg", "backrest"],
+        "affected_damages": [],
+        "depends_on": ["clamp_and_cure_leg", "address_minor_damages", "sand_seat_surface"],
+        "next_actions": ["apply_finish"],
+        "status": "pending",
+        "clickable": true
+      },
+      {
+        "action_id": "reassemble_leg_joint",
+        "title": "Reassemble Joint",
+        "description": "Reconnect the front right leg and adjacent aprons using the upgraded mechanical system.",
+        "rationale": "Restores the chair frame while incorporating a more maintainable joint logic.",
+        "tools_required": ["M6 bolts", "Allen key"],
+        "affected_parts": ["front_right_leg", "front_apron", "right_side_apron"],
+        "affected_damages": [],
+        "depends_on": ["upgrade_leg_joint"],
+        "next_actions": ["attach_new_gliders", "final_check"],
+        "status": "pending",
+        "clickable": true
+      },
+      {
+        "action_id": "attach_new_gliders",
+        "title": "Attach New Gliders",
+        "description": "Attach the newly fabricated gliders to the chair legs.",
+        "rationale": "Completes the upgraded lower contact points.",
+        "tools_required": ["screws", "screwdriver"],
+        "affected_parts": ["front_left_leg", "front_right_leg", "back_left_leg", "back_right_leg"],
+        "affected_damages": [],
+        "depends_on": ["fabricate_new_gliders", "reassemble_leg_joint"],
+        "next_actions": ["final_check"],
+        "status": "pending",
+        "clickable": true
+      },
+      {
+        "action_id": "apply_finish",
+        "title": "Apply Finish",
+        "description": "Apply a protective finish coat to the prepared surfaces.",
+        "rationale": "Protects repaired timber and unifies surface appearance.",
+        "tools_required": ["varnish", "brush"],
+        "affected_parts": ["seat", "front_right_leg", "front_left_leg", "backrest"],
+        "affected_damages": [],
+        "depends_on": ["final_sanding_and_prep"],
+        "next_actions": ["final_check"],
+        "status": "pending",
+        "clickable": true
+      },
+      {
+        "action_id": "final_check",
+        "title": "Final Check",
+        "description": "Inspect stability, surface condition, and fit of upgraded components.",
+        "rationale": "Confirms the repair outcome before closing the intervention.",
+        "tools_required": [],
+        "affected_parts": ["front_right_leg", "seat", "backrest", "front_left_leg"],
+        "affected_damages": [],
+        "depends_on": ["attach_new_gliders", "apply_finish"],
+        "next_actions": [],
+        "status": "pending",
+        "clickable": true
+      }
+    ]
+  },
+  "execution": {
+    "current_action_id": "prepare_workspace",
+    "completed_actions": [],
+    "history": [],
+    "open_questions": [],
+    "user_comments": []
+  },
+  "examples": [
+    {
+      "id": "example_chair_long_term",
+      "label": "Chair · Long-Term Strategy",
+      "files": {
+        "assembly": "examples/chair_long_term/assembly.json",
+        "damages": "examples/chair_long_term/damages.json",
+        "workspace": "examples/chair_long_term/workspace.json"
+      }
+    }
+  ]
+}

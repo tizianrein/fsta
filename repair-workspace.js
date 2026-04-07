@@ -35,7 +35,7 @@ const state = {
     avoid_operations: '',
     additional_constraints: '',
   },
-  ui: { exploded: false },
+  ui: { exploded: false, graphZoom: 1 },
 };
 
 const el = {};
@@ -66,7 +66,7 @@ function initDom() {
     'axis-list','radar-canvas','intent-summary','tools-available','materials-available','time-budget','budget-limit','skill-level',
     'safety-level','allowed-ops','avoid-ops','additional-constraints','instruction-input','console-output','graph-container',
     'step-list','json-modal','json-textarea','assembly-file','damages-file','plan-file','photos-file',
-    'intent-modal','constraints-modal','intent-summary-preview','intent-axes-preview','constraints-preview','plan-section','action-map-container','spatial-graph-modal','spatial-graph-container','example-path-input'
+    'intent-modal','constraints-modal','plan-section','action-map-container','spatial-graph-modal','spatial-graph-container','example-path-input','graph-zoom-in-btn','graph-zoom-out-btn','graph-zoom-reset-btn','action-node-modal','action-node-detail'
   ].forEach(id => el[id] = qs(id));
 
   qs('upload-assembly-btn').onclick = () => el['assembly-file'].click();
@@ -76,14 +76,18 @@ function initDom() {
   qs('open-json-btn').onclick = openJsonModal;
   qs('close-json-btn').onclick = () => el['json-modal'].style.display = 'none';
   qs('open-intent-btn').onclick = () => el['intent-modal'].style.display = 'flex';
-  qs('close-intent-btn').onclick = () => { el['intent-modal'].style.display = 'none'; renderPreviewCards(); };
+  qs('close-intent-btn').onclick = () => { el['intent-modal'].style.display = 'none'; };
   qs('open-constraints-btn').onclick = () => el['constraints-modal'].style.display = 'flex';
-  qs('close-constraints-btn').onclick = () => { el['constraints-modal'].style.display = 'none'; renderPreviewCards(); };
+  qs('close-constraints-btn').onclick = () => { el['constraints-modal'].style.display = 'none'; };
   qs('view-spatial-graph-btn').onclick = openSpatialGraphModal;
   qs('copy-json-btn').onclick = async () => navigator.clipboard.writeText(el['json-textarea'].value);
   qs('save-json-btn').onclick = saveJsonModal;
   qs('load-example-btn').onclick = loadExamplePath;
   qs('close-spatial-graph-btn').onclick = () => el['spatial-graph-modal'].style.display = 'none';
+  qs('graph-zoom-in-btn').onclick = () => { state.ui.graphZoom = Math.min(2.5, (state.ui.graphZoom || 1) + 0.2); renderPlanGraph(); };
+  qs('graph-zoom-out-btn').onclick = () => { state.ui.graphZoom = Math.max(0.6, (state.ui.graphZoom || 1) - 0.2); renderPlanGraph(); };
+  qs('graph-zoom-reset-btn').onclick = () => { state.ui.graphZoom = 1; renderPlanGraph(); };
+  qs('close-action-node-btn').onclick = () => el['action-node-modal'].style.display = 'none';
   qs('download-state-btn').onclick = downloadWorkspace;
   qs('download-state-btn').title = 'Download assembly, damages, intent, constraints, plan, and versions as one JSON file';
   qs('explode-btn').onclick = explodeView;
@@ -225,7 +229,6 @@ function saveJsonModal() {
     if (parsed.currentStepId) state.currentStepId = parsed.currentStepId;
     el['object-name'].value = state.objectName || state.assembly?.objectName || '';
     syncIntentUi();
-    renderPreviewCards();
     createModel();
     frameObject();
     renderPlan();
@@ -551,7 +554,6 @@ function onAxisInput(e) {
   if (kind === 'value') state.intent.axes[idx].value = Number(e.target.value);
   if (kind === 'remove' && state.intent.axes.length > 3) state.intent.axes.splice(idx, 1);
   syncIntentUi();
-  renderPreviewCards();
 }
 
 function addAxis() {
@@ -618,21 +620,7 @@ async function suggestIntent() {
   }
 }
 
-function renderPreviewCards() {
-  const axesPreview = state.intent.axes.map(a => `${a.label}: ${Math.round(a.value * 100)}%`).join('\n');
-  el['intent-summary-preview'].textContent = state.intent.summary || 'No intent summary yet.';
-  el['intent-axes-preview'].textContent = axesPreview;
-  const c = state.constraints;
-  const bits = [
-    c.tools_available && `🧰 Tools: ${c.tools_available}`,
-    c.materials_available && `🧱 Materials: ${c.materials_available}`,
-    c.time_budget_minutes ? `⏱️ Time: ${c.time_budget_minutes} min` : '',
-    c.skill_level && `🧠 Skill: ${c.skill_level}`,
-    c.allowed_operations && `✅ Allowed: ${c.allowed_operations}`,
-    c.avoid_operations && `🚫 Avoid: ${c.avoid_operations}`
-  ].filter(Boolean);
-  el['constraints-preview'].textContent = bits.join(' • ') || 'No constraints defined yet.';
-}
+function renderPreviewCards() {}
 
 function collectConstraintsFromUi() {
   state.objectName = el['object-name'].value.trim();
@@ -779,8 +767,9 @@ function renderPlan() {
 
 function renderPlanGraph() {
   const steps = state.plan?.steps || [];
+  const wrap = el['action-map-container'];
   if (!steps.length) {
-    el['action-map-container'].innerHTML = '<div style="padding:16px;color:#666">No plan loaded.</div>';
+    wrap.innerHTML = '<div style="padding:16px;color:#666">No action graph loaded.</div>';
     return;
   }
   const stepMap = new Map(steps.map(s => [s.step_id, s]));
@@ -799,17 +788,44 @@ function renderPlanGraph() {
     lanes.get(lvl).push(step);
   });
   const ordered = [...lanes.entries()].sort((a,b)=>a[0]-b[0]);
-  let html = '<div class="action-map-grid">';
+  const zoom = state.ui.graphZoom || 1;
+  let html = `<div style="overflow:auto;padding:14px;"><div class="action-map-grid" style="transform:scale(${zoom});transform-origin:top left;width:max-content;min-width:${Math.max(100/zoom,100)}%;">`;
   ordered.forEach(([lvl, lane]) => {
-    html += `<div class="action-lane"><div class="action-lane-title">Stage ${lvl + 1} · parallel options</div><div class="action-lane-body">`;
+    html += `<div class="action-lane"><div class="action-lane-title">Stage ${lvl + 1}</div><div class="action-lane-body">`;
     lane.forEach(step => {
-      html += `<div class="action-node ${step.step_id === state.currentStepId ? 'active' : ''}" data-step-id="${escapeHtml(step.step_id)}"><strong>${escapeHtml(step.title || step.step_id)}</strong><small>Needs: ${escapeHtml((step.prerequisites || []).join(', ') || 'start')}</small><small>Parts: ${escapeHtml((step.affected_parts || []).join(', ') || '-')}</small></div>`;
+      const prereqText = (step.prerequisites || []).join(', ') || 'start';
+      const partText = (step.affected_parts || []).join(', ') || '-';
+      html += `<div class="action-node ${step.step_id === state.currentStepId ? 'active' : ''}" data-step-id="${escapeHtml(step.step_id)}"><strong>${escapeHtml(step.title || step.step_id)}</strong><small>Needs: ${escapeHtml(prereqText)}</small><small>Parts: ${escapeHtml(partText)}</small></div>`;
     });
     html += '</div></div>';
   });
-  html += '</div>';
-  el['action-map-container'].innerHTML = html;
-  el['action-map-container'].querySelectorAll('.action-node').forEach(node => node.onclick = () => { state.currentStepId = node.dataset.stepId; updateStepOverlay(); highlightCurrentStep(); renderPlan(); });
+  html += '</div></div>';
+  wrap.innerHTML = html;
+  wrap.querySelectorAll('.action-node').forEach(node => node.onclick = () => openActionNode(node.dataset.stepId));
+}
+
+function openActionNode(stepId) {
+  state.currentStepId = stepId;
+  const step = (state.plan?.steps || []).find(s => s.step_id === stepId);
+  if (!step) return;
+  highlightCurrentStep();
+  renderStepList();
+  updateStepOverlay();
+  const detail = el['action-node-detail'];
+  detail.innerHTML = `
+    <h3 style="margin:0 0 12px 0;text-align:left;">${escapeHtml(step.title || step.step_id)}</h3>
+    <div style="display:grid;gap:10px;">
+      <div class="summary-box"><div class="title">Step ID</div><div class="body">${escapeHtml(step.step_id || '-')}</div></div>
+      <div class="summary-box"><div class="title">Description</div><div class="body">${escapeHtml(step.description || '-')}</div></div>
+      <div class="summary-box"><div class="title">Rationale</div><div class="body">${escapeHtml(step.rationale || '-')}</div></div>
+      <div class="summary-box"><div class="title">Tools and Materials</div><div class="body">${escapeHtml((step.tools_required || []).join(', ') || '-')}</div></div>
+      <div class="summary-box"><div class="title">Affected Parts</div><div class="body">${escapeHtml((step.affected_parts || []).join(', ') || '-')}</div></div>
+      <div class="summary-box"><div class="title">Affected Damages</div><div class="body">${escapeHtml((step.affected_damages || []).join(', ') || '-')}</div></div>
+      <div class="summary-box"><div class="title">Prerequisites</div><div class="body">${escapeHtml((step.prerequisites || []).join(', ') || 'start')}</div></div>
+      ${step.expected_outcome ? `<div class="summary-box"><div class="title">Expected Outcome</div><div class="body">${escapeHtml(step.expected_outcome)}</div></div>` : ''}
+      ${step.safety_notes ? `<div class="summary-box"><div class="title">Safety Notes</div><div class="body">${escapeHtml(step.safety_notes)}</div></div>` : ''}
+    </div>`;
+  el['action-node-modal'].style.display = 'flex';
 }
 
 function renderSpatialGraph() {
@@ -852,7 +868,7 @@ function renderStepList() {
       <div class="step-meta">${escapeHtml((step.tools_required || []).join(', ') || 'No tools listed')}</div>
       <div class="step-meta">Prerequisites: ${escapeHtml((step.prerequisites || []).join(', ') || 'start / parallel')}</div>
       <div class="step-meta">Parts: ${escapeHtml((step.affected_parts || []).join(', ') || '-')}</div>`;
-    card.onclick = () => { state.currentStepId = step.step_id; updateStepOverlay(); highlightCurrentStep(); renderStepList(); };
+    card.onclick = () => openActionNode(step.step_id);
     wrap.appendChild(card);
   });
 }

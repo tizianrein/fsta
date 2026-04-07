@@ -341,17 +341,18 @@
       <button class="btn secondary" id="open-constraints-btn">⛓️ Constraints</button>
     </div>
 
-    <div class="summary-strip">
-      <div class="summary-box">
-        <div class="title">🎯 Current repair intent</div>
-        <div class="body" id="intent-summary-preview"></div>
-        <div class="meta" id="intent-axes-preview"></div>
+    <section class="card">
+      <div class="section-title">Current Action Graph</div>
+      <div style="padding:10px;border-bottom:1px solid #000;display:flex;justify-content:space-between;align-items:center;gap:10px;">
+        <div style="font-size:12px;color:#666;line-height:1.4;">Parallel actions can sit on the same dependency stage. Tap a node for full details.</div>
+        <div style="display:flex;gap:6px;flex-shrink:0;">
+          <button class="btn secondary" id="graph-zoom-out-btn" style="min-height:34px;padding:6px 10px;">－</button>
+          <button class="btn secondary" id="graph-zoom-reset-btn" style="min-height:34px;padding:6px 10px;">100%</button>
+          <button class="btn secondary" id="graph-zoom-in-btn" style="min-height:34px;padding:6px 10px;">＋</button>
+        </div>
       </div>
-      <div class="summary-box">
-        <div class="title">⛓️ Current constraints</div>
-        <div class="body" id="constraints-preview"></div>
-      </div>
-    </div>
+      <div id="action-map-container"></div>
+    </section>
 
     <div class="action-buttons">
       <button class="btn" id="generate-assembly-btn">🧱 Generate Assembly</button>
@@ -370,8 +371,7 @@
     </div>
 
     <section class="plan-card card" id="plan-section">
-      <div class="section-title">Repair Plan and Steps</div>
-      <div id="action-map-container"></div>
+      <div class="section-title">Action List</div>
       <div id="step-list"></div>
       <div style="padding:10px;border-top:1px solid #000;display:grid;grid-template-columns:1fr;gap:8px;">
         <button class="btn secondary" id="save-version-btn">💾 Save Plan Version</button>
@@ -438,6 +438,16 @@
         <button class="btn" id="close-spatial-graph-btn">Close</button>
       </div>
       <div id="spatial-graph-container" style="min-height:55vh"></div>
+    </div>
+  </div>
+
+
+  <div class="modal" id="action-node-modal">
+    <div class="modal-inner" style="max-width:560px;">
+      <div class="modal-actions" style="margin-top:0;margin-bottom:12px;">
+        <button class="btn" id="close-action-node-btn">Close</button>
+      </div>
+      <div id="action-node-detail"></div>
     </div>
   </div>
 
