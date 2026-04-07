@@ -163,21 +163,34 @@
         const explodeBtn = document.getElementById('explode-view-btn');
         const resetBtn = document.getElementById('reset-view-btn');
 
-        const intactPartMaterial = new THREE.MeshStandardMaterial({ color: 0x666666, transparent: true, opacity: 0.3, side: THREE.DoubleSide });
-        const defectivePartMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000, transparent: true, opacity: 0.3, side: THREE.DoubleSide });
-        const missingPartMaterial = new THREE.MeshStandardMaterial({ color: 0xffff00, transparent: true, opacity: 0.3, side: THREE.DoubleSide });
+        const intactPartMaterial = new THREE.MeshBasicMaterial({
+            color: 0xd9d9d9,
+            transparent: true,
+            opacity: 0.7,
+            depthWrite: false,
+            side: THREE.FrontSide
+        });
+        const defectivePartMaterial = new THREE.MeshBasicMaterial({
+            color: 0xff4d4d,
+            transparent: true,
+            opacity: 0.7,
+            depthWrite: false,
+            side: THREE.FrontSide
+        });        const missingPartMaterial = new THREE.MeshStandardMaterial({ color: 0xffe066, transparent: true, opacity: 0.3, side: THREE.DoubleSide });
         const selectionPartMaterial = new THREE.MeshStandardMaterial({ color: 0x0000ff, transparent: true, opacity: 0.7, side: THREE.DoubleSide });
         const newMaterial = new THREE.MeshStandardMaterial({ color: 0xf600f6, transparent: true, opacity: 0.3, side: THREE.DoubleSide });
         const discardedMaterial = new THREE.MeshStandardMaterial({ color: 0xfdda0d, transparent: true, opacity: 0.3, side: THREE.DoubleSide });
         const outlineMaterial = new THREE.LineBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.8});
         const defaultDotMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
         const selectedDotMaterial = new THREE.MeshBasicMaterial({ color: 0x6f0000 });
+
+        
         
         function init() {
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0xffffff);
             scene.add(objectGroup);
-            camera = new THREE.PerspectiveCamera(50, viewerContainer.clientWidth / viewerContainer.clientHeight, 0.01, 1000);
+            camera = new THREE.PerspectiveCamera(15, viewerContainer.clientWidth / viewerContainer.clientHeight, 0.01, 1000);
             camera.position.set(-0.8, 1.0, -1.2);
             renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('viewer-canvas'), antialias: true, alpha: true });
             renderer.autoClear = false;
@@ -768,7 +781,7 @@
                 updateHELGA("Thinking...", true);
 
                 try {
-                    const response = await fetch("/api/guide-repair", {
+                    const response = await fetch("/api/old/guide-repair", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ question, stepContext: currentStep })

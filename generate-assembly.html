@@ -489,8 +489,25 @@
         }
 
         function viewGraph() {
-            if (!currentModelJson || !currentModelJson.parts) { updateHANS("Generate or load an assembly to see its graph."); return; }
-            let dot = `graph Assembly {\n  graph [rankdir="LR" splines=true ranksep=2.5 nodesep=0.5];\n  node [shape=box, style="filled", fillcolor="#f0f0f0", fontname="Helvetica,Arial,sans-serif"];\n  edge [arrowhead=none];\n\n`;
+            if (!currentModelJson || !currentModelJson.parts) { 
+                updateHANS("Generate or load an assembly to see its graph."); 
+                return; 
+            }
+            
+            // UPDATED ATTRIBUTES BELOW:
+            let dot = `graph Assembly {
+        graph [
+            rankdir="LR", 
+            splines=true, 
+            ranksep=1.2, 
+            nodesep=0.3, 
+            overlap=false,
+            ratio="compress"
+        ];
+        node [shape=box, style="filled", fillcolor="#f0f0f0", fontname="Helvetica,Arial,sans-serif", margin="0.1,0.05"];
+        edge [arrowhead=none];
+
+        `;
             const addedEdges = new Set();
             
             currentModelJson.parts.forEach(part => {

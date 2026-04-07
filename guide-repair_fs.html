@@ -809,7 +809,7 @@
                 updateHELGA("Thinking...", true);
 
                 try {
-                    const response = await fetch("/api/guide-repair", {
+                    const response = await fetch("/api/old/guide-repair", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ question, stepContext: currentStep })

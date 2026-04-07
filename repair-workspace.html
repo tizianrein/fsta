@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Repair Workspace</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛠️</text></svg>">
+  <style>
+    :root {
+      --bg: #ffffff;
+      --fg: #111111;
+      --muted: #666666;
+      --line: #d9d9d9;
+      --panel: #f7f7f7;
+      --accent: #111111;
+      --danger: #c1121f;
+      --ok: #1b7f3b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    .shell {
+      width: min(1400px, calc(100vw - 24px));
+      margin: 12px auto 40px;
+      display: grid;
+      gap: 12px;
+      grid-template-columns: 1.1fr 0.9fr;
+      grid-template-areas:
+        "header header"
+        "viewer side"
+        "controls side"
+        "plan side"
+        "console console";
+    }
+    .card {
+      border: 1px solid var(--fg);
+      background: var(--bg);
+    }
+    .header {
+      grid-area: header;
+      display: grid;
+      gap: 10px;
+      grid-template-columns: 1fr auto auto;
+      align-items: stretch;
+      padding: 12px;
+    }
+    .header input, .header button, textarea, select, input[type="text"], input[type="number"] {
+      font: inherit;
+    }
+    .header input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--fg);
+      background: #fff;
+    }
+    .btn {
+      border: 1px solid var(--fg);
+      background: var(--accent);
+      color: #fff;
+      padding: 10px 14px;
+      cursor: pointer;
+      min-height: 44px;
+    }
+    .btn.secondary {
+      background: #fff;
+      color: var(--fg);
+    }
+    .btn.ghost {
+      background: var(--panel);
+      color: var(--fg);
+    }
+    .btn.ok { background: var(--ok); }
+    .btn.danger { background: var(--danger); }
+    .viewer {
+      grid-area: viewer;
+      min-height: 520px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+    }
+    .section-title {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    #viewer-wrap { position: relative; min-height: 390px; }
+    #viewer-canvas { width: 100%; height: 100%; display: block; }
+    #info-box {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12px;
+      background: rgba(255,255,255,.92);
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      display: none;
+      max-width: 280px;
+      pointer-events: none;
+    }
+    #step-overlay {
+      position: absolute;
+      right: 10px;
+      bottom: 10px;
+      width: min(340px, calc(100% - 20px));
+      background: rgba(17,17,17,.92);
+      color: #fff;
+      border: 1px solid #000;
+      padding: 12px;
+      display: none;
+    }
+    #step-overlay small { color: rgba(255,255,255,.8); }
+    .toolbar, .subtoolbar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      padding: 10px 12px;
+      border-top: 1px solid var(--line);
+    }
+    .toolbar .btn, .subtoolbar .btn { min-height: 40px; }
+    .side {
+      grid-area: side;
+      display: grid;
+      gap: 12px;
+      align-content: start;
+    }
+    .panel-body { padding: 12px; }
+    .intent-top {
+      display: grid;
+      grid-template-columns: 270px 1fr;
+      gap: 14px;
+      align-items: start;
+    }
+    #radar-canvas {
+      width: 100%;
+      aspect-ratio: 1;
+      border: 1px solid var(--line);
+      touch-action: none;
+      background: #fff;
+    }
+    .axis-list {
+      display: grid;
+      gap: 10px;
+      max-height: 360px;
+      overflow: auto;
+      padding-right: 2px;
+    }
+    .axis-row {
+      display: grid;
+      grid-template-columns: 1fr 88px 28px;
+      gap: 8px;
+      align-items: center;
+    }
+    .axis-row input[type="text"] {
+      border: 1px solid var(--line);
+      padding: 8px;
+      width: 100%;
+    }
+    .axis-row input[type="range"] { width: 100%; }
+    .axis-value {
+      font-size: 12px;
+      color: var(--muted);
+      text-align: right;
+    }
+    .mini-btn {
+      width: 28px;
+      height: 28px;
+      border: 1px solid var(--fg);
+      background: #fff;
+      cursor: pointer;
+    }
+    .constraints-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .field { display: grid; gap: 6px; }
+    .field label {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .03em;
+    }
+    .field input, .field textarea, .field select {
+      width: 100%;
+      border: 1px solid var(--line);
+      padding: 10px;
+      background: #fff;
+    }
+    .field textarea { min-height: 72px; resize: vertical; }
+    .controls {
+      grid-area: controls;
+      display: grid;
+      gap: 12px;
+    }
+    .controls-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      padding: 12px;
+    }
+    .plan {
+      grid-area: plan;
+      display: grid;
+      grid-template-columns: 0.95fr 1.05fr;
+      min-height: 420px;
+    }
+    #graph-container { min-height: 418px; border-right: 1px solid var(--line); }
+    #graph-container svg { width: 100%; height: 100%; }
+    .plan-right {
+      display: grid;
+      grid-template-rows: auto 1fr;
+      min-height: 420px;
+    }
+    #step-list {
+      overflow: auto;
+      max-height: 420px;
+      padding: 10px;
+      display: grid;
+      gap: 8px;
+    }
+    .step-card {
+      border: 1px solid var(--line);
+      padding: 10px;
+      cursor: pointer;
+      background: #fff;
+    }
+    .step-card.active { border-color: var(--fg); background: var(--panel); }
+    .step-card.done { border-color: var(--ok); }
+    .step-meta { font-size: 12px; color: var(--muted); margin-top: 6px; }
+    .console {
+      grid-area: console;
+      background: #111;
+      color: #fff;
+      min-height: 90px;
+      padding: 12px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      white-space: pre-wrap;
+      border: 1px solid #000;
+    }
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.64);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 50;
+    }
+    .modal-inner {
+      width: min(900px, 100%);
+      max-height: 90vh;
+      overflow: auto;
+      background: #fff;
+      border: 1px solid #000;
+      padding: 16px;
+    }
+    .json-text {
+      width: 100%;
+      min-height: 55vh;
+      border: 1px solid var(--line);
+      padding: 12px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12px;
+      white-space: pre;
+    }
+    @media (max-width: 1080px) {
+      .shell {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+          "header"
+          "viewer"
+          "side"
+          "controls"
+          "plan"
+          "console";
+      }
+      .intent-top, .constraints-grid, .plan { grid-template-columns: 1fr; }
+      #graph-container { border-right: 0; border-bottom: 1px solid var(--line); }
+      .controls-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="header card">
+      <input id="object-name" type="text" placeholder="Object name" />
+      <button class="btn secondary" id="open-json-btn">Read & Copy JSON</button>
+      <button class="btn secondary" id="download-state-btn">Download Workspace</button>
+    </div>
+
+    <section class="viewer card">
+      <div class="section-title">Spatial Model and Guidance</div>
+      <div id="viewer-wrap">
+        <canvas id="viewer-canvas"></canvas>
+        <div id="info-box"></div>
+        <div id="step-overlay">
+          <div id="step-overlay-title" style="font-weight:700;margin-bottom:6px"></div>
+          <div id="step-overlay-body"></div>
+          <small id="step-overlay-meta"></small>
+        </div>
+      </div>
+      <div class="toolbar">
+        <button class="btn secondary" id="upload-assembly-btn">Upload Assembly</button>
+        <button class="btn secondary" id="upload-damages-btn">Upload Damages</button>
+        <button class="btn secondary" id="upload-plan-btn">Upload Plan</button>
+        <button class="btn secondary" id="explode-btn">Explode</button>
+        <button class="btn secondary" id="restore-btn">Restore</button>
+      </div>
+      <input type="file" id="assembly-file" accept=".json" hidden />
+      <input type="file" id="damages-file" accept=".json" hidden />
+      <input type="file" id="plan-file" accept=".json" hidden />
+      <input type="file" id="photos-file" accept="image/*,application/pdf" multiple hidden />
+    </section>
+
+    <aside class="side">
+      <section class="card">
+        <div class="section-title">Repair Intent</div>
+        <div class="panel-body">
+          <div class="intent-top">
+            <canvas id="radar-canvas" width="540" height="540"></canvas>
+            <div>
+              <div class="axis-list" id="axis-list"></div>
+              <div class="subtoolbar">
+                <button class="btn secondary" id="add-axis-btn">Add Axis</button>
+                <button class="btn secondary" id="reset-intent-btn">Reset Intent</button>
+                <button class="btn secondary" id="suggest-intent-btn">LLM Suggest Intent</button>
+              </div>
+            </div>
+          </div>
+          <div class="field" style="margin-top:12px">
+            <label for="intent-summary">Intent summary</label>
+            <textarea id="intent-summary" placeholder="A short description of the intended repair attitude"></textarea>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="section-title">Constraints</div>
+        <div class="panel-body constraints-grid">
+          <div class="field"><label>Tools available</label><input id="tools-available" type="text" placeholder="clamps, glue, drill" /></div>
+          <div class="field"><label>Materials available</label><input id="materials-available" type="text" placeholder="oak strip, screws, epoxy" /></div>
+          <div class="field"><label>Time budget minutes</label><input id="time-budget" type="number" min="0" step="5" value="60" /></div>
+          <div class="field"><label>Budget limit</label><input id="budget-limit" type="text" placeholder="50 EUR" /></div>
+          <div class="field"><label>Skill level</label><select id="skill-level"><option>basic</option><option selected>intermediate</option><option>advanced</option></select></div>
+          <div class="field"><label>Safety level</label><select id="safety-level"><option>low</option><option selected>normal</option><option>strict</option></select></div>
+          <div class="field"><label>Allowed operations</label><input id="allowed-ops" type="text" placeholder="stabilize, patch, replace" /></div>
+          <div class="field"><label>Avoid operations</label><input id="avoid-ops" type="text" placeholder="full disassembly, welding" /></div>
+          <div class="field" style="grid-column:1 / -1"><label>Additional constraints</label><textarea id="additional-constraints" placeholder="Access limitations, preservation obligations, sequencing constraints"></textarea></div>
+        </div>
+      </section>
+    </aside>
+
+    <section class="controls card">
+      <div class="section-title">Unified Actions</div>
+      <div class="controls-grid">
+        <button class="btn" id="generate-assembly-btn">Generate Assembly</button>
+        <button class="btn" id="update-damages-btn">Update Damages</button>
+        <button class="btn" id="update-assembly-btn">Update Assembly</button>
+        <button class="btn" id="generate-plan-btn">Generate Plan</button>
+        <button class="btn ok" id="start-guidance-btn">Start Guidance</button>
+        <button class="btn secondary" id="replan-btn">Replan from Here</button>
+        <button class="btn secondary" id="add-photos-btn">Add Photos</button>
+        <button class="btn secondary" id="add-damage-note-btn">Add Damage Note</button>
+        <button class="btn secondary" id="save-version-btn">Save Plan Version</button>
+      </div>
+      <div class="panel-body" style="padding-top:0">
+        <div class="field"><label>Instruction field</label><textarea id="instruction-input" placeholder="Describe assembly changes, added damage information, or repair strategy notes"></textarea></div>
+      </div>
+    </section>
+
+    <section class="plan card">
+      <div id="graph-container"></div>
+      <div class="plan-right">
+        <div class="section-title">Plan Versions and Steps</div>
+        <div id="step-list"></div>
+      </div>
+    </section>
+
+    <section class="console" id="console-output">Repair Workspace ready.</section>
+  </div>
+
+  <div class="modal" id="json-modal">
+    <div class="modal-inner">
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-bottom:12px">
+        <button class="btn secondary" id="copy-json-btn">Copy</button>
+        <button class="btn secondary" id="close-json-btn">Close</button>
+      </div>
+      <textarea class="json-text" id="json-textarea" readonly></textarea>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/d3@7.8.5/dist/d3.min.js"></script>
+  <script src="https://unpkg.com/@hpcc-js/wasm@2.12.2/dist/graphviz.umd.js"></script>
+  <script src="https://unpkg.com/d3-graphviz@5.1.0/build/d3-graphviz.js"></script>
+  <script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/"}}</script>
+  <script type="module" src="./repair-workspace.js"></script>
+</body>
+</html>

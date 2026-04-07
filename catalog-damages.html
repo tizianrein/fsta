@@ -252,7 +252,7 @@
             scene.background = new THREE.Color(0xffffff);
             scene.add(objectGroup);
 
-            camera = new THREE.PerspectiveCamera(50, viewerContainer.clientWidth / viewerContainer.clientHeight, 0.01, 1000);
+            camera = new THREE.PerspectiveCamera(15, viewerContainer.clientWidth / viewerContainer.clientHeight, 0.01, 1000);
             camera.position.set(-0.8, 1.0, -1.2);
 
             renderer = new THREE.WebGLRenderer({ canvas: viewerCanvas, antialias: true, alpha: true });
@@ -664,22 +664,25 @@
         }
 
         function viewGraph() {
-            console.log("viewGraph triggered");
-            if (!currentModelJson) { 
-                updateMIA("Load an assembly to see its graph."); 
+            if (!currentModelJson || !currentModelJson.parts) { 
+                updateHANS("Generate or load an assembly to see its graph."); 
                 return; 
             }
+            
+            // UPDATED ATTRIBUTES BELOW:
+            let dot = `graph Assembly {
+        graph [
+            rankdir="LR", 
+            splines=true, 
+            ranksep=1.2, 
+            nodesep=0.3, 
+            overlap=false,
+            ratio="compress"
+        ];
+        node [shape=box, style="filled", fillcolor="#f0f0f0", fontname="Helvetica,Arial,sans-serif", margin="0.1,0.05"];
+        edge [arrowhead=none];
 
-            let dot = `
-            graph G {
-            layout="sfdp";
-            overlap="prism";
-            sep="+10";
-            splines=curved;
-            concentrate=true;
-            node [shape=box, style="filled", fillcolor="#f0f0f0", fontname="Helvetica,Arial,sans-serif", fontsize=10];
-            edge [arrowhead=none, color="#000000"];
-            `;
+        `;
 
             const addedEdges = new Set();
             const damagedPartIds = currentDamageJson
@@ -889,7 +892,7 @@
                 
                 try {
                     const payload = { prompt: promptText, modelJson: currentModelJson, damageJson: currentDamageJson || [], files: uploadedFiles, geminiModel: geminiModel, temperature: temperature };
-                    const response = await fetch('/api/catalog-damages', {
+                    const response = await fetch('/api/old/catalog-damages', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload),

@@ -264,7 +264,7 @@
                 const piecesInMeters = validPieces.flatMap(p => Array(p.amount || 1).fill({ width: p.w / 100, depth: p.d / 100, height: p.h / 100 }));
                 const payload = { prompt, scrapwood: piecesInMeters, freakyness: parseFloat(document.getElementById('freakyness-slider').value) };
                 
-                const response = await fetch('/api/generate-from-scrapwood', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                const response = await fetch('/api/old/generate-from-scrapwood', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
                 if (!response.ok) {
                     const contentType = response.headers.get("content-type");
                     let errorMessage = await (contentType?.includes("application/json") ? response.json().then(e => e.message) : response.text());
