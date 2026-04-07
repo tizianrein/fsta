@@ -34,6 +34,7 @@ let activeAnimations = [];
 const ANIMATION_DURATION = 800;
 let draggingRadar = false;
 let pointerDownHit = null;
+let pointerDownPos = null;
 
 const materials = {
   intact: new THREE.MeshBasicMaterial({ color: 0xd0d0d0, transparent: true, opacity: 0.75, depthWrite: false, side: THREE.FrontSide }),
@@ -398,24 +399,58 @@ function setMouseFromEvent(event) {
 function hitTest(event) {
   setMouseFromEvent(event);
   raycaster.setFromCamera(mouse, camera);
-  const hits = raycaster.intersectObjects([...objectGroup.children, ...damageSpheres], true);
-  if (!hits.length) return null;
-  let item = hits[0].object;
-  while (item && !item.userData.part && !item.userData.damage && item.parent && item.parent !== scene) item = item.parent;
-  return item?.userData?.part ? { type:'part', data:item.userData.part } : item?.userData?.damage ? { type:'damage', data:item.userData.damage } : null;
+  const rawHits = raycaster.intersectObjects([...damageSpheres, ...objectGroup.children], true);
+  if (!rawHits.length) return null;
+  const hits = rawHits.filter(h => h.object.type !== 'LineSegments');
+  for (const h of hits) {
+    let item = h.object;
+    while (item && !item.userData.part && !item.userData.damage && item.parent && item.parent !== scene) item = item.parent;
+    if (item?.userData?.damage) return { type:'damage', data:item.userData.damage };
+    if (item?.userData?.part) return { type:'part', data:item.userData.part };
+  }
+  return null;
+}
+
+function selectedInfoText() {
+  if (state.ui.selectedDamageId) {
+    const d = (state.damages || []).find(x => x.id === state.ui.selectedDamageId);
+    if (!d) return '';
+    return `Damage: ${d.id}\nType: ${d.type || '-'}\nPart: ${d.part_id || '-'}\n${d.description || ''}`;
+  }
+  if (state.ui.selectedPartId) {
+    const p = (state.assembly.parts || []).find(x => x.id === state.ui.selectedPartId);
+    if (!p) return '';
+    const dims = p.dimensions || {};
+    const w = Math.round(((dims.width||dims.w||0)*1000))/10;
+    const h = Math.round(((dims.height||dims.h||0)*1000))/10;
+    const d = Math.round(((dims.depth||dims.d||0)*1000))/10;
+    return `Part: ${p.id}\nStatus: ${p.status || 'intact'}\nSize: ${w} x ${h} x ${d} cm`;
+  }
+  return '';
+}
+
+function refreshInfoBox(hoverHit=null) {
+  const info = el['info-box'];
+  const selected = selectedInfoText();
+  if (selected) { info.textContent = selected; return; }
+  if (hoverHit) {
+    info.textContent = hoverHit.type === 'part'
+      ? `Part: ${hoverHit.data.id}\nStatus: ${hoverHit.data.status || 'intact'}`
+      : `Damage: ${hoverHit.data.id}\nType: ${hoverHit.data.type || '-'}\nPart: ${hoverHit.data.part_id || '-'}`;
+    return;
+  }
+  info.textContent = '';
 }
 
 function onViewerPointerMove(event) {
-  const info = el['info-box'];
-  const hit = hitTest(event);
-  if (!hit) { info.style.display = 'none'; return; }
-  info.style.display = 'block';
-  info.textContent = hit.type === 'part' ? `${hit.data.id} status: ${hit.data.status || 'intact'}` : `${hit.data.id} ${hit.data.type} ${hit.data.part_id}`;
+  refreshInfoBox(hitTest(event));
 }
-function onViewerPointerDown(event) { pointerDownHit = hitTest(event); }
+function onViewerPointerDown(event) { pointerDownHit = hitTest(event); pointerDownPos = {x:event.clientX, y:event.clientY}; }
 function onViewerPointerUp(event) {
   const hit = hitTest(event);
-  if (!hit || !pointerDownHit || hit.data.id !== pointerDownHit.data.id || hit.type !== pointerDownHit.type) return;
+  const moved = !pointerDownPos ? 99 : Math.hypot(event.clientX - pointerDownPos.x, event.clientY - pointerDownPos.y);
+  pointerDownPos = null;
+  if (moved > 6 || !hit) return;
   if (hit.type === 'part') { state.ui.selectedPartId = hit.data.id; state.ui.selectedDamageId = null; openDetailForPart(hit.data.id); }
   else { state.ui.selectedDamageId = hit.data.id; state.ui.selectedPartId = hit.data.part_id; openDetailForDamage(hit.data.id); }
   apply3DSelection();
@@ -425,6 +460,7 @@ function apply3DSelection() {
   partMeshesMap.forEach((mesh, id) => mesh.material = id === state.ui.selectedPartId ? materials.selected : materialForPart(mesh.userData.part.status));
   damageSpheres.forEach(s => s.material = s.userData.damage.id === state.ui.selectedDamageId ? materials.selectedDamage : materials.damage);
   highlightCurrentStep();
+  refreshInfoBox();
 }
 
 function renderRadar() {
@@ -494,7 +530,7 @@ function renderActionGraph() {
     el['action-graph-canvas'].innerHTML = '<div style="padding:16px;color:#666">No plan loaded.</div>';
     return;
   }
-  const lines = ['digraph G {', 'rankdir=TB;', 'graph [pad="0.35", nodesep="0.35", ranksep="0.55", bgcolor="transparent"];', 'node [shape=circle, style="solid", color="#111111", fontname="Helvetica", fontsize=11, margin="0.08,0.05"];', 'edge [color="#111111", arrowsize=0.7, penwidth=1.2];'];
+  const lines = ['digraph G {', 'rankdir=TB;', 'graph [pad="0.45", nodesep="0.45", ranksep="0.7", bgcolor="transparent", splines=ortho];', 'node [shape=ellipse, style="solid", color="#111111", fontname="Helvetica", fontsize=14, margin="0.18,0.12"];', 'edge [color="#111111", arrowsize=0.8, penwidth=1.2];'];
   const incoming = new Map(steps.map(s => [s.step_id, 0]));
   steps.forEach(step => (step.prerequisites || []).forEach(pre => incoming.set(step.step_id, (incoming.get(step.step_id) || 0) + 1)));
   steps.forEach(step => {
@@ -503,7 +539,8 @@ function renderActionGraph() {
     const optional = !!step.optional || /optional|parallel/i.test(step.description || '');
     const style = `${optional ? 'dashed' : 'solid'}${active || done ? ',bold' : ''}`;
     const per = incoming.get(step.step_id) > 1 ? 2 : 1;
-    const lbl = escapeDot(multilineLabel(step.title || step.step_id, 14));
+    const displayTitle = (step.title && !/^\w+$/.test(step.title)) ? step.title : humanizeId(step.step_id);
+    const lbl = escapeDot(multilineLabel(displayTitle, 12));
     lines.push(`"${step.step_id}" [label="${lbl}", style="${style}", peripheries=${per}, penwidth=${active ? 2.2 : 1.2}];`);
   });
   steps.forEach(step => (step.prerequisites || []).forEach(pre => lines.push(`"${pre}" -> "${step.step_id}";`)));
@@ -553,13 +590,15 @@ function renderSpatialGraph() {
 
 function renderGraphviz(container, dot, onClick) {
   container.innerHTML = '';
-  return d3.select(container)
-    .graphviz({ useWorker: false, zoom: false, fit: false })
-    .renderDot(dot)
-    .on('end', () => {
+  const selection = d3.select(container).graphviz({ useWorker: false, zoom: false, fit: false });
+  selection.renderDot(dot);
+  return new Promise(resolve => {
+    selection.on('end', () => {
       normalizeGraphSvg(container);
       attachGraphNodeClicks(container, onClick);
+      resolve();
     });
+  });
 }
 
 function normalizeGraphSvg(container) {
@@ -578,11 +617,12 @@ function normalizeGraphSvg(container) {
 
 function attachGraphNodeClicks(container, onClick) {
   container.querySelectorAll('.node').forEach(node => {
+    const title = node.querySelector('title')?.textContent;
+    if (!title) return;
+    node.dataset.nodeId = title;
     node.style.cursor = 'pointer';
-    node.addEventListener('click', () => {
-      const title = node.querySelector('title')?.textContent;
-      if (title && onClick) onClick(title);
-    });
+    node.querySelectorAll('*').forEach(child => child.style.pointerEvents = 'none');
+    node.onclick = () => { if (onClick) onClick(title); };
   });
 }
 
@@ -640,12 +680,10 @@ function openDetailForStep(stepId) {
 function openDetailForPart(partId) {
   const part = (state.assembly.parts || []).find(p => p.id === partId); if (!part) return;
   state.ui.selectedPartId = partId; state.ui.selectedDamageId = null; apply3DSelection();
-  renderDetailModal(part.id, [ ['Status', part.status || 'intact'], ['Material', part.material || '-'], ['Connections', (part.connections || []).join(', ') || '-'], ['Origin', JSON.stringify(part.origin || {})], ['Dimensions', JSON.stringify(part.dimensions || {})], ['Rotation', part.rotation ? JSON.stringify(part.rotation) : '-'] ]);
 }
 function openDetailForDamage(damageId) {
   const dmg = (state.damages || []).find(d => d.id === damageId); if (!dmg) return;
   state.ui.selectedDamageId = damageId; state.ui.selectedPartId = dmg.part_id || null; apply3DSelection();
-  renderDetailModal(dmg.id, [ ['Type', dmg.type || '-'], ['Description', dmg.description || '-'], ['Part', dmg.part_id || '-'], ['Coordinates', JSON.stringify(dmg.coordinates || {})] ]);
 }
 function renderDetailModal(title, entries) {
   el['detail-title'].textContent = title;
@@ -674,3 +712,5 @@ init3D();
 syncUiFromState();
 renderSpatialGraph();
 animate();
+
+function humanizeId(id) { return String(id || '').replace(/_/g, ' ').replace(/([a-z])([A-Z])/g, '$1 $2').replace(/\w/g, c => c.toUpperCase()); }
