@@ -66,7 +66,7 @@ function initDom() {
     'axis-list','radar-canvas','intent-summary','tools-available','materials-available','time-budget','budget-limit','skill-level',
     'safety-level','allowed-ops','avoid-ops','additional-constraints','instruction-input','console-output','graph-container',
     'step-list','json-modal','json-textarea','assembly-file','damages-file','plan-file','photos-file',
-    'intent-modal','constraints-modal','intent-summary-preview','intent-axes-preview','constraints-preview','plan-section'
+    'intent-modal','constraints-modal','intent-summary-preview','intent-axes-preview','constraints-preview','plan-section','action-map-container','spatial-graph-modal','spatial-graph-container','example-path-input'
   ].forEach(id => el[id] = qs(id));
 
   qs('upload-assembly-btn').onclick = () => el['assembly-file'].click();
@@ -79,8 +79,11 @@ function initDom() {
   qs('close-intent-btn').onclick = () => { el['intent-modal'].style.display = 'none'; renderPreviewCards(); };
   qs('open-constraints-btn').onclick = () => el['constraints-modal'].style.display = 'flex';
   qs('close-constraints-btn').onclick = () => { el['constraints-modal'].style.display = 'none'; renderPreviewCards(); };
-  qs('view-plan-btn').onclick = () => el['plan-section'].scrollIntoView({ behavior: 'smooth', block: 'start' });
+  qs('view-spatial-graph-btn').onclick = openSpatialGraphModal;
   qs('copy-json-btn').onclick = async () => navigator.clipboard.writeText(el['json-textarea'].value);
+  qs('save-json-btn').onclick = saveJsonModal;
+  qs('load-example-btn').onclick = loadExamplePath;
+  qs('close-spatial-graph-btn').onclick = () => el['spatial-graph-modal'].style.display = 'none';
   qs('download-state-btn').onclick = downloadWorkspace;
   qs('download-state-btn').title = 'Download assembly, damages, intent, constraints, plan, and versions as one JSON file';
   qs('explode-btn').onclick = explodeView;
@@ -153,6 +156,7 @@ function init3D() {
   raycaster = new THREE.Raycaster();
   mouse = new THREE.Vector2();
   renderer.domElement.addEventListener('pointermove', onViewerPointerMove);
+  renderer.domElement.addEventListener('click', onViewerClick);
 }
 
 function onResize() {
@@ -205,6 +209,50 @@ function currentWorkspaceJson() {
 function openJsonModal() {
   el['json-textarea'].value = JSON.stringify(currentWorkspaceJson(), null, 2);
   el['json-modal'].style.display = 'flex';
+}
+
+function saveJsonModal() {
+  try {
+    const parsed = JSON.parse(el['json-textarea'].value);
+    if (parsed.objectName !== undefined) state.objectName = parsed.objectName || '';
+    if (parsed.assembly) state.assembly = parsed.assembly;
+    if (parsed.damages) state.damages = parsed.damages;
+    if (parsed.intent) state.intent = parsed.intent;
+    if (parsed.constraints) state.constraints = parsed.constraints;
+    if (parsed.plan) state.plan = parsed.plan;
+    if (parsed.planVersions) state.planVersions = parsed.planVersions;
+    if (parsed.currentPlanVersionId) state.currentPlanVersionId = parsed.currentPlanVersionId;
+    if (parsed.currentStepId) state.currentStepId = parsed.currentStepId;
+    el['object-name'].value = state.objectName || state.assembly?.objectName || '';
+    syncIntentUi();
+    renderPreviewCards();
+    createModel();
+    frameObject();
+    renderPlan();
+    el['json-modal'].style.display = 'none';
+    log('Workspace JSON saved.');
+  } catch (err) {
+    log(`JSON save failed: ${err.message}`);
+  }
+}
+
+async function loadExamplePath() {
+  const path = el['example-path-input'].value.trim();
+  if (!path) return log('Enter an example path first.');
+  try {
+    const res = await fetch(path);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const parsed = await res.json();
+    el['json-textarea'].value = JSON.stringify(parsed, null, 2);
+    log(`Example loaded from ${path}. Click Save to apply it.`);
+  } catch (err) {
+    log(`Example load failed: ${err.message}`);
+  }
+}
+
+function openSpatialGraphModal() {
+  renderSpatialGraph();
+  el['spatial-graph-modal'].style.display = 'flex';
 }
 
 
@@ -340,25 +388,54 @@ function restoreView() {
   });
 }
 
-function onViewerPointerMove(event) {
+function pickSceneItem(event) {
   const rect = renderer.domElement.getBoundingClientRect();
   mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
   mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
   raycaster.setFromCamera(mouse, camera);
-  const hits = raycaster.intersectObjects([...objectGroup.children, ...damageSpheres], true);
+  const candidates = [...damageSpheres, ...objectGroup.children];
+  const hits = raycaster.intersectObjects(candidates, true);
+  for (const hit of hits) {
+    let item = hit.object;
+    while (item && !item.userData.part && !item.userData.damage && item.parent && item.parent !== scene) item = item.parent;
+    if (item?.userData?.damage) return { type: 'damage', object: item.userData.damage };
+    if (item?.userData?.part) return { type: 'part', object: item.userData.part };
+  }
+  return null;
+}
+
+function onViewerPointerMove(event) {
+  const picked = pickSceneItem(event);
   const info = el['info-box'];
-  if (!hits.length) { info.style.display = 'none'; return; }
-  let item = hits[0].object;
-  while (item && !item.userData.part && !item.userData.damage && item.parent && item.parent !== scene) item = item.parent;
-  if (item.userData.part) {
-    const p = item.userData.part;
-    info.textContent = `${p.id}\nstatus: ${p.status || 'intact'}`;
-    info.style.display = 'block';
-  } else if (item.userData.damage) {
-    const d = item.userData.damage;
-    info.textContent = `${d.id}\n${d.type}\n${d.part_id}`;
-    info.style.display = 'block';
-  } else info.style.display = 'none';
+  if (!picked) { info.style.display = 'none'; return; }
+  if (picked.type === 'part') {
+    const p = picked.object;
+    info.textContent = `${p.id} status: ${p.status || 'intact'}`;
+  } else {
+    const d = picked.object;
+    info.textContent = `${d.id} ${d.type} ${d.part_id}`;
+  }
+  info.style.display = 'block';
+}
+
+function onViewerClick(event) {
+  const picked = pickSceneItem(event);
+  partMeshesMap.forEach(mesh => mesh.material = materialForPart(mesh.userData.part.status));
+  damageSpheres.forEach(s => s.material = materials.damage);
+  if (!picked) { updateStepOverlay(); return; }
+  if (picked.type === 'part') {
+    const mesh = partMeshesMap.get(picked.object.id);
+    if (mesh) mesh.material = materials.selected;
+    const related = (state.damages || []).filter(d => d.part_id === picked.object.id);
+    related.forEach(d => { const sphere = damageSpheres.find(s => s.userData.damage?.id === d.id); if (sphere) sphere.material = materials.selected; });
+    log(`Selected part: ${picked.object.id}`);
+  } else {
+    const sphere = damageSpheres.find(s => s.userData.damage?.id === picked.object.id);
+    if (sphere) sphere.material = materials.selected;
+    const mesh = partMeshesMap.get(picked.object.part_id);
+    if (mesh) mesh.material = materials.selected;
+    log(`Selected damage: ${picked.object.id}`);
+  }
 }
 
 function renderRadar() {
@@ -703,19 +780,59 @@ function renderPlan() {
 function renderPlanGraph() {
   const steps = state.plan?.steps || [];
   if (!steps.length) {
-    el['graph-container'].innerHTML = '<div style="padding:16px;color:#666">No plan loaded.</div>';
+    el['action-map-container'].innerHTML = '<div style="padding:16px;color:#666">No plan loaded.</div>';
     return;
   }
-  const lines = ['digraph G {', 'rankdir=TB;', 'graph [pad="0.25", nodesep="0.35", ranksep="0.45"];', 'node [shape=box, style="rounded,filled", fillcolor="#ffffff", color="#111111", fontname="Helvetica", fontsize=11];', 'edge [color="#555555"];'];
+  const stepMap = new Map(steps.map(s => [s.step_id, s]));
+  const memo = new Map();
+  const levelOf = (step) => {
+    if (memo.has(step.step_id)) return memo.get(step.step_id);
+    const pres = (step.prerequisites || []).map(id => stepMap.get(id)).filter(Boolean);
+    const level = pres.length ? Math.max(...pres.map(levelOf)) + 1 : 0;
+    memo.set(step.step_id, level);
+    return level;
+  };
+  const lanes = new Map();
   steps.forEach(step => {
-    const active = step.step_id === state.currentStepId;
-    const fill = active ? '#eeeeee' : '#ffffff';
-    const title = `${step.title || step.step_id}`.replace(/"/g, '\\"');
-    lines.push(`"${step.step_id}" [label="${title}", fillcolor="${fill}"];`);
+    const lvl = levelOf(step);
+    if (!lanes.has(lvl)) lanes.set(lvl, []);
+    lanes.get(lvl).push(step);
   });
-  steps.forEach(step => (step.prerequisites || []).forEach(pre => lines.push(`"${pre}" -> "${step.step_id}";`)));
+  const ordered = [...lanes.entries()].sort((a,b)=>a[0]-b[0]);
+  let html = '<div class="action-map-grid">';
+  ordered.forEach(([lvl, lane]) => {
+    html += `<div class="action-lane"><div class="action-lane-title">Stage ${lvl + 1} · parallel options</div><div class="action-lane-body">`;
+    lane.forEach(step => {
+      html += `<div class="action-node ${step.step_id === state.currentStepId ? 'active' : ''}" data-step-id="${escapeHtml(step.step_id)}"><strong>${escapeHtml(step.title || step.step_id)}</strong><small>Needs: ${escapeHtml((step.prerequisites || []).join(', ') || 'start')}</small><small>Parts: ${escapeHtml((step.affected_parts || []).join(', ') || '-')}</small></div>`;
+    });
+    html += '</div></div>';
+  });
+  html += '</div>';
+  el['action-map-container'].innerHTML = html;
+  el['action-map-container'].querySelectorAll('.action-node').forEach(node => node.onclick = () => { state.currentStepId = node.dataset.stepId; updateStepOverlay(); highlightCurrentStep(); renderPlan(); });
+}
+
+function renderSpatialGraph() {
+  const parts = state.assembly?.parts || [];
+  if (!parts.length) {
+    el['spatial-graph-container'].innerHTML = '<div style="padding:16px;color:#666">No assembly loaded.</div>';
+    return;
+  }
+  const lines = ['digraph G {','rankdir=LR;','graph [pad="0.2", nodesep="0.25", ranksep="0.45"];','node [shape=box, style="rounded,filled", fillcolor="#ffffff", color="#111111", fontname="Helvetica", fontsize=11];','edge [color="#666666"];'];
+  parts.forEach(part => {
+    const label = `${part.id}\n${part.status || 'intact'}`.replace(/"/g,'\\"');
+    lines.push(`"${part.id}" [label="${label}"];`);
+  });
+  const seen = new Set();
+  parts.forEach(part => (part.connections || []).forEach(other => {
+    const key = [part.id, other].sort().join('::');
+    if (seen.has(key)) return;
+    seen.add(key);
+    lines.push(`"${part.id}" -> "${other}" [dir=none];`);
+  }));
   lines.push('}');
-  d3.select(el['graph-container']).graphviz().renderDot(lines.join('\n'));
+  el['spatial-graph-container'].innerHTML = '';
+  d3.select(el['spatial-graph-container']).graphviz().fit(true).renderDot(lines.join('\n'));
 }
 
 function renderStepList() {
@@ -731,8 +848,9 @@ function renderStepList() {
   (state.plan?.steps || []).forEach((step, idx) => {
     const card = document.createElement('div');
     card.className = `step-card ${step.step_id === state.currentStepId ? 'active' : ''} ${step.completed ? 'done' : ''}`;
-    card.innerHTML = `<strong>${idx + 1}. ${escapeHtml(step.title || step.step_id)}</strong>
+    card.innerHTML = `<strong>${escapeHtml(step.title || step.step_id)}</strong>
       <div class="step-meta">${escapeHtml((step.tools_required || []).join(', ') || 'No tools listed')}</div>
+      <div class="step-meta">Prerequisites: ${escapeHtml((step.prerequisites || []).join(', ') || 'start / parallel')}</div>
       <div class="step-meta">Parts: ${escapeHtml((step.affected_parts || []).join(', ') || '-')}</div>`;
     card.onclick = () => { state.currentStepId = step.step_id; updateStepOverlay(); highlightCurrentStep(); renderStepList(); };
     wrap.appendChild(card);

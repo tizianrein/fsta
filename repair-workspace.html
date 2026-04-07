@@ -291,6 +291,14 @@
       font-size: 12px;
       white-space: pre;
     }
+    #action-map-container { border-bottom: 1px solid #000; padding: 10px; min-height: 170px; overflow-x: auto; }
+    .action-map-grid { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(160px, 1fr); gap: 10px; align-items: start; }
+    .action-lane { border: 1px solid #000; min-height: 120px; }
+    .action-lane-title { padding: 8px 10px; border-bottom: 1px solid #000; font-size: 11px; font-weight: 700; text-transform: uppercase; background: #fafafa; }
+    .action-lane-body { padding: 8px; display: grid; gap: 8px; }
+    .action-node { border: 1px solid #000; padding: 8px; font-size: 12px; background: #fff; }
+    .action-node.active { background: #efefef; }
+    .action-node small { color: #666; display: block; margin-top: 4px; }
   </style>
 </head>
 <body>
@@ -319,7 +327,7 @@
         <div id="upload-plan-btn" class="icon-button" title="Upload Plan"><span class="emoji">🗺️</span><div class="label">Plan</div></div>
         <div id="explode-btn" class="icon-button" title="Explode View"><span class="emoji">💥</span><div class="label">Explode</div></div>
         <div id="restore-btn" class="icon-button" title="Restore View"><span class="emoji">↩️</span><div class="label">Restore</div></div>
-        <div id="view-plan-btn" class="icon-button" title="View Plan"><span class="emoji">🔗</span><div class="label">Graph</div></div>
+        <div id="view-spatial-graph-btn" class="icon-button" title="View Spatial Graph"><span class="emoji">🔗</span><div class="label">Graph</div></div>
         <div id="download-state-btn" class="icon-button" title="Download Workspace"><span class="emoji">⬇️</span><div class="label">Save</div></div>
       </div>
       <input type="file" id="assembly-file" accept=".json" hidden />
@@ -363,7 +371,7 @@
 
     <section class="plan-card card" id="plan-section">
       <div class="section-title">Repair Plan and Steps</div>
-      <div id="graph-container"></div>
+      <div id="action-map-container"></div>
       <div id="step-list"></div>
       <div style="padding:10px;border-top:1px solid #000;display:grid;grid-template-columns:1fr;gap:8px;">
         <button class="btn secondary" id="save-version-btn">💾 Save Plan Version</button>
@@ -413,9 +421,23 @@
     <div class="modal-inner">
       <div class="modal-actions" style="margin-top:0;margin-bottom:12px;">
         <button class="btn secondary" id="copy-json-btn">Copy</button>
+        <button class="btn secondary" id="save-json-btn">Save</button>
         <button class="btn" id="close-json-btn">Close</button>
       </div>
-      <textarea class="json-text" id="json-textarea" readonly></textarea>
+      <div class="field"><label>Load example by path</label><input id="example-path-input" type="text" placeholder="examples/santo_04/workspace.json" /></div>
+      <div class="modal-actions" style="margin-top:0;margin-bottom:12px;justify-content:flex-start;">
+        <button class="btn secondary" id="load-example-btn">Load Example</button>
+      </div>
+      <textarea class="json-text" id="json-textarea"></textarea>
+    </div>
+  </div>
+
+  <div class="modal" id="spatial-graph-modal">
+    <div class="modal-inner">
+      <div class="modal-actions" style="margin-top:0;margin-bottom:12px;">
+        <button class="btn" id="close-spatial-graph-btn">Close</button>
+      </div>
+      <div id="spatial-graph-container" style="min-height:55vh"></div>
     </div>
   </div>
 
