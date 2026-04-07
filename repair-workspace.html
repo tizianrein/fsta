@@ -6,310 +6,78 @@
   <title>Repair Workspace</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛠️</text></svg>">
   <style>
-    :root {
-      --bg: #ffffff;
-      --fg: #000000;
-      --line: #000000;
-      --soft: #f3f3f3;
-      --muted: #6b6b6b;
-      --red: #d62828;
-      --blue: #0d6efd;
-      --green: #198754;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--fg);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      padding: 20px 0;
-    }
-    #app-wrapper {
-      width: 90%;
-      max-width: 520px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-    .card {
-      border: 1px solid var(--line);
-      background: #fff;
-    }
-    .top-input-row {
-      display: flex;
-      align-items: stretch;
-      gap: 10px;
-    }
-    #object-name {
-      flex-grow: 1;
-      background: #fff;
-      padding: 12px;
-      border: 1px solid var(--line);
-      font-size: 14px;
-    }
-    .btn {
-      border: none;
-      background: #000;
-      color: #fff;
-      padding: 12px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      min-height: 44px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 8px;
-    }
-    .btn.secondary { background: #fff; color: #000; border: 1px solid #000; }
-    .btn.blue { background: var(--blue); }
-    .btn.green { background: var(--green); }
-    .btn.red { background: var(--red); }
-    .viewer-card { overflow: hidden; }
-    #viewer-container {
-      width: 100%;
-      height: 40vh;
-      min-height: 310px;
-      position: relative;
-      background: #fff;
-    }
-    #viewer-canvas { display: block; width: 100%; height: 100%; }
-    #info-box {
-      position: absolute;
-      top: 10px;
-      left: 0;
-      padding: 0;
-      background: transparent;
-      border: none;
-      font-family: monospace;
-      font-size: 12px;
-      line-height: 1.4;
-      z-index: 101;
-      display: none;
-      pointer-events: none;
-      max-width: 250px;
-    }
-    #step-overlay {
-      display: none;
-      position: absolute;
-      bottom: 10px;
-      left: 10px;
-      right: 10px;
-      background: rgba(214, 40, 40, 0.92);
-      color: #fff;
-      padding: 14px;
-      border: 1px solid var(--red);
-      z-index: 100;
-    }
-    #step-overlay-title { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
-    #step-overlay-body { font-size: 13px; line-height: 1.45; margin-bottom: 6px; }
-    #step-overlay-meta { font-size: 11px; opacity: 0.82; }
-    .icon-controls {
-      display: flex;
-      justify-content: space-around;
-      text-align: center;
-      padding: 10px 0;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-    .icon-button {
-      cursor: pointer;
-      color: #000;
-      min-width: 58px;
-      flex: 1 1 58px;
-      max-width: 70px;
-    }
-    .icon-button svg { width: 18px; height: 18px; }
-    .icon-button .emoji { font-size: 18px; line-height: 1; display: block; }
-    .icon-button .label { font-size: 11px; margin-top: 6px; }
-    .action-buttons {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-    .popup-buttons {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-    .summary-strip {
-      display: grid;
-      gap: 10px;
-    }
-    .summary-box {
-      border: 1px solid #000;
-      background: #fff;
-      padding: 12px;
-    }
-    .summary-box .title {
-      font-size: 12px;
-      font-weight: 700;
-      text-transform: uppercase;
-      margin-bottom: 6px;
-    }
-    .summary-box .body {
-      font-size: 13px;
-      line-height: 1.45;
-      color: #000;
-    }
-    .summary-box .meta {
-      font-size: 11px;
-      color: var(--muted);
-      margin-top: 6px;
-      line-height: 1.45;
-      white-space: pre-wrap;
-    }
-    .instructions-group {
-      background: #fff;
-      padding: 15px;
-      border: 1px solid #000;
-    }
-    .instructions-group label {
-      display: block;
-      font-size: 12px;
-      font-weight: 600;
-      margin-bottom: 8px;
-      color: #000;
-    }
-    .instructions-group textarea,
-    .modal textarea,
-    .modal input,
-    .modal select {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #000;
-      background: #fff;
-      color: #000;
-      font-size: 14px;
-      box-sizing: border-box;
-    }
-    .instructions-group textarea { min-height: 80px; resize: vertical; }
-    .plan-card { overflow: hidden; }
-    .section-title {
-      padding: 10px 12px;
-      border-bottom: 1px solid #000;
-      font-size: 12px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: .04em;
-    }
-    #graph-container { min-height: 260px; border-bottom: 1px solid #000; }
-    #graph-container svg { width: 100%; height: 100%; }
-    #step-list {
-      padding: 10px;
-      display: grid;
-      gap: 8px;
-      max-height: 340px;
-      overflow: auto;
-    }
-    .step-card {
-      border: 1px solid #000;
-      padding: 10px;
-      background: #fff;
-      cursor: pointer;
-    }
-    .step-card.active { background: #f0f0f0; }
-    .step-card.done { border-color: var(--green); }
-    .step-meta { font-size: 12px; color: var(--muted); margin-top: 6px; }
-    .console {
-      background: #000;
-      color: #fff;
-      padding: 14px;
-      font-family: "SF Mono", Consolas, Menlo, monospace;
-      font-size: 13px;
-      line-height: 1.5;
-      min-height: 68px;
-      white-space: pre-wrap;
-      border: 1px solid #000;
-    }
-    .modal {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,.7);
-      z-index: 1000;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-    }
-    .modal-inner {
-      background: #fff;
-      border: 1px solid #000;
-      width: 100%;
-      max-width: 420px;
-      max-height: 86vh;
-      overflow: auto;
-      padding: 18px;
-    }
-    .modal-inner h3 {
-      margin: 0 0 16px 0;
-      text-align: center;
-      font-size: 18px;
-    }
-    .modal-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-      margin-top: 16px;
-      flex-wrap: wrap;
-    }
-    .axis-list {
-      display: grid;
-      gap: 10px;
-      margin-top: 14px;
-    }
-    .axis-row {
-      display: grid;
-      grid-template-columns: 1fr 64px 30px;
-      gap: 8px;
-      align-items: center;
-    }
-    .axis-row input[type="range"] { width: 100%; }
-    .axis-value { font-size: 12px; color: var(--muted); text-align: right; }
-    .mini-btn {
-      width: 30px;
-      height: 30px;
-      border: 1px solid #000;
-      background: #fff;
-      cursor: pointer;
-    }
-    #radar-canvas {
-      width: 100%;
-      aspect-ratio: 1;
-      border: 1px solid #000;
-      background: #fff;
-      touch-action: none;
-    }
-    .field { display: grid; gap: 6px; margin-bottom: 12px; }
-    .field label { font-size: 12px; font-weight: 700; text-transform: uppercase; }
-    .json-text {
-      width: 100%;
-      min-height: 50vh;
-      font-family: monospace;
-      font-size: 12px;
-      white-space: pre;
-    }
-    #action-map-container { border-bottom: 1px solid #000; padding: 10px; min-height: 170px; overflow-x: auto; }
-    .action-map-grid { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(160px, 1fr); gap: 10px; align-items: start; }
-    .action-lane { border: 1px solid #000; min-height: 120px; }
-    .action-lane-title { padding: 8px 10px; border-bottom: 1px solid #000; font-size: 11px; font-weight: 700; text-transform: uppercase; background: #fafafa; }
-    .action-lane-body { padding: 8px; display: grid; gap: 8px; }
-    .action-node { border: 1px solid #000; padding: 8px; font-size: 12px; background: #fff; }
-    .action-node.active { background: #efefef; }
-    .action-node small { color: #666; display: block; margin-top: 4px; }
+    :root { --bg:#fff; --fg:#000; --line:#000; --muted:#666; --soft:#f5f5f5; --red:#d62828; --blue:#0d6efd; --green:#198754; }
+    * { box-sizing:border-box; }
+    body { margin:0; padding:20px 0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; display:flex; justify-content:center; }
+    #app { width:90%; max-width:520px; display:flex; flex-direction:column; gap:14px; }
+    .row { display:flex; gap:10px; }
+    .card { border:1px solid var(--line); background:#fff; }
+    .btn { min-height:44px; border:none; background:#000; color:#fff; font-size:14px; font-weight:600; padding:12px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; }
+    .btn.secondary { background:#fff; color:#000; border:1px solid #000; }
+    .btn.small { min-height:38px; padding:8px 12px; font-size:13px; }
+    #object-name { flex:1; padding:12px; border:1px solid #000; font-size:14px; }
+    #viewer { position:relative; width:100%; min-height:310px; height:40vh; }
+    #viewer-canvas { width:100%; height:100%; display:block; }
+    #info-box { position:absolute; top:10px; left:0; font:12px/1.4 monospace; max-width:250px; display:none; pointer-events:none; z-index:10; }
+    #step-overlay { position:absolute; left:10px; right:10px; bottom:10px; display:none; background:rgba(214,40,40,.92); color:#fff; border:1px solid var(--red); padding:12px; z-index:9; }
+    #step-overlay-title { font-size:15px; font-weight:700; margin-bottom:5px; }
+    #step-overlay-body { font-size:13px; line-height:1.45; }
+    #step-overlay-meta { margin-top:5px; font-size:11px; opacity:.85; }
+    .icon-controls { display:flex; justify-content:space-around; text-align:center; padding:10px 6px; gap:8px; flex-wrap:wrap; }
+    .icon-button { cursor:pointer; min-width:58px; flex:1 1 58px; max-width:72px; }
+    .icon-button .emoji { display:block; font-size:18px; line-height:1; }
+    .icon-button .label { font-size:11px; margin-top:6px; }
+    .popup-buttons, .main-actions { display:grid; gap:10px; }
+    .popup-buttons { grid-template-columns:1fr 1fr; }
+    .main-actions { grid-template-columns:1fr 1fr; }
+    .instructions { padding:14px; }
+    .instructions label { display:block; margin-bottom:8px; font-size:12px; font-weight:700; text-transform:uppercase; }
+    textarea, input, select { width:100%; padding:10px; border:1px solid #000; background:#fff; color:#000; font-size:14px; }
+    textarea { resize:vertical; min-height:88px; }
+    .section-title { padding:10px 12px; border-bottom:1px solid #000; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; }
+    .graph-panel { display:grid; gap:0; }
+    .graph-viewport { overflow:auto; min-height:260px; max-height:340px; background:#fff; border-bottom:1px solid #000; }
+    .graph-canvas { display:inline-block; min-width:100%; min-height:100%; padding:14px; }
+    .graph-canvas svg { display:block; width:auto; height:auto; max-width:none; }
+    .graph-controls { display:flex; justify-content:flex-end; gap:8px; padding:10px; }
+    #step-list { padding:10px; display:grid; gap:8px; max-height:320px; overflow:auto; }
+    .step-card { border:1px solid #000; padding:10px; cursor:pointer; background:#fff; }
+    .step-card.active { background:#efefef; }
+    .step-card.done { border-color:var(--green); }
+    .step-title { font-weight:700; }
+    .step-meta { margin-top:6px; font-size:12px; color:var(--muted); }
+    .console { border:1px solid #000; background:#000; color:#fff; padding:14px; min-height:62px; white-space:pre-wrap; font:13px/1.5 "SF Mono",Consolas,Menlo,monospace; }
+
+    .modal { position:fixed; inset:0; display:none; align-items:center; justify-content:center; padding:18px; background:rgba(0,0,0,.7); z-index:1000; }
+    .modal-inner { width:100%; max-width:460px; max-height:88vh; overflow:auto; background:#fff; border:1px solid #000; padding:18px; }
+    .modal-inner.wide { max-width:980px; }
+    .modal-header { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:12px; }
+    .modal-title { font-size:18px; font-weight:700; }
+    .modal-actions { display:flex; justify-content:flex-end; gap:10px; flex-wrap:wrap; margin-top:14px; }
+    .axis-list { display:grid; gap:10px; margin-top:14px; }
+    .axis-row { display:grid; grid-template-columns:1fr 64px 30px; gap:8px; align-items:center; }
+    .axis-value { font-size:12px; color:var(--muted); text-align:right; }
+    .mini-btn { width:30px; height:30px; border:1px solid #000; background:#fff; cursor:pointer; }
+    #radar-canvas { width:100%; aspect-ratio:1; border:1px solid #000; touch-action:none; }
+    .field { display:grid; gap:6px; margin-bottom:12px; }
+    .field label { font-size:12px; font-weight:700; text-transform:uppercase; }
+    .json-text { min-height:46vh; font-family:monospace; font-size:12px; white-space:pre; }
+    .help { font-size:12px; color:var(--muted); }
+    .detail-grid { display:grid; gap:12px; }
+    .detail-box { border:1px solid #000; padding:10px; }
+    .detail-box .label { font-size:11px; font-weight:700; text-transform:uppercase; margin-bottom:4px; }
+    .detail-box .value { white-space:pre-wrap; line-height:1.45; }
   </style>
 </head>
 <body>
-  <div id="app-wrapper">
-    <div class="top-input-row">
+  <div id="app">
+    <div class="row">
       <input id="object-name" type="text" placeholder="Enter object name..." />
-      <button id="open-json-btn" class="btn secondary" title="Read & Copy JSON">📄</button>
+      <button id="open-json-btn" class="btn secondary" title="Edit workspace JSON">📄</button>
     </div>
 
-    <div class="viewer-card card">
-      <div id="viewer-container">
+    <div class="card">
+      <div id="viewer">
         <canvas id="viewer-canvas"></canvas>
         <div id="info-box"></div>
         <div id="step-overlay">
@@ -322,18 +90,18 @@
 
     <div class="card">
       <div class="icon-controls">
-        <div id="upload-assembly-btn" class="icon-button" title="Upload Assembly"><span class="emoji">📦</span><div class="label">Assembly</div></div>
-        <div id="upload-damages-btn" class="icon-button" title="Upload Damages"><span class="emoji">📍</span><div class="label">Damages</div></div>
-        <div id="upload-plan-btn" class="icon-button" title="Upload Plan"><span class="emoji">🗺️</span><div class="label">Plan</div></div>
-        <div id="explode-btn" class="icon-button" title="Explode View"><span class="emoji">💥</span><div class="label">Explode</div></div>
-        <div id="restore-btn" class="icon-button" title="Restore View"><span class="emoji">↩️</span><div class="label">Restore</div></div>
-        <div id="view-spatial-graph-btn" class="icon-button" title="View Spatial Graph"><span class="emoji">🔗</span><div class="label">Graph</div></div>
-        <div id="download-state-btn" class="icon-button" title="Download Workspace"><span class="emoji">⬇️</span><div class="label">Save</div></div>
+        <div id="upload-assembly-btn" class="icon-button"><span class="emoji">📦</span><div class="label">Assembly</div></div>
+        <div id="upload-damages-btn" class="icon-button"><span class="emoji">📍</span><div class="label">Damages</div></div>
+        <div id="upload-plan-btn" class="icon-button"><span class="emoji">🗺️</span><div class="label">Plan</div></div>
+        <div id="explode-btn" class="icon-button"><span class="emoji">💥</span><div class="label">Explode</div></div>
+        <div id="restore-btn" class="icon-button"><span class="emoji">↩️</span><div class="label">Restore</div></div>
+        <div id="open-spatial-graph-btn" class="icon-button"><span class="emoji">🔗</span><div class="label">Graph</div></div>
+        <div id="download-state-btn" class="icon-button"><span class="emoji">⬇️</span><div class="label">Save</div></div>
       </div>
-      <input type="file" id="assembly-file" accept=".json" hidden />
-      <input type="file" id="damages-file" accept=".json" hidden />
-      <input type="file" id="plan-file" accept=".json" hidden />
-      <input type="file" id="photos-file" accept="image/*,application/pdf" multiple hidden />
+      <input type="file" id="assembly-file" accept=".json" hidden>
+      <input type="file" id="damages-file" accept=".json" hidden>
+      <input type="file" id="plan-file" accept=".json" hidden>
+      <input type="file" id="photos-file" accept="image/*,application/pdf" multiple hidden>
     </div>
 
     <div class="popup-buttons">
@@ -341,41 +109,36 @@
       <button class="btn secondary" id="open-constraints-btn">⛓️ Constraints</button>
     </div>
 
-    <section class="card">
+    <section class="card graph-panel">
       <div class="section-title">Current Action Graph</div>
-      <div style="padding:10px;border-bottom:1px solid #000;display:flex;justify-content:space-between;align-items:center;gap:10px;">
-        <div style="font-size:12px;color:#666;line-height:1.4;">Parallel actions can sit on the same dependency stage. Tap a node for full details.</div>
-        <div style="display:flex;gap:6px;flex-shrink:0;">
-          <button class="btn secondary" id="graph-zoom-out-btn" style="min-height:34px;padding:6px 10px;">－</button>
-          <button class="btn secondary" id="graph-zoom-reset-btn" style="min-height:34px;padding:6px 10px;">100%</button>
-          <button class="btn secondary" id="graph-zoom-in-btn" style="min-height:34px;padding:6px 10px;">＋</button>
-        </div>
+      <div class="graph-viewport" id="action-graph-viewport"><div class="graph-canvas" id="action-graph-canvas"></div></div>
+      <div class="graph-controls">
+        <button class="btn secondary small" id="action-zoom-out-btn">−</button>
+        <button class="btn secondary small" id="action-zoom-reset-btn">Reset</button>
+        <button class="btn secondary small" id="action-zoom-in-btn">+</button>
       </div>
-      <div id="action-map-container"></div>
     </section>
 
-    <div class="action-buttons">
+    <div class="main-actions">
       <button class="btn" id="generate-assembly-btn">🧱 Generate Assembly</button>
       <button class="btn" id="update-damages-btn">📍 Update Damages</button>
       <button class="btn" id="update-assembly-btn">🏗️ Change Assembly</button>
       <button class="btn" id="generate-plan-btn">📝 Generate Plan</button>
-      <button class="btn blue" id="start-guidance-btn">🧭 Start Guidance</button>
       <button class="btn secondary" id="replan-btn">♻️ Replan</button>
+      <button class="btn blue" id="start-guidance-btn">🧭 Start Guidance</button>
       <button class="btn secondary" id="add-photos-btn">📷 Add Photos</button>
       <button class="btn secondary" id="add-damage-note-btn">💬 Add Damage Note</button>
     </div>
 
-    <div class="instructions-group">
+    <div class="card instructions">
       <label for="instruction-input">Make changes or give specific instructions...</label>
       <textarea id="instruction-input" placeholder="e.g. Add a support under the seat, only use clamps and glue, avoid full disassembly, or remove step 2."></textarea>
     </div>
 
-    <section class="plan-card card" id="plan-section">
-      <div class="section-title">Action List</div>
+    <section class="card">
+      <div class="section-title">Repair Plan Steps</div>
       <div id="step-list"></div>
-      <div style="padding:10px;border-top:1px solid #000;display:grid;grid-template-columns:1fr;gap:8px;">
-        <button class="btn secondary" id="save-version-btn">💾 Save Plan Version</button>
-      </div>
+      <div style="padding:10px;border-top:1px solid #000;"><button class="btn secondary" id="save-version-btn">💾 Save Plan Version</button></div>
     </section>
 
     <div class="console" id="console-output">Repair Workspace ready.</div>
@@ -383,71 +146,62 @@
 
   <div class="modal" id="intent-modal">
     <div class="modal-inner">
-      <h3>🎯 Define Repair Intent</h3>
+      <div class="modal-header"><div class="modal-title">🎯 Define Repair Intent</div><button class="btn secondary small" id="close-intent-btn">Close</button></div>
       <canvas id="radar-canvas" width="540" height="540"></canvas>
       <div class="axis-list" id="axis-list"></div>
-      <div class="field">
-        <label for="intent-summary">Intent summary</label>
-        <textarea id="intent-summary" placeholder="Describe the overall repair attitude..."></textarea>
-      </div>
+      <div class="field"><label for="intent-summary">Intent summary</label><textarea id="intent-summary"></textarea></div>
       <div class="modal-actions">
         <button class="btn secondary" id="add-axis-btn">➕ Add Axis</button>
         <button class="btn secondary" id="reset-intent-btn">↺ Reset</button>
         <button class="btn secondary" id="suggest-intent-btn">✨ LLM Suggest</button>
-        <button class="btn" id="close-intent-btn">Done</button>
       </div>
     </div>
   </div>
 
   <div class="modal" id="constraints-modal">
     <div class="modal-inner">
-      <h3>⛓️ Define Constraints</h3>
-      <div class="field"><label>Tools available</label><input id="tools-available" type="text" placeholder="clamps, glue, drill" /></div>
-      <div class="field"><label>Materials available</label><input id="materials-available" type="text" placeholder="oak strip, screws, epoxy" /></div>
-      <div class="field"><label>Time budget minutes</label><input id="time-budget" type="number" min="0" step="5" value="60" /></div>
-      <div class="field"><label>Budget limit</label><input id="budget-limit" type="text" placeholder="50 EUR" /></div>
+      <div class="modal-header"><div class="modal-title">⛓️ Define Constraints</div><button class="btn secondary small" id="close-constraints-btn">Close</button></div>
+      <div class="field"><label>Tools available</label><input id="tools-available" type="text"></div>
+      <div class="field"><label>Materials available</label><input id="materials-available" type="text"></div>
+      <div class="field"><label>Time budget minutes</label><input id="time-budget" type="number" min="0" step="5" value="60"></div>
+      <div class="field"><label>Budget limit</label><input id="budget-limit" type="text"></div>
       <div class="field"><label>Skill level</label><select id="skill-level"><option>basic</option><option selected>intermediate</option><option>advanced</option></select></div>
       <div class="field"><label>Safety level</label><select id="safety-level"><option>low</option><option selected>normal</option><option>strict</option></select></div>
-      <div class="field"><label>Allowed operations</label><input id="allowed-ops" type="text" placeholder="stabilize, patch, replace" /></div>
-      <div class="field"><label>Avoid operations</label><input id="avoid-ops" type="text" placeholder="full disassembly, welding" /></div>
-      <div class="field"><label>Additional constraints</label><textarea id="additional-constraints" placeholder="Access limitations, preservation obligations, sequencing constraints"></textarea></div>
-      <div class="modal-actions">
-        <button class="btn" id="close-constraints-btn">Done</button>
-      </div>
+      <div class="field"><label>Allowed operations</label><input id="allowed-ops" type="text"></div>
+      <div class="field"><label>Avoid operations</label><input id="avoid-ops" type="text"></div>
+      <div class="field"><label>Additional constraints</label><textarea id="additional-constraints"></textarea></div>
     </div>
   </div>
 
   <div class="modal" id="json-modal">
-    <div class="modal-inner">
-      <div class="modal-actions" style="margin-top:0;margin-bottom:12px;">
-        <button class="btn secondary" id="copy-json-btn">Copy</button>
-        <button class="btn secondary" id="save-json-btn">Save</button>
-        <button class="btn" id="close-json-btn">Close</button>
-      </div>
-      <div class="field"><label>Load example by path</label><input id="example-path-input" type="text" placeholder="examples/santo_04/workspace.json" /></div>
-      <div class="modal-actions" style="margin-top:0;margin-bottom:12px;justify-content:flex-start;">
-        <button class="btn secondary" id="load-example-btn">Load Example</button>
+    <div class="modal-inner wide">
+      <div class="modal-header"><div class="modal-title">Workspace JSON</div><button class="btn secondary small" id="close-json-btn">Close</button></div>
+      <div class="row" style="align-items:end; margin-bottom:10px;">
+        <div style="flex:1;">
+          <div class="field" style="margin-bottom:0;"><label for="example-path">Example path</label><input id="example-path" type="text" placeholder="examples/santo_04/workspace.json"></div>
+          <div class="help">You can load a workspace JSON directly, or use a folder containing assembly.json, damages.json and plan.json.</div>
+        </div>
+        <button class="btn secondary small" id="load-example-btn">Load Example</button>
       </div>
       <textarea class="json-text" id="json-textarea"></textarea>
+      <div class="modal-actions">
+        <button class="btn secondary" id="copy-json-btn">Copy</button>
+        <button class="btn secondary" id="save-json-btn">Save</button>
+      </div>
     </div>
   </div>
 
   <div class="modal" id="spatial-graph-modal">
-    <div class="modal-inner">
-      <div class="modal-actions" style="margin-top:0;margin-bottom:12px;">
-        <button class="btn" id="close-spatial-graph-btn">Close</button>
-      </div>
-      <div id="spatial-graph-container" style="min-height:55vh"></div>
+    <div class="modal-inner wide">
+      <div class="modal-header"><div class="modal-title">Spatial Assembly Graph</div><button class="btn secondary small" id="close-spatial-graph-btn">Close</button></div>
+      <div class="graph-viewport" style="max-height:70vh; min-height:60vh; border:1px solid #000;" id="spatial-graph-viewport"><div class="graph-canvas" id="spatial-graph-canvas"></div></div>
     </div>
   </div>
 
-
-  <div class="modal" id="action-node-modal">
-    <div class="modal-inner" style="max-width:560px;">
-      <div class="modal-actions" style="margin-top:0;margin-bottom:12px;">
-        <button class="btn" id="close-action-node-btn">Close</button>
-      </div>
-      <div id="action-node-detail"></div>
+  <div class="modal" id="detail-modal">
+    <div class="modal-inner wide">
+      <div class="modal-header"><div class="modal-title" id="detail-title">Details</div><button class="btn secondary small" id="close-detail-btn">Close</button></div>
+      <div class="detail-grid" id="detail-grid"></div>
     </div>
   </div>
 
