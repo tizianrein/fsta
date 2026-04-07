@@ -62,10 +62,11 @@ function qs(id) { return document.getElementById(id); }
 
 function initDom() {
   [
-    'object-name','viewer-canvas','viewer-wrap','info-box','step-overlay','step-overlay-title','step-overlay-body','step-overlay-meta',
+    'object-name','viewer-canvas','viewer-container','info-box','step-overlay','step-overlay-title','step-overlay-body','step-overlay-meta',
     'axis-list','radar-canvas','intent-summary','tools-available','materials-available','time-budget','budget-limit','skill-level',
     'safety-level','allowed-ops','avoid-ops','additional-constraints','instruction-input','console-output','graph-container',
-    'step-list','json-modal','json-textarea','assembly-file','damages-file','plan-file','photos-file'
+    'step-list','json-modal','json-textarea','assembly-file','damages-file','plan-file','photos-file',
+    'intent-modal','constraints-modal','intent-summary-preview','intent-axes-preview','constraints-preview','plan-section'
   ].forEach(id => el[id] = qs(id));
 
   qs('upload-assembly-btn').onclick = () => el['assembly-file'].click();
@@ -74,6 +75,11 @@ function initDom() {
   qs('add-photos-btn').onclick = () => el['photos-file'].click();
   qs('open-json-btn').onclick = openJsonModal;
   qs('close-json-btn').onclick = () => el['json-modal'].style.display = 'none';
+  qs('open-intent-btn').onclick = () => el['intent-modal'].style.display = 'flex';
+  qs('close-intent-btn').onclick = () => { el['intent-modal'].style.display = 'none'; renderPreviewCards(); };
+  qs('open-constraints-btn').onclick = () => el['constraints-modal'].style.display = 'flex';
+  qs('close-constraints-btn').onclick = () => { el['constraints-modal'].style.display = 'none'; renderPreviewCards(); };
+  qs('view-plan-btn').onclick = () => el['plan-section'].scrollIntoView({ behavior: 'smooth', block: 'start' });
   qs('copy-json-btn').onclick = async () => navigator.clipboard.writeText(el['json-textarea'].value);
   qs('download-state-btn').onclick = downloadWorkspace;
   qs('download-state-btn').title = 'Download assembly, damages, intent, constraints, plan, and versions as one JSON file';
@@ -121,7 +127,7 @@ function init3D() {
   scene.background = new THREE.Color(0xffffff);
   scene.add(objectGroup);
 
-  const wrap = el['viewer-wrap'];
+  const wrap = el['viewer-container'];
   camera = new THREE.PerspectiveCamera(18, wrap.clientWidth / wrap.clientHeight, 0.01, 1000);
   camera.position.set(1.5, 1.2, 1.5);
 
@@ -150,7 +156,7 @@ function init3D() {
 }
 
 function onResize() {
-  const wrap = el['viewer-wrap'];
+  const wrap = el['viewer-container'];
   camera.aspect = wrap.clientWidth / wrap.clientHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(wrap.clientWidth, wrap.clientHeight);
@@ -200,6 +206,7 @@ function openJsonModal() {
   el['json-textarea'].value = JSON.stringify(currentWorkspaceJson(), null, 2);
   el['json-modal'].style.display = 'flex';
 }
+
 
 function downloadWorkspace() {
   const blob = new Blob([JSON.stringify(currentWorkspaceJson(), null, 2)], { type: 'application/json' });
@@ -467,6 +474,7 @@ function onAxisInput(e) {
   if (kind === 'value') state.intent.axes[idx].value = Number(e.target.value);
   if (kind === 'remove' && state.intent.axes.length > 3) state.intent.axes.splice(idx, 1);
   syncIntentUi();
+  renderPreviewCards();
 }
 
 function addAxis() {
@@ -531,6 +539,22 @@ async function suggestIntent() {
   } catch (err) {
     log(`Intent suggestion failed: ${err.message}`);
   }
+}
+
+function renderPreviewCards() {
+  const axesPreview = state.intent.axes.map(a => `${a.label}: ${Math.round(a.value * 100)}%`).join('\n');
+  el['intent-summary-preview'].textContent = state.intent.summary || 'No intent summary yet.';
+  el['intent-axes-preview'].textContent = axesPreview;
+  const c = state.constraints;
+  const bits = [
+    c.tools_available && `🧰 Tools: ${c.tools_available}`,
+    c.materials_available && `🧱 Materials: ${c.materials_available}`,
+    c.time_budget_minutes ? `⏱️ Time: ${c.time_budget_minutes} min` : '',
+    c.skill_level && `🧠 Skill: ${c.skill_level}`,
+    c.allowed_operations && `✅ Allowed: ${c.allowed_operations}`,
+    c.avoid_operations && `🚫 Avoid: ${c.avoid_operations}`
+  ].filter(Boolean);
+  el['constraints-preview'].textContent = bits.join(' • ') || 'No constraints defined yet.';
 }
 
 function collectConstraintsFromUi() {
@@ -730,6 +754,7 @@ function updateStepOverlay() {
   el['step-overlay-body'].textContent = step.description || '';
   el['step-overlay-meta'].textContent = `Tools: ${(step.tools_required || []).join(', ') || '-'} • Prerequisites: ${(step.prerequisites || []).join(', ') || '-'}`;
 }
+
 
 function highlightCurrentStep() {
   const step = currentStep();
