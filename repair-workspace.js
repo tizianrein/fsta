@@ -8,79 +8,51 @@ const DEFAULT_AXES = [
 ];
 
 const state = {
-  objectName: 'Default Cube',
-  assembly: { 
-    objectName: 'Default Cube', 
-    parts: [{ id: 'cube', status: 'defective', origin: { x: 0, y: 0.25, z: 0 }, dimensions: { width: 0.5, height: 0.5, depth: 0.5 }, connections: [] }] 
+  objectName: 'old_wooden_door',
+  assembly: {
+    objectName: "old_wooden_door",
+    parts: [
+      { id: "left_stile", origin: { x: -0.425, y: 1.1, z: 0 }, dimensions: { width: 0.15, height: 2.2, depth: 0.05 }, connections: ["right_stile", "top_rail", "bottom_rail", "mid_rail", "muntin_bar", "door_handle"], material: "timber", rotation: { x: 0, y: 0, z: 0 }, status: "defective" },
+      { id: "right_stile", origin: { x: 0.425, y: 1.1, z: 0 }, dimensions: { width: 0.15, height: 2.2, depth: 0.05 }, connections: ["left_stile", "top_rail", "bottom_rail", "mid_rail", "muntin_bar"], material: "timber", rotation: { x: 0, y: 0, z: 0 }, status: "defective" },
+      { id: "bottom_rail", origin: { x: 0, y: 0.1, z: 0 }, dimensions: { width: 0.7, height: 0.2, depth: 0.05 }, connections: ["left_stile", "right_stile", "lower_panel"], material: "timber", rotation: { x: 0, y: 0, z: 0 }, status: "defective" },
+      { id: "mid_rail", origin: { x: 0, y: 0.825, z: 0 }, dimensions: { width: 0.7, height: 0.15, depth: 0.05 }, connections: ["left_stile", "right_stile", "lower_panel", "lower_glass_pane", "decorative_trim"], material: "timber", rotation: { x: 0, y: 0, z: 0 }, status: "defective" },
+      { id: "top_rail", origin: { x: 0, y: 2.125, z: 0 }, dimensions: { width: 0.7, height: 0.15, depth: 0.05 }, connections: ["left_stile", "right_stile", "upper_glass_pane"], material: "timber", rotation: { x: 0, y: 0, z: 0 }, status: "defective" },
+      { id: "lower_panel", origin: { x: 0, y: 0.475, z: 0 }, dimensions: { width: 0.7, height: 0.55, depth: 0.02 }, connections: ["left_stile", "right_stile", "bottom_rail", "mid_rail"], material: "timber", rotation: { x: 0, y: 0, z: 0 }, status: "defective" },
+      { id: "decorative_trim", origin: { x: 0, y: 0.94, z: -0.02 }, dimensions: { width: 0.65, height: 0.08, depth: 0.015 }, connections: ["mid_rail"], material: "timber", rotation: { x: 0, y: 0, z: 0 }, status: "defective" },
+      { id: "muntin_bar", origin: { x: 0, y: 1.475, z: 0 }, dimensions: { width: 0.7, height: 0.03, depth: 0.03 }, connections: ["left_stile", "right_stile", "upper_glass_pane", "lower_glass_pane"], material: "timber", rotation: { x: 0, y: 0, z: 0 }, status: "defective" },
+      { id: "door_handle", origin: { x: -0.425, y: 1.05, z: -0.05 }, dimensions: { width: 0.04, height: 0.25, depth: 0.06 }, connections: ["left_stile"], material: "metal", rotation: { x: 0, y: 0, z: 0 }, status: "intact" },
+      { id: "upper_glass_pane", origin: { x: 0, y: 1.77, z: 0 }, dimensions: { width: 0.7, height: 0.56, depth: 0.005 }, connections: ["left_stile", "right_stile", "top_rail", "muntin_bar"], material: "glass", rotation: { x: 0, y: 0, z: 0 }, status: "intact" },
+      { id: "lower_glass_pane", origin: { x: 0, y: 1.18, z: 0 }, dimensions: { width: 0.7, height: 0.56, depth: 0.005 }, connections: ["left_stile", "right_stile", "mid_rail", "muntin_bar"], material: "glass", rotation: { x: 0, y: 0, z: 0 }, status: "missing" }
+    ]
   },
   damages: [
-    { id: 'damage_01', type: 'Scratch', description: 'Default scratch on the top surface.', part_id: 'cube', coordinates: { x: 0, y: 0.5, z: 0 } }
+    { id: "damage_01", type: "Paint Damage", description: "Extensive chipping and peeling of the white paint finish on the left stile.", part_id: "left_stile", coordinates: { x: -0.425, y: 1.1, z: 0 } },
+    { id: "damage_02", type: "Paint Damage", description: "Extensive chipping and peeling of the white paint finish on the right stile.", part_id: "right_stile", coordinates: { x: 0.425, y: 1.1, z: 0 } },
+    { id: "damage_03", type: "Paint Damage", description: "Extensive chipping and peeling of the white paint finish on the bottom rail.", part_id: "bottom_rail", coordinates: { x: 0, y: 0.1, z: 0 } },
+    { id: "damage_04", type: "Paint Damage", description: "Extensive chipping and peeling of the white paint finish on the mid rail.", part_id: "mid_rail", coordinates: { x: 0, y: 0.825, z: 0 } },
+    { id: "damage_05", type: "Paint Damage", description: "Extensive chipping and peeling of the white paint finish on the top rail.", part_id: "top_rail", coordinates: { x: 0, y: 2.125, z: 0 } },
+    { id: "damage_06", type: "Paint Damage", description: "Extensive chipping and peeling of the white paint finish on the lower panel.", part_id: "lower_panel", coordinates: { x: 0, y: 0.55, z: 0 } },
+    { id: "damage_07", type: "Paint Damage", description: "Extensive chipping and peeling of the white paint finish on the decorative trim.", part_id: "decorative_trim", coordinates: { x: 0, y: 0.94, z: -0.02 } },
+    { id: "damage_08", type: "Material Degradation", description: "The decorative trim shows signs of wood degradation and possible rotting in addition to paint chipping.", part_id: "decorative_trim", coordinates: { x: 0, y: 0.94, z: -0.02 } },
+    { id: "damage_09", type: "Missing Part", description: "The lower glass pane is missing, leaving an empty opening in the door frame. User reported it broke.", part_id: "lower_glass_pane", coordinates: { x: 0, y: 1.18, z: 0 } },
+    { id: "damage_10", type: "Paint Damage", description: "Chipped and weathered paint finish on the muntin bar.", part_id: "muntin_bar", coordinates: { x: 0, y: 1.475, z: 0 } }
   ],
   plan: { 
-    steps: [
-      {
-        step_id: "assess_clean",
-        title: "Assess & Clean",
-        description: "Inspect the depth of the scratch and clean the top surface of the cube.",
-        affected_parts: ["cube"],
-        affected_damages: ["damage_01"],
-        prerequisites: [],
-        tools_required: ["Cleaning cloth", "Solvent"]
-      },
-      {
-        step_id: "sand_surface",
-        title: "Sand Surface",
-        description: "Lightly sand the scratched area to prepare for filler.",
-        affected_parts: ["cube"],
-        affected_damages: ["damage_01"],
-        prerequisites: ["assess_clean"],
-        tools_required: ["Sandpaper (220 grit)"]
-      },
-      {
-        step_id: "apply_filler",
-        title: "Apply Filler",
-        description: "Fill the scratch with suitable filler material.",
-        affected_parts: ["cube"],
-        affected_damages: ["damage_01"],
-        prerequisites: ["sand_surface"],
-        tools_required: ["Putty knife", "Filler"]
-      },
-      {
-        step_id: "prepare_finish",
-        title: "Prepare Finish",
-        description: "Mix the paint or finish to match the cube's original color. Can be done while filler is drying.",
-        affected_parts: [],
-        affected_damages: [],
-        prerequisites: ["assess_clean"],
-        tools_required: ["Paint mixer", "Color palette"]
-      },
-      {
-        step_id: "final_sanding",
-        title: "Final Sanding",
-        description: "Sand the cured filler flush with the cube's surface.",
-        affected_parts: ["cube"],
-        affected_damages: ["damage_01"],
-        prerequisites: ["apply_filler"],
-        tools_required: ["Sandpaper (400 grit)"]
-      },
-      {
-        step_id: "apply_finish",
-        title: "Apply Finish",
-        description: "Apply the prepared finish over the sanded area to complete the repair.",
-        affected_parts: ["cube"],
-        affected_damages: ["damage_01"],
-        prerequisites: ["final_sanding", "prepare_finish"],
-        tools_required: ["Brush", "Prepared Finish"]
-      }
-    ] 
+    steps: [] // Emptied so the Action Graph says "No plan loaded" by default
   },
   planVersions: [],
   currentPlanVersionId: null,
   currentStepId: null,
   guidanceActive: false,
   photos: [],
-  intent: { axes: DEFAULT_AXES.map(([label, value], i) => ({ id: `axis_${i+1}`, label, value })), summary: 'Balanced repair with moderate emphasis on structural performance and reasonable reversibility.' },
-  constraints: { tools_available: '', materials_available: '', time_budget_minutes: 60, budget_limit: '', skill_level: 'intermediate', safety_level: 'normal', allowed_operations: '', avoid_operations: '', additional_constraints: '' },
+  intent: { 
+    axes: DEFAULT_AXES.map(([label, value], i) => ({ id: `axis_${i+1}`, label, value })), 
+    summary: 'Balanced repair with moderate emphasis on structural performance and reasonable reversibility.' 
+  },
+  constraints: { 
+    tools_available: '', materials_available: '', time_budget_minutes: 60, budget_limit: '', 
+    skill_level: 'intermediate', safety_level: 'normal', allowed_operations: '', avoid_operations: '', additional_constraints: '' 
+  },
   ui: { exploded: false, selectedPartId: null, selectedDamageId: null },
 };
 

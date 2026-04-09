@@ -1,0 +1,287 @@
+{
+  "objectName": "old_wooden_door",
+  "parts": [
+    {
+      "id": "left_stile",
+      "origin": {
+        "x": -0.425,
+        "y": 1.1,
+        "z": 0
+      },
+      "dimensions": {
+        "width": 0.15,
+        "height": 2.2,
+        "depth": 0.05
+      },
+      "connections": [
+        "right_stile",
+        "top_rail",
+        "bottom_rail",
+        "mid_rail",
+        "muntin_bar",
+        "door_handle"
+      ],
+      "material": "timber",
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "status": "defective"
+    },
+    {
+      "id": "right_stile",
+      "origin": {
+        "x": 0.425,
+        "y": 1.1,
+        "z": 0
+      },
+      "dimensions": {
+        "width": 0.15,
+        "height": 2.2,
+        "depth": 0.05
+      },
+      "connections": [
+        "left_stile",
+        "top_rail",
+        "bottom_rail",
+        "mid_rail",
+        "muntin_bar"
+      ],
+      "material": "timber",
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "status": "defective"
+    },
+    {
+      "id": "bottom_rail",
+      "origin": {
+        "x": 0,
+        "y": 0.1,
+        "z": 0
+      },
+      "dimensions": {
+        "width": 0.7,
+        "height": 0.2,
+        "depth": 0.05
+      },
+      "connections": [
+        "left_stile",
+        "right_stile",
+        "lower_panel"
+      ],
+      "material": "timber",
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "status": "defective"
+    },
+    {
+      "id": "mid_rail",
+      "origin": {
+        "x": 0,
+        "y": 0.825,
+        "z": 0
+      },
+      "dimensions": {
+        "width": 0.7,
+        "height": 0.15,
+        "depth": 0.05
+      },
+      "connections": [
+        "left_stile",
+        "right_stile",
+        "lower_panel",
+        "lower_glass_pane",
+        "decorative_trim"
+      ],
+      "material": "timber",
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "status": "defective"
+    },
+    {
+      "id": "top_rail",
+      "origin": {
+        "x": 0,
+        "y": 2.125,
+        "z": 0
+      },
+      "dimensions": {
+        "width": 0.7,
+        "height": 0.15,
+        "depth": 0.05
+      },
+      "connections": [
+        "left_stile",
+        "right_stile",
+        "upper_glass_pane"
+      ],
+      "material": "timber",
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "status": "defective"
+    },
+    {
+      "id": "lower_panel",
+      "origin": {
+        "x": 0,
+        "y": 0.475,
+        "z": 0
+      },
+      "dimensions": {
+        "width": 0.7,
+        "height": 0.55,
+        "depth": 0.02
+      },
+      "connections": [
+        "left_stile",
+        "right_stile",
+        "bottom_rail",
+        "mid_rail"
+      ],
+      "material": "timber",
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "status": "defective"
+    },
+    {
+      "id": "decorative_trim",
+      "origin": {
+        "x": 0,
+        "y": 0.94,
+        "z": -0.02
+      },
+      "dimensions": {
+        "width": 0.65,
+        "height": 0.08,
+        "depth": 0.015
+      },
+      "connections": [
+        "mid_rail"
+      ],
+      "material": "timber",
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "status": "defective"
+    },
+    {
+      "id": "muntin_bar",
+      "origin": {
+        "x": 0,
+        "y": 1.475,
+        "z": 0
+      },
+      "dimensions": {
+        "width": 0.7,
+        "height": 0.03,
+        "depth": 0.03
+      },
+      "connections": [
+        "left_stile",
+        "right_stile",
+        "upper_glass_pane",
+        "lower_glass_pane"
+      ],
+      "material": "timber",
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "status": "defective"
+    },
+    {
+      "id": "door_handle",
+      "origin": {
+        "x": -0.425,
+        "y": 1.05,
+        "z": -0.05
+      },
+      "dimensions": {
+        "width": 0.04,
+        "height": 0.25,
+        "depth": 0.06
+      },
+      "connections": [
+        "left_stile"
+      ],
+      "material": "metal",
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "status": "intact"
+    },
+    {
+      "id": "upper_glass_pane",
+      "origin": {
+        "x": 0,
+        "y": 1.77,
+        "z": 0
+      },
+      "dimensions": {
+        "width": 0.7,
+        "height": 0.56,
+        "depth": 0.005
+      },
+      "connections": [
+        "left_stile",
+        "right_stile",
+        "top_rail",
+        "muntin_bar"
+      ],
+      "material": "glass",
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "status": "intact"
+    },
+    {
+      "id": "lower_glass_pane",
+      "origin": {
+        "x": 0,
+        "y": 1.18,
+        "z": 0
+      },
+      "dimensions": {
+        "width": 0.7,
+        "height": 0.56,
+        "depth": 0.005
+      },
+      "connections": [
+        "left_stile",
+        "right_stile",
+        "mid_rail",
+        "muntin_bar"
+      ],
+      "material": "glass",
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "status": "missing"
+    }
+  ]
+}
