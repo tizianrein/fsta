@@ -9,52 +9,54 @@
     :root { --bg:#fff; --fg:#000; --line:#000; --muted:#666; --soft:#f5f5f5; --red:#d62828; --blue:#0d6efd; --green:#198754; }
     * { box-sizing:border-box; }
     body { margin:0; padding:20px 0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; display:flex; justify-content:center; }
-    #app { width:90%; max-width:520px; display:flex; flex-direction:column; gap:14px; }
+    #app { width:90%; max-width:560px; display:flex; flex-direction:column; gap:16px; }
     .row { display:flex; gap:10px; }
     .card { border:1px solid var(--line); background:#fff; }
     .btn { min-height:44px; border:none; background:#000; color:#fff; font-size:14px; font-weight:600; padding:12px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; }
+    .btn.blue { background:var(--blue); }
     .btn.secondary { background:#fff; color:#000; border:1px solid #000; }
-    .btn.small { min-height:38px; padding:8px 12px; font-size:13px; }
+    .btn.small { min-height:36px; padding:6px 10px; font-size:12px; }
     #object-name { flex:1; padding:12px; border:1px solid #000; font-size:14px; }
-    #viewer { position:relative; width:100%; min-height:310px; height:40vh; }
+    
+    .main-workspace { display:flex; gap:16px; min-height:360px; }
+    #viewer { flex:1; position:relative; overflow:hidden; }
     #viewer-canvas { width:100%; height:100%; display:block; }
     #info-box { position:absolute; top:10px; left:0; font:12px/1.4 monospace; max-width:280px; min-width:180px; display:block; pointer-events:none; z-index:10; color:#0d2bff; white-space:pre-wrap; background:transparent; padding:0; }
-    #step-overlay { position:absolute; left:10px; right:10px; bottom:10px; display:none; background:rgba(214,40,40,.92); color:#fff; border:1px solid var(--red); padding:12px; z-index:9; }
-    #step-overlay-title { font-size:15px; font-weight:700; margin-bottom:5px; }
-    #step-overlay-body { font-size:13px; line-height:1.45; }
-    #step-overlay-meta { margin-top:5px; font-size:11px; opacity:.85; }
-    .icon-controls { display:flex; justify-content:space-around; text-align:center; padding:10px 6px; gap:8px; flex-wrap:wrap; }
-    .icon-button { cursor:pointer; min-width:58px; flex:1 1 58px; max-width:72px; }
-    .icon-button .emoji { display:block; font-size:18px; line-height:1; }
-    .icon-button .label { font-size:11px; margin-top:6px; }
-    .popup-buttons, .main-actions { display:grid; gap:10px; }
-    .popup-buttons { grid-template-columns:1fr 1fr; }
-    .main-actions { grid-template-columns:1fr 1fr; }
+    
+    .right-toolbar { width:76px; display:flex; flex-direction:column; gap:12px; align-items:center; }
+    .icon-controls-vertical { display:flex; flex-direction:column; gap:12px; width:100%; }
+    .icon-button { cursor:pointer; display:flex; flex-direction:column; align-items:center; text-align:center; }
+    .icon-button .emoji { display:block; font-size:18px; line-height:1; margin-bottom:4px; }
+    .icon-button .label { font-size:11px; }
+    .toolbar-actions { display:flex; flex-direction:column; gap:8px; width:100%; margin-top:8px; }
+
+    .main-actions { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
     .instructions { padding:14px; }
     .instructions label { display:block; margin-bottom:8px; font-size:12px; font-weight:700; text-transform:uppercase; }
     textarea, input, select { width:100%; padding:10px; border:1px solid #000; background:#fff; color:#000; font-size:14px; }
     textarea { resize:vertical; min-height:88px; }
-    .section-title { padding:10px 12px; border-bottom:1px solid #000; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; }
-    .graph-panel { display:grid; gap:0; }
-    .graph-viewport { overflow:hidden; min-height:260px; max-height:340px; background:#fff; border-bottom:1px solid #000; position:relative; cursor:grab; }
-    .graph-canvas { display:inline-block; min-width:100%; min-height:100%; padding:14px; will-change:transform; }
-    .graph-canvas svg { display:block; width:auto; height:auto; max-width:none; }
-    #action-graph-viewport:active { cursor:grabbing; }
-    .graph-controls { display:flex; justify-content:flex-end; gap:8px; padding:10px; }
-    #step-list { padding:10px; display:grid; gap:8px; max-height:320px; overflow:auto; }
-    .step-card { border:1px solid #000; padding:10px; cursor:pointer; background:#fff; }
-    .step-card.active { background:#efefef; }
-    .step-card.done { border-color:var(--green); }
-    .step-title { font-weight:700; }
-    .step-meta { margin-top:6px; font-size:12px; color:var(--muted); }
+    .section-title { padding:10px 12px; border-bottom:1px solid #000; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; background:#fff; }
+    
+    .graph-panel { display:flex; flex-direction:column; }
+    .graph-viewport { overflow:hidden; min-height:380px; max-height:480px; background:#fff; position:relative; cursor:grab; flex:1; }
+    .graph-viewport:active { cursor:grabbing; }
+    .graph-canvas { display:inline-block; width:100%; height:100%; padding-bottom:70px; /* Space for the overlay */ }
+    .graph-canvas svg { display:block; width:100%; height:100%; }
+    
+    #step-overlay { position:absolute; bottom:0; left:0; right:0; display:none; background:#2f6bff; color:#fff; padding:14px; z-index:9; cursor:pointer; transition:background 0.2s; border-top:1px solid #000; }
+    #step-overlay:hover { background:#1c52d8; }
+    #step-overlay-title { font-size:15px; font-weight:700; margin-bottom:5px; }
+    #step-overlay-body { font-size:13px; line-height:1.45; }
+    #step-overlay-meta { margin-top:6px; font-size:11px; opacity:.9; }
+    
     .console { border:1px solid #000; background:#000; color:#fff; padding:14px; min-height:62px; white-space:pre-wrap; font:13px/1.5 "SF Mono",Consolas,Menlo,monospace; }
 
     .modal { position:fixed; inset:0; display:none; align-items:center; justify-content:center; padding:18px; background:rgba(0,0,0,.7); z-index:1000; }
-    .modal-inner { width:100%; max-width:460px; max-height:88vh; overflow:auto; background:#fff; border:1px solid #000; padding:18px; }
+    .modal-inner { width:100%; max-width:460px; max-height:88vh; overflow:auto; background:#fff; border:1px solid #000; padding:18px; display:flex; flex-direction:column; }
     .modal-inner.wide { max-width:980px; }
-    .modal-header { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:12px; }
+    .modal-header { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:12px; flex-shrink:0; }
     .modal-title { font-size:18px; font-weight:700; }
-    .modal-actions { display:flex; justify-content:flex-end; gap:10px; flex-wrap:wrap; margin-top:14px; }
+    .modal-actions { display:flex; justify-content:flex-end; gap:10px; flex-wrap:wrap; margin-top:14px; flex-shrink:0; }
     .axis-list { display:grid; gap:10px; margin-top:14px; }
     .axis-row { display:grid; grid-template-columns:1fr 64px 30px; gap:8px; align-items:center; }
     .axis-value { font-size:12px; color:var(--muted); text-align:right; }
@@ -68,6 +70,13 @@
     .detail-box { border:1px solid #000; padding:10px; }
     .detail-box .label { font-size:11px; font-weight:700; text-transform:uppercase; margin-bottom:4px; }
     .detail-box .value { white-space:pre-wrap; line-height:1.45; }
+
+    /* Chat specifics */
+    .chat-history { flex:1; overflow-y:auto; background:#f5f5f5; border:1px solid #000; padding:12px; margin-bottom:12px; display:flex; flex-direction:column; gap:10px; min-height:300px; }
+    .chat-bubble { padding:10px 14px; border-radius:12px; font-size:13px; line-height:1.4; max-width:85%; word-wrap:break-word; }
+    .chat-user { align-self:flex-end; background:#cce5ff; color:#000; border-bottom-right-radius:2px; }
+    .chat-llm { align-self:flex-start; background:#e2e3e5; color:#000; border-bottom-left-radius:2px; }
+    .chat-system { align-self:center; color:#666; font-size:11px; text-transform:uppercase; letter-spacing:0.05em; margin:8px 0; }
   </style>
 </head>
 <body>
@@ -77,42 +86,45 @@
       <button id="open-json-btn" class="btn secondary" title="Edit workspace JSON">📄</button>
     </div>
 
-    <div class="card">
+    <!-- Main Workspace Area -->
+    <div class="main-workspace">
       <div id="viewer">
         <canvas id="viewer-canvas"></canvas>
         <div id="info-box"></div>
-        <div id="step-overlay">
+      </div>
+      
+      <div class="right-toolbar">
+        <div class="icon-controls-vertical">
+          <div id="upload-assembly-btn" class="icon-button"><span class="emoji">📦</span><div class="label">Assembly</div></div>
+          <div id="upload-damages-btn" class="icon-button"><span class="emoji">📍</span><div class="label">Damages</div></div>
+          <div id="upload-plan-btn" class="icon-button"><span class="emoji">🗺️</span><div class="label">Plan</div></div>
+          <div id="explode-btn" class="icon-button"><span class="emoji">💥</span><div class="label">Explode</div></div>
+          <div id="restore-btn" class="icon-button"><span class="emoji">↩️</span><div class="label">Restore</div></div>
+          <div id="open-spatial-graph-btn" class="icon-button"><span class="emoji">🔗</span><div class="label">Graph</div></div>
+          <div id="download-state-btn" class="icon-button"><span class="emoji">⬇️</span><div class="label">Save</div></div>
+        </div>
+        <div class="toolbar-actions">
+          <button class="btn secondary small" id="open-intent-btn" title="Repair Intent">🎯 Intent</button>
+          <button class="btn secondary small" id="open-constraints-btn" title="Constraints">⛓️ Constr.</button>
+        </div>
+      </div>
+    </div>
+    
+    <input type="file" id="assembly-file" accept=".json" hidden>
+    <input type="file" id="damages-file" accept=".json" hidden>
+    <input type="file" id="plan-file" accept=".json" hidden>
+    <input type="file" id="photos-file" accept="image/*,application/pdf" multiple hidden>
+
+    <section class="card graph-panel">
+      <div class="section-title">Current Action Graph (Tap to Select)</div>
+      <div class="graph-viewport" id="action-graph-viewport">
+        <div class="graph-canvas" id="action-graph-canvas"></div>
+        <div id="step-overlay" title="Click to discuss this step">
           <div id="step-overlay-title"></div>
           <div id="step-overlay-body"></div>
           <div id="step-overlay-meta"></div>
         </div>
       </div>
-    </div>
-
-    <div class="card">
-      <div class="icon-controls">
-        <div id="upload-assembly-btn" class="icon-button"><span class="emoji">📦</span><div class="label">Assembly</div></div>
-        <div id="upload-damages-btn" class="icon-button"><span class="emoji">📍</span><div class="label">Damages</div></div>
-        <div id="upload-plan-btn" class="icon-button"><span class="emoji">🗺️</span><div class="label">Plan</div></div>
-        <div id="explode-btn" class="icon-button"><span class="emoji">💥</span><div class="label">Explode</div></div>
-        <div id="restore-btn" class="icon-button"><span class="emoji">↩️</span><div class="label">Restore</div></div>
-        <div id="open-spatial-graph-btn" class="icon-button"><span class="emoji">🔗</span><div class="label">Graph</div></div>
-        <div id="download-state-btn" class="icon-button"><span class="emoji">⬇️</span><div class="label">Save</div></div>
-      </div>
-      <input type="file" id="assembly-file" accept=".json" hidden>
-      <input type="file" id="damages-file" accept=".json" hidden>
-      <input type="file" id="plan-file" accept=".json" hidden>
-      <input type="file" id="photos-file" accept="image/*,application/pdf" multiple hidden>
-    </div>
-
-    <div class="popup-buttons">
-      <button class="btn secondary" id="open-intent-btn">🎯 Repair Intent</button>
-      <button class="btn secondary" id="open-constraints-btn">⛓️ Constraints</button>
-    </div>
-
-    <section class="card graph-panel">
-      <div class="section-title">Current Action Graph</div>
-      <div class="graph-viewport" id="action-graph-viewport"><div class="graph-canvas" id="action-graph-canvas"></div></div>
     </section>
 
     <div class="main-actions">
@@ -124,6 +136,7 @@
       <button class="btn blue" id="start-guidance-btn">🧭 Start Guidance</button>
       <button class="btn secondary" id="add-photos-btn">📷 Add Photos</button>
       <button class="btn secondary" id="add-damage-note-btn">💬 Add Damage Note</button>
+      <button class="btn secondary" id="save-version-btn" style="grid-column: span 2;">💾 Save Plan Version</button>
     </div>
 
     <div class="card instructions">
@@ -131,13 +144,19 @@
       <textarea id="instruction-input" placeholder="e.g. Add a support under the seat, only use clamps and glue, avoid full disassembly, or remove step 2."></textarea>
     </div>
 
-    <section class="card">
-      <div class="section-title">Repair Plan Steps</div>
-      <div id="step-list"></div>
-      <div style="padding:10px;border-top:1px solid #000;"><button class="btn secondary" id="save-version-btn">💾 Save Plan Version</button></div>
-    </section>
-
     <div class="console" id="console-output">Repair Workspace ready.</div>
+  </div>
+
+  <!-- Chat Modal -->
+  <div class="modal" id="step-chat-modal">
+    <div class="modal-inner">
+      <div class="modal-header"><div class="modal-title" id="step-chat-title">Discuss Step</div><button class="btn secondary small" id="close-step-chat-btn">Close</button></div>
+      <div class="chat-history" id="step-chat-history"></div>
+      <div style="display:flex; gap:10px;">
+        <input type="text" id="step-chat-input" placeholder="Ask about this step..." />
+        <button class="btn blue" id="send-step-chat-btn">Send</button>
+      </div>
+    </div>
   </div>
 
   <div class="modal" id="intent-modal">
@@ -205,7 +224,6 @@
   <script src="https://unpkg.com/@hpcc-js/wasm@2.12.2/dist/graphviz.umd.js"></script>
   <script src="https://unpkg.com/d3-graphviz@5.1.0/build/d3-graphviz.js"></script>
   
-  <!-- Swapped to 0.147.0 to guarantee global compatibility with OrbitControls.js -->
   <script src="https://unpkg.com/three@0.147.0/build/three.min.js"></script>
   <script src="https://unpkg.com/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
   

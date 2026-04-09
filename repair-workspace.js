@@ -1,6 +1,3 @@
-import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-
 const DEFAULT_AXES = [
   ['Material Authenticity', 0.45],
   ['Structural Performance', 0.8],
@@ -11,10 +8,72 @@ const DEFAULT_AXES = [
 ];
 
 const state = {
-  objectName: '',
-  assembly: { objectName: '', parts: [{ id: 'cube', status: 'defective', origin: { x: 0, y: 0.25, z: 0 }, dimensions: { width: 0.5, height: 0.5, depth: 0.5 }, connections: [] }] },
-  damages: [{ id: 'damage_01', type: 'Scratch', description: 'Default scratch on the top surface.', part_id: 'cube', coordinates: { x: 0, y: 0.5, z: 0 } }],
-  plan: { steps: [] },
+  objectName: 'Default Cube',
+  assembly: { 
+    objectName: 'Default Cube', 
+    parts: [{ id: 'cube', status: 'defective', origin: { x: 0, y: 0.25, z: 0 }, dimensions: { width: 0.5, height: 0.5, depth: 0.5 }, connections: [] }] 
+  },
+  damages: [
+    { id: 'damage_01', type: 'Scratch', description: 'Default scratch on the top surface.', part_id: 'cube', coordinates: { x: 0, y: 0.5, z: 0 } }
+  ],
+  plan: { 
+    steps: [
+      {
+        step_id: "assess_clean",
+        title: "Assess & Clean",
+        description: "Inspect the depth of the scratch and clean the top surface of the cube.",
+        affected_parts: ["cube"],
+        affected_damages: ["damage_01"],
+        prerequisites: [],
+        tools_required: ["Cleaning cloth", "Solvent"]
+      },
+      {
+        step_id: "sand_surface",
+        title: "Sand Surface",
+        description: "Lightly sand the scratched area to prepare for filler.",
+        affected_parts: ["cube"],
+        affected_damages: ["damage_01"],
+        prerequisites: ["assess_clean"],
+        tools_required: ["Sandpaper (220 grit)"]
+      },
+      {
+        step_id: "apply_filler",
+        title: "Apply Filler",
+        description: "Fill the scratch with suitable filler material.",
+        affected_parts: ["cube"],
+        affected_damages: ["damage_01"],
+        prerequisites: ["sand_surface"],
+        tools_required: ["Putty knife", "Filler"]
+      },
+      {
+        step_id: "prepare_finish",
+        title: "Prepare Finish",
+        description: "Mix the paint or finish to match the cube's original color. Can be done while filler is drying.",
+        affected_parts: [],
+        affected_damages: [],
+        prerequisites: ["assess_clean"],
+        tools_required: ["Paint mixer", "Color palette"]
+      },
+      {
+        step_id: "final_sanding",
+        title: "Final Sanding",
+        description: "Sand the cured filler flush with the cube's surface.",
+        affected_parts: ["cube"],
+        affected_damages: ["damage_01"],
+        prerequisites: ["apply_filler"],
+        tools_required: ["Sandpaper (400 grit)"]
+      },
+      {
+        step_id: "apply_finish",
+        title: "Apply Finish",
+        description: "Apply the prepared finish over the sanded area to complete the repair.",
+        affected_parts: ["cube"],
+        affected_damages: ["damage_01"],
+        prerequisites: ["final_sanding", "prepare_finish"],
+        tools_required: ["Brush", "Prepared Finish"]
+      }
+    ] 
+  },
   planVersions: [],
   currentPlanVersionId: null,
   currentStepId: null,
@@ -35,6 +94,7 @@ const ANIMATION_DURATION = 800;
 let draggingRadar = false;
 let pointerDownHit = null;
 let pointerDownPos = null;
+const graphvizInstances = new Map();
 
 const materials = {
   intact: new THREE.MeshBasicMaterial({ color: 0xd0d0d0, transparent: true, opacity: 0.75, depthWrite: false, side: THREE.FrontSide }),
@@ -42,8 +102,8 @@ const materials = {
   missing: new THREE.MeshBasicMaterial({ color: 0xffde59, transparent: true, opacity: 0.8, depthWrite: false, side: THREE.FrontSide }),
   newPart: new THREE.MeshBasicMaterial({ color: 0xc000ff, transparent: true, opacity: 0.75, depthWrite: false, side: THREE.FrontSide }),
   discarded: new THREE.MeshBasicMaterial({ color: 0x111111, transparent: true, opacity: 0.18, depthWrite: false, side: THREE.FrontSide }),
-  selected: new THREE.MeshBasicMaterial({ color: 0x2f6bff, transparent: true, opacity: 0.9, depthWrite: false, side: THREE.FrontSide }),
-  stepHighlight: new THREE.MeshBasicMaterial({ color: 0xa9d6ff, transparent: true, opacity: 0.92, depthWrite: false, side: THREE.FrontSide }),
+  selected: new THREE.MeshBasicMaterial({ color: 0x2f6bff, transparent: true, opacity: 0.85, depthWrite: false, side: THREE.FrontSide }),
+  stepHighlight: new THREE.MeshBasicMaterial({ color: 0xa9d6ff, transparent: true, opacity: 0.95, depthWrite: false, side: THREE.FrontSide }),
   outline: new THREE.LineBasicMaterial({ color: 0x000000 }),
   damage: new THREE.MeshBasicMaterial({ color: 0xc1121f, depthWrite: false }),
   selectedDamage: new THREE.MeshBasicMaterial({ color: 0x2f6bff, depthWrite: false }),
@@ -55,10 +115,10 @@ function initDom() {
   [
     'object-name','viewer-canvas','viewer','info-box','step-overlay','step-overlay-title','step-overlay-body','step-overlay-meta',
     'axis-list','radar-canvas','intent-summary','tools-available','materials-available','time-budget','budget-limit','skill-level',
-    'safety-level','allowed-ops','avoid-ops','additional-constraints','instruction-input','console-output','step-list','plan-section',
+    'safety-level','allowed-ops','avoid-ops','additional-constraints','instruction-input','console-output',
     'json-modal','json-textarea','example-path','detail-modal','detail-title','detail-grid','spatial-graph-modal','action-graph-canvas',
     'action-graph-viewport','spatial-graph-canvas','spatial-graph-viewport','assembly-file','damages-file','plan-file','photos-file',
-    'intent-modal','constraints-modal'
+    'intent-modal','constraints-modal','step-chat-modal','step-chat-title','step-chat-history','step-chat-input','send-step-chat-btn','close-step-chat-btn'
   ].forEach(id => el[id] = qs(id));
 
   qs('upload-assembly-btn').onclick = () => el['assembly-file'].click();
@@ -93,6 +153,12 @@ function initDom() {
   qs('start-guidance-btn').onclick = startGuidance;
   qs('save-version-btn').onclick = savePlanVersion;
   qs('add-damage-note-btn').onclick = addDamageFromNote;
+  
+  // Chat feature connections
+  qs('step-overlay').onclick = openStepChat;
+  qs('close-step-chat-btn').onclick = () => closeModal(el['step-chat-modal']);
+  qs('send-step-chat-btn').onclick = sendStepChatMessage;
+  el['step-chat-input'].addEventListener('keypress', (e) => { if(e.key === 'Enter') sendStepChatMessage(); });
 
   el['assembly-file'].addEventListener('change', (e) => loadJsonFile(e.target.files[0], 'assembly'));
   el['damages-file'].addEventListener('change', (e) => loadJsonFile(e.target.files[0], 'damages'));
@@ -133,7 +199,7 @@ function init3D() {
   renderer.sortObjects = true;
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(wrap.clientWidth, wrap.clientHeight);
-  controls = new OrbitControls(camera, renderer.domElement);
+  controls = new THREE.OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
   controls.target.set(0,0,0);
   scene.add(new THREE.AmbientLight(0xffffff, 0.9));
@@ -229,7 +295,6 @@ async function loadExampleFromInput() {
 }
 
 function applyWorkspaceJson(data) {
-  // workspace wrapper
   if (data.assembly || data.plan || data.damages || data.intent || data.constraints) {
     state.assembly = data.assembly || state.assembly;
     state.damages = Array.isArray(data.damages) ? data.damages : state.damages;
@@ -448,15 +513,16 @@ function onViewerPointerUp(event) {
   const hit = hitTest(event);
   const moved = !pointerDownPos ? 99 : Math.hypot(event.clientX - pointerDownPos.x, event.clientY - pointerDownPos.y);
   pointerDownPos = null;
-  if (moved > 6) return;
-  if (!hit) { state.ui.selectedPartId = null; state.ui.selectedDamageId = null; apply3DSelection(); return; }
+  if (moved > 6 || !hit) return;
   if (hit.type === 'part') { state.ui.selectedPartId = hit.data.id; state.ui.selectedDamageId = null; openDetailForPart(hit.data.id); }
   else { state.ui.selectedDamageId = hit.data.id; state.ui.selectedPartId = hit.data.part_id; openDetailForDamage(hit.data.id); }
   apply3DSelection();
 }
 
 function apply3DSelection() {
-  partMeshesMap.forEach((mesh, id) => mesh.material = id === state.ui.selectedPartId ? materials.selected : materialForPart(mesh.userData.part.status));
+  partMeshesMap.forEach((mesh, id) => {
+    mesh.material = id === state.ui.selectedPartId ? materials.selected : materialForPart(mesh.userData.part.status);
+  });
   damageSpheres.forEach(s => s.material = s.userData.damage.id === state.ui.selectedDamageId ? materials.selectedDamage : materials.damage);
   highlightCurrentStep();
   refreshInfoBox();
@@ -519,9 +585,18 @@ function hydratePlanVersion(plan, label='Plan') {
     state.currentStepId = start?.step_id || null;
   }
 }
-function savePlanVersion(){ if(!state.plan?.steps?.length) return log('No plan to version yet.'); hydratePlanVersion(state.plan, 'Manual Save'); renderPlan(); log('Plan version saved.'); }
 
-function renderPlan() { renderActionGraph(); renderStepList(); updateStepOverlay(); }
+function savePlanVersion() { 
+  if(!state.plan?.steps?.length) return log('No plan to version yet.'); 
+  hydratePlanVersion(state.plan, 'Manual Save'); 
+  renderPlan(); 
+  log('Plan version saved.'); 
+}
+
+function renderPlan() { 
+  renderActionGraph(); 
+  updateStepOverlay(); 
+}
 
 function renderActionGraph() {
   const steps = state.plan?.steps || [];
@@ -529,34 +604,74 @@ function renderActionGraph() {
     el['action-graph-canvas'].innerHTML = '<div style="padding:16px;color:#666">No plan loaded.</div>';
     return;
   }
+  
   const lines = [
-    'digraph G {',
-    'rankdir=LR;',
-    'graph [pad="0.55", nodesep="0.65", ranksep="0.95", bgcolor="transparent", splines=ortho];',
-    'node [shape=circle, fixedsize=true, width=1.65, height=1.65, style="solid,filled", fillcolor="#ffffff", color="#111111", fontname="Helvetica", fontsize=14, margin="0.08,0.08"];',
+    'digraph G {', 
+    'rankdir=LR;', 
+    'graph [pad="0.5", nodesep="0.6", ranksep="1.0", bgcolor="transparent", splines=true];', 
+    'node [shape=circle, fixedsize=true, width=1.5, height=1.5, style="solid,filled", color="#111111", fontname="Helvetica", fontsize=12, margin="0"];', 
     'edge [color="#111111", arrowsize=0.8, penwidth=1.2];'
   ];
+  
   const incoming = new Map(steps.map(s => [s.step_id, 0]));
-  steps.forEach(step => (step.prerequisites || []).forEach(() => incoming.set(step.step_id, (incoming.get(step.step_id) || 0) + 1)));
+  steps.forEach(step => (step.prerequisites || []).forEach(pre => incoming.set(step.step_id, (incoming.get(step.step_id) || 0) + 1)));
+  
   steps.forEach(step => {
     const active = step.step_id === state.currentStepId;
     const done = !!step.completed;
     const optional = !!step.optional || /optional|parallel/i.test(step.description || '');
-    const per = incoming.get(step.step_id) > 1 || done ? 2 : 1;
-    const displayTitle = step.title || humanizeId(step.step_id);
-    const lbl = escapeDot(oneWordPerLine(displayTitle));
-    const fill = active ? '#cfe8ff' : '#ffffff';
-    const style = optional ? 'dashed,filled' : 'solid,filled';
-    lines.push(`"${step.step_id}" [label="${lbl}", style="${style}", peripheries=${per}, penwidth=${active ? 2.8 : 1.5}, fillcolor="${fill}"];`);
+    
+    const fill = active ? '#a9d6ff' : '#ffffff';
+    const style = `${optional ? 'dashed' : 'solid'},filled${active || done ? ',bold' : ''}`;
+    const per = incoming.get(step.step_id) > 1 ? 2 : 1;
+    
+    const displayTitle = (step.title && !/^\w+$/.test(step.title)) ? step.title : humanizeId(step.step_id);
+    
+    // Safely join with literal backslash-n for DOT language multiline support
+    const lbl = displayTitle.split(/\s+/).map(escapeDot).join('\\n');
+    
+    lines.push(`"${step.step_id}" [label="${lbl}", style="${style}", peripheries=${per}, penwidth=${active ? 3.0 : 1.2}, fillcolor="${fill}"];`);
   });
+  
   steps.forEach(step => (step.prerequisites || []).forEach(pre => lines.push(`"${pre}" -> "${step.step_id}";`)));
   lines.push('}');
-  renderGraphviz(el['action-graph-canvas'], lines.join('
-'), (id) => openDetailForStep(id));
+  
+  renderGraphviz(el['action-graph-canvas'], lines.join('\n'), (id) => selectActionStep(id));
 }
 
-function oneWordPerLine(text) {
-  return String(text || '').trim().split(/\s+/).slice(0, 4).join('\n');
+function renderGraphviz(container, dot, onClick) {
+  return new Promise(resolve => {
+    let viz = graphvizInstances.get(container.id);
+    if (!viz) {
+      container.innerHTML = '';
+      viz = d3.select(container).graphviz({ useWorker: false, zoom: true, fit: true });
+      graphvizInstances.set(container.id, viz);
+    }
+    viz.renderDot(dot).on('end', () => {
+      normalizeGraphSvg(container);
+      attachGraphNodeClicks(container, onClick);
+      resolve();
+    });
+  });
+}
+
+function normalizeGraphSvg(container) {
+  const svg = container.querySelector('svg');
+  if (!svg) return;
+  svg.style.width = '100%';
+  svg.style.height = '100%';
+}
+
+function attachGraphNodeClicks(container, onClick) {
+  // Using pure D3 events to guarantee it binds natively with D3-Graphviz's zoom mechanics.
+  d3.select(container).selectAll('.node')
+    .style('cursor', 'pointer')
+    .on('click', function(event) {
+      event.preventDefault();
+      event.stopPropagation(); // Block D3's internal zoom logic from swallowing the click
+      const title = d3.select(this).select('title').text();
+      if (title && onClick) onClick(title.trim());
+    });
 }
 
 function renderSpatialGraph() {
@@ -569,7 +684,8 @@ function renderSpatialGraph() {
   const lines = ['graph G {', 'layout=neato;', 'overlap=false;', 'splines=true;', 'pad="0.35";', 'nodesep="0.4";', 'bgcolor="transparent";', 'node [shape=box, style="solid", color="#111111", fontname="Helvetica", fontsize=11, margin="0.12,0.08"];', 'edge [color="#444444", penwidth=1.0];'];
   parts.forEach((part, idx) => {
     const fill = part.status === 'missing' ? '#efe7b0' : part.status === 'defective' || part.status === 'damaged' ? '#efc0c0' : part.status === 'new' ? '#efd1ff' : '#ffffff';
-    const label = escapeDot(`${part.id}\n(${part.status || 'intact'})`);
+    // Safely insert literal \n for DOT
+    const label = escapeDot(part.id) + '\\n(' + escapeDot(part.status || 'intact') + ')';
     lines.push(`"part:${part.id}" [label="${label}", shape=box, style="filled", fillcolor="${fill}", pos="${(idx%4)*2},${-Math.floor(idx/4)*1.4}!" ];`);
   });
   const seen = new Set();
@@ -591,78 +707,112 @@ function renderSpatialGraph() {
   });
 }
 
-function renderGraphviz(container, dot, onClick) {
-  container.innerHTML = '';
-  const selection = d3.select(container).graphviz({ useWorker: false, zoom: true, fit: false });
-  selection.renderDot(dot);
-  return new Promise(resolve => {
-    selection.on('end', () => {
-      normalizeGraphSvg(container);
-      attachGraphNodeClicks(container, onClick);
-      resolve();
-    });
-  });
-}
-
-function normalizeGraphSvg(container) {
-  const svg = container.querySelector('svg');
-  if (!svg) return;
-  svg.removeAttribute('width'); svg.removeAttribute('height');
-  const vb = svg.getAttribute('viewBox');
-  if (vb) {
-    const parts = vb.split(/\s+/).map(Number);
-    if (parts.length === 4) {
-      svg.style.width = `${parts[2] + 40}px`;
-      svg.style.height = `${parts[3] + 40}px`;
-    }
-  }
-}
-
-function attachGraphNodeClicks(container, onClick) {
-  container.querySelectorAll('.node').forEach(node => {
-    const title = node.querySelector('title')?.textContent;
-    if (!title) return;
-    node.dataset.nodeId = title;
-    node.style.cursor = 'pointer';
-    node.querySelectorAll('*').forEach(child => child.style.pointerEvents = 'none');
-    node.onclick = () => { if (onClick) onClick(title); };
-  });
-}
-
-function renderStepList() {
-  const wrap = el['step-list']; wrap.innerHTML = '';
-  if (state.planVersions.length) {
-    const v = state.planVersions[state.planVersions.length - 1];
-    const head = document.createElement('div'); head.className = 'step-card';
-    head.innerHTML = `<div class="step-title">Current version</div><div class="step-meta">${escapeHtml(v.id)} • ${escapeHtml(v.label)}</div>`;
-    wrap.appendChild(head);
-  }
-  (state.plan?.steps || []).forEach(step => {
-    const card = document.createElement('div');
-    card.className = `step-card ${step.step_id === state.currentStepId ? 'active' : ''} ${step.completed ? 'done' : ''}`;
-    card.innerHTML = `<div class="step-title">${escapeHtml(step.title || step.step_id)}</div><div class="step-meta">Tools: ${escapeHtml((step.tools_required || []).join(', ') || '-')}</div><div class="step-meta">Prerequisites: ${escapeHtml((step.prerequisites || []).join(', ') || 'none')}</div><div class="step-meta">Parts: ${escapeHtml((step.affected_parts || []).join(', ') || '-')}</div>`;
-    card.onclick = () => { state.currentStepId = step.step_id; updateStepOverlay(); highlightCurrentStep(); renderStepList(); renderActionGraph(); };
-    wrap.appendChild(card);
-  });
-}
-
 function currentStep() { return (state.plan?.steps || []).find(s => s.step_id === state.currentStepId) || null; }
+
 function updateStepOverlay() {
   const step = currentStep();
-  if (!step) { el['step-overlay'].style.display = 'none'; return; }
+  if (!step || !state.guidanceActive) { el['step-overlay'].style.display = 'none'; return; }
   el['step-overlay'].style.display = 'block';
   el['step-overlay-title'].textContent = step.title || step.step_id;
   el['step-overlay-body'].textContent = step.description || '';
   el['step-overlay-meta'].textContent = `Tools: ${(step.tools_required || []).join(', ') || '-'} • Prerequisites: ${(step.prerequisites || []).join(', ') || '-'}`;
 }
+
 function highlightCurrentStep() {
-  partMeshesMap.forEach((mesh,id) => mesh.material = id === state.ui.selectedPartId ? materials.selected : materialForPart(mesh.userData.part.status));
+  // Reset all intact parts back to normal, but respect user manual selection if any
+  partMeshesMap.forEach((mesh, id) => {
+    mesh.material = id === state.ui.selectedPartId ? materials.selected : materialForPart(mesh.userData.part.status);
+  });
+  
   damageSpheres.forEach(s => s.material = s.userData.damage.id === state.ui.selectedDamageId ? materials.selectedDamage : materials.damage);
-  const step = currentStep(); if (!step) return;
-  (step.affected_parts || []).forEach(id => { const mesh = partMeshesMap.get(id); if (mesh && id !== state.ui.selectedPartId) mesh.material = materials.stepHighlight; });
-  (step.affected_damages || []).forEach(id => { const sphere = damageSpheres.find(s => s.userData.damage?.id === id); if (sphere) sphere.material = materials.selectedDamage; });
+  
+  const step = currentStep(); 
+  if (!step) return;
+  
+  // Specifically override with step highlighting for affected parts
+  (step.affected_parts || []).forEach(id => { 
+    const mesh = partMeshesMap.get(id); 
+    if (mesh) mesh.material = materials.stepHighlight; 
+  });
+  
+  (step.affected_damages || []).forEach(id => { 
+    const sphere = damageSpheres.find(s => s.userData.damage?.id === id); 
+    if (sphere) sphere.material = materials.selectedDamage; 
+  });
 }
-function startGuidance() { if (!state.plan?.steps?.length) return log('Generate a plan first.'); state.guidanceActive = true; if (!state.currentStepId) state.currentStepId = (state.plan.steps.find(s => !s.prerequisites?.length) || state.plan.steps[0]).step_id; updateStepOverlay(); highlightCurrentStep(); renderStepList(); renderActionGraph(); log('Guidance started.'); }
+
+function selectActionStep(stepId) {
+  state.currentStepId = stepId;
+  state.guidanceActive = true;
+  updateStepOverlay();
+  highlightCurrentStep();
+  renderActionGraph(); // Re-render Graph to transition the selected node color seamlessly
+}
+
+function startGuidance() { 
+  if (!state.plan?.steps?.length) return log('Generate a plan first.'); 
+  state.guidanceActive = true; 
+  if (!state.currentStepId) state.currentStepId = (state.plan.steps.find(s => !s.prerequisites?.length) || state.plan.steps[0]).step_id; 
+  updateStepOverlay(); 
+  highlightCurrentStep(); 
+  renderActionGraph(); 
+  log('Guidance started.'); 
+}
+
+// ----------------------------------------------------
+// Chat Modal Logic
+// ----------------------------------------------------
+
+function openStepChat() {
+  const step = currentStep();
+  if (!step) return;
+  el['step-chat-title'].textContent = `Discuss: ${step.title}`;
+  el['step-chat-history'].innerHTML = `<div class="chat-system">Ask anything about "${step.title}"</div>`;
+  el['step-chat-input'].value = '';
+  openModal(el['step-chat-modal']);
+}
+
+async function sendStepChatMessage() {
+  const input = el['step-chat-input'];
+  const text = input.value.trim();
+  if (!text) return;
+  
+  const history = el['step-chat-history'];
+  
+  // Append user message
+  history.innerHTML += `<div class="chat-bubble chat-user">${escapeHtml(text)}</div>`;
+  input.value = '';
+  history.scrollTop = history.scrollHeight;
+
+  // Append thinking placeholder
+  const loadingId = 'msg_' + Date.now();
+  history.innerHTML += `<div id="${loadingId}" class="chat-bubble chat-llm" style="font-style:italic;">Thinking...</div>`;
+  history.scrollTop = history.scrollHeight;
+
+  try {
+    const res = await fetch('./api/chat.js', postJson({ 
+      prompt: text, 
+      stepContext: currentStep(),
+      modelJson: state.assembly 
+    }));
+    
+    let reply = "Could not get a valid response.";
+    if (res.ok) {
+       const parsed = unwrapGeminiJson(await res.json());
+       reply = parsed.reply || parsed;
+    } else {
+       reply = "I am a placeholder interface. To connect this chat to your real LLM, point the frontend fetch call in `sendStepChatMessage` to your actual `/api/chat.js` endpoint.";
+    }
+    
+    qs(loadingId).remove();
+    history.innerHTML += `<div class="chat-bubble chat-llm">${escapeHtml(reply)}</div>`;
+  } catch (err) {
+    qs(loadingId).remove();
+    history.innerHTML += `<div class="chat-bubble chat-llm" style="background:#f8d7da;">Error: ${err.message}</div>`;
+  }
+  history.scrollTop = history.scrollHeight;
+}
+
 
 async function addDamageFromNote() {
   const note = el['instruction-input'].value.trim(); if (!note) return log('Add a note in the instruction field first.');
@@ -672,16 +822,6 @@ async function addDamageFromNote() {
   createDamages(); renderSpatialGraph(); log('Damage note added as a provisional issue.');
 }
 
-function openDetailForStep(stepId) {
-  const step = (state.plan?.steps || []).find(s => s.step_id === stepId);
-  if (!step) return;
-  state.currentStepId = stepId;
-  state.guidanceActive = true;
-  updateStepOverlay();
-  highlightCurrentStep();
-  renderStepList();
-  renderActionGraph();
-}
 function openDetailForPart(partId) {
   const part = (state.assembly.parts || []).find(p => p.id === partId); if (!part) return;
   state.ui.selectedPartId = partId; state.ui.selectedDamageId = null; apply3DSelection();
@@ -705,17 +845,19 @@ function unwrapGeminiJson(response) {
   try { return JSON.parse(text); } catch { const match = String(text).match(/\{[\s\S]*\}|\[[\s\S]*\]/); if (!match) throw new Error('Could not parse JSON from model response'); return JSON.parse(match[0]); }
 }
 function escapeHtml(str) { return String(str ?? '').replace(/[&<>"']/g, ch => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[ch])); }
-function escapeDot(str) { return String(str ?? '').replace(/\\/g, '\\\\').replace(/"/g, '\\"'); }
-function multilineLabel(text, maxChars=16) {
-  const words = String(text || '').split(/\s+/); let lines=[''];
-  words.forEach(word => { const current = lines[lines.length - 1]; if ((current + ' ' + word).trim().length > maxChars && current) lines.push(word); else lines[lines.length - 1] = (current + ' ' + word).trim(); });
-  return lines.join('\\n');
+
+function escapeDot(str) { 
+  return String(str ?? '')
+    .replace(/\\/g, '\\\\')
+    .replace(/"/g, '\\"')
+    .replace(/\n/g, '\\n'); 
 }
 
 initDom();
 init3D();
+hydratePlanVersionIfNeeded();
 syncUiFromState();
 renderSpatialGraph();
 animate();
 
-function humanizeId(id) { return String(id || '').replace(/_/g, ' ').replace(/([a-z])([A-Z])/g, '$1 $2').replace(/\w/g, c => c.toUpperCase()); }
+function humanizeId(id) { return String(id || '').replace(/_/g, ' ').replace(/([a-z])([A-Z])/g, '$1 $2').replace(/ \w/g, c => c.toUpperCase()); }
