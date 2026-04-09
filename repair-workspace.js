@@ -1,11 +1,15 @@
 const DEFAULT_AXES = [
-  ['Material Authenticity', 0.45],
-  ['Structural Performance', 0.8],
-  ['Economic Viability', 0.6],
-  ['Cultural Continuity and Craft', 0.45],
-  ['Ecological Sustainability', 0.5],
-  ['Aesthetic Intervention', 0.35],
+  ['Material Authenticity', 0], // Placeholder value, will be randomized
+  ['Structural Performance', 0], // Placeholder value, will be randomized
+  ['Economic Viability', 0], // Placeholder value, will be randomized
+  ['Cultural Continuity and Craft', 0], // Placeholder value, will be randomized
+  ['Ecological Sustainability', 0], // Placeholder value, will be randomized
+  ['Aesthetic Intervention', 0], // Placeholder value, will be randomized
 ];
+
+function randomFloat(min, max) {
+  return Math.random() * (max - min) + min;
+}
 
 const state = {
   objectName: 'old_wooden_door',
@@ -44,9 +48,12 @@ const state = {
   currentStepId: null,
   guidanceActive: false,
   photos: [],
-  intent: { 
-    axes: DEFAULT_AXES.map(([label, value], i) => ({ id: `axis_${i+1}`, label, value })), 
-    summary: 'Balanced repair with moderate emphasis on structural performance and reasonable reversibility.' 
+  intent: {
+    axes: DEFAULT_AXES.map(([label, _], i) => {
+      const randomValue = randomFloat(0.1, 0.9); // Range of 0.1 to 0.9 to avoid extremes
+      return { id: `axis_${i+1}`, label, value: randomValue };
+    }),
+    summary: '' // Empty intent summary
   },
   constraints: { 
     tools_available: '', materials_available: '', time_budget_minutes: 60, budget_limit: '', 
