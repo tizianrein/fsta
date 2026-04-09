@@ -164,7 +164,7 @@ function init3D() {
   scene.add(objectGroup);
   const wrap = el['viewer'];
   camera = new THREE.PerspectiveCamera(18, wrap.clientWidth / wrap.clientHeight, 0.01, 1000);
-  camera.position.set(1.5, 1.2, 1.5);
+  camera.position.set(-1.5, 1.2, -1.5);
   renderer = new THREE.WebGLRenderer({ canvas: el['viewer-canvas'], antialias: true, alpha: true });
   renderer.autoClear = false;
   renderer.sortObjects = true;
@@ -403,7 +403,10 @@ function frameObject() {
   const maxDim = Math.max(size.x, size.y, size.z, 0.5);
   const fov = camera.fov * Math.PI / 180;
   let distance = maxDim / (2 * Math.tan(fov / 2)); distance *= 1.9;
-  const dir = new THREE.Vector3(1, 0.85, 1).normalize();
+  
+  // CHANGED: Inverted X and Z from (1, 0.85, 1) to (-1, 0.85, -1) to look from the back
+  const dir = new THREE.Vector3(-1, 0.85, -1).normalize(); 
+  
   camera.position.copy(dir.multiplyScalar(distance).add(center));
   controls.target.copy(center); controls.update();
 }
