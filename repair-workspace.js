@@ -34,8 +34,7 @@ const state = {
     { id: "damage_06", type: "Paint Damage", description: "Extensive chipping and peeling of the white paint finish on the lower panel.", part_id: "lower_panel", coordinates: { x: 0, y: 0.55, z: 0 } },
     { id: "damage_07", type: "Paint Damage", description: "Extensive chipping and peeling of the white paint finish on the decorative trim.", part_id: "decorative_trim", coordinates: { x: 0, y: 0.94, z: -0.02 } },
     { id: "damage_08", type: "Material Degradation", description: "The decorative trim shows signs of wood degradation and possible rotting in addition to paint chipping.", part_id: "decorative_trim", coordinates: { x: 0, y: 0.94, z: -0.02 } },
-    { id: "damage_09", type: "Missing Part", description: "The lower glass pane is missing, leaving an empty opening in the door frame. User reported it broke.", part_id: "lower_glass_pane", coordinates: { x: 0, y: 1.18, z: 0 } },
-    { id: "damage_10", type: "Paint Damage", description: "Chipped and weathered paint finish on the muntin bar.", part_id: "muntin_bar", coordinates: { x: 0, y: 1.475, z: 0 } }
+    { id: "damage_09", type: "Paint Damage", description: "Chipped and weathered paint finish on the muntin bar.", part_id: "muntin_bar", coordinates: { x: 0, y: 1.475, z: 0 } }
   ],
   plan: { 
     steps: [] // Emptied so the Action Graph says "No plan loaded" by default
@@ -485,9 +484,29 @@ function onViewerPointerUp(event) {
   const hit = hitTest(event);
   const moved = !pointerDownPos ? 99 : Math.hypot(event.clientX - pointerDownPos.x, event.clientY - pointerDownPos.y);
   pointerDownPos = null;
-  if (moved > 6 || !hit) return;
-  if (hit.type === 'part') { state.ui.selectedPartId = hit.data.id; state.ui.selectedDamageId = null; openDetailForPart(hit.data.id); }
-  else { state.ui.selectedDamageId = hit.data.id; state.ui.selectedPartId = hit.data.part_id; openDetailForDamage(hit.data.id); }
+  
+  // If the user was dragging to rotate the camera, ignore the click
+  if (moved > 6) return; 
+  
+  // If the user clicked the empty background, clear the selection
+  if (!hit) {
+    state.ui.selectedPartId = null;
+    state.ui.selectedDamageId = null;
+    apply3DSelection();
+    return;
+  }
+  
+  // If a part or damage was clicked, select it
+  if (hit.type === 'part') { 
+    state.ui.selectedPartId = hit.data.id; 
+    state.ui.selectedDamageId = null; 
+    openDetailForPart(hit.data.id); 
+  } else { 
+    state.ui.selectedDamageId = hit.data.id; 
+    state.ui.selectedPartId = hit.data.part_id; 
+    openDetailForDamage(hit.data.id); 
+  }
+  
   apply3DSelection();
 }
 
