@@ -549,8 +549,45 @@ function onRadarPointerDown(event){ draggingRadar=true; const hit=radarHit(event
 function onRadarPointerMove(event){ if(!draggingRadar) return; const hit=radarHit(event); state.intent.axes[hit.idx].value=hit.value; syncIntentUi(); }
 
 async function suggestIntent(){
-  const prompt = el['instruction-input'].value.trim() || state.intent.summary || 'Suggest a balanced repair intent';
-  try { log('Generating intent suggestion...'); const res = await fetch('./api/repair-intent-helper.js', postJson({ prompt, currentIntent: state.intent, constraints: state.constraints })); const parsed = unwrapGeminiJson(await res.json()); if(parsed.axes?.length) state.intent.axes = parsed.axes.map((a,i)=>({ id:a.id || `axis_${i+1}`, label:a.label, value:Number(a.value) })); if(parsed.summary) state.intent.summary = parsed.summary; syncIntentUi(); log('Intent suggestion applied.'); } catch(err){ log(`Intent suggestion failed: ${err.message}`); }
+  // Determine the prompt, defaulting to interpreting the sliders
+  const prompt = el['instruction-input'].value.trim() || 'Interpret my current slider values and generate a creative strategy.';
+  
+  // Show the loading state to the user visually before making the API call
+  el['intent-summary'].value = "Intent is summarized for you...\n\n(Waiting for AI...)";
+  
+  try { 
+    log('Generating intent suggestion...'); 
+    
+    const res = await fetch('./api/repair-intent-helper.js', postJson({ 
+      prompt, 
+      currentIntent: state.intent, 
+      constraints: state.constraints 
+    })); 
+    
+    const parsed = unwrapGeminiJson(await res.json()); 
+    
+    // Apply new axes values if returned
+    if (parsed.axes?.length) {
+      state.intent.axes = parsed.axes.map((a, i) => ({ 
+        id: a.id || `axis_${i+1}`, 
+        label: a.label, 
+        value: Number(a.value) 
+      })); 
+    }
+    
+    // Apply the new summary text
+    if (parsed.summary) {
+      state.intent.summary = parsed.summary; 
+    }
+    
+    // This function automatically updates the UI text box with the new state
+    syncIntentUi(); 
+    log('Intent suggestion applied.'); 
+    
+  } catch (err) { 
+    log(`Intent suggestion failed: ${err.message}`); 
+    el['intent-summary'].value = `Error generating intent: ${err.message}`;
+  }
 }
 
 function collectConstraintsFromUi(){ state.objectName = el['object-name'].value.trim(); state.intent.summary = el['intent-summary'].value; return { tools_available:qs('tools-available').value, materials_available:qs('materials-available').value, time_budget_minutes:Number(qs('time-budget').value || 0), budget_limit:qs('budget-limit').value, skill_level:qs('skill-level').value, safety_level:qs('safety-level').value, allowed_operations:qs('allowed-ops').value, avoid_operations:qs('avoid-ops').value, additional_constraints:qs('additional-constraints').value }; }
