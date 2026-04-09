@@ -402,10 +402,10 @@ function frameObject() {
   const size = box.getSize(new THREE.Vector3());
   const maxDim = Math.max(size.x, size.y, size.z, 0.5);
   const fov = camera.fov * Math.PI / 180;
-  let distance = maxDim / (2 * Math.tan(fov / 2)); distance *= 1.9;
+  let distance = maxDim / (2 * Math.tan(fov / 1.2)); distance *= 1.9;
   
   // CHANGED: Inverted X and Z from (1, 0.85, 1) to (-1, 0.85, -1) to look from the back
-  const dir = new THREE.Vector3(-1, 0.85, -1).normalize(); 
+  const dir = new THREE.Vector3(-1, 0.5, -1).normalize(); 
   
   camera.position.copy(dir.multiplyScalar(distance).add(center));
   controls.target.copy(center); controls.update();
