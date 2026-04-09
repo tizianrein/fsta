@@ -654,12 +654,19 @@ function normalizeGraphSvg(container) {
 }
 
 function attachGraphNodeClicks(container, onClick) {
-  // Using pure D3 events to guarantee it binds natively with D3-Graphviz's zoom mechanics.
+  // 1. Listen for clicks on the background SVG to deselect
+  d3.select(container).select('svg').on('click', function(event) {
+    if (container.id === 'action-graph-canvas') {
+      deselectActionStep();
+    }
+  });
+
+  // 2. Listen for clicks on the specific nodes
   d3.select(container).selectAll('.node')
     .style('cursor', 'pointer')
     .on('click', function(event) {
       event.preventDefault();
-      event.stopPropagation(); // Block D3's internal zoom logic from swallowing the click
+      event.stopPropagation(); // Block the click from reaching the background SVG listener above
       const title = d3.select(this).select('title').text();
       if (title && onClick) onClick(title.trim());
     });
@@ -738,6 +745,15 @@ function selectActionStep(stepId) {
   updateStepOverlay();
   highlightCurrentStep();
   renderActionGraph(); // Re-render Graph to transition the selected node color seamlessly
+}
+
+function deselectActionStep() {
+  if (!state.currentStepId) return; // Already deselected
+  state.currentStepId = null;
+  state.guidanceActive = false;
+  updateStepOverlay();
+  highlightCurrentStep();
+  renderActionGraph(); // Re-render to clear the node highlights
 }
 
 function startGuidance() { 
