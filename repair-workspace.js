@@ -689,26 +689,46 @@ function renderSpatialGraph() {
     el['spatial-graph-canvas'].innerHTML = '<div style="padding:16px;color:#666">No assembly loaded.</div>';
     return;
   }
-  const lines = ['graph G {', 'layout=neato;', 'overlap=false;', 'splines=true;', 'pad="0.35";', 'nodesep="0.4";', 'bgcolor="transparent";', 'node [shape=box, style="solid", color="#111111", fontname="Helvetica", fontsize=11, margin="0.12,0.08"];', 'edge [color="#444444", penwidth=1.0];'];
-  parts.forEach((part, idx) => {
+  
+  // Changed layout to 'fdp' (better for undirected network graphs) 
+  // and increased node separation to give nodes room to breathe.
+  const lines = [
+    'graph G {', 
+    'layout=fdp;', 
+    'overlap=false;', 
+    'splines=true;', 
+    'pad="1.5";', 
+    'nodesep="1.5";', 
+    'bgcolor="transparent";', 
+    'node [shape=box, style="solid", color="#111111", fontname="Helvetica", fontsize=11, margin="0.15,0.1"];', 
+    'edge [color="#444444", penwidth=1.0];'
+  ];
+  
+  parts.forEach((part) => {
     const fill = part.status === 'missing' ? '#efe7b0' : part.status === 'defective' || part.status === 'damaged' ? '#efc0c0' : part.status === 'new' ? '#efd1ff' : '#ffffff';
-    // Safely insert literal \n for DOT
     const label = escapeDot(part.id) + '\\n(' + escapeDot(part.status || 'intact') + ')';
-    lines.push(`"part:${part.id}" [label="${label}", shape=box, style="filled", fillcolor="${fill}", pos="${(idx%4)*2},${-Math.floor(idx/4)*1.4}!" ];`);
+    // Removed the hardcoded pos="..."! attribute to let the engine auto-layout
+    lines.push(`"part:${part.id}" [label="${label}", shape=box, style="filled", fillcolor="${fill}"];`);
   });
+  
   const seen = new Set();
   parts.forEach(part => (part.connections || []).forEach(conn => {
     const key = [part.id, conn].sort().join('|'); if (seen.has(key)) return; seen.add(key);
     lines.push(`"part:${part.id}" -- "part:${conn}";`);
   }));
-  damages.forEach((dmg, idx) => {
-    const label = escapeDot((dmg.type || 'damage').toLowerCase());
-    const targetIdx = Math.max(parts.findIndex(p => p.id === dmg.part_id), 0);
-    const x = (targetIdx%4)*2 - 1.2; const y = -Math.floor(targetIdx/4)*1.4 + 0.8 + (idx%3)*0.6;
-    lines.push(`"damage:${dmg.id}" [label="${label}", shape=circle, style="filled", fillcolor="#e99292", pos="${x},${y}!" ];`);
+  
+  damages.forEach((dmg) => {
+    // Replace spaces with newlines so long texts like "Material Degradation" wrap nicely inside the circle
+    const rawLabel = (dmg.type || 'damage').toLowerCase();
+    const label = escapeDot(rawLabel).replace(/ /g, '\\n');
+    
+    // Added fixedsize=true, width, and height to force uniform circles
+    lines.push(`"damage:${dmg.id}" [label="${label}", shape=circle, fixedsize=true, width=1.1, height=1.1, style="filled", fillcolor="#e99292"];`);
     lines.push(`"damage:${dmg.id}" -- "part:${dmg.part_id}";`);
   });
+  
   lines.push('}');
+  
   renderGraphviz(el['spatial-graph-canvas'], lines.join('\n'), (id) => {
     if (id.startsWith('part:')) openDetailForPart(id.slice(5));
     else if (id.startsWith('damage:')) openDetailForDamage(id.slice(7));
